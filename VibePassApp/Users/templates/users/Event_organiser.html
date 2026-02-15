@@ -1,0 +1,2312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VibePass - Organizer Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
+      rel="stylesheet" 
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" 
+      crossorigin="anonymous"
+    >
+    <script 
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      /* Brand Colors */
+      :root {
+        --vibe-primary: #6c4bdd;
+        --vibe-secondary: #00d4aa;
+        --vibe-dark: #1a1a2e;
+        --vibe-light: #f8f9ff;
+        --vibe-accent: #ff6b9d;
+        --vibe-text: #333333;
+        --vibe-text-light: #777777;
+        --vibe-card-bg: #ffffff;
+        --vibe-card-shadow: rgba(108, 75, 221, 0.08);
+        --vibe-success: #00c853;
+        --vibe-warning: #ff9800;
+        --vibe-danger: #ff4d4d;
+        --vibe-info: #2196f3;
+      }
+
+      /* Reset & Base Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--vibe-light);
+        color: var(--vibe-text);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 clamp(12px, 3vw, 20px);
+      }
+
+      /* Header */
+      .header {
+        background-color: var(--vibe-dark);
+        padding: clamp(15px, 3vw, 20px) 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: clamp(1.3rem, 4vw, 1.8rem);
+      }
+
+      .logo-icon {
+        color: var(--vibe-secondary);
+        background: var(--vibe-primary);
+        width: clamp(35px, 8vw, 45px);
+        height: clamp(35px, 8vw, 45px);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(-10deg);
+        flex-shrink: 0;
+      }
+
+      .organizer-menu {
+        display: flex;
+        align-items: center;
+        gap: clamp(15px, 3vw, 25px);
+        flex-wrap: wrap;
+      }
+
+      .organizer-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: white;
+      }
+
+      .organizer-avatar {
+        width: clamp(40px, 8vw, 48px);
+        height: clamp(40px, 8vw, 48px);
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-accent)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: clamp(1rem, 3vw, 1.2rem);
+        border: 3px solid var(--vibe-secondary);
+        flex-shrink: 0;
+      }
+
+      .organizer-name {
+        font-weight: 600;
+        font-size: clamp(0.9rem, 3vw, 1.1rem);
+      }
+
+      .organizer-badge {
+        background: var(--vibe-secondary);
+        color: var(--vibe-dark);
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: clamp(0.7rem, 2vw, 0.8rem);
+        font-weight: 600;
+        margin-top: 2px;
+      }
+
+      .create-event-btn {
+        background: var(--vibe-accent);
+        color: white;
+        border: none;
+        padding: clamp(10px, 2vw, 12px) clamp(15px, 3vw, 24px);
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: clamp(0.85rem, 2.5vw, 1rem);
+        white-space: nowrap;
+      }
+
+      .create-event-btn:hover {
+        background: #ff5590;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+      }
+
+      /* Mobile Menu Toggle */
+      .mobile-menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      /* Dashboard Layout */
+      .dashboard {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+        padding: clamp(20px, 4vw, 30px) 0;
+        min-height: calc(100vh - 100px);
+      }
+
+      /* Sidebar */
+      .sidebar {
+        background-color: var(--vibe-card-bg);
+        border-radius: 20px;
+        padding: clamp(20px, 4vw, 30px);
+        box-shadow: 0 8px 30px var(--vibe-card-shadow);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+        transition: transform 0.3s ease;
+      }
+
+      .nav-section {
+        margin-bottom: 30px;
+      }
+
+      .section-title {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--vibe-text-light);
+        margin-bottom: 12px;
+        font-weight: 600;
+      }
+
+      .nav-links {
+        list-style: none;
+      }
+
+      .nav-links li {
+        margin-bottom: 8px;
+      }
+
+      .nav-links a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 15px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--vibe-text);
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+      }
+
+      .nav-links a:hover {
+        background-color: rgba(108, 75, 221, 0.08);
+        color: var(--vibe-primary);
+      }
+
+      .nav-links a.active {
+        background-color: var(--vibe-primary);
+        color: white;
+      }
+
+      .nav-icon {
+        width: 22px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .badge {
+        background: var(--vibe-secondary);
+        color: var(--vibe-dark);
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+
+      .quick-stats {
+        background: linear-gradient(
+          135deg,
+          var(--vibe-dark),
+          var(--vibe-primary)
+        );
+        color: white;
+        padding: 20px;
+        border-radius: 15px;
+        margin-top: 25px;
+      }
+
+      .stats-title {
+        font-size: 1rem;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.9rem;
+      }
+
+      .stat-item:last-child {
+        border-bottom: none;
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+      }
+
+      .stat-value {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      /* Main Content */
+      .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+      }
+
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 5px;
+      }
+
+      .welcome-message h1 {
+        font-size: clamp(1.5rem, 5vw, 2.2rem);
+        color: var(--vibe-dark);
+        margin-bottom: 5px;
+        line-height: 1.3;
+      }
+
+      .welcome-message p {
+        color: var(--vibe-text-light);
+        font-size: clamp(0.95rem, 3vw, 1.1rem);
+      }
+
+      .date-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: var(--vibe-card-bg);
+        border-radius: 10px;
+        box-shadow: 0 4px 15px var(--vibe-card-shadow);
+        font-weight: 600;
+        color: var(--vibe-primary);
+        font-size: clamp(0.85rem, 2vw, 1rem);
+        flex-shrink: 0;
+      }
+
+      /* Analytics Cards */
+      .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .analytics-card {
+        background: var(--vibe-card-bg);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 20px var(--vibe-card-shadow);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: transform 0.3s;
+      }
+
+      .analytics-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .analytics-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .icon-revenue {
+        background: linear-gradient(135deg, var(--vibe-success), #00e676);
+      }
+
+      .icon-tickets {
+        background: linear-gradient(135deg, var(--vibe-info), #42a5f5);
+      }
+
+      .icon-events {
+        background: linear-gradient(135deg, var(--vibe-primary), #7e57c2);
+      }
+
+      .icon-attendees {
+        background: linear-gradient(135deg, var(--vibe-accent), #ff8a80);
+      }
+
+      .analytics-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .analytics-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--vibe-dark);
+        line-height: 1;
+        margin-bottom: 5px;
+        word-break: break-all;
+      }
+
+      .analytics-label {
+        font-size: 0.85rem;
+        color: var(--vibe-text-light);
+      }
+
+      .analytics-change {
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 3px;
+      }
+
+      .positive {
+        color: var(--vibe-success);
+      }
+
+      .negative {
+        color: var(--vibe-danger);
+      }
+
+      /* Dashboard Sections */
+      .dashboard-section {
+        background-color: var(--vibe-card-bg);
+        border-radius: 15px;
+        padding: clamp(20px, 4vw, 30px);
+        box-shadow: 0 8px 30px var(--vibe-card-shadow);
+        overflow-x: auto;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .section-header h2 {
+        font-size: clamp(1.2rem, 4vw, 1.5rem);
+        color: var(--vibe-dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .view-all {
+        color: var(--vibe-primary);
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: gap 0.3s;
+        font-size: 0.9rem;
+        white-space: nowrap;
+      }
+
+      .view-all:hover {
+        gap: 10px;
+      }
+
+      /* Tab Navigation */
+      .tab-navigation {
+        display: flex;
+        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .tab-navigation::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab-btn {
+        padding: 10px 16px;
+        background: none;
+        border: none;
+        font-weight: 600;
+        color: var(--vibe-text-light);
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .tab-btn:hover {
+        color: var(--vibe-primary);
+      }
+
+      .tab-btn.active {
+        color: var(--vibe-primary);
+      }
+
+      .tab-btn.active::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--vibe-primary);
+        border-radius: 3px 3px 0 0;
+      }
+
+      /* Events Table */
+      .events-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+      }
+
+      .events-table th {
+        text-align: left;
+        padding: 12px 10px;
+        border-bottom: 2px solid #f0f0f0;
+        color: var(--vibe-text-light);
+        font-weight: 600;
+        font-size: 0.85rem;
+        white-space: nowrap;
+      }
+
+      .events-table td {
+        padding: 15px 10px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.9rem;
+      }
+
+      .event-row:hover {
+        background-color: rgba(108, 75, 221, 0.03);
+      }
+
+      .event-title {
+        font-weight: 600;
+        color: var(--vibe-dark);
+        margin-bottom: 4px;
+        font-size: 0.95rem;
+      }
+
+      .event-details {
+        font-size: 0.85rem;
+        color: var(--vibe-text-light);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .event-date,
+      .event-venue,
+      .event-tickets {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-shrink: 0;
+      }
+
+      .event-status {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .status-upcoming {
+        background: rgba(0, 212, 170, 0.1);
+        color: var(--vibe-secondary);
+      }
+
+      .status-draft {
+        background: rgba(255, 152, 0, 0.1);
+        color: var(--vibe-warning);
+      }
+
+      .status-ended {
+        background: rgba(255, 77, 77, 0.1);
+        color: var(--vibe-danger);
+      }
+
+      .event-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+
+      .btn-primary {
+        background-color: var(--vibe-primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: #5a3bc5;
+      }
+
+      .btn-secondary {
+        background-color: transparent;
+        color: var(--vibe-primary);
+        border: 2px solid var(--vibe-primary);
+      }
+
+      .btn-secondary:hover {
+        background-color: rgba(108, 75, 221, 0.08);
+      }
+
+      .btn-danger {
+        background-color: transparent;
+        color: var(--vibe-danger);
+        border: 2px solid var(--vibe-danger);
+      }
+
+      .btn-danger:hover {
+        background-color: rgba(255, 77, 77, 0.08);
+      }
+
+      .btn-small {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+
+      /* Create Event Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+      }
+
+      .modal-content {
+        background-color: white;
+        padding: clamp(20px, 4vw, 40px);
+        border-radius: 15px;
+        width: 100%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        position: relative;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        color: var(--vibe-text-light);
+        cursor: pointer;
+        transition: color 0.3s;
+        z-index: 1;
+      }
+
+      .modal-close:hover {
+        color: var(--vibe-primary);
+      }
+
+      .modal-title {
+        font-size: clamp(1.3rem, 4vw, 1.8rem);
+        color: var(--vibe-dark);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* Form Styles */
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: var(--vibe-dark);
+        font-size: 0.9rem;
+      }
+
+      .form-input,
+      .form-textarea,
+      .form-select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e1e5f1;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        background-color: #f8f9ff;
+      }
+
+      .form-input:focus,
+      .form-textarea:focus,
+      .form-select:focus {
+        outline: none;
+        border-color: var(--vibe-primary);
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(108, 75, 221, 0.1);
+      }
+
+      .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .ticket-options {
+        background: var(--vibe-light);
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+      }
+
+      .ticket-option {
+        display: grid;
+        grid-template-columns: 1fr auto auto auto;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 12px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e1e5f1;
+      }
+
+      .ticket-option:last-child {
+        margin-bottom: 0;
+      }
+
+      .add-ticket-btn {
+        background: transparent;
+        border: 2px dashed var(--vibe-primary);
+        color: var(--vibe-primary);
+        padding: 10px 15px;
+        border-radius: 8px;
+        width: 100%;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+      }
+
+      .add-ticket-btn:hover {
+        background: rgba(108, 75, 221, 0.08);
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 40px 15px;
+        color: var(--vibe-text-light);
+      }
+
+      .empty-icon {
+        font-size: 2.5rem;
+        color: #e1e5f1;
+        margin-bottom: 15px;
+      }
+
+      .empty-state h3 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+        color: var(--vibe-text);
+      }
+
+      /* Footer */
+      .footer {
+        background-color: var(--vibe-dark);
+        color: white;
+        padding: 25px 0;
+        margin-top: 40px;
+      }
+
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: white;
+        text-decoration: none;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+        font-size: 0.9rem;
+      }
+
+      .footer-links a:hover {
+        opacity: 1;
+      }
+
+      /* Responsive Styles */
+      @media (max-width: 1200px) {
+        .dashboard {
+          grid-template-columns: 250px 1fr;
+          gap: 20px;
+        }
+
+        .analytics-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .ticket-option {
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+      }
+
+      @media (max-width: 992px) {
+        .dashboard {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+          order: 2;
+          display: none;
+        }
+
+        .sidebar.active {
+          display: block;
+        }
+
+        .main-content {
+          order: 1;
+        }
+
+        .mobile-menu-toggle {
+          display: block;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .analytics-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header-container {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .organizer-menu {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .analytics-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .events-table {
+          font-size: 0.85rem;
+        }
+
+        .event-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .modal-content {
+          padding: 20px 15px;
+        }
+
+        .ticket-option {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .container {
+          padding: 0 12px;
+        }
+
+        .dashboard-section {
+          padding: 20px;
+          border-radius: 12px;
+        }
+
+        .sidebar {
+          padding: 20px;
+        }
+
+        .section-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .tab-navigation {
+          flex-direction: column;
+          border-bottom: none;
+          overflow-x: visible;
+        }
+
+        .tab-btn {
+          border-bottom: 2px solid #f0f0f0;
+          text-align: left;
+          width: 100%;
+        }
+
+        .tab-btn.active::after {
+          display: none;
+        }
+
+        .footer-content {
+          flex-direction: column;
+          text-align: center;
+          gap: 12px;
+        }
+
+        .events-table {
+          min-width: 100%;
+        }
+
+        .events-table th,
+        .events-table td {
+          padding: 10px 8px;
+        }
+
+        .event-details {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 5px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .logo {
+          font-size: 1.2rem;
+        }
+
+        .logo-icon {
+          width: 30px;
+          height: 30px;
+        }
+
+        .create-event-btn {
+          padding: 8px 12px;
+          font-size: 0.8rem;
+        }
+
+        .organizer-avatar {
+          width: 35px;
+          height: 35px;
+          font-size: 0.9rem;
+        }
+
+        .dashboard {
+          padding: 15px 0;
+          gap: 15px;
+        }
+
+        .nav-links a {
+          padding: 10px 12px;
+          font-size: 0.9rem;
+        }
+
+        .analytics-card {
+          flex-direction: column;
+          text-align: center;
+          gap: 12px;
+        }
+
+        .analytics-icon {
+          width: 45px;
+          height: 45px;
+          font-size: 1.3rem;
+        }
+
+        .analytics-value {
+          font-size: 1.3rem;
+        }
+
+        .welcome-message h1 {
+          font-size: 1.3rem;
+        }
+
+        .welcome-message p {
+          font-size: 0.9rem;
+        }
+
+        .date-display {
+          font-size: 0.8rem;
+          padding: 8px 12px;
+        }
+
+        .stat-item {
+          font-size: 0.8rem;
+        }
+
+        .badge {
+          font-size: 0.7rem;
+          padding: 2px 6px;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .organizer-menu {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .create-event-btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .analytics-grid {
+          gap: 10px;
+        }
+
+        .analytics-card {
+          padding: 15px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+          padding: 10px 12px;
+        }
+      }
+
+      /* Small Height Screens */
+      @media (max-height: 600px) {
+        .sidebar {
+          position: static;
+          max-height: 400px;
+          overflow-y: auto;
+        }
+      }
+
+      /* Print Styles */
+      @media print {
+        .header,
+        .sidebar,
+        .create-event-btn,
+        .tab-navigation,
+        .footer {
+          display: none;
+        }
+
+        .dashboard-section {
+          box-shadow: none;
+          border: 1px solid #ddd;
+          break-inside: avoid;
+        }
+
+        body {
+          background-color: white;
+          font-size: 12px;
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .dashboard-section,
+      .analytics-card {
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Better table responsiveness */
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -15px;
+        padding: 0 15px;
+      }
+
+      /* Ticket Analytics Grid Fix */
+      .ticket-analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      @media (max-width: 768px) {
+        .ticket-analytics-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Hide scrollbar but keep functionality */
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!--Django messages-->
+    {% if messages %}
+      {% for message in messages %}
+         <div class="alert alert-warning alert-dismissible fade show" role="alert">
+           {{ message }}
+           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>
+      {% endfor %}
+    {% endif %}
+    <!-- Header -->
+    <header class="header">
+      <div class="container header-container">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            justify-content: space-between;
+          "
+        >
+          <a href="index.html" class="logo">
+            <div class="logo-icon">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+            VibePass
+          </a>
+          <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+
+        <div class="organizer-menu">
+          <div class="organizer-info">
+            <div class="organizer-avatar"><i class="fas fa-user"></i></div>
+            <div>
+              <div class="organizer-name">{{ user.username }}</div>
+              {% if user.is_organiser %}
+              <div class="organizer-badge">Organiser</div>
+              {% endif %}
+            </div>
+          </div>
+          <a href="{% url 'create_event' %}" class="create-event-btn" id="createEventBtn">
+            <i class="fas fa-plus-circle"></i> Create Event
+          </a>
+          <a href="{% url 'finders_dashboard' %}" type="button" class="btn btn-outline-primary">Manage my Tickets</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard -->
+    <div class="container">
+      <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+          <div class="nav-section">
+            <h3 class="section-title">Dashboard</h3>
+            <ul class="nav-links">
+              <li>
+                <a href="#" class="active" data-tab="overview">
+                  <i class="fas fa-chart-line nav-icon"></i>
+                  Overview
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="events">
+                  <i class="fas fa-calendar-alt nav-icon"></i>
+                  My Events
+                  <span class="badge">8</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="tickets">
+                  <i class="fas fa-ticket-alt nav-icon"></i>
+                  Ticket Management
+                  <span class="badge">324</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="analytics">
+                  <i class="fas fa-chart-bar nav-icon"></i>
+                  Analytics
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="nav-section">
+            <h3 class="section-title">Tools</h3>
+            <ul class="nav-links">
+              <li>
+                <a href="#" data-tab="attendees">
+                  <i class="fas fa-users nav-icon"></i>
+                  Attendees
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="messages">
+                  <i class="fas fa-comments nav-icon"></i>
+                  Messages
+                  <span class="badge">12</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="settings">
+                  <i class="fas fa-cog nav-icon"></i>
+                  Settings
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="quick-stats">
+            <h3 class="stats-title"><i class="fas fa-bolt"></i> Quick Stats</h3>
+            <div class="stat-item">
+              <span class="stat-label">Active Events</span>
+              <span class="stat-value">5</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Tickets Sold</span>
+              <span class="stat-value">324</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Revenue</span>
+              <span class="stat-value">$4,820</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Avg. Rating</span>
+              <span class="stat-value">4.6 ★</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+          <!-- Dashboard Header -->
+          <div class="dashboard-header">
+            <div class="welcome-message">
+              <h1>Organizer Dashboard 👨‍💼</h1>
+              <p>Manage your events, tickets, and analytics all in one place</p>
+            </div>
+            <div class="date-display">
+              <i class="fas fa-calendar-day"></i>
+              <span id="currentDate">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Analytics Overview -->
+          <div class="analytics-grid">
+            <div class="analytics-card">
+              <div class="analytics-icon icon-revenue">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <div class="analytics-content">
+                <div class="analytics-value">$4,820</div>
+                <div class="analytics-label">Total Revenue</div>
+                <div class="analytics-change positive">
+                  +18% from last month
+                </div>
+              </div>
+            </div>
+
+            <div class="analytics-card">
+              <div class="analytics-icon icon-tickets">
+                <i class="fas fa-ticket-alt"></i>
+              </div>
+              <div class="analytics-content">
+                <div class="analytics-value">324</div>
+                <div class="analytics-label">Tickets Sold</div>
+                <div class="analytics-change positive">
+                  +24% from last month
+                </div>
+              </div>
+            </div>
+
+            <div class="analytics-card">
+              <div class="analytics-icon icon-events">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div class="analytics-content">
+                <div class="analytics-value">8</div>
+                <div class="analytics-label">Total Events</div>
+                <div class="analytics-change positive">+2 new events</div>
+              </div>
+            </div>
+
+            <div class="analytics-card">
+              <div class="analytics-icon icon-attendees">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="analytics-content">
+                <div class="analytics-value">412</div>
+                <div class="analytics-label">Total Attendees</div>
+                <div class="analytics-change positive">
+                  +15% from last month
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Overview Tab (Default) -->
+          <div class="dashboard-section tab-content active" id="overview">
+            <div class="section-header">
+              <h2><i class="fas fa-fire"></i> Recent Events</h2>
+              <a href="#" class="view-all" data-tab="events">
+                View All <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+
+            <div class="table-container hide-scrollbar">
+              <table class="events-table">
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Date & Time</th>
+                    <th>Tickets</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="event-row">
+                    <td>
+                      <div class="event-title">Spring Bash: Neon Night</div>
+                      <div class="event-details">
+                        <span class="event-venue"
+                          ><i class="fas fa-map-marker-alt"></i> Student
+                          Union</span
+                        >
+                      </div>
+                    </td>
+                    <td>
+                      <div class="event-date">
+                        <i class="far fa-calendar"></i> May 20, 2024
+                      </div>
+                      <div class="event-time">9:00 PM</div>
+                    </td>
+                    <td>
+                      <div class="event-tickets">
+                        <i class="fas fa-ticket-alt"></i> 187/250
+                      </div>
+                      <div class="event-revenue">$2,805</div>
+                    </td>
+                    <td>
+                      <span class="event-status status-upcoming">Upcoming</span>
+                    </td>
+                    <td>
+                      <div class="event-actions">
+                        <button class="btn btn-primary btn-small">
+                          <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-secondary btn-small">
+                          <i class="fas fa-chart-bar"></i> Stats
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr class="event-row">
+                    <td>
+                      <div class="event-title">Campus Unplugged</div>
+                      <div class="event-details">
+                        <span class="event-venue"
+                          ><i class="fas fa-map-marker-alt"></i> Quad
+                          Amphitheater</span
+                        >
+                      </div>
+                    </td>
+                    <td>
+                      <div class="event-date">
+                        <i class="far fa-calendar"></i> May 26, 2024
+                      </div>
+                      <div class="event-time">7:30 PM</div>
+                    </td>
+                    <td>
+                      <div class="event-tickets">
+                        <i class="fas fa-ticket-alt"></i> 98/150
+                      </div>
+                      <div class="event-revenue">$980</div>
+                    </td>
+                    <td>
+                      <span class="event-status status-upcoming">Upcoming</span>
+                    </td>
+                    <td>
+                      <div class="event-actions">
+                        <button class="btn btn-primary btn-small">
+                          <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-secondary btn-small">
+                          <i class="fas fa-chart-bar"></i> Stats
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- My Events Tab -->
+          <div class="dashboard-section tab-content" id="events">
+            <div class="tab-navigation hide-scrollbar">
+              <button class="tab-btn active" data-filter="all">
+                All Events
+              </button>
+              <button class="tab-btn" data-filter="upcoming">Upcoming</button>
+              <button class="tab-btn" data-filter="draft">Draft</button>
+              <button class="tab-btn" data-filter="past">Past</button>
+            </div>
+
+            <div class="section-header">
+              <h2><i class="fas fa-calendar-alt"></i> My Events</h2>
+              <button class="btn btn-primary" id="createEventBtn2">
+                <i class="fas fa-plus-circle"></i> Create New
+              </button>
+            </div>
+
+            <div class="table-container hide-scrollbar">
+              <table class="events-table">
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Tickets</th>
+                    <th>Revenue</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="eventsTableBody">
+                  <!-- Events will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Ticket Management Tab -->
+          <div class="dashboard-section tab-content" id="tickets">
+            <div class="section-header">
+              <h2><i class="fas fa-ticket-alt"></i> Ticket Management</h2>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap">
+                <span
+                  style="
+                    background: var(--vibe-primary);
+                    color: white;
+                    padding: 5px 10px;
+                    border-radius: 20px;
+                    font-size: 0.85rem;
+                  "
+                  >Total: 324</span
+                >
+                <span
+                  style="
+                    background: var(--vibe-secondary);
+                    color: var(--vibe-dark);
+                    padding: 5px 10px;
+                    border-radius: 20px;
+                    font-size: 0.85rem;
+                  "
+                  >Remaining: 176</span
+                >
+              </div>
+            </div>
+
+            <div class="ticket-analytics-grid">
+              <div
+                style="
+                  background: var(--vibe-light);
+                  padding: 20px;
+                  border-radius: 15px;
+                "
+              >
+                <h3 style="margin-bottom: 15px; font-size: 1.1rem">
+                  Ticket Sales Overview
+                </h3>
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                    gap: 15px;
+                  "
+                >
+                  <div>
+                    <div
+                      style="
+                        font-size: 1.8rem;
+                        font-weight: 700;
+                        color: var(--vibe-primary);
+                      "
+                    >
+                      324
+                    </div>
+                    <div
+                      style="color: var(--vibe-text-light); font-size: 0.9rem"
+                    >
+                      Tickets Sold
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      style="
+                        font-size: 1.8rem;
+                        font-weight: 700;
+                        color: var(--vibe-secondary);
+                      "
+                    >
+                      65%
+                    </div>
+                    <div
+                      style="color: var(--vibe-text-light); font-size: 0.9rem"
+                    >
+                      Sold Percentage
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      style="
+                        font-size: 1.8rem;
+                        font-weight: 700;
+                        color: var(--vibe-accent);
+                      "
+                    >
+                      $4,820
+                    </div>
+                    <div
+                      style="color: var(--vibe-text-light); font-size: 0.9rem"
+                    >
+                      Total Revenue
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style="
+                  background: var(--vibe-light);
+                  padding: 20px;
+                  border-radius: 15px;
+                "
+              >
+                <h3 style="margin-bottom: 15px; font-size: 1.1rem">
+                  Quick Actions
+                </h3>
+                <button
+                  class="btn btn-primary"
+                  style="width: 100%; margin-bottom: 10px; font-size: 0.9rem"
+                >
+                  <i class="fas fa-download"></i> Export Data
+                </button>
+                <button
+                  class="btn btn-secondary"
+                  style="width: 100%; font-size: 0.9rem"
+                >
+                  <i class="fas fa-print"></i> Print Tickets
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics Tab -->
+          <div class="dashboard-section tab-content" id="analytics">
+            <div class="section-header">
+              <h2><i class="fas fa-chart-bar"></i> Event Analytics</h2>
+              <select
+                class="form-select"
+                style="max-width: 200px; font-size: 0.9rem"
+              >
+                <option>Last 30 days</option>
+                <option>Last 90 days</option>
+                <option>Last 6 months</option>
+              </select>
+            </div>
+
+            <div
+              style="
+                background: var(--vibe-light);
+                padding: 20px;
+                border-radius: 15px;
+                margin-bottom: 20px;
+              "
+            >
+              <h3 style="margin-bottom: 15px; font-size: 1.1rem">
+                Revenue Trend
+              </h3>
+              <div
+                style="
+                  height: 150px;
+                  display: flex;
+                  align-items: flex-end;
+                  gap: 10px;
+                  margin-top: 20px;
+                  overflow-x: auto;
+                "
+              >
+                <div style="text-align: center; min-width: 50px">
+                  <div
+                    style="
+                      height: 100px;
+                      background: linear-gradient(
+                        to top,
+                        var(--vibe-primary),
+                        #7e57c2
+                      );
+                      border-radius: 6px;
+                    "
+                  ></div>
+                  <div
+                    style="
+                      margin-top: 8px;
+                      font-weight: 600;
+                      font-size: 0.85rem;
+                    "
+                  >
+                    Jan
+                  </div>
+                </div>
+                <div style="text-align: center; min-width: 50px">
+                  <div
+                    style="
+                      height: 80px;
+                      background: linear-gradient(
+                        to top,
+                        var(--vibe-primary),
+                        #7e57c2
+                      );
+                      border-radius: 6px;
+                    "
+                  ></div>
+                  <div
+                    style="
+                      margin-top: 8px;
+                      font-weight: 600;
+                      font-size: 0.85rem;
+                    "
+                  >
+                    Feb
+                  </div>
+                </div>
+                <div style="text-align: center; min-width: 50px">
+                  <div
+                    style="
+                      height: 120px;
+                      background: linear-gradient(
+                        to top,
+                        var(--vibe-primary),
+                        #7e57c2
+                      );
+                      border-radius: 6px;
+                    "
+                  ></div>
+                  <div
+                    style="
+                      margin-top: 8px;
+                      font-weight: 600;
+                      font-size: 0.85rem;
+                    "
+                  >
+                    Mar
+                  </div>
+                </div>
+                <div style="text-align: center; min-width: 50px">
+                  <div
+                    style="
+                      height: 140px;
+                      background: linear-gradient(
+                        to top,
+                        var(--vibe-primary),
+                        #7e57c2
+                      );
+                      border-radius: 6px;
+                    "
+                  ></div>
+                  <div
+                    style="
+                      margin-top: 8px;
+                      font-weight: 600;
+                      font-size: 0.85rem;
+                    "
+                  >
+                    Apr
+                  </div>
+                </div>
+                <div style="text-align: center; min-width: 50px">
+                  <div
+                    style="
+                      height: 160px;
+                      background: linear-gradient(
+                        to top,
+                        var(--vibe-primary),
+                        #7e57c2
+                      );
+                      border-radius: 6px;
+                    "
+                  ></div>
+                  <div
+                    style="
+                      margin-top: 8px;
+                      font-weight: 600;
+                      font-size: 0.85rem;
+                    "
+                  >
+                    May
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attendees Tab -->
+          <div class="dashboard-section tab-content" id="attendees">
+            <div class="section-header">
+              <h2><i class="fas fa-users"></i> Attendee Management</h2>
+              <button class="btn btn-primary" style="font-size: 0.9rem">
+                <i class="fas fa-envelope"></i> Message All
+              </button>
+            </div>
+
+            <div
+              style="
+                margin-bottom: 20px;
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+              "
+            >
+              <input
+                type="text"
+                class="form-input"
+                placeholder="Search attendees..."
+                style="flex: 1; min-width: 200px"
+              />
+              <select
+                class="form-select"
+                style="min-width: 150px; font-size: 0.9rem"
+              >
+                <option>All Events</option>
+                <option>Spring Bash</option>
+                <option>Campus Unplugged</option>
+              </select>
+            </div>
+
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <h3>No attendees to display</h3>
+              <p>Attendee data will appear here as tickets are sold.</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div class="modal" id="createEventModal">
+      <div class="modal-content">
+        <button class="modal-close" id="closeModal">&times;</button>
+        <h2 class="modal-title">
+          <i class="fas fa-plus-circle"></i> Create New Event
+        </h2>
+
+        <form id="createEventForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Event Title</label>
+              <input
+                type="text"
+                class="form-input"
+                placeholder="e.g., Spring Bash"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Event Category</label>
+              <select class="form-select" required>
+                <option value="">Select category</option>
+                <option value="party">Campus Party</option>
+                <option value="music">Live Music</option>
+                <option value="workshop">Workshop</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Event Description</label>
+            <textarea
+              class="form-textarea"
+              placeholder="Describe your event..."
+              rows="3"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="date" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Start Time</label>
+              <input type="time" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Time</label>
+              <input type="time" class="form-input" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Venue/Location</label>
+            <input
+              type="text"
+              class="form-input"
+              placeholder="e.g., Student Union"
+              required
+            />
+          </div>
+
+          <h3
+            style="
+              margin: 25px 0 15px;
+              color: var(--vibe-dark);
+              font-size: 1.1rem;
+            "
+          >
+            Ticket Options
+          </h3>
+
+          <div class="ticket-options">
+            <div class="ticket-option">
+              <input
+                type="text"
+                class="form-input"
+                placeholder="Ticket Type"
+                value="General Admission"
+              />
+              <input
+                type="number"
+                class="form-input"
+                placeholder="Price"
+                value="15"
+                min="0"
+                step="0.01"
+              />
+              <input
+                type="number"
+                class="form-input"
+                placeholder="Quantity"
+                value="100"
+                min="1"
+              />
+              <button type="button" class="btn btn-danger btn-small">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" class="add-ticket-btn">
+            <i class="fas fa-plus"></i> Add Ticket Type
+          </button>
+
+          <div
+            style="display: flex; gap: 10px; margin-top: 25px; flex-wrap: wrap"
+          >
+            <button
+              type="submit"
+              class="btn btn-primary"
+              style="flex: 1; min-width: 150px"
+            >
+              <i class="fas fa-save"></i> Create Event
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              style="flex: 1; min-width: 150px"
+              id="saveDraftBtn"
+            >
+              <i class="fas fa-file-alt"></i> Save as Draft
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-content">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+          "
+        >
+          <div
+            class="logo-icon"
+            style="width: 30px; height: 30px; font-size: 0.9rem"
+          >
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          VibePass
+        </div>
+
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms</a>
+          <a href="#">Help</a>
+          <a href="#">Support</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Set current date
+      const currentDate = new Date();
+      const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      };
+      document.getElementById("currentDate").textContent =
+        currentDate.toLocaleDateString("en-US", options);
+
+      // Mobile menu toggle
+      const mobileMenuToggle = document.getElementById("mobileMenuToggle");
+      const sidebar = document.getElementById("sidebar");
+
+      mobileMenuToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("active");
+        mobileMenuToggle.innerHTML = sidebar.classList.contains("active")
+          ? '<i class="fas fa-times"></i>'
+          : '<i class="fas fa-bars"></i>';
+      });
+
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener("click", (e) => {
+        if (window.innerWidth <= 992) {
+          if (
+            !sidebar.contains(e.target) &&
+            !mobileMenuToggle.contains(e.target) &&
+            sidebar.classList.contains("active")
+          ) {
+            sidebar.classList.remove("active");
+            mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+          }
+        }
+      });
+
+      // Tab Navigation
+      const navLinks = document.querySelectorAll(".nav-links a");
+      const tabContents = document.querySelectorAll(".tab-content");
+      const tabBtns = document.querySelectorAll(".tab-btn");
+
+      navLinks.forEach((link) => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          // Remove active class from all links and contents
+          navLinks.forEach((l) => l.classList.remove("active"));
+          tabContents.forEach((content) => content.classList.remove("active"));
+          tabBtns.forEach((btn) => btn.classList.remove("active"));
+
+          // Add active class to clicked link
+          this.classList.add("active");
+
+          // Show corresponding tab content
+          const tabId = this.getAttribute("data-tab");
+          const tabContent = document.getElementById(tabId);
+          if (tabContent) {
+            tabContent.classList.add("active");
+          }
+
+          // Close mobile menu after clicking
+          if (window.innerWidth <= 992) {
+            sidebar.classList.remove("active");
+            mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+          }
+        });
+      });
+
+      // Tab filter buttons for events
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", function () {
+          tabBtns.forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+
+          // Filter events based on data-filter
+          const filter = this.getAttribute("data-filter");
+          filterEvents(filter);
+        });
+      });
+
+      // Sample events data
+      const eventsData = [
+        {
+          id: 1,
+          title: "Spring Bash: Neon Night",
+          venue: "Student Union",
+          date: "May 20, 2024",
+          time: "9:00 PM",
+          ticketsSold: 187,
+          totalTickets: 250,
+          revenue: 2805,
+          status: "upcoming",
+        },
+        {
+          id: 2,
+          title: "Campus Unplugged",
+          venue: "Quad Amphitheater",
+          date: "May 26, 2024",
+          time: "7:30 PM",
+          ticketsSold: 98,
+          totalTickets: 150,
+          revenue: 980,
+          status: "upcoming",
+        },
+        {
+          id: 3,
+          title: "Tech Mixer",
+          venue: "Innovation Hub",
+          date: "May 24, 2024",
+          time: "4:00 PM",
+          ticketsSold: 39,
+          totalTickets: 100,
+          revenue: 195,
+          status: "upcoming",
+        },
+        {
+          id: 4,
+          title: "Winter Formal Gala",
+          venue: "Grand Ballroom",
+          date: "Feb 15, 2024",
+          time: "8:00 PM",
+          ticketsSold: 120,
+          totalTickets: 200,
+          revenue: 1800,
+          status: "ended",
+        },
+        {
+          id: 5,
+          title: "Startup Pitch Competition",
+          venue: "Business School",
+          date: "Jun 10, 2024",
+          time: "2:00 PM",
+          ticketsSold: 0,
+          totalTickets: 150,
+          revenue: 0,
+          status: "draft",
+        },
+      ];
+
+      // Function to filter events
+      function filterEvents(filter) {
+        const tableBody = document.getElementById("eventsTableBody");
+        tableBody.innerHTML = "";
+
+        let filteredEvents = eventsData;
+
+        if (filter === "upcoming") {
+          filteredEvents = eventsData.filter(
+            (event) => event.status === "upcoming",
+          );
+        } else if (filter === "draft") {
+          filteredEvents = eventsData.filter(
+            (event) => event.status === "draft",
+          );
+        } else if (filter === "past") {
+          filteredEvents = eventsData.filter(
+            (event) => event.status === "ended",
+          );
+        }
+
+        filteredEvents.forEach((event) => {
+          const statusClass = `status-${event.status}`;
+          const statusText =
+            event.status.charAt(0).toUpperCase() + event.status.slice(1);
+
+          const row = document.createElement("tr");
+          row.className = "event-row";
+          row.innerHTML = `
+                    <td>
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-details">
+                            <span class="event-venue"><i class="fas fa-map-marker-alt"></i> ${event.venue}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="event-date">
+                            <i class="far fa-calendar"></i> ${event.date}
+                        </div>
+                        <div class="event-time">${event.time}</div>
+                    </td>
+                    <td>
+                        <div class="event-tickets">
+                            <i class="fas fa-ticket-alt"></i> ${event.ticketsSold}/${event.totalTickets}
+                        </div>
+                        <div class="event-revenue">${event.revenue ? "$" + event.revenue : "Free"}</div>
+                    </td>
+                    <td>
+                        <span class="event-status ${statusClass}">${statusText}</span>
+                    </td>
+                    <td>
+                        <div class="event-actions">
+                            <button class="btn btn-primary btn-small" onclick="editEvent(${event.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-secondary btn-small" onclick="viewStats(${event.id})">
+                                <i class="fas fa-chart-bar"></i>
+                            </button>
+                            ${
+                              event.status === "upcoming"
+                                ? `
+                            <button class="btn btn-danger btn-small" onclick="cancelEvent(${event.id})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            `
+                                : ""
+                            }
+                        </div>
+                    </td>
+                `;
+          tableBody.appendChild(row);
+        });
+      }
+
+      // Initialize events table with all events
+      filterEvents("all");
+
+      // Event actions functions
+      function editEvent(eventId) {
+        alert(`Editing event #${eventId}`);
+      }
+
+      function viewStats(eventId) {
+        alert(`Viewing stats for event #${eventId}`);
+      }
+
+      function cancelEvent(eventId) {
+        if (confirm("Cancel this event? This cannot be undone.")) {
+          alert(`Event #${eventId} cancelled`);
+        }
+      }
+
+      // Create Event Modal
+      const createEventModal = document.getElementById("createEventModal");
+      const createEventBtn = document.getElementById("createEventBtn");
+      const createEventBtn2 = document.getElementById("createEventBtn2");
+      const closeModalBtn = document.getElementById("closeModal");
+      const createEventForm = document.getElementById("createEventForm");
+      const saveDraftBtn = document.getElementById("saveDraftBtn");
+
+      createEventBtn.addEventListener("click", () => {
+        createEventModal.style.display = "flex";
+      });
+
+      createEventBtn2.addEventListener("click", () => {
+        createEventModal.style.display = "flex";
+      });
+
+      closeModalBtn.addEventListener("click", () => {
+        createEventModal.style.display = "none";
+      });
+
+      window.addEventListener("click", (e) => {
+        if (e.target === createEventModal) {
+          createEventModal.style.display = "none";
+        }
+      });
+
+      // Form submission
+      createEventForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert("Event created successfully!");
+        createEventModal.style.display = "none";
+        createEventForm.reset();
+      });
+
+      saveDraftBtn.addEventListener("click", () => {
+        alert("Event saved as draft.");
+        createEventModal.style.display = "none";
+        createEventForm.reset();
+      });
+
+      // Add ticket option
+      document
+        .querySelector(".add-ticket-btn")
+        .addEventListener("click", () => {
+          const ticketOptions = document.querySelector(".ticket-options");
+          const newTicket = document.createElement("div");
+          newTicket.className = "ticket-option";
+          newTicket.innerHTML = `
+                <input type="text" class="form-input" placeholder="Ticket Type" required>
+                <input type="number" class="form-input" placeholder="Price" min="0" step="0.01" required>
+                <input type="number" class="form-input" placeholder="Quantity" min="1" required>
+                <button type="button" class="btn btn-danger btn-small remove-ticket">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+          ticketOptions.appendChild(newTicket);
+
+          // Add event listener to remove button
+          newTicket
+            .querySelector(".remove-ticket")
+            .addEventListener("click", function () {
+              newTicket.remove();
+            });
+        });
+
+      // Add remove functionality to existing ticket remove buttons
+      document.querySelectorAll(".ticket-option .btn-danger").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          this.closest(".ticket-option").remove();
+        });
+      });
+
+      // View all links
+      document.querySelectorAll(".view-all").forEach((link) => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const targetTab = this.getAttribute("data-tab");
+          const targetNavLink = document.querySelector(
+            `[data-tab="${targetTab}"]`,
+          );
+          if (targetNavLink) {
+            targetNavLink.click();
+          }
+        });
+      });
+
+      // Adjust sidebar position on resize
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 992) {
+          sidebar.classList.remove("active");
+          mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        }
+      });
+    </script>
+  </body>
+</html>

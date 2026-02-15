@@ -1,0 +1,1430 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VibePass - My Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link 
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
+      rel="stylesheet" 
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" 
+      crossorigin="anonymous"
+      />
+    <script 
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
+        crossorigin="anonymous"
+        ></script>
+    <style>
+      /* Brand Colors */
+      :root {
+        --vibe-primary: #6c4bdd;
+        --vibe-secondary: #00d4aa;
+        --vibe-dark: #1a1a2e;
+        --vibe-light: #f8f9ff;
+        --vibe-accent: #ff6b9d;
+        --vibe-text: #333333;
+        --vibe-text-light: #777777;
+        --vibe-card-bg: #ffffff;
+        --vibe-card-shadow: rgba(108, 75, 221, 0.08);
+        --vibe-success: #00c853;
+        --vibe-warning: #ff9800;
+      }
+
+      /* Reset & Base Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--vibe-light);
+        color: var(--vibe-text);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header */
+      .header {
+        background-color: var(--vibe-dark);
+        padding: 20px 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.8rem;
+      }
+
+      .logo-icon {
+        color: var(--vibe-secondary);
+        background: var(--vibe-primary);
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(-10deg);
+      }
+
+      .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+      }
+
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+      }
+
+      .user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-accent)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.2rem;
+        border: 3px solid var(--vibe-secondary);
+      }
+
+      .user-info {
+        color: white;
+      }
+
+      .user-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      .user-status {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--vibe-secondary);
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .logout-btn {
+        background: transparent;
+        border: 2px solid var(--vibe-secondary);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logout-btn:hover {
+        background: var(--vibe-secondary);
+        color: var(--vibe-dark);
+      }
+
+      /* Dashboard Layout */
+      .dashboard {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 30px;
+        padding: 30px 0;
+        min-height: calc(100vh - 100px);
+      }
+
+      /* Sidebar */
+      .sidebar {
+        background-color: var(--vibe-card-bg);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 30px var(--vibe-card-shadow);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+      }
+
+      .nav-section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--vibe-text-light);
+        margin-bottom: 15px;
+        font-weight: 600;
+      }
+
+      .nav-links {
+        list-style: none;
+      }
+
+      .nav-links li {
+        margin-bottom: 12px;
+      }
+
+      .nav-links a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--vibe-text);
+        font-weight: 500;
+        transition: all 0.3s;
+      }
+
+      .nav-links a:hover {
+        background-color: rgba(108, 75, 221, 0.08);
+        color: var(--vibe-primary);
+      }
+
+      .nav-links a.active {
+        background-color: var(--vibe-primary);
+        color: white;
+      }
+
+      .nav-icon {
+        width: 24px;
+        text-align: center;
+      }
+
+      .quick-stats {
+        background: linear-gradient(
+          135deg,
+          var(--vibe-dark),
+          var(--vibe-primary)
+        );
+        color: white;
+        padding: 25px;
+        border-radius: 15px;
+        margin-top: 30px;
+      }
+
+      .stats-title {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .stat-item:last-child {
+        border-bottom: none;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      .stat-value {
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      /* Main Content */
+      .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 10px;
+      }
+
+      .welcome-message h1 {
+        font-size: 2.2rem;
+        color: var(--vibe-dark);
+        margin-bottom: 8px;
+      }
+
+      .welcome-message p {
+        color: var(--vibe-text-light);
+        font-size: 1.1rem;
+      }
+
+      .date-display {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        background: var(--vibe-card-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px var(--vibe-card-shadow);
+        font-weight: 600;
+        color: var(--vibe-primary);
+      }
+
+      /* Dashboard Cards */
+      .dashboard-section {
+        background-color: var(--vibe-card-bg);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 30px var(--vibe-card-shadow);
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .section-header h2 {
+        font-size: 1.5rem;
+        color: var(--vibe-dark);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .view-all {
+        color: var(--vibe-primary);
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: gap 0.3s;
+      }
+
+      .view-all:hover {
+        gap: 12px;
+      }
+
+      /* Events Grid */
+      .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+      }
+
+      .event-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+        border: 1px solid #f0f0f0;
+      }
+
+      .event-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(108, 75, 221, 0.15);
+      }
+
+      .event-image {
+        height: 160px;
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-secondary)
+        );
+        position: relative;
+        overflow: hidden;
+      }
+
+      .event-category {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--vibe-secondary);
+        color: var(--vibe-dark);
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+      }
+
+      .event-date {
+        position: absolute;
+        bottom: 15px;
+        left: 15px;
+        background: rgba(26, 26, 46, 0.9);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .event-content {
+        padding: 22px;
+      }
+
+      .event-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--vibe-dark);
+        line-height: 1.3;
+      }
+
+      .event-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+        color: var(--vibe-text-light);
+      }
+
+      .event-location {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .event-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+      }
+
+      .event-price {
+        font-weight: 700;
+        color: var(--vibe-primary);
+        font-size: 1.2rem;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-primary {
+        background-color: var(--vibe-primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: #5a3bc5;
+      }
+
+      .btn-secondary {
+        background-color: transparent;
+        color: var(--vibe-primary);
+        border: 2px solid var(--vibe-primary);
+      }
+
+      .btn-secondary:hover {
+        background-color: rgba(108, 75, 221, 0.08);
+      }
+
+      /* Profile Section */
+      .profile-section {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
+      }
+
+      .profile-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      }
+
+      .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-accent)
+        );
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 600;
+        border: 5px solid var(--vibe-secondary);
+      }
+
+      .profile-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: var(--vibe-dark);
+      }
+
+      .profile-email {
+        color: var(--vibe-text-light);
+        margin-bottom: 20px;
+      }
+
+      .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-top: 25px;
+      }
+
+      .profile-stat {
+        background: var(--vibe-light);
+        padding: 15px;
+        border-radius: 10px;
+      }
+
+      .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--vibe-primary);
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+        color: var(--vibe-text-light);
+      }
+
+      .profile-form {
+        display: grid;
+        gap: 20px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: var(--vibe-dark);
+      }
+
+      .form-input {
+        padding: 14px 18px;
+        border: 2px solid #e1e5f1;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background-color: #f8f9ff;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--vibe-primary);
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(108, 75, 221, 0.1);
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--vibe-text-light);
+      }
+
+      .empty-icon {
+        font-size: 3rem;
+        color: #e1e5f1;
+        margin-bottom: 20px;
+      }
+
+      .empty-state h3 {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+        color: var(--vibe-text);
+      }
+
+      /* Footer */
+      .footer {
+        background-color: var(--vibe-dark);
+        color: white;
+        padding: 30px 0;
+        margin-top: 50px;
+      }
+
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 20px;
+      }
+
+      .footer-links a {
+        color: white;
+        text-decoration: none;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+      }
+
+      .footer-links a:hover {
+        opacity: 1;
+      }
+
+      /* Responsive Styles */
+      @media (max-width: 1200px) {
+        .dashboard {
+          grid-template-columns: 250px 1fr;
+          gap: 25px;
+        }
+
+        .events-grid {
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+      }
+
+      @media (max-width: 992px) {
+        .dashboard {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+          order: 2;
+        }
+
+        .main-content {
+          order: 1;
+        }
+
+        .profile-section {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header-container {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .user-menu {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .events-grid {
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 20px;
+        }
+
+        .dashboard-section {
+          padding: 25px;
+        }
+
+        .welcome-message h1 {
+          font-size: 1.8rem;
+        }
+
+        .profile-card {
+          padding: 25px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .container {
+          padding: 0 15px;
+        }
+
+        .events-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard-section {
+          padding: 20px;
+          border-radius: 15px;
+        }
+
+        .sidebar {
+          padding: 25px;
+        }
+
+        .section-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .event-actions {
+          flex-direction: column;
+          gap: 15px;
+          align-items: stretch;
+        }
+
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .profile-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .footer-content {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .logo {
+          font-size: 1.5rem;
+        }
+
+        .logo-icon {
+          width: 40px;
+          height: 40px;
+        }
+
+        .user-avatar {
+          width: 40px;
+          height: 40px;
+        }
+
+        .user-name {
+          font-size: 1rem;
+        }
+
+        .logout-btn {
+          padding: 8px 15px;
+          font-size: 0.9rem;
+        }
+
+        .dashboard {
+          padding: 20px 0;
+          gap: 20px;
+        }
+
+        .nav-links a {
+          padding: 12px 15px;
+        }
+      }
+
+      /* Animation for active state */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .dashboard-section {
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      /* Tab Navigation */
+      .tab-navigation {
+        display: flex;
+        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .tab-btn {
+        padding: 12px 24px;
+        background: none;
+        border: none;
+        font-weight: 600;
+        color: var(--vibe-text-light);
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+      }
+
+      .tab-btn:hover {
+        color: var(--vibe-primary);
+      }
+
+      .tab-btn.active {
+        color: var(--vibe-primary);
+      }
+
+      .tab-btn.active::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--vibe-primary);
+        border-radius: 3px 3px 0 0;
+      }
+
+      /* Review Stars */
+      .review-stars {
+        display: flex;
+        gap: 3px;
+        color: #ffd700;
+        font-size: 1.1rem;
+      }
+
+      .review-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 1px solid #f0f0f0;
+      }
+
+      .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .review-event {
+        font-weight: 600;
+        color: var(--vibe-dark);
+      }
+
+      .review-date {
+        color: var(--vibe-text-light);
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+     <!--Django messages-->
+    {% if messages %}
+      {% for message in messages %}
+         <div class="alert alert-warning alert-dismissible fade show" role="alert">
+           {{ message }}
+           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>
+      {% endfor %}
+    {% endif %}
+    <!-- Header -->
+    <header class="header">
+      <div class="container header-container">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          VibePass
+        </a>
+
+        <div class="user-menu">
+          <div class="user-profile" id="userProfile">
+            <div class="user-avatar"><i class="fas fa-user"></i></div>
+            <div class="user-info">
+              <div class="user-name">{{ user.username }}</div>
+              <div class="user-status">
+                {% if user.is_organiser %}
+                <span class="status-dot"></span> Organiser
+                {% else %}
+                <span class="status-dot"></span> User
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <a href="{% url 'logout' %}" class="logout-btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
+          <a href="{% url 'make_organiser' %}" type="button" class="btn btn-outline-primary">Manage my Events</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard -->
+    <div class="container">
+      <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="nav-section">
+            <h3 class="section-title">Dashboard</h3>
+            <ul class="nav-links">
+              <li>
+                <a href="#" class="active" data-tab="overview">
+                  <i class="fas fa-home nav-icon"></i>
+                  Overview
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="upcoming">
+                  <i class="fas fa-calendar-alt nav-icon"></i>
+                  Upcoming Events
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="tickets">
+                  <i class="fas fa-ticket-alt nav-icon"></i>
+                  My Tickets
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="registered">
+                  <i class="fas fa-check-circle nav-icon"></i>
+                  Registered Events
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="past">
+                  <i class="fas fa-history nav-icon"></i>
+                  Past Events
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="nav-section">
+            <h3 class="section-title">Account</h3>
+            <ul class="nav-links">
+              <li>
+                <a href="#" data-tab="profile">
+                  <i class="fas fa-user nav-icon"></i>
+                  My Profile
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="reviews">
+                  <i class="fas fa-star nav-icon"></i>
+                  My Reviews
+                </a>
+              </li>
+              <li>
+                <a href="#" data-tab="settings">
+                  <i class="fas fa-cog nav-icon"></i>
+                  Settings
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="quick-stats">
+            <h3 class="stats-title">
+              <i class="fas fa-chart-line"></i> Quick Stats
+            </h3>
+            <div class="stat-item">
+              <span class="stat-label">Events Attended</span>
+              <span class="stat-value">24</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Tickets Purchased</span>
+              <span class="stat-value">18</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Free Events</span>
+              <span class="stat-value">6</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Reviews Given</span>
+              <span class="stat-value">12</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+          <!-- Dashboard Header -->
+          <div class="dashboard-header">
+            <div class="welcome-message">
+              <h1>Welcome back, {{ user.username }}! 👋</h1>
+              <p>Here's what's happening with your VibePass events</p>
+            </div>
+            <div class="date-display">
+              <i class="fas fa-calendar-day"></i>
+              <span id="currentDate">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Overview Tab (Default) -->
+          <div class="dashboard-section tab-content active" id="overview">
+            <div class="section-header">
+              <h2><i class="fas fa-fire"></i> Upcoming Events</h2>
+              <a href="#" class="view-all" data-tab="upcoming">
+                View All <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+
+            <div class="events-grid">
+              <!-- Event 1 -->
+              <div class="event-card">
+                <div class="event-image">
+                  <div class="event-category">Campus Party</div>
+                  <div class="event-date">MAY 20 • 9PM</div>
+                </div>
+                <div class="event-content">
+                  <h3 class="event-title">Spring Bash: Neon Night</h3>
+                  <div class="event-details">
+                    <div class="event-location">
+                      <i class="fas fa-map-marker-alt"></i> Student Union
+                    </div>
+                    <div class="event-attendance">🎟️ 240 going</div>
+                  </div>
+                  <div class="event-actions">
+                    <div class="event-price">$15</div>
+                    <button class="btn btn-primary">
+                      <i class="fas fa-ticket-alt"></i> View Ticket
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Event 2 -->
+              <div class="event-card">
+                <div class="event-image">
+                  <div class="event-category">Live Music</div>
+                  <div class="event-date">MAY 26 • 7:30PM</div>
+                </div>
+                <div class="event-content">
+                  <h3 class="event-title">Campus Unplugged: Acoustic Night</h3>
+                  <div class="event-details">
+                    <div class="event-location">
+                      <i class="fas fa-map-marker-alt"></i> Quad Amphitheater
+                    </div>
+                    <div class="event-attendance">🎵 180 going</div>
+                  </div>
+                  <div class="event-actions">
+                    <div class="event-price">FREE</div>
+                    <button class="btn btn-secondary">
+                      <i class="fas fa-info-circle"></i> Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Event 3 -->
+              <div class="event-card">
+                <div class="event-image">
+                  <div class="event-category">Workshop</div>
+                  <div class="event-date">MAY 24 • 4PM</div>
+                </div>
+                <div class="event-content">
+                  <h3 class="event-title">Tech Mixer & Networking</h3>
+                  <div class="event-details">
+                    <div class="event-location">
+                      <i class="fas fa-map-marker-alt"></i> Innovation Hub
+                    </div>
+                    <div class="event-attendance">👥 95 going</div>
+                  </div>
+                  <div class="event-actions">
+                    <div class="event-price">$5</div>
+                    <button class="btn btn-primary">
+                      <i class="fas fa-ticket-alt"></i> View Ticket
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Activity Section -->
+            <div style="margin-top: 40px">
+              <div class="section-header">
+                <h2><i class="fas fa-history"></i> Recent Activity</h2>
+              </div>
+              <div class="recent-activity">
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p>
+                      Purchased ticket for
+                      <strong>Spring Bash: Neon Night</strong>
+                    </p>
+                    <span class="activity-time">2 days ago</span>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p>
+                      Registered for free event
+                      <strong>Campus Unplugged</strong>
+                    </p>
+                    <span class="activity-time">4 days ago</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Events Tab -->
+          <div class="dashboard-section tab-content" id="upcoming">
+            <div class="tab-navigation">
+              <button class="tab-btn active" data-filter="all">
+                All Events
+              </button>
+              <button class="tab-btn" data-filter="paid">Paid Events</button>
+              <button class="tab-btn" data-filter="free">Free Events</button>
+              <button class="tab-btn" data-filter="registered">
+                Registered
+              </button>
+            </div>
+
+            <div class="section-header">
+              <h2><i class="fas fa-calendar-alt"></i> Upcoming Events</h2>
+              <div class="events-count">Showing 8 events</div>
+            </div>
+
+            <div class="events-grid">
+              <!-- More events would be loaded here -->
+            </div>
+          </div>
+
+          <!-- My Tickets Tab -->
+          <div class="dashboard-section tab-content" id="tickets">
+            <div class="section-header">
+              <h2><i class="fas fa-ticket-alt"></i> My Tickets</h2>
+              <div class="ticket-stats">
+                <span class="stat-badge">Active: 3</span>
+                <span class="stat-badge">Used: 21</span>
+              </div>
+            </div>
+
+            <div class="tickets-list">
+              <!-- Ticket items would be loaded here -->
+            </div>
+          </div>
+
+          <!-- Registered Events Tab -->
+          <div class="dashboard-section tab-content" id="registered">
+            <div class="section-header">
+              <h2><i class="fas fa-check-circle"></i> Registered Events</h2>
+              <div class="events-count">6 free events</div>
+            </div>
+
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <h3>No upcoming free events</h3>
+              <p>You haven't registered for any free events yet.</p>
+              <button class="btn btn-primary" style="margin-top: 20px">
+                <i class="fas fa-search"></i> Browse Events
+              </button>
+            </div>
+          </div>
+
+          <!-- Past Events Tab -->
+          <div class="dashboard-section tab-content" id="past">
+            <div class="section-header">
+              <h2><i class="fas fa-history"></i> Past Events</h2>
+              <div class="events-count">24 events attended</div>
+            </div>
+
+            <div class="events-grid">
+              <!-- Past event cards would be loaded here -->
+            </div>
+          </div>
+
+          <!-- My Profile Tab -->
+          <div class="dashboard-section tab-content" id="profile">
+            <div class="section-header">
+              <h2><i class="fas fa-user"></i> My Profile</h2>
+            </div>
+
+            <div class="profile-section">
+              <div class="profile-card">
+                <div class="profile-avatar"><i class="fas fa-user"></i></div>
+                <h3 class="profile-name">{{ user.username }}</h3>
+                <p class="profile-email">{{ user.email }}</p>
+                <p class="profile-bio">
+                  Computer Science major • Class of 2024
+                </p>
+
+                <div class="profile-stats">
+                  <div class="profile-stat">
+                    <div class="stat-number">24</div>
+                    <div class="stat-label">Events</div>
+                  </div>
+                  <div class="profile-stat">
+                    <div class="stat-number">18</div>
+                    <div class="stat-label">Tickets</div>
+                  </div>
+                  <div class="profile-stat">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">Free Events</div>
+                  </div>
+                  <div class="profile-stat">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Reviews</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="profile-form">
+                <h3 style="margin-bottom: 20px">Edit Profile</h3>
+                <div class="form-group">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" class="form-input" value="{{ user.username }}" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email Address</label>
+                  <input
+                    type="email"
+                    class="form-input"
+                    value="{{ user.email }}"
+                  />
+                </div>
+                <button class="btn btn-primary">
+                  <i class="fas fa-save"></i> Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- My Reviews Tab -->
+          <div class="dashboard-section tab-content" id="reviews">
+            <div class="section-header">
+              <h2><i class="fas fa-star"></i> My Reviews</h2>
+              <div class="review-stats">
+                <span class="review-average">4.2 ★ Average Rating</span>
+              </div>
+            </div>
+
+            <div class="reviews-list">
+              <div class="review-card">
+                <div class="review-header">
+                  <div class="review-event">Winter Formal Gala</div>
+                  <div class="review-date">February 15, 2024</div>
+                </div>
+                <div class="review-stars">★★★★★</div>
+                <p class="review-text">
+                  Amazing event! The music was great and the atmosphere was
+                  fantastic. Can't wait for next year's gala!
+                </p>
+              </div>
+
+              <div class="review-card">
+                <div class="review-header">
+                  <div class="review-event">Tech Startup Mixer</div>
+                  <div class="review-date">January 28, 2024</div>
+                </div>
+                <div class="review-stars">★★★★☆</div>
+                <p class="review-text">
+                  Great networking opportunity. Met some interesting founders.
+                  Would have liked more food options though.
+                </p>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-content">
+        <div class="footer-logo">
+          <div
+            class="logo-icon"
+            style="width: 35px; height: 35px; font-size: 1rem"
+          >
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          VibePass
+        </div>
+
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Support</a>
+          <a href="#">Contact Us</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Set current date
+      const currentDate = new Date();
+      const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      };
+      document.getElementById("currentDate").textContent =
+        currentDate.toLocaleDateString("en-US", options);
+
+      // Tab Navigation
+      const navLinks = document.querySelectorAll(".nav-links a");
+      const tabContents = document.querySelectorAll(".tab-content");
+      const tabBtns = document.querySelectorAll(".tab-btn");
+
+      navLinks.forEach((link) => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          // Remove active class from all links and contents
+          navLinks.forEach((l) => l.classList.remove("active"));
+          tabContents.forEach((content) => content.classList.remove("active"));
+          tabBtns.forEach((btn) => btn.classList.remove("active"));
+
+          // Add active class to clicked link
+          this.classList.add("active");
+
+          // Show corresponding tab content
+          const tabId = this.getAttribute("data-tab");
+          const tabContent = document.getElementById(tabId);
+          if (tabContent) {
+            tabContent.classList.add("active");
+          }
+        });
+      });
+
+      // Tab filter buttons
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", function () {
+          tabBtns.forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+        });
+      });
+
+      // Logout button
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", function () {
+          if (confirm("Are you sure you want to logout?")) {
+            window.location.href = "login.html";
+          }
+        });
+
+      // Event card actions
+      document.querySelectorAll(".btn-primary").forEach((btn) => {
+        if (btn.textContent.includes("View Ticket")) {
+          btn.addEventListener("click", function () {
+            alert(
+              "Ticket details would be displayed here in a real application.",
+            );
+          });
+        }
+      });
+
+      // Save profile changes
+      document
+        .querySelector(".profile-form .btn-primary")
+        .addEventListener("click", function () {
+          this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+          setTimeout(() => {
+            this.innerHTML = '<i class="fas fa-check"></i> Saved!';
+            setTimeout(() => {
+              this.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+            }, 2000);
+          }, 1000);
+        });
+
+      // User profile dropdown (simplified)
+      document
+        .getElementById("userProfile")
+        .addEventListener("click", function () {
+          const profileTab = document.querySelector('[data-tab="profile"]');
+          if (profileTab) {
+            profileTab.click();
+          }
+        });
+
+      // View all links
+      document.querySelectorAll(".view-all").forEach((link) => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const targetTab = this.getAttribute("data-tab");
+          const targetNavLink = document.querySelector(
+            `[data-tab="${targetTab}"]`,
+          );
+          if (targetNavLink) {
+            targetNavLink.click();
+          }
+        });
+      });
+
+      // Add some sample data loading for empty states
+      window.addEventListener("DOMContentLoaded", function () {
+        // Simulate loading
+        setTimeout(() => {
+          console.log("Dashboard loaded successfully");
+        }, 500);
+      });
+    </script>
+  </body>
+</html>

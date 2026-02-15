@@ -1,0 +1,1679 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VibePass - Discover Events</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+
+  <style>
+    /* Brand Colors */
+    :root {
+      --vibe-primary: #6c4bdd;
+      --vibe-secondary: #00d4aa;
+      --vibe-dark: #1a1a2e;
+      --vibe-light: #f8f9ff;
+      --vibe-accent: #ff6b9d;
+      --vibe-text: #333333;
+      --vibe-text-light: #777777;
+      --vibe-card-bg: #ffffff;
+      --vibe-card-shadow: rgba(108, 75, 221, 0.08);
+      --vibe-success: #00c853;
+      --vibe-warning: #ff9800;
+      --vibe-danger: #ff4d4d;
+      --vibe-info: #2196f3;
+    }
+
+    /* Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--vibe-light);
+      color: var(--vibe-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 clamp(12px, 3vw, 20px);
+    }
+
+    /* Header */
+    .header {
+      background-color: var(--vibe-dark);
+      padding: clamp(15px, 3vw, 20px) 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: clamp(1.3rem, 4vw, 1.8rem);
+    }
+
+    .logo-icon {
+      color: var(--vibe-secondary);
+      background: var(--vibe-primary);
+      width: clamp(35px, 8vw, 45px);
+      height: clamp(35px, 8vw, 45px);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-10deg);
+      flex-shrink: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: clamp(10px, 3vw, 20px);
+    }
+
+    .header-search {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      padding: 10px 15px 10px 45px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 0.95rem;
+      width: 250px;
+      max-width: 100%;
+      transition: all 0.3s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--vibe-secondary);
+      background: rgba(255, 255, 255, 0.15);
+      width: 300px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .auth-btn {
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .login-btn {
+      background: transparent;
+      color: white;
+      border: 2px solid var(--vibe-secondary);
+    }
+
+    .login-btn:hover {
+      background: var(--vibe-secondary);
+      color: var(--vibe-dark);
+    }
+
+    .signup-btn {
+      background: var(--vibe-primary);
+      color: white;
+      border: 2px solid var(--vibe-primary);
+    }
+
+    .signup-btn:hover {
+      background: #5a3bc5;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Page Header */
+    .page-header {
+      padding: clamp(30px, 6vw, 60px) 0 clamp(20px, 4vw, 40px);
+      text-align: center;
+    }
+
+    .page-title {
+      font-size: clamp(2rem, 6vw, 3rem);
+      color: var(--vibe-dark);
+      margin-bottom: 15px;
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      color: var(--vibe-text-light);
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      max-width: 700px;
+      margin: 0 auto 25px;
+    }
+
+    /* Filters Section */
+    .filters-section {
+      background: var(--vibe-card-bg);
+      border-radius: 15px;
+      padding: clamp(20px, 4vw, 30px);
+      box-shadow: 0 5px 20px var(--vibe-card-shadow);
+      margin-bottom: 30px;
+    }
+
+    .filters-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .filters-title {
+      font-size: 1.2rem;
+      color: var(--vibe-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 5px;
+      background: var(--vibe-light);
+      padding: 5px;
+      border-radius: 8px;
+    }
+
+    .view-btn {
+      padding: 8px 15px;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--vibe-text-light);
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .view-btn.active {
+      background: var(--vibe-primary);
+      color: white;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-weight: 600;
+      color: var(--vibe-dark);
+      font-size: 0.9rem;
+    }
+
+    .filter-select,
+    .filter-input {
+      padding: 12px 15px;
+      border: 2px solid #e1e5f1;
+      border-radius: 8px;
+      background: var(--vibe-light);
+      font-size: 0.95rem;
+      width: 100%;
+    }
+
+    .filter-select:focus,
+    .filter-input:focus {
+      outline: none;
+      border-color: var(--vibe-primary);
+    }
+
+    .filter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .filter-tag {
+      padding: 8px 16px;
+      background: var(--vibe-light);
+      border: 2px solid #e1e5f1;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .filter-tag:hover {
+      border-color: var(--vibe-primary);
+      color: var(--vibe-primary);
+    }
+
+    .filter-tag.active {
+      background: var(--vibe-primary);
+      color: white;
+      border-color: var(--vibe-primary);
+    }
+
+    .filters-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .results-count {
+      color: var(--vibe-text-light);
+      font-size: 0.9rem;
+    }
+
+    .clear-filters {
+      background: none;
+      border: none;
+      color: var(--vibe-danger);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Events Listing */
+    .events-listing {
+      margin-bottom: 50px;
+    }
+
+    /* Grid View */
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 25px;
+    }
+
+    /* List View */
+    .events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .events-grid.active {
+      display: grid;
+    }
+
+    .events-list.active {
+      display: flex;
+    }
+
+    /* Event Card - Grid */
+    .event-card-grid {
+      background: var(--vibe-card-bg);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px var(--vibe-card-shadow);
+      transition: all 0.3s;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-card-grid:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(108, 75, 221, 0.15);
+    }
+
+    .event-image {
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .event-card-grid:hover .event-image img {
+      transform: scale(1.05);
+    }
+
+    .event-category {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--vibe-secondary);
+      color: var(--vibe-dark);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .event-date-badge {
+      position: absolute;
+      bottom: -20px;
+      left: 15px;
+      background: var(--vibe-dark);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transition: bottom 0.3s;
+    }
+
+    .event-card-grid:hover .event-date-badge {
+      bottom: 15px;
+    }
+
+    .event-content {
+      padding: 25px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--vibe-dark);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .event-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 15px;
+      flex: 1;
+    }
+
+    .event-detail {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--vibe-text-light);
+      font-size: 0.9rem;
+    }
+
+    .event-description {
+      color: var(--vibe-text);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .event-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .event-price {
+      font-weight: 700;
+      color: var(--vibe-primary);
+      font-size: 1.2rem;
+    }
+
+    .free-badge {
+      background: var(--vibe-success);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .event-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background-color: var(--vibe-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #5a3bc5;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--vibe-primary);
+      border: 2px solid var(--vibe-primary);
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(108, 75, 221, 0.08);
+    }
+
+    /* Event Card - List */
+    .event-card-list {
+      background: var(--vibe-card-bg);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px var(--vibe-card-shadow);
+      transition: all 0.3s;
+      display: flex;
+      min-height: 200px;
+    }
+
+    .event-card-list:hover {
+      transform: translateX(5px);
+      box-shadow: 0 10px 30px rgba(108, 75, 221, 0.15);
+    }
+
+    .event-card-list .event-image {
+      width: 300px;
+      height: auto;
+      flex-shrink: 0;
+    }
+
+    .event-card-list .event-content {
+      flex: 1;
+      padding: 25px;
+    }
+
+    .event-card-list .event-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 50px;
+      flex-wrap: wrap;
+    }
+
+    .pagination-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 2px solid #e1e5f1;
+      background: white;
+      color: var(--vibe-text);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pagination-btn:hover {
+      border-color: var(--vibe-primary);
+      color: var(--vibe-primary);
+    }
+
+    .pagination-btn.active {
+      background: var(--vibe-primary);
+      border-color: var(--vibe-primary);
+      color: white;
+    }
+
+    .pagination-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* No Results */
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--vibe-text-light);
+    }
+
+    .no-results-icon {
+      font-size: 3rem;
+      color: #e1e5f1;
+      margin-bottom: 20px;
+    }
+
+    .no-results h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: var(--vibe-text);
+    }
+
+    /* Footer */
+    .footer {
+      background-color: var(--vibe-dark);
+      color: white;
+      padding: 40px 0 30px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .footer-about p {
+      opacity: 0.8;
+      margin-bottom: 20px;
+    }
+
+    .footer-links h3,
+    .footer-newsletter h3 {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .footer-links ul {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: white;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+
+    .footer-links a:hover {
+      opacity: 1;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .newsletter-input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .newsletter-input:focus {
+      outline: none;
+      border-color: var(--vibe-secondary);
+    }
+
+    .newsletter-btn {
+      background: var(--vibe-secondary);
+      color: var(--vibe-dark);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      opacity: 0.7;
+      font-size: 0.9rem;
+    }
+
+    /* Time Filters Container */
+    .time-filters-container {
+      background: var(--vibe-card-bg);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 20px var(--vibe-card-shadow);
+      margin-bottom: 25px;
+      border-left: 4px solid var(--vibe-info);
+    }
+
+    .time-filters-scroll {
+      overflow-x: auto;
+      margin: 15px 0;
+      padding-bottom: 10px;
+    }
+
+    .time-filters {
+      display: flex;
+      gap: 12px;
+      min-width: min-content;
+    }
+
+    .time-filters .filter-btn {
+      min-width: 140px;
+      border-color: var(--vibe-info);
+    }
+
+    .time-filters .filter-btn:hover {
+      background: rgba(33, 150, 243, 0.1);
+    }
+
+    .time-filters .filter-btn.active {
+      background: var(--vibe-info);
+      border-color: var(--vibe-info);
+    }
+
+    .time-filters .filter-btn.active .filter-icon {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Category Filters Container */
+    .category-filters-container {
+      background: var(--vibe-card-bg);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 20px var(--vibe-card-shadow);
+      margin-bottom: 25px;
+      border-left: 4px solid var(--vibe-primary);
+    }
+
+    .category-filters-scroll {
+      overflow-x: auto;
+      margin: 15px 0;
+      padding-bottom: 10px;
+    }
+
+    .category-filters {
+      display: flex;
+      gap: 12px;
+      min-width: min-content;
+    }
+
+    .category-filters .filter-btn {
+      min-width: 120px;
+    }
+
+    /* Common Filter Button Styles */
+    .filter-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 15px 12px;
+      background: var(--vibe-light);
+      border: 2px solid var(--vibe-primary);
+      border-radius: 12px;
+      color: var(--vibe-text);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .filter-btn:hover {
+      background: rgba(108, 75, 221, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(108, 75, 221, 0.1);
+    }
+
+    .filter-btn.active {
+      background: var(--vibe-primary);
+      color: white;
+      border-color: var(--vibe-primary);
+    }
+
+    .filter-btn.active .filter-icon {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .filter-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      background: rgba(108, 75, 221, 0.1);
+      color: var(--vibe-primary);
+    }
+
+    .filter-btn.active .filter-icon {
+      color: white;
+    }
+
+    .filter-label {
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+
+    /* Filters Header */
+    .filters-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .filters-title {
+      font-size: 1.1rem;
+      color: var(--vibe-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filters-count {
+      background: var(--vibe-secondary);
+      color: var(--vibe-dark);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+
+    /* Filter Actions */
+    .filter-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .active-filter-tag {
+      background: rgba(0, 212, 170, 0.1);
+      color: var(--vibe-secondary);
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(0, 212, 170, 0.2);
+    }
+
+    .active-filter-tag i.fa-times {
+      cursor: pointer;
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .active-filter-tag i.fa-times:hover {
+      opacity: 1;
+    }
+
+    .clear-filters-btn {
+      background: transparent;
+      border: none;
+      color: var(--vibe-danger);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 15px;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .clear-filters-btn:hover {
+      background: rgba(255, 77, 77, 0.1);
+    }
+
+    /* Hide scrollbar but keep functionality */
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Responsive Styles */
+
+    @media (max-width: 480px) {
+      .filter-btn {
+        min-width: 90px;
+      }
+
+      .time-filters .filter-btn {
+        min-width: 110px;
+      }
+
+      .filter-label {
+        font-size: 0.7rem;
+      }
+
+      .filters-count {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+      }
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .events-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+
+      .event-card-list .event-image {
+        width: 250px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .header-search {
+        order: 3;
+        width: 100%;
+        margin-top: 15px;
+      }
+
+      .search-input {
+        width: 100%;
+      }
+
+      .search-input:focus {
+        width: 100%;
+      }
+
+      .event-card-list {
+        flex-direction: column;
+      }
+
+      .event-card-list .event-image {
+        width: 100%;
+        height: 200px;
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .category-filters-container,
+      .time-filters-container {
+        padding: 20px;
+        border-radius: 12px;
+      }
+
+      .filters-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .filters-title {
+        font-size: 1rem;
+      }
+
+      .filter-btn {
+        padding: 12px 10px;
+        min-width: 110px;
+      }
+
+      .time-filters .filter-btn {
+        min-width: 130px;
+      }
+
+      .filter-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+      }
+
+      .filter-label {
+        font-size: 0.8rem;
+      }
+
+      .filter-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      .active-filters {
+        justify-content: center;
+      }
+
+      .clear-filters-btn {
+        justify-content: center;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 576px) {
+
+      .category-filters-container,
+      .time-filters-container {
+        padding: 15px;
+      }
+
+      .category-filters,
+      .time-filters {
+        gap: 8px;
+      }
+
+      .filter-btn {
+        min-width: 100px;
+        padding: 10px 8px;
+      }
+
+      .time-filters .filter-btn {
+        min-width: 120px;
+      }
+
+      .filter-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+      }
+
+      .filter-label {
+        font-size: 0.75rem;
+      }
+
+      .active-filter-tag {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+
+      .category-filters-container,
+      .time-filters-container {
+        padding: 15px;
+      }
+
+      .category-filters,
+      .time-filters {
+        gap: 8px;
+      }
+
+      .filter-btn {
+        min-width: 100px;
+        padding: 10px 8px;
+      }
+
+      .time-filters .filter-btn {
+        min-width: 120px;
+      }
+
+      .filter-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+      }
+
+      .filter-label {
+        font-size: 0.75rem;
+      }
+
+      .active-filter-tag {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+
+      .container {
+        padding: 0 15px;
+      }
+
+      .page-header {
+        padding: 30px 0;
+      }
+
+      .filters-section {
+        padding: 20px;
+        border-radius: 12px;
+      }
+
+      .events-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .event-content {
+        padding: 20px;
+      }
+
+      .event-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+    }
+
+
+    @media (max-width: 480px) {
+      .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .user-menu {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .auth-btn {
+        padding: 6px 15px;
+        font-size: 0.85rem;
+      }
+
+      .page-title {
+        font-size: 1.8rem;
+      }
+
+      .page-subtitle {
+        font-size: 1rem;
+      }
+
+      .filters-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .view-toggle {
+        align-self: flex-start;
+      }
+
+      .event-detail {
+        font-size: 0.85rem;
+      }
+
+      .newsletter-form {
+        flex-direction: column;
+      }
+
+      .filter-btn {
+        min-width: 90px;
+      }
+
+      .time-filters .filter-btn {
+        min-width: 110px;
+      }
+
+      .filter-label {
+        font-size: 0.7rem;
+      }
+
+      .filters-count {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .event-card-grid,
+    .event-card-list {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Utility Classes */
+    .hidden {
+      display: none !important;
+    }
+
+    .visible {
+      display: block !important;
+    }
+
+    /* Loading State */
+    .loading {
+      position: relative;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .loading::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--vibe-primary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+       <!--Django messages-->
+    {% if messages %}
+      {% for message in messages %}
+         <div class="alert alert-warning alert-dismissible fade show" role="alert">
+           {{ message }}
+           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>
+      {% endfor %}
+    {% endif %}
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-ticket-alt"></i>
+        </div>
+        VibePass
+      </a>
+
+      <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <form action="{% url 'search_event' %}" method="GET" class="header-search">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" class="search-input" placeholder="Search events, parties, venues..." id="searchInput"
+          value="{{ request.GET.q }}" name="q" />
+      </form>
+
+      <div class="user-menu">
+        {% if user.is_authenticated %}
+        <a href="{% url 'finders_dashboard' %}" class="btn btn-outline-primary btn-lg"
+          style="font-size: 15px; font-weight: bold">My Dashboard</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="auth-btn login-btn">Log In</a>
+        <a href="{% url 'register' %}" class="auth-btn signup-btn">Sign Up</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Page Header -->
+    <section class="page-header">
+      <div class="container">
+        <h1 class="page-title">
+          Discover Amazing Events <i class="fas fa-party-horn"></i>
+        </h1>
+        <p class="page-subtitle">
+          Discover the best parties, concerts, workshops, and campus events
+          happening near you
+        </p>
+      </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section">
+      <div class="container">
+        <div class="filters-header">
+          <h2 class="filters-title">
+            <i class="fas fa-filter"></i> Filter Events
+          </h2>
+        </div>
+
+        <!-- Category Filters Container -->
+        <div class="category-filters-container">
+          <div class="filters-header">
+            <h2 class="filters-title">
+              <i class="fas fa-tags"></i> Filter by Category
+              <span class="filters-count" id="activeCategoryFiltersCount">1 active</span>
+            </h2>
+          </div>
+
+          <!-- Scrollable container for mobile -->
+          <div class="category-filters-scroll hide-scrollbar">
+            <div class="category-filters">
+              <!-- All Events -->
+              <a href="{% url 'list_event' %}" class="filter-btn active" data-category="all">
+                <span class="filter-icon">
+                  <i class="fas fa-globe"></i>
+                </span>
+                <span class="filter-label">All Events</span>
+              </a>
+
+              <!-- Parties -->
+              <a href="{% url 'filter_by_category' 'Campus Events' %}" class="filter-btn" data-category="party">
+                <span class="filter-icon">
+                  <i class="fas fa-glass-cheers"></i>
+                </span>
+                <span class="filter-label">Campus Events</span>
+              </a>
+
+              <!-- Music -->
+              <a href="{% url 'filter_by_category' 'Music concerts'%}" class="filter-btn" data-category="music">
+                <span class="filter-icon">
+                  <i class="fas fa-music"></i>
+                </span>
+                <span class="filter-label">Live Music&concerts</span>
+              </a>
+
+              <!-- Workshops -->
+              <a href="{% url 'filter_by_category' 'Workshop&Seminars'%}" class="filter-btn" data-category="workshop">
+                <span class="filter-icon">
+                  <i class="fas fa-chalkboard-teacher"></i>
+                </span>
+                <span class="filter-label">Workshops</span>
+              </a>
+
+                <!-- Sports -->
+                <a href="{% url 'filter_by_category' 'Sport Events' %}" class="filter-btn" data-category="sports">
+                  <span class="filter-icon">
+                    <i class="fas fa-running"></i>
+                  </span>
+                  <span class="filter-label">Sports Events</span>
+                </a>
+
+                <!-- Networking -->
+                <a href="{% url 'filter_by_category' 'Networking' %}" class="filter-btn" data-category="networking">
+                  <span class="filter-icon">
+                    <i class="fas fa-handshake"></i>
+                  </span>
+                  <span class="filter-label">Networking</span>
+                </a>
+
+                <!-- Food -->
+                <a href="{% url 'filter_by_category' 'Festivals' %}" class="filter-btn" data-category="food">
+                  <span class="filter-icon">
+                    <i class="fas fa-utensils"></i>
+                  </span>
+                  <span class="filter-label">Food Festivals</span>
+                </a>
+
+                <!-- Arts -->
+                <a href="{% url 'filter_by_category' 'Cultural Festival'%}" class="filter-btn" data-category="arts">
+                  <span class="filter-icon">
+                    <i class="fas fa-palette"></i>
+                  </span>
+                  <span class="filter-label">Arts & Culture</span>
+                </a>
+
+                <!-- Tech -->
+                <a href="{% url 'filter_by_category' 'Tech Events' %}" class="filter-btn" data-category="tech">
+                  <span class="filter-icon">
+                    <i class="fas fa-laptop-code"></i>
+                  </span>
+                  <span class="filter-label">Tech Events</span>
+                </a>
+
+                <!-- Academics -->
+                <a href="{% url 'filter_by_category' 'Academic Conference' %}" class="filter-btn" data-category="tech">
+                  <span class="filter-icon">
+                    <i class="fas fa-laptop-code"></i>
+                  </span>
+                  <span class="filter-label">Academic Conference</span>
+                </a>
+
+                <!-- church -->
+                <a href="{% url 'filter_by_category' 'Church Events' %}" class="filter-btn" data-category="tech">
+                  <span class="filter-icon">
+                    <i class="fas fa-laptop-code"></i>
+                  </span>
+                  <span class="filter-label">Church Events</span>
+                </a>
+
+                <!-- Other -->
+                <a href="{% url 'filter_by_category' 'Other' %}" class="filter-btn" data-category="tech">
+                  <span class="filter-icon">
+                    <i class="fas fa-laptop-code"></i>
+                  </span>
+                  <span class="filter-label">Other</span>
+                </a>
+
+                <!-- Based on time -->
+
+                <!-- Upcoming Events -->
+                </a> <a href="{% url 'filter_by_time' %}" class="filter-btn" data-category="tech">
+                  <span class="filter-icon">
+                    <i class="fas fa-laptop-code"></i>
+                  </span>
+                  <span class="filter-label">Upcoming Events</span>
+                </a>
+            </div>
+          </div>
+
+          <!-- Filter Actions -->
+          <div class="filter-actions">
+            <div class="active-filters" id="activeCategoryFilters">
+              <a href="{% url 'list_event' %}" class="active-filter-tag">
+                <i class="fas fa-globe"></i>
+                All Events
+                <i class="fas fa-times" data-category="all"></i>
+              </a>
+            </div>
+            <a href="{% url 'list_event' %}" class="clear-filters-btn" id="clearCategoryFilters">
+              <i class="fas fa-times-circle"></i>
+              Clear Category Filters
+            </a>
+          </div>
+        </div>
+    </section>
+
+    <!-- Events Listing -->
+    <section class="events-listing">
+      <div class="container">
+        <!-- Grid View -->
+        <div class="events-grid active" id="eventsGridView">
+          {% for Event in page_obj %}
+          <div class="event-card-grid">
+            <div class="event-image">
+              <img src="{{ Event.Event_flyer.url }}" alt="{{ Event.Event_title }}" />
+              <div class="event-category">{{ Event.Event_category }}</div>
+              <div class="event-date-badge">
+                {{ Event.Event_date|date:"M d" }}
+              </div>
+            </div>
+            <div class="event-content">
+              <h3 class="event-title">{{ Event.Event_title }}</h3>
+              <div class="event-details">
+                <div class="event-detail">
+                  <i class="far fa-calendar"></i>
+                  <span>{{ Event.Event_date }} • {{ Event.Event_time }}</span>
+                </div>
+                <div class="event-detail">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>{{ Event.Event_location }}</span>
+                </div>
+                <div class="event-detail">
+                  <i class="fas fa-fire" style="color: var(--vibe-accent)"></i>
+                  <span style="color: var(--vibe-accent); font-weight: 600"></span>
+                </div>
+              </div>
+              <p class="event-description">{{ Event.Event_details }}</p>
+              <div class="event-footer">
+                <div>
+                  {% if Event.Event_is_free %}
+                  <span class="free-badge">FREE</span>
+                  {% else %}
+                  <div class="event-price">
+                    {{ Event.Event_ticket_price }}
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="event-actions">
+                  <a href="{% url 'event_details' Event.slug %}" class="btn btn-secondary view-details-btn" data-id="${event.id}">
+                    <i class="far fa-eye"></i> Details
+                  </a>
+                  <button class="btn btn-primary book-btn" data-id="${event.id}">
+                    {% if Event.Event_is_free %} Register FREE {% else %} Get
+                    Tickets {% endif %}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}" class="pagination-btn">
+            &laquo;
+          </a>
+          {% endif %} {% for num in page_obj.paginator.page_range %}
+          <a href="?page={{ num }}" class="pagination-btn {% if page_obj.number == num %} active {% endif %}">
+            {{ num }}
+          </a>
+          {% endfor %} {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}" class="pagination-btn">
+            &raquo;
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-about">
+          <div class="footer-logo">
+            <div class="logo-icon" style="width: 35px; height: 35px; font-size: 1rem">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+            VibePass
+          </div>
+          <p>
+            Connecting students with unforgettable campus experiences. Find
+            the best events, parties, and gatherings in your area.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="#">Browse Events</a></li>
+            <li><a href="#">Create Event</a></li>
+            <li><a href="#">Organizer Dashboard</a></li>
+            <li><a href="#">Student Discounts</a></li>
+            <li><a href="#">Campus Groups</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-newsletter">
+          <h3>Stay Updated</h3>
+          <p>Get weekly event updates and exclusive offers</p>
+          <div class="newsletter-form">
+            <input type="email" class="newsletter-input" placeholder="Your email" />
+            <button class="newsletter-btn">Subscribe</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>
+          &copy; 2024 VibePass. All rights reserved. Made for students, by
+          students.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // DOM Elements
+    const eventsGridView = document.getElementById("eventsGridView");
+    const eventsListView = document.getElementById("eventsListView");
+    const noResults = document.getElementById("noResults");
+    const resultsCount = document.getElementById("resultsCount");
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const dateFilter = document.getElementById("dateFilter");
+    const priceFilter = document.getElementById("priceFilter");
+    const filterTags = document.querySelectorAll(".filter-tag");
+    const clearFiltersBtn = document.getElementById("clearFilters");
+    const viewButtons = document.querySelectorAll(".view-btn");
+    const paginationButtons = document.querySelectorAll(".pagination-btn");
+
+    // Current state
+    let currentView = "grid";
+    let currentFilters = {
+      search: "",
+      category: "",
+      date: "",
+      price: "",
+      tag: "all",
+    };
+    let filteredEvents = [...eventsData];
+
+    // Helper functions
+    function getCategoryLabel(category) {
+      const labels = {
+        party: "🎉 Party",
+        music: "🎵 Music",
+        workshop: "💡 Workshop",
+        sports: "⚽ Sports",
+        networking: "🤝 Networking",
+      };
+      return labels[category] || "Event";
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    function updateResultsCount() {
+      resultsCount.textContent = filteredEvents.length;
+    }
+
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById("mobileMenuToggle");
+    const headerSearch = document.querySelector(".header-search");
+    const userMenu = document.querySelector(".user-menu");
+
+    mobileMenuToggle.addEventListener("click", function () {
+      headerSearch.classList.toggle("visible");
+      userMenu.classList.toggle("visible");
+
+      if (headerSearch.classList.contains("visible")) {
+        headerSearch.style.display = "block";
+        userMenu.style.display = "flex";
+        mobileMenuToggle.innerHTML = '<i class="fas fa-times"></i>';
+      } else {
+        headerSearch.style.display = "";
+        userMenu.style.display = "";
+        mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+      }
+    });
+
+    // Initialize
+    displayEvents();
+  </script>
+</body>
+
+</html>
