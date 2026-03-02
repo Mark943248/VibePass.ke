@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import Tickets
+from .models import Ticket
 # Register your models here.
-admin.register(Tickets)
+admin.register(Ticket)
