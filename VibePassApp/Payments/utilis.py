@@ -23,7 +23,7 @@ def generate_access_token():
         raise Exception('Failed to generate access token')
     
 # mpesa stk_push request
-def mpesa_stk_push(phone_number, amount, payment_reference):
+def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
    access_token = generate_access_token()
    if not access_token:
          raise Exception('Failed to obtain access token')
@@ -43,7 +43,7 @@ def mpesa_stk_push(phone_number, amount, payment_reference):
         "PartyB": short_code,
         "PhoneNumber": phone_number,
         "CallBackURL": config('MPESA_CALLBACK_URL'), # Your 'Back Door' URL
-        "AccountReference": f"REF-{payment_reference}",
+        "AccountReference": f"Purchase of {Event_title} ticket - {payment_id}",
         "TransactionDesc": "Event Ticket Purchase"
    }
    headers = {"Authorization": f"Bearer {access_token}"}
