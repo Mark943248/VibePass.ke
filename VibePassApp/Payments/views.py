@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from Tickets.views import create_ticket
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from Events.models import Event
 from django.contrib import messages
@@ -8,6 +10,7 @@ from .models import Payment
 import json
 
 # Create your views here.
+@login_required
 def initiate_payment(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     if request.method == 'POST':
@@ -27,13 +30,13 @@ def initiate_payment(request, event_id):
         if response.get('ResponseCode') == '0':
             payment.checkout_request_id = response.get('CheckoutRequestID')
             payment.save()
-            messages.success(request, 'Please enter your pin on your phone to complete the payment.')
+            print(f'MPESA STK Push initiated successfully for payment ID {payment.payment_id}')
             return render(request, 'Payments/payment_waiting.html', {'event': event})
         else:
             payment.payment_status = 'Failed'
             payment.save()
             error_msg = response.get('ResultDesc', 'Payment initiation failed. Please try again.')
-            messages.error(request, f'MPESA Error: {error_msg}, please try again.')
+            print(f'MPESA STK Push failed for payment ID {payment.payment_id}: {error_msg}')
             return redirect('Eventdetails')
     return render(request, 'Payments/initiate_payment.html', {'event': event})
 
@@ -51,15 +54,19 @@ def mpesa_callback(request):
             payment = Payment.objects.get(checkout_request_id=checkout_request_id)
             if result_code == 0:
                 payment.payment_status = 'Completed'
-                payment.mpesa_receipt_number = mpesa_info['CallbackMetadata']['Item'][2]['Value']  # Assuming the receipt number is at index 1
+                items = mpesa_info['CallbackMetadata']['item']
+                for item in items:
+                    if item['Name'] == "MpesaReceiptNumber":
+                        payment.mpesa_receipt_number = item['Value']
                 payment.save()
-                messages.success(request, 'Payment completed successfully.')
+                print(f'Payment succesful payment_id : {payment.id}')
+                return create_ticket(payment.id)
             else:
                 payment.payment_status = 'Failed'
                 payment.save()
-                messages.error(request, f'Payment failed: {result_desc}')
+                print(f'Payment failed for payment ID {payment.payment_id}: {result_desc}')
         except Payment.DoesNotExist:
-            messages.error(request, 'Payment record not found for the given checkout request ID.')
+            print(f'Payment record not found for the given checkout request ID: {checkout_request_id}')
         # informing safaricom of success
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
     
