@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from Events.models import Event
 from .models import User
 
 # view for user registration
@@ -73,7 +74,8 @@ def LogoutView(request):
 @login_required
 def EventFindersDashboard(request):
     user = request.user
-    return render(request, 'users/Event_finder.html', {'user': user})
+    events = Event.objects.order_by('-Event_created_at')[:4]
+    return render(request, 'users/Event_finder.html', {'user': user, 'events': events})
 
 
 # 2. Event Organizers Dashboard
@@ -82,3 +84,31 @@ def EventFindersDashboard(request):
 def EventOrganizersDashboard(request):
     user = request.user
     return render(request, 'users/Event_organiser.html', {'user': user}) 
+
+# change users details
+@login_required
+def ChangeUsersDetails(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+       
+        if not all([username, email]):
+            messages.error(request, 'Please fill in all fields!')
+            return redirect('finders_dashboard')
+        elif User.objects.filter(username=username).exclude(id=request.user.id).exists():
+            messages.error(request, 'Username already taken! Please choose another.')
+            return redirect('finders_dashboard')
+        else:
+            try:
+                user = request.user
+                user.username = username
+                user.email = email
+                user.save()
+                messages.success(request, 'Profile updated successfully!')
+            except Exception as e:
+                messages.error(request, f'An error occurred while updating your profile')
+                print(f'Error updating user profile: {e}')
+    return redirect('finders_dashboard')
+
+    
+

@@ -8,4 +8,5 @@ urlpatterns = [
     path('make_organiser/', views.make_event_organiser, name='make_organiser'),
     path('dashboard/Event_finder/', views.EventFindersDashboard, name='finders_dashboard'),
     path('dashboard/Event_organiser', views.EventOrganizersDashboard, name='organizers_dashboard'),
+    path('change_details/', views.ChangeUsersDetails, name='change_details'),
 ]

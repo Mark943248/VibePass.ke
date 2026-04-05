@@ -2,7 +2,12 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import dotenv
 
+def main():
+    dotenv.load_dotenv()  # This loads the variables from .env
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_project.settings')
+    # ... rest of the default code
 
 def main():
     """Run administrative tasks."""

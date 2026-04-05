@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>VibePass - Checkout | Complete Your Purchase</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Brand Colors */
+        :root {
+            --vibe-primary: #6C4BDD;
+            --vibe-secondary: #00D4AA;
+            --vibe-dark: #1A1A2E;
+            --vibe-light: #F8F9FF;
+            --vibe-accent: #FF6B9D;
+            --vibe-text: #333333;
+            --vibe-text-light: #777777;
+            --vibe-card-bg: #FFFFFF;
+            --vibe-card-shadow: rgba(108, 75, 221, 0.08);
+            --vibe-success: #00C853;
+            --vibe-warning: #FF9800;
+            --vibe-danger: #FF4D4D;
+            --vibe-info: #2196F3;
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--vibe-light) 0%, #F0F2FF 100%);
+            color: var(--vibe-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 clamp(12px, 4vw, 24px);
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--vibe-dark);
+            padding: clamp(12px, 3vw, 20px) 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+        }
+
+        .logo-icon {
+            color: var(--vibe-secondary);
+            background: var(--vibe-primary);
+            width: clamp(35px, 8vw, 45px);
+            height: clamp(35px, 8vw, 45px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-10deg);
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .back-btn:hover {
+            color: var(--vibe-secondary);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: clamp(20px, 5vw, 50px) 0;
+        }
+
+        /* Checkout Layout */
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        /* Checkout Form Section */
+        .checkout-form-section {
+            background: var(--vibe-card-bg);
+            border-radius: 20px;
+            padding: clamp(25px, 5vw, 35px);
+            box-shadow: 0 8px 30px var(--vibe-card-shadow);
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--vibe-light);
+        }
+
+        .section-header h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            color: var(--vibe-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header p {
+            color: var(--vibe-text-light);
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--vibe-light);
+            z-index: 1;
+        }
+
+        .step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--vibe-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 600;
+            color: var(--vibe-text-light);
+            transition: all 0.3s;
+        }
+
+        .step.active .step-number {
+            background: var(--vibe-primary);
+            color: white;
+            box-shadow: 0 0 0 3px rgba(108, 75, 221, 0.2);
+        }
+
+        .step.completed .step-number {
+            background: var(--vibe-success);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: var(--vibe-text-light);
+            font-weight: 500;
+        }
+
+        .step.active .step-label {
+            color: var(--vibe-primary);
+            font-weight: 600;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--vibe-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-label.required::after {
+            content: " *";
+            color: var(--vibe-danger);
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--vibe-text-light);
+            font-size: 1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 2px solid #E1E5F1;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: var(--vibe-light);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--vibe-primary);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(108, 75, 221, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--vibe-danger);
+        }
+
+        .error-message {
+            color: var(--vibe-danger);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-help {
+            font-size: 0.85rem;
+            color: var(--vibe-text-light);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Payment Methods */
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .payment-method {
+            padding: 15px;
+            border: 2px solid #E1E5F1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--vibe-light);
+        }
+
+        .payment-method:hover {
+            border-color: var(--vibe-primary);
+            transform: translateY(-2px);
+        }
+
+        .payment-method.selected {
+            border-color: var(--vibe-primary);
+            background: rgba(108, 75, 221, 0.05);
+        }
+
+        .payment-method i {
+            font-size: 1.5rem;
+        }
+
+        .payment-method span {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* M-PESA Details */
+        .mpesa-details {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), rgba(108, 75, 221, 0.05));
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .mpesa-instructions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .instruction-step {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .instruction-step .step-num {
+            width: 30px;
+            height: 30px;
+            background: var(--vibe-secondary);
+            color: var(--vibe-dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 700;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: var(--vibe-card-bg);
+            border-radius: 20px;
+            padding: clamp(20px, 4vw, 30px);
+            box-shadow: 0 8px 30px var(--vibe-card-shadow);
+            position: sticky;
+            top: 100px;
+        }
+
+        .summary-header {
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--vibe-light);
+            margin-bottom: 20px;
+        }
+
+        .summary-header h2 {
+            font-size: 1.3rem;
+            color: var(--vibe-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .event-info {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .event-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .event-details {
+            flex: 1;
+        }
+
+        .event-name {
+            font-weight: 700;
+            color: var(--vibe-dark);
+            margin-bottom: 5px;
+        }
+
+        .event-meta {
+            font-size: 0.85rem;
+            color: var(--vibe-text-light);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Price Breakdown */
+        .price-breakdown {
+            margin-bottom: 20px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            color: var(--vibe-text);
+        }
+
+        .price-row.total {
+            border-top: 2px solid var(--vibe-light);
+            margin-top: 10px;
+            padding-top: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--vibe-dark);
+        }
+
+        .price-amount {
+            font-weight: 600;
+        }
+
+        .grand-total {
+            font-size: 1.3rem;
+            color: var(--vibe-primary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--vibe-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a3bc5;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(108, 75, 221, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background-color: var(--vibe-secondary);
+            color: var(--vibe-dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: #00b894;
+            transform: translateY(-3px);
+        }
+
+        /* Loading State */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Success Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--vibe-success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--vibe-dark);
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            color: var(--vibe-text-light);
+            margin-bottom: 25px;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--vibe-dark);
+            color: white;
+            padding: 30px 0;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .checkout-layout {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .order-summary {
+                position: static;
+                order: -1;
+            }
+
+            .payment-methods {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .mpesa-instructions {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .progress-steps {
+                margin-bottom: 30px;
+            }
+
+            .step-number {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+
+            .step-label {
+                font-size: 0.75rem;
+            }
+
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+
+            .event-info {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .event-meta {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .checkout-form-section {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .progress-steps {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .progress-steps::before {
+                display: none;
+            }
+
+            .step {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                text-align: left;
+            }
+
+            .step-number {
+                margin: 0;
+            }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-header h1 {
+                font-size: 1.3rem;
+            }
+
+            .payment-method {
+                padding: 12px;
+            }
+
+            .payment-method i {
+                font-size: 1.2rem;
+            }
+
+            .instruction-step {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .checkout-form-section,
+        .order-summary {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                VibePass
+            </a>
+
+            <a href="{% url 'event_details' event.slug %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Event
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="checkout-layout">
+                <!-- Left Column - Checkout Form -->
+                <div class="checkout-form-section">
+                    <div class="section-header">
+                        <h1>
+                            <i class="fas fa-shopping-cart"></i> Complete Your Purchase
+                        </h1>
+                        <p>Enter your M-PESA number to complete the transaction</p>
+                    </div>
+
+                    <!-- Progress Steps -->
+                    <div class="progress-steps">
+                        <div class="step completed">
+                            <div class="step-number">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="step-label">Event Details</div>
+                        </div>
+                        <div class="step active">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Payment</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Confirmation</div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <form id="checkoutForm">
+                        <!-- Payment Method Selection -->
+                        <div class="form-group">
+                            <label class="form-label required">Payment Method</label>
+                            <div class="payment-methods">
+                                <div class="payment-method selected" data-method="mpesa">
+                                    <i class="fas fa-mobile-alt" style="color: #4CAF50;"></i>
+                                    <span>M-PESA</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- M-PESA Payment Section -->
+                        <div id="mpesaSection">
+                            <div class="form-group">
+                                <label for="phoneNumber" class="form-label required">M-PESA Phone Number</label>
+                                <form action="{% url 'initiate_payment' %}" method="post" class="input-with-icon">
+                                    <i class="fas fa-phone-alt input-icon"></i>
+                                    <input type="tel" id="phoneNumber" name="phone_number" class="form-input"
+                                        placeholder="0712 345 678" maxlength="10" required>
+                                </form>
+                                <div class="form-help">
+                                    <i class="fas fa-info-circle"></i> Enter the M-PESA registered phone number
+                                </div>
+                                <div class="error-message" id="phoneError">Please enter a valid 10-digit M-PESA number
+                                </div>
+                            </div>
+
+                            <!-- M-PESA Instructions -->
+                            <div class="mpesa-details">
+                                <h4 style="margin-bottom: 15px; color: var(--vibe-dark);">
+                                    <i class="fas fa-mobile-alt"></i> How to pay via M-PESA:
+                                </h4>
+                                <div class="mpesa-instructions">
+                                    <div class="instruction-step">
+                                        <div class="step-num">1</div>
+                                        <div>On your phone a stk pop up will appear</div>
+                                    </div>
+                                    <div class="instruction-step">
+                                        <div class="step-num">2</div>
+                                        <div>Enter your M-PESA PIN</div>
+                                    </div>
+                                    <div class="instruction-step">
+                                        <div class="step-num">3</div>
+                                        <div>Wait untill payment is confirmed</div>
+                                    </div>
+                                    <div class="instruction-step">
+                                        <div class="step-num">4</div>
+                                        <div>Done transaction is complete</div>
+                                    </div>
+                                </div>
+                                <div class="form-help" style="margin-top: 10px;">
+                                    <i class="fas fa-clock"></i> You'll receive a Ticket within seconds
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="form-group" style="margin-top: 25px;">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <input type="checkbox" id="termsCheckbox" style="margin-top: 3px;">
+                                <label for="termsCheckbox" style="font-size: 0.9rem; color: var(--vibe-text-light);">
+                                    I agree to the <a href="#" style="color: var(--vibe-primary);">Terms of Service</a>
+                                    and
+                                    <a href="#" style="color: var(--vibe-primary);">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <a href="{% url 'initiate_payment' %}" type="submit" class="btn btn-primary" id="payNowBtn">
+                            <i class="fas fa-lock"></i> Complete Payment
+                        </a>
+
+                        <p
+                            style="text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--vibe-text-light);">
+                            <i class="fas fa-shield-alt"></i> Your payment is secure and encrypted
+                        </p>
+                    </form>
+                </div>
+
+                <!-- Right Column - Order Summary -->
+                <div class="order-summary">
+                    <div class="summary-header">
+                        <h2>
+                            <i class="fas fa-receipt"></i> Order Summary
+                        </h2>
+                    </div>
+
+                    <!-- Event Information -->
+                    <div class="event-info">
+                        <div class="event-image">
+                            <i class="fas fa-glass-cheers"></i>
+                        </div>
+                        <div class="event-details">
+                            <div class="event-name">{{ event.Event_title }}</div>
+                            <div class="event-meta">
+                                <span><i class="far fa-calendar"></i> {{ event.Event_date }}</span>
+                                <span><i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ticket Details -->
+                    <div class="price-breakdown">
+                        <div class="price-row">
+                            <span>Ticket Type</span>
+                            <span id="ticketTypeDisplay">General</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Quantity</span>
+                            <span id="quantityDisplay">1 tickets</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Unit Price</span>
+                            <span id="unitPriceDisplay">KES {{ event.Event_ticket_price }}</span>
+                        </div>
+                        <div class="price-row total">
+                            <span>Total Amount</span>
+                            <span class="price-amount" id="subtotalDisplay">KES {{ event.Event_ticket_price }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3 class="modal-title">Payment Successful!</h3>
+            <p class="modal-text">
+                Your tickets have been booked successfully. A confirmation SMS has been sent to your phone.
+            </p>
+            <button class="btn btn-primary" id="viewTicketsBtn">
+                <i class="fas fa-ticket-alt"></i> View My Tickets
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon" style="width: 30px; height: 30px; font-size: 0.9rem;">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                VibePass
+            </div>
+
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Refund Policy</a>
+                <a href="#">Contact Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Get URL parameters for ticket details
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Sample ticket data (in real app, this comes from previous page)
+        let ticketData = {
+            type: urlParams.get('type') || 'General Admission',
+            quantity: parseInt(urlParams.get('quantity')) || 2,
+            unitPrice: parseInt(urlParams.get('price')) || 1500,
+            eventName: 'Spring Bash: Neon Night',
+            eventDate: 'May 20, 2024',
+            eventLocation: 'Student Union'
+        };
+
+        // Calculate totals
+        let subtotal = ticketData.quantity * ticketData.unitPrice;
+        let processingFee = subtotal > 0 ? Math.ceil(subtotal * 0.02) : 0; // 2% processing fee
+        let totalAmount = subtotal + processingFee;
+
+        // Update order summary display
+        document.getElementById('ticketTypeDisplay').textContent = ticketData.type;
+        document.getElementById('quantityDisplay').textContent = `${ticketData.quantity} ${ticketData.quantity === 1 ? 'ticket' : 'tickets'}`;
+        document.getElementById('unitPriceDisplay').textContent = `KES ${ticketData.unitPrice.toLocaleString()}`;
+        document.getElementById('subtotalDisplay').textContent = `KES ${subtotal.toLocaleString()}`;
+        document.getElementById('feeDisplay').textContent = `KES ${processingFee.toLocaleString()}`;
+        document.getElementById('totalAmountDisplay').textContent = `KES ${totalAmount.toLocaleString()}`;
+
+        // Update M-PESA amount display
+        const mpesaAmountDisplay = document.getElementById('mpesaAmountDisplay');
+        if (mpesaAmountDisplay) {
+            mpesaAmountDisplay.textContent = `KES ${totalAmount.toLocaleString()}`;
+        }
+
+        // DOM Elements
+        const paymentMethods = document.querySelectorAll('.payment-method');
+        const mpesaSection = document.getElementById('mpesaSection');
+        const cardSection = document.getElementById('cardSection');
+        const bankSection = document.getElementById('bankSection');
+        const phoneInput = document.getElementById('phoneNumber');
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        const payNowBtn = document.getElementById('payNowBtn');
+        const checkoutForm = document.getElementById('checkoutForm');
+        const successModal = document.getElementById('successModal');
+        const viewTicketsBtn = document.getElementById('viewTicketsBtn');
+
+        // Payment method switching
+        paymentMethods.forEach(method => {
+            method.addEventListener('click', function () {
+                // Remove selected class from all methods
+                paymentMethods.forEach(m => m.classList.remove('selected'));
+                // Add selected class to clicked method
+                this.classList.add('selected');
+
+                const methodType = this.getAttribute('data-method');
+
+                // Hide all payment sections
+                mpesaSection.style.display = 'none';
+                cardSection.style.display = 'none';
+                bankSection.style.display = 'none';
+
+                // Show selected payment section
+                if (methodType === 'mpesa') {
+                    mpesaSection.style.display = 'block';
+                } else if (methodType === 'card') {
+                    cardSection.style.display = 'block';
+                } else if (methodType === 'bank') {
+                    bankSection.style.display = 'block';
+                }
+            });
+        });
+
+        // Phone number validation
+        function validatePhoneNumber(phone) {
+            // Remove any non-digit characters
+            const cleaned = phone.replace(/\D/g, '');
+            // Check if it's a valid Kenyan phone number (10 digits starting with 07 or 01)
+            return /^(07|01)\d{8}$/.test(cleaned);
+        }
+
+        phoneInput.addEventListener('input', function () {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 10) value = value.slice(0, 10);
+            this.value = value;
+
+            const errorElement = document.getElementById('phoneError');
+            if (value.length === 10 && validatePhoneNumber(value)) {
+                this.classList.remove('error');
+                errorElement.style.display = 'none';
+            } else if (value.length > 0 && value.length < 10) {
+                this.classList.add('error');
+                errorElement.style.display = 'block';
+                errorElement.textContent = 'Please enter a valid 10-digit M-PESA number';
+            }
+        });
+
+        phoneInput.addEventListener('blur', function () {
+            const value = this.value;
+            const errorElement = document.getElementById('phoneError');
+            if (value && !validatePhoneNumber(value)) {
+                this.classList.add('error');
+                errorElement.style.display = 'block';
+                errorElement.textContent = 'Please enter a valid M-PESA number (starting with 07 or 01)';
+            }
+        });
+
+        // Form submission
+        checkoutForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Get selected payment method
+            const selectedMethod = document.querySelector('.payment-method.selected').getAttribute('data-method');
+
+            // Validate based on payment method
+            let isValid = true;
+
+            if (selectedMethod === 'mpesa') {
+                const phoneNumber = phoneInput.value;
+                if (!phoneNumber || !validatePhoneNumber(phoneNumber)) {
+                    phoneInput.classList.add('error');
+                    document.getElementById('phoneError').style.display = 'block';
+                    isValid = false;
+                }
+            }
+
+            // Validate terms
+            if (!termsCheckbox.checked) {
+                alert('Please agree to the Terms of Service and Privacy Policy');
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Show loading state
+                payNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+                payNowBtn.disabled = true;
+                payNowBtn.classList.add('loading');
+
+                // Simulate payment processing
+                setTimeout(() => {
+                    // Show success modal
+                    successModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+
+                    // Reset button
+                    payNowBtn.innerHTML = '<i class="fas fa-lock"></i> Complete Payment';
+                    payNowBtn.disabled = false;
+                    payNowBtn.classList.remove('loading');
+
+                    // Clear form
+                    if (selectedMethod === 'mpesa') {
+                        phoneInput.value = '';
+                    }
+                    termsCheckbox.checked = false;
+
+                    // In a real app, you would redirect or update state
+                }, 2000);
+            }
+        });
+
+        // Success modal actions
+        viewTicketsBtn.addEventListener('click', function () {
+            successModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            window.location.href = 'user-dashboard.html';
+        });
+
+        // Close modal when clicking outside
+        successModal.addEventListener('click', function (e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Format phone number as user types
+        phoneInput.addEventListener('input', function (e) {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 10) value = value.slice(0, 10);
+
+            // Format as 0712 345 678
+            if (value.length > 6) {
+                this.value = `${value.slice(0, 4)} ${value.slice(4, 7)} ${value.slice(7)}`;
+            } else if (value.length > 3) {
+                this.value = `${value.slice(0, 4)} ${value.slice(4)}`;
+            } else {
+                this.value = value;
+            }
+        });
+
+        // Initialize
+        function init() {
+            // Set default payment method to M-PESA
+            const defaultMethod = document.querySelector('.payment-method[data-method="mpesa"]');
+            if (defaultMethod) {
+                defaultMethod.classList.add('selected');
+            }
+            mpesaSection.style.display = 'block';
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

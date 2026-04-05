@@ -12,11 +12,13 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import cloudinary
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+load_dotenv()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -83,12 +85,12 @@ WSGI_APPLICATION = 'VibePassApp.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "VibePassDB",
-        "USER": "postgres",
-        "PASSWORD": "mySQL@124",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "ENGINE": os.getenv('DATABASE_ENGINE'),
+        "NAME": os.getenv('DATABASE_NAME'),
+        "USER": os.getenv('DATABASE_USER'),
+        "PASSWORD": os.getenv('DATABASE_PASSWORD'),
+        "HOST": os.getenv('DATABASE_HOST'),
+        "PORT": os.getenv('DATABASE_PORT'),
     }
 }
 
@@ -145,7 +147,7 @@ STORAGES = {
 
 # cloudinary configurations
 cloudinary.config(
-    cloud_name='dd4xfghhd',
-    api_key='697361749818962',
-    api_secret='Fn_TQBgv1BTlKsIsRbRnCELsik8'
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET')
 )

@@ -3,7 +3,6 @@ from Tickets.views import create_ticket
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from Events.models import Event
-from django.contrib import messages
 from django.http import JsonResponse
 from .utilis import mpesa_stk_push
 from .models import Payment
@@ -11,11 +10,11 @@ import json
 
 # Create your views here.
 @login_required
-def initiate_payment(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
+def initiate_payment(request, slug):
+    event = get_object_or_404(Event, slug=slug)
+    amount = event.Event_ticket_price
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
-        amount = request.POST.get('amount')
     # create a payment record in the database
         payment = Payment.objects.create(
             user=request.user,
@@ -38,7 +37,7 @@ def initiate_payment(request, event_id):
             error_msg = response.get('ResultDesc', 'Payment initiation failed. Please try again.')
             print(f'MPESA STK Push failed for payment ID {payment.payment_id}: {error_msg}')
             return redirect('Eventdetails')
-    return render(request, 'Payments/initiate_payment.html', {'event': event})
+    return render(request, 'Payments/checkout.html', {'event': event})
 
 
 # mpesa callback view

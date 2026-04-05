@@ -810,7 +810,7 @@
       }
 
       .share-fb {
-        background: #1877f2;
+        background: #a80953;
       }
 
       .share-twitter {
@@ -1176,7 +1176,7 @@
         </div>
 
         <div class="header-actions">
-          <a href="events-listing.html" class="back-btn">
+          <a href="{% url 'list_event' %}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Back to Events
           </a>
 
@@ -1200,7 +1200,7 @@
         <i class="fas fa-chevron-right"></i>
         <a href="{% url 'list_event' %}">Events</a>
         <i class="fas fa-chevron-right"></i>
-        <span style="color: var(--vibe-dark)">Spring Bash: Neon Night</span>
+        <span style="color: var(--vibe-dark)">{{ event.Event_title }}</span>
       </div>
     </div>
 
@@ -1280,7 +1280,7 @@
                     <div class="meta-content">
                       <h4>Attendees</h4>
                       <p>
-                        <span class="meta-highlight">187</span> / 250 tickets
+                        <span class="meta-highlight">187</span> / {{ event.Event_total_tickets }} tickets
                       </p>
                     </div>
                   </div>
@@ -1316,20 +1316,17 @@
                   <div class="location-map">
                     <div class="map-placeholder">
                       <i class="fas fa-map"></i>
-                      <h3>Student Union Grand Hall</h3>
+                      <h3>{{ event.Event_location }}</h3>
                       <p style="opacity: 0.9; margin-top: 10px">
-                        123 University Avenue, Campus West
+                        Buy your tickets now!
                       </p>
                     </div>
                   </div>
                   <div class="address-details">
                     <div>
                       <h4 style="font-weight: 600; margin-bottom: 5px">
-                        Student Union Grand Hall
+                        {{ event.Event_location }}
                       </h4>
-                      <p style="color: var(--vibe-text-light)">
-                        123 University Avenue, Campus West
-                      </p>
                     </div>
                     <a href="#" class="get-directions">
                       <i class="fas fa-directions"></i> Get Directions
@@ -1341,7 +1338,7 @@
                 <div class="organizer-section">
                   <div class="organizer-avatar">CP</div>
                   <div class="organizer-info">
-                    <div class="organizer-name">Campus Productions</div>
+                    <div class="organizer-name">{{ event.Event_organiser }}</div>
                     <p
                       style="color: var(--vibe-text-light); margin-bottom: 10px"
                     >
@@ -1359,9 +1356,9 @@
                       </span>
                     </div>
                   </div>
-                  <button class="btn btn-outline" style="width: auto">
+                  <a href="#" class="btn btn-outline" style="width: auto">
                     <i class="fas fa-envelope"></i> Contact
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -1373,11 +1370,15 @@
             <div class="ticket-card">
               <div class="ticket-header">
                 <div class="ticket-price-badge">
-                  <span id="ticketPriceDisplay">KES 1,500</span>
+                  <span id="ticketPriceDisplay">KES {{ event.Event_ticket_price }}</span>
                 </div>
                 <div class="ticket-status">
                   <span class="status-indicator"></span>
+                  {% if event.Event_is_free %}
+                  <span>Free Tickets Available</span>
+                  {% else %}
                   <span>Limited tickets available</span>
+                  {% endif %}
                 </div>
               </div>
 
@@ -1395,49 +1396,23 @@
                 <div class="ticket-options">
                   <div class="ticket-option selected" id="ticketGeneral">
                     <div>
-                      <div class="ticket-type">General Admission</div>
+                      <div class="ticket-type">{{ event.Event_title }} Tickets</div>
                       <div
                         style="
                           font-size: 0.85rem;
                           color: var(--vibe-text-light);
                         "
                       >
-                        Access to all areas
+                        {% if event.Event_is_free %}
+                          <span>Free</span>
+                        {% else %}
+                          <span>Buy your tickets</span>
+                        {% endif %}
                       </div>
                     </div>
-                    <div class="ticket-type-price">KES 1,500</div>
+                    <div class="ticket-type-price">KES {{ event.Event_ticket_price }}</div>
                   </div>
 
-                  <div class="ticket-option" id="ticketVIP">
-                    <div>
-                      <div class="ticket-type">VIP Access</div>
-                      <div
-                        style="
-                          font-size: 0.85rem;
-                          color: var(--vibe-text-light);
-                        "
-                      >
-                        Includes meet & greet, free drinks
-                      </div>
-                    </div>
-                    <div class="ticket-type-price">KES 2,500</div>
-                  </div>
-
-                  <div class="ticket-option" id="ticketGroup">
-                    <div>
-                      <div class="ticket-type">Group of 4</div>
-                      <div
-                        style="
-                          font-size: 0.85rem;
-                          color: var(--vibe-text-light);
-                        "
-                      >
-                        Save 15%
-                      </div>
-                    </div>
-                    <div class="ticket-type-price">KES 5,100</div>
-                  </div>
-                </div>
 
                 <div class="quantity-selector">
                   <button class="quantity-btn" id="decrementQty" disabled>
@@ -1451,12 +1426,18 @@
 
                 <div class="total-price">
                   <span class="total-label">Total</span>
-                  <span class="total-amount" id="totalAmount">KES 1,500</span>
+                  <span class="total-amount" id="totalAmount">
+                    {%if event.Event_is_free %}
+                      Free
+                    {% else %}
+                      KES {{ event.Event_ticket_price }}
+                    {% endif %}
+                  </span>
                 </div>
 
-                <button class="btn btn-primary" id="getTicketsBtn">
+                <a href="{% url 'initiate_payment' event.slug %}" class="btn btn-primary" id="getTicketsBtn">
                   <i class="fas fa-ticket-alt"></i> Get Tickets
-                </button>
+                </a>
 
                 <p
                   style="
@@ -1472,39 +1453,12 @@
               </div>
             </div>
 
-            <!-- Info Card -->
-            <div class="info-card">
-              <h3><i class="fas fa-clock"></i> Event Timeline</h3>
-              <div style="display: flex; flex-direction: column; gap: 15px">
-                <div style="display: flex; gap: 15px">
-                  <div style="font-weight: 600">9:00 PM</div>
-                  <div>Doors Open / Check-in</div>
-                </div>
-                <div style="display: flex; gap: 15px">
-                  <div style="font-weight: 600">10:00 PM</div>
-                  <div>Opening DJ Set</div>
-                </div>
-                <div style="display: flex; gap: 15px">
-                  <div style="font-weight: 600">11:30 PM</div>
-                  <div>Main Performance</div>
-                </div>
-                <div style="display: flex; gap: 15px">
-                  <div style="font-weight: 600">12:30 AM</div>
-                  <div>Neon Outfit Contest</div>
-                </div>
-                <div style="display: flex; gap: 15px">
-                  <div style="font-weight: 600">1:00 AM</div>
-                  <div>Closing Set</div>
-                </div>
-              </div>
-            </div>
-
             <!-- Share Card -->
             <div class="info-card">
               <h3><i class="fas fa-share-alt"></i> Share This Event</h3>
               <div class="share-buttons">
                 <button class="share-btn share-fb">
-                  <i class="fab fa-facebook-f"></i> Share
+                  <i class="fab fa-instagram"></i> Share
                 </button>
                 <button class="share-btn share-twitter">
                   <i class="fab fa-twitter"></i> Tweet
@@ -1693,17 +1647,6 @@
         group: { price: 5100, name: "Group of 4" },
       };
 
-      // Gallery thumbnails
-      thumbnails.forEach((thumb, index) => {
-        thumb.addEventListener("click", function () {
-          // Update active class
-          thumbnails.forEach((t) => t.classList.remove("active"));
-          this.classList.add("active");
-
-          // Update main image
-          mainImage.src = this.src.replace("w=200", "w=1200");
-        });
-      });
 
       // Main image click - open modal
       mainImage.addEventListener("click", function () {

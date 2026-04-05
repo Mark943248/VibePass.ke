@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 from decouple import config
 from django.conf import settings
+import os
 
 
 # generate timestamp for mpesa
@@ -12,8 +13,8 @@ def generate_timestamp():
 
 # generate access token for mpesa
 def generate_access_token():
-    consumer_key = config('MPESA_CONSUMER_KEY')
-    consumer_secret = config('MPESA_CONSUMER_SECRET')
+    consumer_key = os.getenv('MPESA_CONSUMER_KEY')
+    consumer_secret = os.getenv('MPESA_CONSUMER_SECRET')
     api_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
     response = requests.get(api_url, auth=(consumer_key, consumer_secret))
     if response.status_code == 200:
@@ -28,8 +29,8 @@ def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
    if not access_token:
          raise Exception('Failed to obtain access token')
    timestamp = generate_timestamp()
-   short_code = config('MPESA_SHORT_CODE')
-   passkey = config('MPESA_PASSKEY')
+   short_code = os.getenv('MPESA_SHORT_CODE')
+   passkey = os.getenv('MPESA_PASSKEY')
    data_to_encode = f"{short_code}{passkey}{timestamp}"
    # password for mpesa is a base64 encoded string of the short code, passkey and timestamp
    online_password = base64.b64encode(data_to_encode.encode()).decode()
