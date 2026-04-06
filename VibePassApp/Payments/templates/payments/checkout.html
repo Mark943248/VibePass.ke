@@ -775,7 +775,7 @@
                     </div>
 
                     <!-- Payment Form -->
-                    <form id="checkoutForm">
+                    <form id="checkoutForm" action="{% url 'initiate_payment' %}" method="post">
                         <!-- Payment Method Selection -->
                         <div class="form-group">
                             <label class="form-label required">Payment Method</label>
@@ -791,11 +791,11 @@
                         <div id="mpesaSection">
                             <div class="form-group">
                                 <label for="phoneNumber" class="form-label required">M-PESA Phone Number</label>
-                                <form action="{% url 'initiate_payment' %}" method="post" class="input-with-icon">
+                                <div class="input-with-icon">
                                     <i class="fas fa-phone-alt input-icon"></i>
                                     <input type="tel" id="phoneNumber" name="phone_number" class="form-input"
                                         placeholder="0712 345 678" maxlength="10" required>
-                                </form>
+                                </div>
                                 <div class="form-help">
                                     <i class="fas fa-info-circle"></i> Enter the M-PESA registered phone number
                                 </div>
@@ -829,6 +829,7 @@
                                 <div class="form-help" style="margin-top: 10px;">
                                     <i class="fas fa-clock"></i> You'll receive a Ticket within seconds
                                 </div>
+                                <div style="margin-top: 10px; font-weight: 600;">Amount to Pay: <span id="mpesaAmountDisplay">KES {{ event.Event_ticket_price }}</span></div>
                             </div>
                         </div>
 
@@ -845,9 +846,9 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <a href="{% url 'initiate_payment' %}" type="submit" class="btn btn-primary" id="payNowBtn">
+                        <button type="submit" class="btn btn-primary" id="payNowBtn">
                             <i class="fas fa-lock"></i> Complete Payment
-                        </a>
+                        </button>
 
                         <p
                             style="text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--vibe-text-light);">
@@ -892,9 +893,17 @@
                             <span>Unit Price</span>
                             <span id="unitPriceDisplay">KES {{ event.Event_ticket_price }}</span>
                         </div>
+                        <div class="price-row">
+                            <span>Subtotal</span>
+                            <span id="subtotalDisplay">KES {{ event.Event_ticket_price }}</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Processing Fee</span>
+                            <span id="feeDisplay">KES 0</span>
+                        </div>
                         <div class="price-row total">
                             <span>Total Amount</span>
-                            <span class="price-amount" id="subtotalDisplay">KES {{ event.Event_ticket_price }}</span>
+                            <span class="price-amount" id="totalAmountDisplay">KES {{ event.Event_ticket_price }}</span>
                         </div>
                     </div>
                 </div>

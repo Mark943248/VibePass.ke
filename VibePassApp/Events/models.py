@@ -27,7 +27,7 @@ class Event(models.Model):
     Event_location = models.CharField(max_length=200)
     Event_date = models.DateField()
     Event_time = models.TimeField()
-    Event_mpesa_number = models.CharField(max_length=15)
+    Event_mpesa_number = models.CharField(max_length=15, blank=True, null=True)  # Optional field for event-specific payment number 
     # Event ticketing info
     Event_ticket_price = models.DecimalField(max_digits=10, decimal_places=2)
     Event_is_free = models.BooleanField(default=False)
@@ -39,9 +39,14 @@ class Event(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.Event_title)
+            base_slug = slugify(self.Event_title)
+            slug = base_slug
+            counter = 1
+            while Event.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
         super(Event, self).save(*args, **kwargs)
-
 
     def __str__(self):
         return self.Event_title

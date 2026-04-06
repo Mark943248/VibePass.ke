@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from Tickets.views import create_ticket
+from .signals import payment_successful
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from Events.models import Event
 from django.http import JsonResponse
-from .utilis import mpesa_stk_push
+from .utils import mpesa_stk_push
 from .models import Payment
 import json
 
@@ -24,20 +24,24 @@ def initiate_payment(request, slug):
             payment_status='Pending'
         )
         # initiate mpesa stk push
-        response = mpesa_stk_push(phone_number, amount, event.Event_title, payment.payment_id)
-        # handle the response from mpesa
-        if response.get('ResponseCode') == '0':
-            payment.checkout_request_id = response.get('CheckoutRequestID')
-            payment.save()
-            print(f'MPESA STK Push initiated successfully for payment ID {payment.payment_id}')
-            return render(request, 'Payments/payment_waiting.html', {'event': event})
-        else:
-            payment.payment_status = 'Failed'
-            payment.save()
-            error_msg = response.get('ResultDesc', 'Payment initiation failed. Please try again.')
-            print(f'MPESA STK Push failed for payment ID {payment.payment_id}: {error_msg}')
+        try:
+            response = mpesa_stk_push(phone_number, amount, event.Event_title, payment.payment_id)
+            # handle the response from mpesa
+            if response.get('ResponseCode') == '0':
+                payment.checkout_request_id = response.get('CheckoutRequestID')
+                payment.save()
+                print(f'MPESA STK Push initiated successfully for payment ID {payment.payment_id}')
+                return render(request, 'Payments/payment_waiting.html', {'event': event})
+            else:
+                payment.payment_status = 'Failed'
+                payment.save()
+                error_msg = response.get('ResultDesc', 'Payment initiation failed. Please try again.')
+                print(f'MPESA STK Push failed for payment ID {payment.payment_id}: {error_msg}')
+                return redirect('Eventdetails')
+        except Exception as e:
+            print(f'Error initiating payment: {str(e)}')
             return redirect('Eventdetails')
-    return render(request, 'Payments/checkout.html', {'event': event})
+    return render(request, 'payments/checkout.html', {'event': event})
 
 
 # mpesa callback view
@@ -59,7 +63,7 @@ def mpesa_callback(request):
                         payment.mpesa_receipt_number = item['Value']
                 payment.save()
                 print(f'Payment succesful payment_id : {payment.id}')
-                return create_ticket(payment.id)
+                payment_successful.send(sender=Payment, payment=payment)  # send signal when payment is successful
             else:
                 payment.payment_status = 'Failed'
                 payment.save()
@@ -70,8 +74,3 @@ def mpesa_callback(request):
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
     
     return JsonResponse({"Error": "Invalid request method"}, status=400)
-            
-
-
-            
-

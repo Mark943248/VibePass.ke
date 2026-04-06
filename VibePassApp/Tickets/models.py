@@ -22,4 +22,4 @@ class Ticket(models.Model):
            
 
     def __str__(self):
-        return f"Ticket {self.id} for {self.event.Event_title} by {self.user.username}"
+        return f"Ticket {self.id} for {self.event.Event_title} by {self.payment.user.username}"

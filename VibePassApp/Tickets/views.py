@@ -5,17 +5,18 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Payment, Ticket
 
-@login_required
-def create_ticket(request, payment_id):
+def create_ticket(request=None, payment_id=None, redirect_to_qr=True):
     payment = get_object_or_404(Payment, id=payment_id)
-    if payment.user != request.user:
+    if request is not None and payment.user != request.user:
         return redirect('home')
     ticket, created = Ticket.objects.get_or_create(
         payment=payment,
         event=payment.event
     )
     
-    return redirect('create_ticket_qr', ticket_id=ticket.id)
+    if redirect_to_qr and request is not None:
+        return redirect('create_ticket_qr', ticket_id=ticket.id)
+    return ticket
 
 @login_required
 def create_ticket_qr(request, ticket_id):
