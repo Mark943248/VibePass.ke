@@ -775,7 +775,7 @@
                     </div>
 
                     <!-- Payment Form -->
-                    <form id="checkoutForm" action="{% url 'initiate_payment' %}" method="post">
+                    <form id="checkoutForm" action="{% url 'initiate_payment' event.slug %}" method="post">
                         <!-- Payment Method Selection -->
                         <div class="form-group">
                             <label class="form-label required">Payment Method</label>
@@ -948,23 +948,9 @@
     </footer>
 
     <script>
-        // Get URL parameters for ticket details
-        const urlParams = new URLSearchParams(window.location.search);
+        
 
-        // Sample ticket data (in real app, this comes from previous page)
-        let ticketData = {
-            type: urlParams.get('type') || 'General Admission',
-            quantity: parseInt(urlParams.get('quantity')) || 2,
-            unitPrice: parseInt(urlParams.get('price')) || 1500,
-            eventName: 'Spring Bash: Neon Night',
-            eventDate: 'May 20, 2024',
-            eventLocation: 'Student Union'
-        };
-
-        // Calculate totals
-        let subtotal = ticketData.quantity * ticketData.unitPrice;
-        let processingFee = subtotal > 0 ? Math.ceil(subtotal * 0.02) : 0; // 2% processing fee
-        let totalAmount = subtotal + processingFee;
+       
 
         // Update order summary display
         document.getElementById('ticketTypeDisplay').textContent = ticketData.type;

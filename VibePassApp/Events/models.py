@@ -35,7 +35,29 @@ class Event(models.Model):
     # Event status
     Event_is_active = models.BooleanField(default=True)
     Event_created_at = models.DateTimeField(auto_now_add=True)
+
+    # return available tickets
+    def get_available_tickets(self):
+        """Returns the number of available tickets for this event"""
+        claimed = self.tickets.filter(status__in=['active', 'scanned']).count()
+        return self.Event_total_tickets - claimed
     
+    # get sold tickets
+    def get_sold_tickets(self):
+        """Returns the number of sold tickets for this event"""
+        sold_tickets = self.tickets.filter(status__in=['active', 'scanned']).count()
+        return sold_tickets
+    
+    # checks if there are any available tickets
+    def has_available_tickets(self):
+        """Check if tickets are still available"""
+        return self.get_available_tickets() > 0
+    
+    def percentage_of_sold_tickets(self):
+        sold_tickets = self.get_sold_tickets()
+        total_tickets = self.Event_total_tickets
+        percentage = sold_tickets * 100 / total_tickets
+        return percentage
     
     def save(self, *args, **kwargs):
         if not self.slug:

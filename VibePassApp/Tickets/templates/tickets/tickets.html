@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>VibePass - My Tickets</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Brand Colors */
+        :root {
+            --vibe-primary: #6C4BDD;
+            --vibe-secondary: #00D4AA;
+            --vibe-dark: #1A1A2E;
+            --vibe-light: #F8F9FF;
+            --vibe-accent: #FF6B9D;
+            --vibe-text: #333333;
+            --vibe-text-light: #777777;
+            --vibe-card-bg: #FFFFFF;
+            --vibe-card-shadow: rgba(108, 75, 221, 0.08);
+            --vibe-success: #00C853;
+            --vibe-warning: #FF9800;
+            --vibe-danger: #FF4D4D;
+            --vibe-info: #2196F3;
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--vibe-light) 0%, #F0F2FF 100%);
+            color: var(--vibe-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 clamp(12px, 4vw, 24px);
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--vibe-dark);
+            padding: clamp(12px, 3vw, 20px) 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+        }
+
+        .logo-icon {
+            color: var(--vibe-secondary);
+            background: var(--vibe-primary);
+            width: clamp(35px, 8vw, 45px);
+            height: clamp(35px, 8vw, 45px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-10deg);
+            flex-shrink: 0;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: 3px solid var(--vibe-secondary);
+        }
+
+        .user-info {
+            color: white;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .user-status {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 2px solid var(--vibe-secondary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: var(--vibe-secondary);
+            color: var(--vibe-dark);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: clamp(20px, 5vw, 40px) 0 clamp(15px, 4vw, 30px);
+        }
+
+        .page-title {
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            color: var(--vibe-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .page-subtitle {
+            color: var(--vibe-text-light);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .ticket-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: var(--vibe-card-bg);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--vibe-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 10px var(--vibe-card-shadow);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            gap: 5px;
+            background: var(--vibe-card-bg);
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--vibe-text-light);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--vibe-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--vibe-primary);
+            color: white;
+        }
+
+        /* Tickets Grid */
+        .tickets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        /* Ticket Card */
+        .ticket-card {
+            background: var(--vibe-card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px var(--vibe-card-shadow);
+            transition: all 0.3s;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(108, 75, 221, 0.15);
+        }
+
+        /* Ticket Header */
+        .ticket-header {
+            background: linear-gradient(135deg, var(--vibe-dark), var(--vibe-primary));
+            color: white;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ticket-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .ticket-event-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .ticket-event-date {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticket-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--vibe-secondary);
+            color: var(--vibe-dark);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* Ticket Body */
+        .ticket-body {
+            padding: 25px;
+        }
+
+        /* Ticket Details Grid */
+        .ticket-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .ticket-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-icon {
+            width: 35px;
+            height: 35px;
+            background: var(--vibe-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--vibe-primary);
+        }
+
+        .detail-info {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            color: var(--vibe-text-light);
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--vibe-dark);
+            font-size: 0.9rem;
+        }
+
+        /* QR Code Section */
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: var(--vibe-light);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .qr-code {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .qr-canvas {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .qr-code canvas {
+            width: 150px;
+            height: 150px;
+        }
+
+        .ticket-id {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--vibe-text-light);
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        /* Ticket Footer */
+        .ticket-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px dashed #E1E5F1;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .ticket-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .status-active {
+            background: var(--vibe-success);
+        }
+
+        .status-upcoming {
+            background: var(--vibe-warning);
+        }
+
+        .status-used {
+            background: var(--vibe-text-light);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--vibe-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a3bc5;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--vibe-primary);
+            border: 2px solid var(--vibe-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(108, 75, 221, 0.08);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #E1E5F1;
+            color: var(--vibe-text);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--vibe-primary);
+            color: var(--vibe-primary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--vibe-card-bg);
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #E1E5F1;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--vibe-dark);
+        }
+
+        .empty-state p {
+            color: var(--vibe-text-light);
+            margin-bottom: 25px;
+        }
+
+        /* Download Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: var(--vibe-dark);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--vibe-dark);
+            color: white;
+            padding: 30px 0;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .qr-code {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .tickets-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .user-menu {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                margin-top: 15px;
+            }
+            
+            .user-menu.active {
+                display: flex;
+            }
+            
+            .user-profile {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .logout-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .tickets-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .ticket-details {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .tab-navigation {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .ticket-card {
+                border-radius: 15px;
+            }
+            
+            .ticket-header {
+                padding: 15px;
+            }
+            
+            .ticket-body {
+                padding: 20px;
+            }
+            
+            .ticket-event-name {
+                font-size: 1rem;
+            }
+            
+            .qr-code canvas {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .ticket-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .stat-badge {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ticket-detail {
+                flex-direction: column;
+                text-align: center;
+                gap: 5px;
+            }
+            
+            .detail-icon {
+                margin: 0 auto;
+            }
+            
+            .qr-section {
+                padding: 15px;
+            }
+            
+            .ticket-badge {
+                position: static;
+                margin-top: 10px;
+                display: inline-block;
+                width: fit-content;
+            }
+            
+            .ticket-header {
+                text-align: center;
+            }
+            
+            .ticket-event-date {
+                justify-content: center;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .header, .tab-navigation, .ticket-footer, .footer, .logout-btn {
+                display: none;
+            }
+            
+            .ticket-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            
+            .qr-code {
+                animation: none;
+            }
+            
+            body {
+                background: white;
+            }
+            
+            .container {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                VibePass
+            </a>
+            
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="user-menu" id="userMenu">
+                <div class="user-profile">
+                    <div class="user-avatar">JS</div>
+                    <div class="user-info">
+                        <div class="user-name">John Student</div>
+                        <div class="user-status">Student Member</div>
+                    </div>
+                </div>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-ticket-alt" style="color: var(--vibe-primary);"></i> 
+                    My Tickets
+                </h1>
+                <p class="page-subtitle">View and manage all your event tickets in one place</p>
+                <div class="ticket-stats">
+                    <div class="stat-badge">
+                        <i class="fas fa-ticket-alt"></i> Total Tickets: <strong>4</strong>
+                    </div>
+                    <div class="stat-badge">
+                        <i class="fas fa-calendar-check"></i> Upcoming: <strong>3</strong>
+                    </div>
+                    <div class="stat-badge">
+                        <i class="fas fa-check-circle" style="color: var(--vibe-success);"></i> Used: <strong>1</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" data-tab="all">
+                    <i class="fas fa-list"></i> All Tickets
+                </button>
+                <button class="tab-btn" data-tab="upcoming">
+                    <i class="fas fa-calendar-alt"></i> Upcoming
+                </button>
+                <button class="tab-btn" data-tab="past">
+                    <i class="fas fa-history"></i> Past Events
+                </button>
+            </div>
+
+            <!-- Tickets Grid -->
+            <div class="tickets-grid" id="ticketsGrid">
+                <!-- Tickets will be generated here -->
+            </div>
+
+            <!-- Empty State (hidden by default) -->
+            <div class="empty-state hidden" id="emptyState">
+                <div class="empty-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <h3>No Tickets Found</h3>
+                <p>You haven't purchased any tickets yet. Browse events and get your tickets now!</p>
+                <button class="btn btn-primary" onclick="window.location.href='events-listing.html'">
+                    <i class="fas fa-search"></i> Browse Events
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Download Modal -->
+    <div class="modal" id="downloadModal">
+        <div class="modal-content">
+            <h3>Download Ticket</h3>
+            <p style="margin-bottom: 20px;">Choose how you want to save your ticket</p>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="downloadImageBtn">
+                    <i class="fas fa-image"></i> Download as Image
+                </button>
+                <button class="btn btn-secondary" id="downloadPdfBtn">
+                    <i class="fas fa-file-pdf"></i> Download as PDF
+                </button>
+                <button class="btn btn-outline" id="closeModalBtn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon" style="width: 30px; height: 30px; font-size: 0.9rem;">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                VibePass
+            </div>
+            
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Help Center</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        // Sample Ticket Data
+        const ticketsData = [
+            {
+                id: "TKT-001-ABCD",
+                eventName: "Spring Bash: Neon Night",
+                eventDate: "Saturday, May 20, 2024",
+                eventTime: "9:00 PM - 2:00 AM",
+                location: "Student Union Grand Hall",
+                ticketType: "General Admission",
+                quantity: 2,
+                price: 1500,
+                status: "upcoming",
+                qrData: "TKT-001-ABCD-2024-05-20",
+                purchasedOn: "May 15, 2024"
+            },
+            {
+                id: "TKT-002-EFGH",
+                eventName: "Campus Unplugged: Acoustic Night",
+                eventDate: "Saturday, May 26, 2024",
+                eventTime: "7:30 PM - 10:30 PM",
+                location: "Quad Amphitheater",
+                ticketType: "Free Admission",
+                quantity: 1,
+                price: 0,
+                status: "upcoming",
+                qrData: "TKT-002-EFGH-2024-05-26",
+                purchasedOn: "May 18, 2024"
+            },
+            {
+                id: "TKT-003-IJKL",
+                eventName: "Tech Mixer & Networking",
+                eventDate: "Friday, May 24, 2024",
+                eventTime: "4:00 PM - 7:00 PM",
+                location: "Innovation Hub",
+                ticketType: "Student Pass",
+                quantity: 1,
+                price: 500,
+                status: "upcoming",
+                qrData: "TKT-003-IJKL-2024-05-24",
+                purchasedOn: "May 10, 2024"
+            },
+            {
+                id: "TKT-004-MNOP",
+                eventName: "Winter Formal Gala",
+                eventDate: "Friday, February 15, 2024",
+                eventTime: "8:00 PM - 12:00 AM",
+                location: "Grand Ballroom",
+                ticketType: "VIP Access",
+                quantity: 2,
+                price: 2500,
+                status: "used",
+                qrData: "TKT-004-MNOP-2024-02-15",
+                purchasedOn: "February 1, 2024"
+            }
+        ];
+
+        // DOM Elements
+        const ticketsGrid = document.getElementById('ticketsGrid');
+        const emptyState = document.getElementById('emptyState');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const downloadModal = document.getElementById('downloadModal');
+        const downloadImageBtn = document.getElementById('downloadImageBtn');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const userMenu = document.getElementById('userMenu');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        let currentTicketId = null;
+        let currentQRCanvas = null;
+
+        // Generate QR Code
+        function generateQRCode(elementId, data) {
+            const container = document.getElementById(elementId);
+            if (container) {
+                container.innerHTML = '';
+                new QRCode(container, {
+                    text: data,
+                    width: 150,
+                    height: 150,
+                    colorDark: "#1A1A2E",
+                    colorLight: "#FFFFFF",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+        }
+
+        // Render Tickets
+        function renderTickets(filter = 'all') {
+            let filteredTickets = ticketsData;
+            
+            if (filter === 'upcoming') {
+                filteredTickets = ticketsData.filter(ticket => ticket.status === 'upcoming');
+            } else if (filter === 'past') {
+                filteredTickets = ticketsData.filter(ticket => ticket.status === 'used');
+            }
+            
+            if (filteredTickets.length === 0) {
+                ticketsGrid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            ticketsGrid.innerHTML = '';
+            
+            filteredTickets.forEach((ticket, index) => {
+                const ticketCard = createTicketCard(ticket, index);
+                ticketsGrid.appendChild(ticketCard);
+                
+                // Generate QR code for this ticket
+                setTimeout(() => {
+                    generateQRCode(`qr-${ticket.id}`, ticket.qrData);
+                }, 100);
+            });
+        }
+        
+        // Create Ticket Card HTML
+        function createTicketCard(ticket, index) {
+            const card = document.createElement('div');
+            card.className = 'ticket-card';
+            card.setAttribute('data-ticket-id', ticket.id);
+            
+            const totalPrice = ticket.quantity * ticket.price;
+            const statusText = ticket.status === 'upcoming' ? 'Upcoming' : 'Used';
+            const statusClass = ticket.status === 'upcoming' ? 'status-active' : 'status-used';
+            
+            card.innerHTML = `
+                <div class="ticket-header">
+                    <div class="ticket-event-name">${ticket.eventName}</div>
+                    <div class="ticket-event-date">
+                        <i class="far fa-calendar-alt"></i> ${ticket.eventDate} • ${ticket.eventTime}
+                    </div>
+                    <div class="ticket-badge">${ticket.ticketType}</div>
+                </div>
+                
+                <div class="ticket-body">
+                    <div class="ticket-details">
+                        <div class="ticket-detail">
+                            <div class="detail-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="detail-info">
+                                <div class="detail-label">Location</div>
+                                <div class="detail-value">${ticket.location}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-detail">
+                            <div class="detail-icon">
+                                <i class="fas fa-ticket-alt"></i>
+                            </div>
+                            <div class="detail-info">
+                                <div class="detail-label">Quantity</div>
+                                <div class="detail-value">${ticket.quantity} ${ticket.quantity === 1 ? 'Ticket' : 'Tickets'}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-detail">
+                            <div class="detail-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="detail-info">
+                                <div class="detail-label">Total Paid</div>
+                                <div class="detail-value">KES ${totalPrice.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-detail">
+                            <div class="detail-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="detail-info">
+                                <div class="detail-label">Purchased On</div>
+                                <div class="detail-value">${ticket.purchasedOn}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="qr-section">
+                        <div class="qr-code" id="qr-${ticket.id}">
+                            <!-- QR Code will be generated here -->
+                        </div>
+                        <div class="ticket-id">Ticket ID: ${ticket.id}</div>
+                        <div style="font-size: 0.75rem; color: var(--vibe-text-light); margin-top: 5px;">
+                            <i class="fas fa-info-circle"></i> Scan this QR code at the entrance
+                        </div>
+                    </div>
+                    
+                    <div class="ticket-footer">
+                        <div class="ticket-status">
+                            <div class="status-indicator ${statusClass}"></div>
+                            <span>${statusText}</span>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-secondary view-details-btn" data-id="${ticket.id}">
+                                <i class="fas fa-info-circle"></i> Details
+                            </button>
+                            <button class="btn btn-outline download-btn" data-id="${ticket.id}">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                            ${ticket.status === 'upcoming' ? `
+                            <button class="btn btn-primary add-to-calendar" data-id="${ticket.id}">
+                                <i class="fas fa-calendar-plus"></i> Add to Calendar
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // View ticket details
+        function viewTicketDetails(ticketId) {
+            const ticket = ticketsData.find(t => t.id === ticketId);
+            if (ticket) {
+                alert(`📋 Ticket Details\n\nEvent: ${ticket.eventName}\nDate: ${ticket.eventDate}\nTime: ${ticket.eventTime}\nLocation: ${ticket.location}\nTicket Type: ${ticket.ticketType}\nQuantity: ${ticket.quantity}\nTicket ID: ${ticket.id}\n\nPresent this QR code at the venue entrance.`);
+            }
+        }
+        
+        // Add to calendar
+        function addToCalendar(ticketId) {
+            const ticket = ticketsData.find(t => t.id === ticketId);
+            if (ticket) {
+                // Parse date (simplified - in real app would create proper calendar file)
+                alert(`📅 Event added to calendar!\n\n${ticket.eventName}\n${ticket.eventDate}\n${ticket.eventTime}\n\nCheck your calendar app for the event.`);
+            }
+        }
+        
+        // Download ticket as image
+        function downloadTicketAsImage(ticketId) {
+            const ticketCard = document.querySelector(`.ticket-card[data-ticket-id="${ticketId}"]`);
+            if (ticketCard) {
+                html2canvas(ticketCard, {
+                    scale: 2,
+                    backgroundColor: '#FFFFFF',
+                    logging: false
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `ticket-${ticketId}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    alert('Ticket downloaded as image successfully!');
+                }).catch(error => {
+                    console.error('Error generating image:', error);
+                    alert('Unable to download ticket. Please try again.');
+                });
+            }
+        }
+        
+        // Download ticket as PDF (simplified - would use jsPDF in production)
+        function downloadTicketAsPDF(ticketId) {
+            alert(`📄 Ticket PDF would be generated here.\n\nIn a real app, this would create a downloadable PDF file with your ticket details and QR code.`);
+        }
+        
+        // Tab switching
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const filter = this.getAttribute('data-tab');
+                renderTickets(filter);
+            });
+        });
+        
+        // Event delegation for ticket actions
+        document.addEventListener('click', function(e) {
+            // View details button
+            if (e.target.closest('.view-details-btn')) {
+                const btn = e.target.closest('.view-details-btn');
+                const ticketId = btn.getAttribute('data-id');
+                viewTicketDetails(ticketId);
+            }
+            
+            // Download button
+            if (e.target.closest('.download-btn')) {
+                const btn = e.target.closest('.download-btn');
+                currentTicketId = btn.getAttribute('data-id');
+                downloadModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // Add to calendar button
+            if (e.target.closest('.add-to-calendar')) {
+                const btn = e.target.closest('.add-to-calendar');
+                const ticketId = btn.getAttribute('data-id');
+                addToCalendar(ticketId);
+            }
+        });
+        
+        // Download modal actions
+        downloadImageBtn.addEventListener('click', function() {
+            if (currentTicketId) {
+                downloadTicketAsImage(currentTicketId);
+                downloadModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                currentTicketId = null;
+            }
+        });
+        
+        downloadPdfBtn.addEventListener('click', function() {
+            if (currentTicketId) {
+                downloadTicketAsPDF(currentTicketId);
+                downloadModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                currentTicketId = null;
+            }
+        });
+        
+        closeModalBtn.addEventListener('click', function() {
+            downloadModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            currentTicketId = null;
+        });
+        
+        // Close modal on outside click
+        downloadModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                currentTicketId = null;
+            }
+        });
+        
+        // Mobile menu toggle
+        mobileMenuToggle.addEventListener('click', function() {
+            userMenu.classList.toggle('active');
+            this.innerHTML = userMenu.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+        
+        // Logout button
+        logoutBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'index.html';
+            }
+        });
+        
+        // Initialize
+        renderTickets('all');
+    </script>
+    <!-- Include html2canvas for image download functionality -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>

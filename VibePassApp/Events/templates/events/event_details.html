@@ -1280,7 +1280,7 @@
                     <div class="meta-content">
                       <h4>Attendees</h4>
                       <p>
-                        <span class="meta-highlight">187</span> / {{ event.Event_total_tickets }} tickets
+                        <span class="meta-highlight">{{ event.get_tickets_sold }}</span> / {{ event.Event_total_tickets }} tickets
                       </p>
                     </div>
                   </div>
@@ -1385,8 +1385,8 @@
               <div class="ticket-body">
                 <div class="ticket-progress">
                   <div class="progress-info">
-                    <span>187 sold</span>
-                    <span style="font-weight: 600">75% Sold</span>
+                    <span>{{ event.get_sold_tickets }} sold</span>
+                    <span style="font-weight: 600">{{ event.percentage_of_sold_tickets|floatformat:2 }}% Sold</span>
                   </div>
                   <div class="progress-bar">
                     <div class="progress-fill" style="width: 75%"></div>
@@ -1435,9 +1435,15 @@
                   </span>
                 </div>
 
-                <a href="{% url 'initiate_payment' event.slug %}" class="btn btn-primary" id="getTicketsBtn">
-                  <i class="fas fa-ticket-alt"></i> Get Tickets
-                </a>
+                {% if event.Event_is_free %}
+                  <a href="{% url 'book_free_ticket' event.slug %}" class="btn btn-primary" id="getTicketsBtn">
+                    <i class="fas fa-ticket-alt"></i> Get Free Tickets
+                  </a>
+                {% else %}
+                  <a href="{% url 'initiate_payment' event.slug %}" class="btn btn-primary" id="getTicketsBtn">
+                    <i class="fas fa-ticket-alt"></i> Get Tickets
+                  </a>
+                {% endif %}
 
                 <p
                   style="
