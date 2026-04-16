@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from Events.models import Event
+from Tickets.models import Ticket
 from .models import User
 
 # view for user registration
@@ -75,7 +76,8 @@ def LogoutView(request):
 def EventFindersDashboard(request):
     user = request.user
     events = Event.objects.order_by('-Event_created_at')[:4]
-    return render(request, 'users/Event_finder.html', {'user': user, 'events': events})
+    tickets = Ticket.objects.filter(user=user).order_by('-created_at')
+    return render(request, 'users/Event_finder.html', {'user': user, 'events': events, 'tickets': tickets})
 
 
 # 2. Event Organizers Dashboard

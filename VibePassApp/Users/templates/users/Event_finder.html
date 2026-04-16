@@ -854,6 +854,253 @@
       color: var(--vibe-text-light);
       font-size: 0.9rem;
     }
+
+    /* Ticket Card Styles */
+    .tickets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .ticket-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+      border: 1px solid #f0f0f0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ticket-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(108, 75, 221, 0.15);
+    }
+
+    .ticket-header-section {
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
+      color: white;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ticket-header-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .ticket-event-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ticket-event-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      opacity: 0.95;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ticket-status-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      backdrop-filter: blur(10px);
+    }
+
+    .ticket-status-badge.active {
+      background: rgba(0, 200, 83, 0.3);
+    }
+
+    .ticket-status-badge.scanned {
+      background: rgba(255, 152, 0, 0.3);
+    }
+
+    .ticket-status-badge.cancelled {
+      background: rgba(255, 77, 77, 0.3);
+    }
+
+    .ticket-content {
+      padding: 20px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ticket-detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.9rem;
+    }
+
+    .ticket-detail-item:last-of-type {
+      border-bottom: none;
+    }
+
+    .ticket-detail-label {
+      color: var(--vibe-text-light);
+      font-weight: 500;
+    }
+
+    .ticket-detail-value {
+      color: var(--vibe-dark);
+      font-weight: 600;
+    }
+
+    .ticket-qr-section {
+      text-align: center;
+      padding: 20px;
+      background: rgba(108, 75, 221, 0.03);
+      border-top: 1px solid #f0f0f0;
+      margin: 0 20px;
+    }
+
+    .ticket-qr-image {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 10px;
+      border-radius: 10px;
+      border: 2px solid var(--vibe-primary);
+      padding: 5px;
+      background: white;
+    }
+
+    .ticket-qr-note {
+      font-size: 0.75rem;
+      color: var(--vibe-text-light);
+      margin-top: 8px;
+    }
+
+    .ticket-actions {
+      display: flex;
+      gap: 10px;
+      padding: 15px 20px;
+      flex-wrap: wrap;
+    }
+
+    .ticket-action-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .ticket-action-btn.primary {
+      background: var(--vibe-primary);
+      color: white;
+    }
+
+    .ticket-action-btn.primary:hover {
+      background: #5a3bc5;
+      transform: translateY(-2px);
+    }
+
+    .ticket-action-btn.secondary {
+      background: transparent;
+      color: var(--vibe-primary);
+      border: 2px solid var(--vibe-primary);
+    }
+
+    .ticket-action-btn.secondary:hover {
+      background: rgba(108, 75, 221, 0.08);
+    }
+
+    /* Empty tickets state */
+    .empty-tickets {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--vibe-text-light);
+    }
+
+    .empty-tickets-icon {
+      font-size: 3rem;
+      color: #e1e5f1;
+      margin-bottom: 20px;
+    }
+
+    .empty-tickets h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: var(--vibe-text);
+    }
+
+    /* Responsive adjustments for tickets */
+    @media (max-width: 992px) {
+      .tickets-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .tickets-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .ticket-action-btn {
+        min-width: 80px;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+      }
+
+      .ticket-actions {
+        padding: 12px 15px;
+        gap: 8px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .tickets-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .ticket-action-btn {
+        width: 100%;
+        min-width: auto;
+      }
+
+      .ticket-event-title {
+        font-size: 1.1rem;
+      }
+
+      .ticket-actions {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 
@@ -1102,14 +1349,106 @@
           <div class="section-header">
             <h2><i class="fas fa-ticket-alt"></i> My Tickets</h2>
             <div class="ticket-stats">
-              <span class="stat-badge">Active: 3</span>
-              <span class="stat-badge">Used: 21</span>
+              {% with active_count=tickets|length scanned_count=0 %}
+              <span class="stat-badge"><i class="fas fa-check"></i> Active: {{ active_count }}</span>
+              <span class="stat-badge"><i class="fas fa-qrcode"></i> Total: {{ tickets|length }}</span>
+              {% endwith %}
             </div>
           </div>
 
-          <div class="tickets-list">
-            <!-- Ticket items would be loaded here -->
+          {% if tickets %}
+          <div class="tickets-grid">
+            {% for ticket in tickets %}
+            <div class="ticket-card">
+              <!-- Ticket Header -->
+              <div class="ticket-header-section">
+                <div class="ticket-event-title">{{ ticket.event.Event_title }}</div>
+                <div class="ticket-event-info">
+                  <i class="far fa-calendar-alt"></i>
+                  <span>{{ ticket.event.Event_date }}</span>
+                </div>
+                <div class="ticket-event-info">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>{{ ticket.event.Event_location }}</span>
+                </div>
+                <div class="ticket-status-badge {% if ticket.status == 'active' %}active{% elif ticket.status == 'scanned' %}scanned{% else %}cancelled{% endif %}">
+                  {{ ticket.get_status_display }}
+                </div>
+              </div>
+
+              <!-- Ticket Content -->
+              <div class="ticket-content">
+                <div class="ticket-detail-item">
+                  <span class="ticket-detail-label">
+                    <i class="fas fa-ticket-alt"></i> Ticket ID
+                  </span>
+                  <span class="ticket-detail-value">{{ ticket.ticket_id|truncatechars:13 }}</span>
+                </div>
+
+                <div class="ticket-detail-item">
+                  <span class="ticket-detail-label">
+                    <i class="fas fa-calendar-check"></i> Booked On
+                  </span>
+                  <span class="ticket-detail-value">{{ ticket.created_at|date:"M d, Y" }}</span>
+                </div>
+
+                <div class="ticket-detail-item">
+                  <span class="ticket-detail-label">
+                    <i class="fas fa-money-bill-wave"></i> Price
+                  </span>
+                  <span class="ticket-detail-value">
+                    {% if ticket.event.Event_is_free %}
+                      <span style="color: var(--vibe-success);">Free</span>
+                    {% else %}
+                      KES {{ ticket.event.Event_price }}
+                    {% endif %}
+                  </span>
+                </div>
+
+                {% if ticket.is_scanned %}
+                <div class="ticket-detail-item">
+                  <span class="ticket-detail-label">
+                    <i class="fas fa-clock"></i> Scanned At
+                  </span>
+                  <span class="ticket-detail-value">{{ ticket.scanned_at|date:"M d, Y H:i" }}</span>
+                </div>
+                {% endif %}
+              </div>
+
+              <!-- QR Code Section -->
+              {% if ticket.ticket_qr_image %}
+              <div class="ticket-qr-section">
+                <img src="{{ ticket.ticket_qr_image.url }}" alt="QR Code" class="ticket-qr-image">
+                <div class="ticket-qr-note">
+                  <i class="fas fa-info-circle"></i> Show at entrance
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Actions -->
+              <div class="ticket-actions">
+                <a href="{% url 'users_tickets' ticket.ticket_id %}" class="ticket-action-btn secondary">
+                  <i class="fas fa-eye"></i> View
+                </a>
+                <button class="ticket-action-btn primary" onclick="printTicket('{{ ticket.ticket_id }}')">
+                  <i class="fas fa-print"></i> Print
+                </button>
+              </div>
+            </div>
+            {% endfor %}
           </div>
+          {% else %}
+          <div class="empty-tickets">
+            <div class="empty-tickets-icon">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+            <h3>No Tickets Yet</h3>
+            <p>You haven't booked any tickets. Start exploring events and get your first ticket!</p>
+            <a href="{% url 'list_event' %}" class="btn btn-primary" style="margin-top: 20px; display: inline-flex;">
+              <i class="fas fa-search"></i> Browse Events
+            </a>
+          </div>
+          {% endif %}
         </div>
 
         <!-- Registered Events Tab -->
@@ -1267,14 +1606,45 @@
     const navbuttons = document.querySelectorAll(".nav-link");
 
     navbuttons.forEach((button) => {
-      button.addEventListener('click', () => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
         // 1. Remove "active" from ALL buttons first
         navbuttons.forEach(btn => btn.classList.remove("active"));
 
         // 2. Add "active" to the one that was just clicked
         button.classList.add("active");
+
+        // 3. Hide all tab content
+        const allTabs = document.querySelectorAll(".tab-content");
+        allTabs.forEach(tab => tab.classList.remove("active"));
+
+        // 4. Show the selected tab
+        const tabId = button.getAttribute("data-tab");
+        const selectedTab = document.getElementById(tabId);
+        if (selectedTab) {
+          selectedTab.classList.add("active");
+        }
       });
     });
+
+    // Print ticket function
+    function printTicket(ticketId) {
+      // Create a window with the ticket details for printing
+      const ticketElement = document.querySelector(`[data-ticket-id="${ticketId}"]`);
+      if (ticketElement) {
+        const printWindow = window.open('', '', 'height=600,width=800');
+        printWindow.document.write('<html><head><title>Print Ticket</title>');
+        printWindow.document.write('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; margin: 20px; }');
+        printWindow.document.write('.ticket-print { border: 2px solid #6c4bdd; padding: 30px; border-radius: 10px; }');
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write(ticketElement.innerHTML);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+      }
+    }
   </script>
 </body>
 

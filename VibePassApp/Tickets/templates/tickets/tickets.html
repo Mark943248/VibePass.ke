@@ -707,27 +707,72 @@
 
         /* Print Styles */
         @media print {
-            .header, .tab-navigation, .ticket-footer, .footer, .logout-btn {
-                display: none;
+            .header, .footer, .btn {
+                display: none !important;
             }
             
             .ticket-card {
                 box-shadow: none;
                 border: 1px solid #ddd;
-                break-inside: avoid;
                 page-break-inside: avoid;
             }
-            
-            .qr-code {
+
+            .qr-code, .qr-section {
                 animation: none;
             }
             
             body {
                 background: white;
             }
-            
+
+            main {
+                max-width: 100%;
+            }
+
             .container {
                 padding: 0;
+            }
+
+            .page-header {
+                display: none;
+            }
+        }
+
+        /* Single Ticket Detail Specific Styles */
+        .ticket-card .qr-section img {
+            max-width: 200px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .ticket-card .ticket-body .qr-section {
+            padding: 30px 20px;
+            margin: 20px 0 0 0;
+        }
+
+        /* Responsive fixes for single ticket */
+        @media (max-width: 576px) {
+            .ticket-card .ticket-footer {
+                flex-direction: column;
+            }
+
+            .ticket-card .ticket-footer div {
+                width: 100%;
+            }
+
+            .ticket-card .ticket-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .ticket-detail {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+
+            .detail-info {
+                flex: 1;
             }
         }
     </style>
@@ -749,15 +794,16 @@
             
             <div class="user-menu" id="userMenu">
                 <div class="user-profile">
-                    <div class="user-avatar">JS</div>
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
                     <div class="user-info">
-                        <div class="user-name">John Student</div>
-                        <div class="user-status">Student Member</div>
+                        <div class="user-name">{{ ticket.user }}</div>
                     </div>
                 </div>
-                <button class="logout-btn" id="logoutBtn">
+                <a href="{% url 'logout' %}" class="logout-btn" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
+                </a>
             </div>
         </div>
     </header>
@@ -769,72 +815,208 @@
             <div class="page-header">
                 <h1 class="page-title">
                     <i class="fas fa-ticket-alt" style="color: var(--vibe-primary);"></i> 
-                    My Tickets
+                    Ticket Details
                 </h1>
-                <p class="page-subtitle">View and manage all your event tickets in one place</p>
-                <div class="ticket-stats">
-                    <div class="stat-badge">
-                        <i class="fas fa-ticket-alt"></i> Total Tickets: <strong>4</strong>
+                <p class="page-subtitle">View your ticket information and QR code</p>
+            </div>
+
+            <!-- Single Ticket Detail View -->
+            {% if ticket %}
+            <div style="max-width: 700px; margin: 0 auto;">
+                <!-- Ticket Card Header -->
+                <div class="ticket-card">
+                    <div class="ticket-header">
+                        <div class="ticket-event-name">{{ ticket.event.Event_title }}</div>
+                        <div class="ticket-event-date">
+                            <i class="far fa-calendar-alt"></i> {{ ticket.event.Event_date }} 
+                            {% if ticket.event.Event_time %} • {{ ticket.event.Event_time }} {% endif %}
+                        </div>
+                        <div class="ticket-badge">{{ ticket.get_status_display|upper }}</div>
                     </div>
-                    <div class="stat-badge">
-                        <i class="fas fa-calendar-check"></i> Upcoming: <strong>3</strong>
-                    </div>
-                    <div class="stat-badge">
-                        <i class="fas fa-check-circle" style="color: var(--vibe-success);"></i> Used: <strong>1</strong>
+                    
+                    <div class="ticket-body">
+                        <div class="ticket-details">
+                            <!-- Event Location -->
+                            <div class="ticket-detail">
+                                <div class="detail-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="detail-info">
+                                    <div class="detail-label">Event Location</div>
+                                    <div class="detail-value">{{ ticket.event.Event_location }}</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Ticket Quantity -->
+                            <div class="ticket-detail">
+                                <div class="detail-icon">
+                                    <i class="fas fa-ticket-alt"></i>
+                                </div>
+                                <div class="detail-info">
+                                    <div class="detail-label">Quantity</div>
+                                    <div class="detail-value">1</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Price Information -->
+                            <div class="ticket-detail">
+                                <div class="detail-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="detail-info">
+                                    <div class="detail-label">Price</div>
+                                    <div class="detail-value">
+                                        {% if ticket.event.Event_is_free %}
+                                            <span style="color: var(--vibe-success); font-weight: 700;">FREE</span>
+                                        {% else %}
+                                            KES {{ ticket.payment.amount }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Purchase Date -->
+                            <div class="ticket-detail">
+                                <div class="detail-icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="detail-info">
+                                    <div class="detail-label">Purchased On</div>
+                                    <div class="detail-value">{{ ticket.created_at|date:"M d, Y • H:i" }}</div>
+                                </div>
+                            </div>
+
+                            <!-- Ticket Status -->
+                            <div class="ticket-detail">
+                                <div class="detail-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="detail-info">
+                                    <div class="detail-label">Ticket Status</div>
+                                    <div class="detail-value">
+                                        {% if ticket.status == 'active' %}
+                                            <span style="color: var(--vibe-success);">✓ Valid</span>
+                                        {% elif ticket.status == 'scanned' %}
+                                            <span style="color: var(--vibe-warning);">Scanned</span>
+                                        {% else %}
+                                            <span style="color: var(--vibe-danger);">Cancelled</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if ticket.is_scanned %}
+                            <!-- Scanned Time -->
+                            <div class="ticket-detail">
+                                <div class="detail-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="detail-info">
+                                    <div class="detail-label">Scanned At</div>
+                                    <div class="detail-value">{{ ticket.scanned_at|date:"M d, Y • H:i" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Ticket ID -->
+                            <div class="ticket-detail">
+                                <div class="detail-icon">
+                                    <i class="fas fa-fingerprint"></i>
+                                </div>
+                                <div class="detail-info">
+                                    <div class="detail-label">Ticket ID</div>
+                                    <div class="detail-value" style="font-family: monospace; font-size: 0.9rem;">{{ ticket.ticket_id }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- QR Code Section -->
+                        <div class="qr-section">
+                            {% if ticket.ticket_qr_image %}
+                                <img src="{{ ticket.ticket_qr_image.url }}" alt="QR Code" class="qr-code">
+                            {% else %}
+                                <div class="qr-placeholder" style="padding: 40px; text-align: center; color: var(--vibe-text-light);">
+                                    <i class="fas fa-qrcode" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                                    <div>QR code is being generated...</div>
+                                </div>
+                            {% endif %}
+                            <div style="font-size: 0.75rem; color: var(--vibe-text-light); margin-top: 15px; text-align: center;">
+                                <i class="fas fa-info-circle"></i> Show this QR code at the event entrance
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="ticket-footer">
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                                <button class="btn btn-primary" onclick="printTicket()">
+                                    <i class="fas fa-print"></i> Print Ticket
+                                </button>
+                                <button class="btn btn-secondary" id="downloadBtn">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <a href="{% url 'event_details' ticket.event.slug %}" class="btn btn-outline">
+                                    <i class="fas fa-info-circle"></i> Event Details
+                                </a>
+                                <a href="{% url 'finders_dashboard' %}" class="btn btn-outline">
+                                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab Navigation -->
-            <div class="tab-navigation">
-                <button class="tab-btn active" data-tab="all">
-                    <i class="fas fa-list"></i> All Tickets
-                </button>
-                <button class="tab-btn" data-tab="upcoming">
-                    <i class="fas fa-calendar-alt"></i> Upcoming
-                </button>
-                <button class="tab-btn" data-tab="past">
-                    <i class="fas fa-history"></i> Past Events
-                </button>
+            <!-- Event Information Section -->
+            <div style="max-width: 700px; margin: 40px auto 0;">
+                <h2 style="font-size: 1.3rem; color: var(--vibe-dark); margin-bottom: 20px;">
+                    <i class="fas fa-info-circle" style="color: var(--vibe-primary); margin-right: 8px;"></i>
+                    Event Information
+                </h2>
+                
+                <div class="ticket-card" style="padding: 25px;">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: var(--vibe-dark); font-size: 1.15rem; margin-bottom: 10px;">{{ ticket.event.Event_title }}</h3>
+                        <p style="color: var(--vibe-text-light); line-height: 1.6;">
+                            {% if ticket.event.Event_description %}
+                                {{ ticket.event.Event_description }}
+                            {% else %}
+                                Get ready for an amazing event experience!
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
+                        <div>
+                            <div style="color: var(--vibe-text-light); font-size: 0.85rem; margin-bottom: 5px;">
+                                <i class="fas fa-users"></i> Organizer
+                            </div>
+                            <div style="color: var(--vibe-dark); font-weight: 600;"></div>
+                        </div>
+                        <div>
+                            <div style="color: var(--vibe-text-light); font-size: 0.85rem; margin-bottom: 5px;">
+                                <i class="fas fa-tag"></i> Category
+                            </div>
+                            <div style="color: var(--vibe-dark); font-weight: 600;">{{ ticket.event.Event_category }}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Tickets Grid -->
-            <div class="tickets-grid" id="ticketsGrid">
-                <!-- Tickets will be generated here -->
-            </div>
-
-            <!-- Empty State (hidden by default) -->
-            <div class="empty-state hidden" id="emptyState">
+            {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
                 <div class="empty-icon">
                     <i class="fas fa-ticket-alt"></i>
                 </div>
-                <h3>No Tickets Found</h3>
-                <p>You haven't purchased any tickets yet. Browse events and get your tickets now!</p>
-                <button class="btn btn-primary" onclick="window.location.href='events-listing.html'">
-                    <i class="fas fa-search"></i> Browse Events
-                </button>
+                <h3>Ticket Not Found</h3>
+                <p>The ticket you're looking for doesn't exist or you don't have permission to view it.</p>
+                <a href="{% url 'finders_dashboard' %}" class="btn btn-primary" style="margin-top: 20px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
             </div>
+            {% endif %}
         </div>
     </main>
-
-    <!-- Download Modal -->
-    <div class="modal" id="downloadModal">
-        <div class="modal-content">
-            <h3>Download Ticket</h3>
-            <p style="margin-bottom: 20px;">Choose how you want to save your ticket</p>
-            <div class="modal-buttons">
-                <button class="btn btn-primary" id="downloadImageBtn">
-                    <i class="fas fa-image"></i> Download as Image
-                </button>
-                <button class="btn btn-secondary" id="downloadPdfBtn">
-                    <i class="fas fa-file-pdf"></i> Download as PDF
-                </button>
-                <button class="btn btn-outline" id="closeModalBtn">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -855,351 +1037,21 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
-        // Sample Ticket Data
-        const ticketsData = [
-            {
-                id: "TKT-001-ABCD",
-                eventName: "Spring Bash: Neon Night",
-                eventDate: "Saturday, May 20, 2024",
-                eventTime: "9:00 PM - 2:00 AM",
-                location: "Student Union Grand Hall",
-                ticketType: "General Admission",
-                quantity: 2,
-                price: 1500,
-                status: "upcoming",
-                qrData: "TKT-001-ABCD-2024-05-20",
-                purchasedOn: "May 15, 2024"
-            },
-            {
-                id: "TKT-002-EFGH",
-                eventName: "Campus Unplugged: Acoustic Night",
-                eventDate: "Saturday, May 26, 2024",
-                eventTime: "7:30 PM - 10:30 PM",
-                location: "Quad Amphitheater",
-                ticketType: "Free Admission",
-                quantity: 1,
-                price: 0,
-                status: "upcoming",
-                qrData: "TKT-002-EFGH-2024-05-26",
-                purchasedOn: "May 18, 2024"
-            },
-            {
-                id: "TKT-003-IJKL",
-                eventName: "Tech Mixer & Networking",
-                eventDate: "Friday, May 24, 2024",
-                eventTime: "4:00 PM - 7:00 PM",
-                location: "Innovation Hub",
-                ticketType: "Student Pass",
-                quantity: 1,
-                price: 500,
-                status: "upcoming",
-                qrData: "TKT-003-IJKL-2024-05-24",
-                purchasedOn: "May 10, 2024"
-            },
-            {
-                id: "TKT-004-MNOP",
-                eventName: "Winter Formal Gala",
-                eventDate: "Friday, February 15, 2024",
-                eventTime: "8:00 PM - 12:00 AM",
-                location: "Grand Ballroom",
-                ticketType: "VIP Access",
-                quantity: 2,
-                price: 2500,
-                status: "used",
-                qrData: "TKT-004-MNOP-2024-02-15",
-                purchasedOn: "February 1, 2024"
-            }
-        ];
+        function printTicket() {
+            window.print();
+        }
 
-        // DOM Elements
-        const ticketsGrid = document.getElementById('ticketsGrid');
-        const emptyState = document.getElementById('emptyState');
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const downloadModal = document.getElementById('downloadModal');
-        const downloadImageBtn = document.getElementById('downloadImageBtn');
-        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-        const closeModalBtn = document.getElementById('closeModalBtn');
+        document.getElementById('downloadBtn')?.addEventListener('click', function() {
+            window.print();
+        });
+
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
         const userMenu = document.getElementById('userMenu');
-        const logoutBtn = document.getElementById('logoutBtn');
 
-        let currentTicketId = null;
-        let currentQRCanvas = null;
-
-        // Generate QR Code
-        function generateQRCode(elementId, data) {
-            const container = document.getElementById(elementId);
-            if (container) {
-                container.innerHTML = '';
-                new QRCode(container, {
-                    text: data,
-                    width: 150,
-                    height: 150,
-                    colorDark: "#1A1A2E",
-                    colorLight: "#FFFFFF",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            }
-        }
-
-        // Render Tickets
-        function renderTickets(filter = 'all') {
-            let filteredTickets = ticketsData;
-            
-            if (filter === 'upcoming') {
-                filteredTickets = ticketsData.filter(ticket => ticket.status === 'upcoming');
-            } else if (filter === 'past') {
-                filteredTickets = ticketsData.filter(ticket => ticket.status === 'used');
-            }
-            
-            if (filteredTickets.length === 0) {
-                ticketsGrid.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-            
-            emptyState.classList.add('hidden');
-            ticketsGrid.innerHTML = '';
-            
-            filteredTickets.forEach((ticket, index) => {
-                const ticketCard = createTicketCard(ticket, index);
-                ticketsGrid.appendChild(ticketCard);
-                
-                // Generate QR code for this ticket
-                setTimeout(() => {
-                    generateQRCode(`qr-${ticket.id}`, ticket.qrData);
-                }, 100);
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function() {
+                userMenu?.classList.toggle('active');
             });
         }
-        
-        // Create Ticket Card HTML
-        function createTicketCard(ticket, index) {
-            const card = document.createElement('div');
-            card.className = 'ticket-card';
-            card.setAttribute('data-ticket-id', ticket.id);
-            
-            const totalPrice = ticket.quantity * ticket.price;
-            const statusText = ticket.status === 'upcoming' ? 'Upcoming' : 'Used';
-            const statusClass = ticket.status === 'upcoming' ? 'status-active' : 'status-used';
-            
-            card.innerHTML = `
-                <div class="ticket-header">
-                    <div class="ticket-event-name">${ticket.eventName}</div>
-                    <div class="ticket-event-date">
-                        <i class="far fa-calendar-alt"></i> ${ticket.eventDate} • ${ticket.eventTime}
-                    </div>
-                    <div class="ticket-badge">${ticket.ticketType}</div>
-                </div>
-                
-                <div class="ticket-body">
-                    <div class="ticket-details">
-                        <div class="ticket-detail">
-                            <div class="detail-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="detail-info">
-                                <div class="detail-label">Location</div>
-                                <div class="detail-value">${ticket.location}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="ticket-detail">
-                            <div class="detail-icon">
-                                <i class="fas fa-ticket-alt"></i>
-                            </div>
-                            <div class="detail-info">
-                                <div class="detail-label">Quantity</div>
-                                <div class="detail-value">${ticket.quantity} ${ticket.quantity === 1 ? 'Ticket' : 'Tickets'}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="ticket-detail">
-                            <div class="detail-icon">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </div>
-                            <div class="detail-info">
-                                <div class="detail-label">Total Paid</div>
-                                <div class="detail-value">KES ${totalPrice.toLocaleString()}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="ticket-detail">
-                            <div class="detail-icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="detail-info">
-                                <div class="detail-label">Purchased On</div>
-                                <div class="detail-value">${ticket.purchasedOn}</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="qr-section">
-                        <div class="qr-code" id="qr-${ticket.id}">
-                            <!-- QR Code will be generated here -->
-                        </div>
-                        <div class="ticket-id">Ticket ID: ${ticket.id}</div>
-                        <div style="font-size: 0.75rem; color: var(--vibe-text-light); margin-top: 5px;">
-                            <i class="fas fa-info-circle"></i> Scan this QR code at the entrance
-                        </div>
-                    </div>
-                    
-                    <div class="ticket-footer">
-                        <div class="ticket-status">
-                            <div class="status-indicator ${statusClass}"></div>
-                            <span>${statusText}</span>
-                        </div>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button class="btn btn-secondary view-details-btn" data-id="${ticket.id}">
-                                <i class="fas fa-info-circle"></i> Details
-                            </button>
-                            <button class="btn btn-outline download-btn" data-id="${ticket.id}">
-                                <i class="fas fa-download"></i> Download
-                            </button>
-                            ${ticket.status === 'upcoming' ? `
-                            <button class="btn btn-primary add-to-calendar" data-id="${ticket.id}">
-                                <i class="fas fa-calendar-plus"></i> Add to Calendar
-                            </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            return card;
-        }
-        
-        // View ticket details
-        function viewTicketDetails(ticketId) {
-            const ticket = ticketsData.find(t => t.id === ticketId);
-            if (ticket) {
-                alert(`📋 Ticket Details\n\nEvent: ${ticket.eventName}\nDate: ${ticket.eventDate}\nTime: ${ticket.eventTime}\nLocation: ${ticket.location}\nTicket Type: ${ticket.ticketType}\nQuantity: ${ticket.quantity}\nTicket ID: ${ticket.id}\n\nPresent this QR code at the venue entrance.`);
-            }
-        }
-        
-        // Add to calendar
-        function addToCalendar(ticketId) {
-            const ticket = ticketsData.find(t => t.id === ticketId);
-            if (ticket) {
-                // Parse date (simplified - in real app would create proper calendar file)
-                alert(`📅 Event added to calendar!\n\n${ticket.eventName}\n${ticket.eventDate}\n${ticket.eventTime}\n\nCheck your calendar app for the event.`);
-            }
-        }
-        
-        // Download ticket as image
-        function downloadTicketAsImage(ticketId) {
-            const ticketCard = document.querySelector(`.ticket-card[data-ticket-id="${ticketId}"]`);
-            if (ticketCard) {
-                html2canvas(ticketCard, {
-                    scale: 2,
-                    backgroundColor: '#FFFFFF',
-                    logging: false
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `ticket-${ticketId}.png`;
-                    link.href = canvas.toDataURL();
-                    link.click();
-                    alert('Ticket downloaded as image successfully!');
-                }).catch(error => {
-                    console.error('Error generating image:', error);
-                    alert('Unable to download ticket. Please try again.');
-                });
-            }
-        }
-        
-        // Download ticket as PDF (simplified - would use jsPDF in production)
-        function downloadTicketAsPDF(ticketId) {
-            alert(`📄 Ticket PDF would be generated here.\n\nIn a real app, this would create a downloadable PDF file with your ticket details and QR code.`);
-        }
-        
-        // Tab switching
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                tabBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const filter = this.getAttribute('data-tab');
-                renderTickets(filter);
-            });
-        });
-        
-        // Event delegation for ticket actions
-        document.addEventListener('click', function(e) {
-            // View details button
-            if (e.target.closest('.view-details-btn')) {
-                const btn = e.target.closest('.view-details-btn');
-                const ticketId = btn.getAttribute('data-id');
-                viewTicketDetails(ticketId);
-            }
-            
-            // Download button
-            if (e.target.closest('.download-btn')) {
-                const btn = e.target.closest('.download-btn');
-                currentTicketId = btn.getAttribute('data-id');
-                downloadModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-            
-            // Add to calendar button
-            if (e.target.closest('.add-to-calendar')) {
-                const btn = e.target.closest('.add-to-calendar');
-                const ticketId = btn.getAttribute('data-id');
-                addToCalendar(ticketId);
-            }
-        });
-        
-        // Download modal actions
-        downloadImageBtn.addEventListener('click', function() {
-            if (currentTicketId) {
-                downloadTicketAsImage(currentTicketId);
-                downloadModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-                currentTicketId = null;
-            }
-        });
-        
-        downloadPdfBtn.addEventListener('click', function() {
-            if (currentTicketId) {
-                downloadTicketAsPDF(currentTicketId);
-                downloadModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-                currentTicketId = null;
-            }
-        });
-        
-        closeModalBtn.addEventListener('click', function() {
-            downloadModal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-            currentTicketId = null;
-        });
-        
-        // Close modal on outside click
-        downloadModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('active');
-                document.body.style.overflow = 'auto';
-                currentTicketId = null;
-            }
-        });
-        
-        // Mobile menu toggle
-        mobileMenuToggle.addEventListener('click', function() {
-            userMenu.classList.toggle('active');
-            this.innerHTML = userMenu.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-        });
-        
-        // Logout button
-        logoutBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to logout?')) {
-                window.location.href = 'index.html';
-            }
-        });
-        
-        // Initialize
-        renderTickets('all');
     </script>
-    <!-- Include html2canvas for image download functionality -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-</body>
-</html>

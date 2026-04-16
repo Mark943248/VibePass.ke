@@ -1,6 +1,6 @@
 import qrcode
-import base64
 from io import BytesIO
+import cloudinary.uploader
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -43,7 +43,7 @@ def book_free_ticket(request, slug):
     messages.success(request, 'Ticket booked successfully!')
     return redirect('create_ticket_qr', ticket_id=ticket.ticket_id)
 
-def create_ticket(request=None, payment_id=None, redirect_to_qr=True):
+def create_ticket(request=None, payment_id=None):
     """Create ticket after payment is successful"""
     from Payments.models import Payment
     
@@ -62,9 +62,7 @@ def create_ticket(request=None, payment_id=None, redirect_to_qr=True):
         defaults={'status': 'active'}
     )
     
-    if redirect_to_qr and request is not None:
-        return redirect('create_ticket_qr', ticket_id=ticket.ticket_id)
-    return ticket
+    return redirect('create_ticket_qr', ticket_id=ticket.ticket_id)
 
 @login_required
 def create_ticket_qr(request, ticket_id):
@@ -78,13 +76,30 @@ def create_ticket_qr(request, ticket_id):
     qr.make(fit=True)
     
     img = qr.make_image(fill_color="black", back_color="white")
-    
     buffer = BytesIO()
     img.save(buffer, format="PNG")
-    img_str = base64.b64encode(buffer.getvalue()).decode()
-    
-    context = {
+    buffer.seek(0)
+
+    if not ticket.ticket_qr_image:
+        upload_result = cloudinary.uploader.upload(
+            buffer,
+            public_id=f"ticket_qr/{ticket.ticket_id}",
+            format="png",
+            overwrite=True,
+            resource_type="image"
+        )
+        ticket.ticket_qr_image = upload_result['public_id']
+        ticket.save()
+
+    return redirect('users_tickets', ticket_id=ticket.ticket_id)
+
+@login_required
+def render_users_tickets(request, ticket_id):
+    ticket = get_object_or_404(Ticket, ticket_id=ticket_id)
+    if ticket.user != request.user:
+        return redirect('home')
+
+    return render(request, 'tickets/tickets.html', {
         'ticket': ticket,
-        'qr_code': img_str,
-    }
-    return render(request, 'tickets/tickets.html', context)
+    })
+    

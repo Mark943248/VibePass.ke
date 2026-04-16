@@ -1,6 +1,7 @@
 from django.db import models
 from Events.models import Event
 from Payments.models import Payment
+from cloudinary.models import CloudinaryField
 from Users.models import User
 from django.utils import timezone
 import uuid
@@ -13,6 +14,7 @@ TICKET_STATUS = [
 
 class Ticket(models.Model):
     ticket_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    ticket_qr_image = CloudinaryField('ticket_qr_image', blank=True, null=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='tickets')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='booked_tickets')
     payment = models.OneToOneField(
