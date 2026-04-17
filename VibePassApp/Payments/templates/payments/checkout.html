@@ -776,6 +776,7 @@
 
                     <!-- Payment Form -->
                     <form id="checkoutForm" action="{% url 'initiate_payment' event.slug %}" method="post">
+                        {% csrf_token %}
                         <!-- Payment Method Selection -->
                         <div class="form-group">
                             <label class="form-label required">Payment Method</label>
@@ -1064,30 +1065,7 @@
             }
 
             if (isValid) {
-                // Show loading state
-                payNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
-                payNowBtn.disabled = true;
-                payNowBtn.classList.add('loading');
-
-                // Simulate payment processing
-                setTimeout(() => {
-                    // Show success modal
-                    successModal.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-
-                    // Reset button
-                    payNowBtn.innerHTML = '<i class="fas fa-lock"></i> Complete Payment';
-                    payNowBtn.disabled = false;
-                    payNowBtn.classList.remove('loading');
-
-                    // Clear form
-                    if (selectedMethod === 'mpesa') {
-                        phoneInput.value = '';
-                    }
-                    termsCheckbox.checked = false;
-
-                    // In a real app, you would redirect or update state
-                }, 2000);
+                checkoutForm.submit();
             }
         });
 

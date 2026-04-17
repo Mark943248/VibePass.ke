@@ -23,8 +23,23 @@ def generate_access_token():
     else:
         raise Exception('Failed to generate access token')
     
+# format phone number to international format for MPESA
+def format_phone_number(phone_number):
+    # Remove any non-digit characters
+    cleaned = ''.join(filter(str.isdigit, phone_number))
+    if cleaned.startswith('0'):
+        return '254' + cleaned[1:]
+    elif cleaned.startswith('254'):
+        return cleaned
+    elif cleaned.startswith('+254'):
+        return cleaned[1:]
+    else:
+        return cleaned
+    
 # mpesa stk_push request
 def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
+   # Format phone number to international format
+   formatted_phone = format_phone_number(phone_number)
    access_token = generate_access_token()
    if not access_token:
          raise Exception('Failed to obtain access token')
@@ -40,9 +55,9 @@ def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
         "Timestamp": timestamp,
         "TransactionType": "CustomerPayBillOnline",
         "Amount": int(amount),
-        "PartyA": phone_number,
+        "PartyA": formatted_phone,
         "PartyB": short_code,
-        "PhoneNumber": phone_number,
+        "PhoneNumber": formatted_phone,
         "CallBackURL": config('MPESA_CALLBACK_URL'), # Your 'Back Door' URL
         "AccountReference": f"Purchase of {Event_title} ticket - {payment_id}",
         "TransactionDesc": "Event Ticket Purchase"

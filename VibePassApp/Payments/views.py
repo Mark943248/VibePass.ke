@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from Events.models import Event
 from django.http import JsonResponse
-from .utils import mpesa_stk_push
+from .utils import mpesa_stk_push, format_phone_number
 from .models import Payment
 import json
 
@@ -15,17 +15,18 @@ def initiate_payment(request, slug):
     amount = event.Event_ticket_price
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
+        formatted_phone = format_phone_number(phone_number)
     # create a payment record in the database
         payment = Payment.objects.create(
             user=request.user,
             event=event,
             amount=amount,
-            mpesa_number=phone_number,
+            mpesa_number=formatted_phone,
             payment_status='Pending'
         )
         # initiate mpesa stk push
         try:
-            response = mpesa_stk_push(phone_number, amount, event.Event_title, payment.payment_id)
+            response = mpesa_stk_push(formatted_phone, amount, event.Event_title, payment.payment_id)
             # handle the response from mpesa
             if response.get('ResponseCode') == '0':
                 payment.checkout_request_id = response.get('CheckoutRequestID')
@@ -36,11 +37,11 @@ def initiate_payment(request, slug):
                 payment.payment_status = 'Failed'
                 payment.save()
                 error_msg = response.get('ResultDesc', 'Payment initiation failed. Please try again.')
-                print(f'MPESA STK Push failed for payment ID {payment.payment_id}: {error_msg}')
-                return redirect('Eventdetails')
+                print(f'MPESA STK Push failed for payment ID {payment.payment_id}: {error_msg} {response}')
+                return redirect('event_details', slug=event.slug)
         except Exception as e:
             print(f'Error initiating payment: {str(e)}')
-            return redirect('Eventdetails')
+            return redirect('event_details', slug=event.slug)
     return render(request, 'payments/checkout.html', {'event': event})
 
 

@@ -9,7 +9,7 @@ class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='payments')
     # payment details
-    checkout_request_id = models.CharField(max_length=255, unique=True)
+    checkout_request_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
     mpesa_receipt_number = models.CharField(max_length=255, unique=True, blank=True, null=True)  # receipt number for each transaction by mpesa
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     mpesa_number = models.CharField(max_length=20)  # phone number used for payment

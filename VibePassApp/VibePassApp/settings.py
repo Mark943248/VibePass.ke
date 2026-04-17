@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-q=#dxnjif=mvgvn6x00&_xq4k624$pft^1@38-6gexqs21214f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.ngrok.io']
 
 
 # Application definition
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
     'cloudinary_storage',
     'cloudinary',
+    'django_ngrok',
 ]
 
 MIDDLEWARE = [
