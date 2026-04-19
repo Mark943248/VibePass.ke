@@ -49,18 +49,23 @@ def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
    data_to_encode = f"{short_code}{passkey}{timestamp}"
    # password for mpesa is a base64 encoded string of the short code, passkey and timestamp
    online_password = base64.b64encode(data_to_encode.encode()).decode()
+   callback_base = config('MPESA_CALLBACK_URL')
+   callback_url = callback_base.rstrip('/')
+   if not callback_url.endswith('/payments/mpesa_callback'):
+       callback_url = f"{callback_url}/payments/mpesa_callback"
+
    payload = {
        "BusinessShortCode": short_code,
-        "Password": online_password,
-        "Timestamp": timestamp,
-        "TransactionType": "CustomerPayBillOnline",
-        "Amount": int(amount),
-        "PartyA": formatted_phone,
-        "PartyB": short_code,
-        "PhoneNumber": formatted_phone,
-        "CallBackURL": config('MPESA_CALLBACK_URL'), # Your 'Back Door' URL
-        "AccountReference": f"Purchase of {Event_title} ticket - {payment_id}",
-        "TransactionDesc": "Event Ticket Purchase"
+       "Password": online_password,
+       "Timestamp": timestamp,
+       "TransactionType": "CustomerPayBillOnline",
+       "Amount": int(amount),
+       "PartyA": formatted_phone,
+       "PartyB": short_code,
+       "PhoneNumber": formatted_phone,
+       "CallBackURL": callback_url,
+       "AccountReference": f"Purchase of {Event_title} ticket - {payment_id}",
+       "TransactionDesc": "Event Ticket Purchase"
    }
    headers = {"Authorization": f"Bearer {access_token}"}
    stk_push_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'

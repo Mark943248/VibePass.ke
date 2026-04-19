@@ -723,6 +723,53 @@
         .order-summary {
             animation: fadeIn 0.5s ease-out;
         }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--vibe-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .loading-content h2 {
+            color: var(--vibe-dark);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .loading-content p {
+            color: var(--vibe-text-light);
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 
@@ -929,6 +976,15 @@
         </div>
     </div>
 
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2>Processing Payment</h2>
+            <p>Please complete the M-PESA prompt on your phone and wait...</p>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container footer-content">
@@ -949,34 +1005,31 @@
     </footer>
 
     <script>
-        
-
-       
+        // Get event price from the page
 
         // Update order summary display
-        document.getElementById('ticketTypeDisplay').textContent = ticketData.type;
-        document.getElementById('quantityDisplay').textContent = `${ticketData.quantity} ${ticketData.quantity === 1 ? 'ticket' : 'tickets'}`;
-        document.getElementById('unitPriceDisplay').textContent = `KES ${ticketData.unitPrice.toLocaleString()}`;
-        document.getElementById('subtotalDisplay').textContent = `KES ${subtotal.toLocaleString()}`;
-        document.getElementById('feeDisplay').textContent = `KES ${processingFee.toLocaleString()}`;
-        document.getElementById('totalAmountDisplay').textContent = `KES ${totalAmount.toLocaleString()}`;
+        document.getElementById('ticketTypeDisplay').textContent = 'General';
+        document.getElementById('quantityDisplay').textContent = '1 ticket';
+        document.getElementById('unitPriceDisplay').textContent = `KES ${eventPrice.toLocaleString()}`;
+        document.getElementById('subtotalDisplay').textContent = `KES ${eventPrice.toLocaleString()}`;
+        document.getElementById('feeDisplay').textContent = 'KES 0';
+        document.getElementById('totalAmountDisplay').textContent = `KES ${eventPrice.toLocaleString()}`;
 
         // Update M-PESA amount display
         const mpesaAmountDisplay = document.getElementById('mpesaAmountDisplay');
         if (mpesaAmountDisplay) {
-            mpesaAmountDisplay.textContent = `KES ${totalAmount.toLocaleString()}`;
+            mpesaAmountDisplay.textContent = `KES ${eventPrice.toLocaleString()}`;
         }
 
         // DOM Elements
         const paymentMethods = document.querySelectorAll('.payment-method');
         const mpesaSection = document.getElementById('mpesaSection');
-        const cardSection = document.getElementById('cardSection');
-        const bankSection = document.getElementById('bankSection');
         const phoneInput = document.getElementById('phoneNumber');
         const termsCheckbox = document.getElementById('termsCheckbox');
         const payNowBtn = document.getElementById('payNowBtn');
         const checkoutForm = document.getElementById('checkoutForm');
         const successModal = document.getElementById('successModal');
+        const loadingOverlay = document.getElementById('loadingOverlay');
         const viewTicketsBtn = document.getElementById('viewTicketsBtn');
 
         // Payment method switching
@@ -986,22 +1039,6 @@
                 paymentMethods.forEach(m => m.classList.remove('selected'));
                 // Add selected class to clicked method
                 this.classList.add('selected');
-
-                const methodType = this.getAttribute('data-method');
-
-                // Hide all payment sections
-                mpesaSection.style.display = 'none';
-                cardSection.style.display = 'none';
-                bankSection.style.display = 'none';
-
-                // Show selected payment section
-                if (methodType === 'mpesa') {
-                    mpesaSection.style.display = 'block';
-                } else if (methodType === 'card') {
-                    cardSection.style.display = 'block';
-                } else if (methodType === 'bank') {
-                    bankSection.style.display = 'block';
-                }
             });
         });
 
@@ -1039,43 +1076,9 @@
             }
         });
 
-        // Form submission
-        checkoutForm.addEventListener('submit', function (e) {
-            e.preventDefault();
+       ment.body.style.overflow = 'hidden';
 
-            // Get selected payment method
-            const selectedMethod = document.querySelector('.payment-method.selected').getAttribute('data-method');
-
-            // Validate based on payment method
-            let isValid = true;
-
-            if (selectedMethod === 'mpesa') {
-                const phoneNumber = phoneInput.value;
-                if (!phoneNumber || !validatePhoneNumber(phoneNumber)) {
-                    phoneInput.classList.add('error');
-                    document.getElementById('phoneError').style.display = 'block';
-                    isValid = false;
-                }
-            }
-
-            // Validate terms
-            if (!termsCheckbox.checked) {
-                alert('Please agree to the Terms of Service and Privacy Policy');
-                isValid = false;
-            }
-
-            if (isValid) {
-                checkoutForm.submit();
-            }
-        });
-
-        // Success modal actions
-        viewTicketsBtn.addEventListener('click', function () {
-            successModal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-            window.location.href = 'user-dashboard.html';
-        });
-
+      
         // Close modal when clicking outside
         successModal.addEventListener('click', function (e) {
             if (e.target === this) {
@@ -1098,16 +1101,6 @@
                 this.value = value;
             }
         });
-
-        // Initialize
-        function init() {
-            // Set default payment method to M-PESA
-            const defaultMethod = document.querySelector('.payment-method[data-method="mpesa"]');
-            if (defaultMethod) {
-                defaultMethod.classList.add('selected');
-            }
-            mpesaSection.style.display = 'block';
-        }
 
         init();
     </script>

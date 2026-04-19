@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>VibePass - Processing Payment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Brand Colors */
+        :root {
+            --vibe-primary: #6C4BDD;
+            --vibe-secondary: #00D4AA;
+            --vibe-dark: #1A1A2E;
+            --vibe-light: #F8F9FF;
+            --vibe-accent: #FF6B9D;
+            --vibe-text: #333333;
+            --vibe-text-light: #777777;
+            --vibe-card-bg: #FFFFFF;
+            --vibe-card-shadow: rgba(108, 75, 221, 0.08);
+            --vibe-success: #00C853;
+            --vibe-warning: #FF9800;
+            --vibe-danger: #FF4D4D;
+            --vibe-info: #2196F3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--vibe-light) 0%, #F0F2FF 100%);
+            color: var(--vibe-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 clamp(12px, 4vw, 24px);
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--vibe-dark);
+            padding: clamp(12px, 3vw, 20px) 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .logo-icon {
+            color: var(--vibe-secondary);
+            background: var(--vibe-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-10deg);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: clamp(40px, 10vw, 80px) 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Status Card */
+        .status-card {
+            background: var(--vibe-card-bg);
+            border-radius: 20px;
+            padding: clamp(30px, 5vw, 50px);
+            box-shadow: 0 8px 30px var(--vibe-card-shadow);
+            text-align: center;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        /* Loading Spinner */
+        .spinner-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid var(--vibe-light);
+            border-top-color: var(--vibe-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status-title {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            color: var(--vibe-dark);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .status-description {
+            color: var(--vibe-text-light);
+            font-size: clamp(0.95rem, 2vw, 1.05rem);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        /* Payment Details Section */
+        .payment-details {
+            background: linear-gradient(135deg, rgba(108, 75, 221, 0.05), rgba(0, 212, 170, 0.05));
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 4px solid var(--vibe-primary);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--vibe-text-light);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: var(--vibe-dark);
+            font-weight: 700;
+        }
+
+        /* Steps */
+        .steps {
+            text-align: left;
+            margin: 30px 0;
+            padding: 20px;
+            background: #F9F9F9;
+            border-radius: 12px;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--vibe-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: var(--vibe-text);
+            font-size: 0.95rem;
+            padding-top: 2px;
+        }
+
+        /* Status Messages */
+        .info-box {
+            background: #E3F2FD;
+            border-left: 4px solid var(--vibe-info);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .info-box i {
+            color: var(--vibe-info);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .info-box-text {
+            text-align: left;
+            color: #1565C0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .info-box-text strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--vibe-primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a3bc5;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(108, 75, 221, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--vibe-primary);
+            border: 2px solid var(--vibe-primary);
+            width: 100%;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(108, 75, 221, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            width: auto;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--vibe-dark);
+            color: white;
+            padding: 30px 0;
+            margin-top: 60px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .status-card {
+                padding: 25px;
+            }
+
+            .spinner {
+                width: 60px;
+                height: 60px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                VibePass
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="status-card">
+                <div class="spinner-container">
+                    <div class="spinner"></div>
+                </div>
+
+                <h1 class="status-title">Processing Payment</h1>
+                <p class="status-description">
+                    Please complete the M-PESA payment prompt on your phone to proceed.
+                </p>
+
+                <div class="payment-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Event</span>
+                        <span class="detail-value">{{ event.Event_title }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Amount</span>
+                        <span class="detail-value">KES {{ payment.amount }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Phone Number</span>
+                        <span class="detail-value">{{ payment.mpesa_number }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value" id="paymentStatus" style="color: var(--vibe-warning);">
+                            <i class="fas fa-clock"></i> Pending
+                        </span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="info-box-text">
+                        <strong>What's happening?</strong>
+                        An M-PESA prompt has been sent to your phone. Please check your phone and complete the payment.
+                    </div>
+                </div>
+
+                <div class="steps">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Check for the M-PESA popup on your phone</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Enter your M-PESA PIN when prompted</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Wait for confirmation - page will update automatically</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-text">Receive your ticket</div>
+                    </div>
+                </div>
+
+                <div id="paymentMessage"></div>
+
+                <div class="btn-group" style="display: none;" id="actionButtons">
+                    <button class="btn btn-secondary" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i> Back to Event
+                    </button>
+                    <button class="btn btn-primary" onclick="viewTickets()" id="viewTicketsBtn" style="display: none;">
+                        <i class="fas fa-ticket-alt"></i> View Tickets
+                    </button>
+                </div>
+
+                <p style="margin-top: 25px; font-size: 0.85rem; color: var(--vibe-text-light);">
+                    <i class="fas fa-shield-alt"></i> Your payment is secure and encrypted
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VibePass. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Get payment ID from URL
+        const paymentId = '{{ payment.payment_id }}';
+        const eventSlug = '{{ event.slug }}';
+        let checkStatusInterval = null;
+        let checkCount = 0;
+        let finalStatusShown = false;
+        const maxChecks = 180; // Check for 3 minutes (180 * 1 second) to allow for callback delays
+        const statusCheckInterval = 1000; // Check every 1 second
+
+        // Function to check payment status
+        function checkPaymentStatus() {
+            fetch(`/payments/check-status/${paymentId}/`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const statusElement = document.getElementById('paymentStatus');
+                const messageElement = document.getElementById('paymentMessage');
+                const actionButtons = document.getElementById('actionButtons');
+                const viewTicketsBtn = document.getElementById('viewTicketsBtn');
+
+                console.log('Payment Status Check #' + checkCount + ':', data.status);
+
+                // Only update if we haven't already shown a final status
+                if (!finalStatusShown) {
+                    if (data.status === 'Completed') {
+                        // Payment successful
+                        finalStatusShown = true;
+                        statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Payment Successful';
+                        statusElement.style.color = 'var(--vibe-success)';
+                        
+                        messageElement.innerHTML = `
+                            <div class="info-box" style="background: #E8F5E9; border-left-color: var(--vibe-success);">
+                                <i class="fas fa-check-circle" style="color: var(--vibe-success);"></i>
+                                <div class="info-box-text" style="color: #2E7D32;">
+                                    <strong>Payment Successful!</strong>
+                                    Your ticket has been generated and an Mpesa SMS confirmation has been sent to your phone.
+                                </div>
+                            </div>
+                        `;
+
+                        // Hide spinner
+                        document.querySelector('.spinner-container').style.display = 'none';
+                        
+                        // Show action buttons
+                        actionButtons.style.display = 'flex';
+                        viewTicketsBtn.style.display = 'block';
+                        
+                        // Stop checking
+                        clearInterval(checkStatusInterval);
+                        
+                    } else if (data.status === 'Failed') {
+                        // Payment failed or cancelled
+                        finalStatusShown = true;
+                        statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Payment Failed';
+                        statusElement.style.color = 'var(--vibe-danger)';
+                        
+                        const failureMessage = data.message || 'Your payment could not be processed. Please try again.';
+                        messageElement.innerHTML = `
+                            <div class="info-box" style="background: #FFEBEE; border-left-color: var(--vibe-danger);">
+                                <i class="fas fa-exclamation-circle" style="color: var(--vibe-danger);"></i>
+                                <div class="info-box-text" style="color: #C62828;">
+                                    <strong>Payment Failed</strong>
+                                    ${failureMessage}
+                                </div>
+                            </div>
+                        `;
+
+                        // Hide spinner
+                        document.querySelector('.spinner-container').style.display = 'none';
+                        
+                        // Show action buttons
+                        actionButtons.style.display = 'flex';
+                        
+                        // Stop checking
+                        clearInterval(checkStatusInterval);
+                        console.log('Payment failed - stopping status checks');
+                    } else {
+                        // Still pending
+                        checkCount++;
+                        
+                        // If we've checked too many times, show a message but keep checking
+                        if (checkCount === maxChecks) {
+                            messageElement.innerHTML = `
+                                <div class="info-box" style="background: #FFF3E0; border-left-color: var(--vibe-warning);">
+                                    <i class="fas fa-hourglass-end" style="color: var(--vibe-warning);"></i>
+                                    <div class="info-box-text" style="color: #E65100;">
+                                        <strong>Taking Longer Than Expected</strong>
+                                        The payment is still being processed. Please check your phone to ensure you completed the M-PESA prompt, or wait a bit longer for the confirmation.
+                                    </div>
+                                </div>
+                            `;
+                            console.log('Max checks reached - still waiting for callback');
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error checking payment status:', error);
+                // Don't show error on first few attempts, might be temporary network issue
+                if (checkCount > 5 && !finalStatusShown) {
+                    document.getElementById('paymentMessage').innerHTML = `
+                        <div class="info-box" style="background: #FFEBEE; border-left-color: var(--vibe-danger);">
+                            <i class="fas fa-exclamation-circle" style="color: var(--vibe-danger);"></i>
+                            <div class="info-box-text" style="color: #C62828;">
+                                <strong>Connection Error</strong>
+                                Unable to check payment status. Please refresh the page or try again later.
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // Start checking status immediately and then every 1 second
+        checkPaymentStatus();
+        checkStatusInterval = setInterval(checkPaymentStatus, statusCheckInterval);
+
+        // Function to go back to event
+        function goBack() {
+            window.location.href = `/event_details/${eventSlug}/`;
+        }
+
+        // Function to view tickets
+        function viewTickets() {
+            window.location.href = '/users/tickets/';
+        }
+
+        // Stop checking when user leaves the page
+        window.addEventListener('beforeunload', function() {
+            if (checkStatusInterval) {
+                clearInterval(checkStatusInterval);
+            }
+        });
+    </script>
+</body>
+
+</html>
