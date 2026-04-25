@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 from Events.models import Event
 from Tickets.models import Ticket
+from django.db.models import Sum
+from datetime import date
 from .models import User
 
 # view for user registration
@@ -85,7 +87,38 @@ def EventFindersDashboard(request):
 @user_passes_test(lambda u: u.is_Event_Organizer(), login_url='login')
 def EventOrganizersDashboard(request):
     user = request.user
-    return render(request, 'users/Event_organiser.html', {'user': user}) 
+    
+    # Get all events organized by the user
+    events = Event.objects.filter(Event_organiser=user).order_by('-Event_created_at')
+    
+    # Calculate revenue for each event
+    total_revenue = 0
+    total_tickets_sold = 0
+    total_attendees = 0
+    
+    for event in events:
+        event_revenue = event.payments.filter(payment_status='Completed').aggregate(total=Sum('amount'))['total'] or 0
+        event.revenue = event_revenue
+        total_revenue += event_revenue
+        total_tickets_sold += event.get_sold_tickets()
+        total_attendees += event.tickets.filter(status__in=['active', 'scanned']).count()
+    
+    # Get total number of active events (events in the future)
+    active_events = events.filter(Event_date__gte=date.today()).count()
+    
+    # Prepare context
+    context = {
+        'user': user,
+        'events': events,
+        'total_revenue': total_revenue,
+        'total_tickets_sold': total_tickets_sold,
+        'total_attendees': total_attendees,
+        'total_events': events.count(),
+        'active_events': active_events,
+        'today': date.today(),
+    }
+    
+    return render(request, 'users/Event_organiser.html', context) 
 
 # change users details
 @login_required

@@ -48,6 +48,13 @@ class Event(models.Model):
         sold_tickets = self.tickets.filter(status__in=['active', 'scanned']).count()
         return sold_tickets
     
+    # get total revenue from completed payments
+    def get_total_revenue(self):
+        """Calculate total revenue from completed payments for this event"""
+        from django.db.models import Sum
+        revenue = self.payments.filter(payment_status='Completed').aggregate(total=Sum('amount'))['total'] or 0
+        return revenue
+    
     # checks if there are any available tickets
     def has_available_tickets(self):
         """Check if tickets are still available"""

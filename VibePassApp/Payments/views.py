@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .signals import payment_successful
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from Events.models import Event
 from django.http import JsonResponse
-from .utils import mpesa_stk_push, format_phone_number
-from .models import Payment
+from django.contrib import messages
+from .utils import mpesa_stk_push, format_phone_number, initiate_b2c_request
+from .models import Payment, Withdrawal
 import json
 
 # Create your views here.
@@ -129,3 +130,95 @@ def mpesa_callback(request):
             return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
     
     return JsonResponse({"Error": "Invalid request method"}, status=400)
+
+
+# Withdrawal request view for event organizers
+@login_required
+@user_passes_test(lambda u: u.is_organiser, login_url='login')
+def request_withdrawal(request):
+    try:
+        user = request.user
+        events = Event.objects.filter(Event_organiser=user)
+        for event in events:
+            mpesa_number = event.Event_mpesa_number
+            amount = event.get_total_revenue()
+        # Validate inputs
+        if not amount or not mpesa_number:
+            messages.error(request, 'Please provide both amount and M-Pesa number.')
+            return redirect('organizers_dashboard') 
+        # Format phone number
+        formatted_mpesa_number = format_phone_number(mpesa_number)
+        # Create withdrawal record
+        withdrawal = Withdrawal.objects.create(
+            organizer=request.user,
+            amount=amount,
+            mpesa_number=formatted_mpesa_number,
+            status='pending'
+        )
+        
+        # Initiate B2C payment
+        try:
+            response = initiate_b2c_request(
+                amount=amount,
+                phone_number=formatted_mpesa_number,
+            )
+            print(response)
+            
+            # Handle M-Pesa B2C response
+            if response.get('ResponseCode') == '0':
+                withdrawal.status = 'processing'
+                withdrawal.originator_conversation_id = response.get('OriginatorConversationID')
+                withdrawal.mpesa_conversation_id = response.get('ConversationID')
+                withdrawal.save()
+                print(f'B2C withdrawal initiated successfully for {event.Event_organiser}: Withdrawal ID {withdrawal.withdrawal_id}')
+            else:
+                withdrawal.status = 'failed'
+                withdrawal.reason = response.get('ResponseDescription', 'B2C request failed')
+                withdrawal.save()
+                error_msg = response.get('ResponseDescription', 'Withdrawal initiation failed. Please try again.')
+                print(f'B2C withdrawal failed for {event.Event_organiser}: {error_msg}')
+        
+        except Exception as e:
+            withdrawal.status = 'failed'
+            withdrawal.reason = str(e)
+            withdrawal.save()
+            error_msg = str(e)
+            print(f'Error initiating B2C withdrawal for {event.Event_organiser}: {error_msg}')
+        
+        return redirect('organizers_dashboard')
+    
+    except Exception as e:
+        messages.error(request, 'An unexpected error occurred. Please try again.')
+        print(f'Unexpected error in withdrawal request: {str(e)}')
+        return redirect('organizers_dashboard')
+
+@csrf_exempt
+def mpesa_b2c_callback(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        print(data)
+        mpesa_details = data.get("Result", {})
+        Result_code = mpesa_details.get("ResultCode")
+        originator_conversational_id = mpesa_details.get("OriginatorConversationalID")
+        transaction_id = mpesa_details.get("TransactionID")
+        Result_desc = mpesa_details.get("ResultDesc")
+        try:
+            withdrawal = Withdrawal.objects.get(originator_conversation_id=originator_conversational_id)
+            if Result_code == 0:
+                withdrawal.status = 'completed'
+                withdrawal.mpesa_receipt_number = transaction_id
+                withdrawal.save()
+                print(f'Withdrawal completed successfully: {withdrawal.withdrawal_id}')
+            else:
+                withdrawal.status = 'failed'
+                withdrawal.reason = Result_desc
+                withdrawal.save()
+                print(f'Withdrawal failed: {withdrawal.withdrawal_id} - Reason: {Result_desc}')
+
+        except Withdrawal.DoesNotExist:
+            print(f'Transaction does not exist: {originator_conversational_id}')
+        
+        return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+    
+    return JsonResponse({"Error": "Invalid request method"}, status=400)
+

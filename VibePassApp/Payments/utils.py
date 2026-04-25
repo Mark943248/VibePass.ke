@@ -1,8 +1,11 @@
 import base64
 import requests
+import uuid
 from datetime import datetime
 from decouple import config
 from django.conf import settings
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
 import os
 
 
@@ -36,7 +39,7 @@ def format_phone_number(phone_number):
     else:
         return cleaned
     
-# mpesa stk_push request
+# mpesa stk_push request (C2B - Customer to Business)
 def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
    # Format phone number to international format
    formatted_phone = format_phone_number(phone_number)
@@ -73,4 +76,38 @@ def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
     
    return response.json()
 
-   
+# mpesa security credential generation
+def generate_mpesa_security_credential():
+    initiator_password = os.getenv('MPESA_INITIATOR_PASSWORD')
+    cert_path = os.path.join(settings.BASE_DIR, 'Certs', 'SandboxCertificate.cer')
+    with open(cert_path, "rb") as f:
+        cert_data = f.read()
+    public_key = RSA.importKey(cert_data)
+    cipher = PKCS1_v1_5.new(public_key)
+    encrypted_password = cipher.encrypt(initiator_password.encode())
+    security_credential = base64.b64encode(encrypted_password).decode()
+    print("Generated MPESA Security Credential:", security_credential)  # Debugging statement
+    return security_credential
+
+# make mpesa b2c request
+def initiate_b2c_request(amount, phone_number):
+    access_token = generate_access_token()
+    api_url = "https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest"
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    request_data = {
+        "OriginatorConversationID": str(uuid.uuid4()),
+        "InitiatorName": os.getenv('MPESA_INITIATOR_NAME'),
+        "SecurityCredential": generate_mpesa_security_credential(),
+        "CommandID": "BusinessPayment",
+        "Amount": amount,
+        "PartyA": os.getenv('MPESA_SHORT_CODE'),
+        "PartyB": phone_number,
+        "Remarks": "remarked",
+        "QueueTimeOutURL": "https://mydomain.com/path",
+        "ResultURL": "https://mydomain.com/path",
+        "Occassion": "VibePass Organizer Withdrawal"
+    }
+
+    response = requests.post(api_url, json=request_data, headers=headers)
+    return response.json()

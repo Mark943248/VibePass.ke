@@ -1236,14 +1236,14 @@
                 <a href="#" data-tab="events">
                   <i class="fas fa-calendar-alt nav-icon"></i>
                   My Events
-                  <span class="badge">8</span>
+                  <span class="badge">{{ total_events }}</span>
                 </a>
               </li>
               <li>
                 <a href="#" data-tab="tickets">
                   <i class="fas fa-ticket-alt nav-icon"></i>
                   Ticket Management
-                  <span class="badge">324</span>
+                  <span class="badge">{{ total_tickets_sold }}</span>
                 </a>
               </li>
               <li>
@@ -1284,19 +1284,19 @@
             <h3 class="stats-title"><i class="fas fa-bolt"></i> Quick Stats</h3>
             <div class="stat-item">
               <span class="stat-label">Active Events</span>
-              <span class="stat-value">5</span>
+              <span class="stat-value">{{ active_events }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-label">Tickets Sold</span>
-              <span class="stat-value">324</span>
+              <span class="stat-value">{{ total_tickets_sold }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-label">Total Revenue</span>
-              <span class="stat-value">$4,820</span>
+              <span class="stat-value">${{ total_revenue }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">Avg. Rating</span>
-              <span class="stat-value">4.6 ★</span>
+              <span class="stat-label">Total Events</span>
+              <span class="stat-value">{{ total_events }}</span>
             </div>
           </div>
         </aside>
@@ -1322,11 +1322,8 @@
                 <i class="fas fa-dollar-sign"></i>
               </div>
               <div class="analytics-content">
-                <div class="analytics-value">$4,820</div>
+                <div class="analytics-value">${{ total_revenue }}</div>
                 <div class="analytics-label">Total Revenue</div>
-                <div class="analytics-change positive">
-                  +18% from last month
-                </div>
               </div>
             </div>
 
@@ -1335,11 +1332,8 @@
                 <i class="fas fa-ticket-alt"></i>
               </div>
               <div class="analytics-content">
-                <div class="analytics-value">324</div>
+                <div class="analytics-value">{{ total_tickets_sold }}</div>
                 <div class="analytics-label">Tickets Sold</div>
-                <div class="analytics-change positive">
-                  +24% from last month
-                </div>
               </div>
             </div>
 
@@ -1348,9 +1342,8 @@
                 <i class="fas fa-calendar-check"></i>
               </div>
               <div class="analytics-content">
-                <div class="analytics-value">8</div>
+                <div class="analytics-value">{{ total_events }}</div>
                 <div class="analytics-label">Total Events</div>
-                <div class="analytics-change positive">+2 new events</div>
               </div>
             </div>
 
@@ -1359,11 +1352,8 @@
                 <i class="fas fa-users"></i>
               </div>
               <div class="analytics-content">
-                <div class="analytics-value">412</div>
+                <div class="analytics-value">{{ total_attendees }}</div>
                 <div class="analytics-label">Total Attendees</div>
-                <div class="analytics-change positive">
-                  +15% from last month
-                </div>
               </div>
             </div>
           </div>
@@ -1389,79 +1379,56 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr class="event-row">
-                    <td>
-                      <div class="event-title">Spring Bash: Neon Night</div>
-                      <div class="event-details">
-                        <span class="event-venue"
-                          ><i class="fas fa-map-marker-alt"></i> Student
-                          Union</span
-                        >
-                      </div>
-                    </td>
-                    <td>
-                      <div class="event-date">
-                        <i class="far fa-calendar"></i> May 20, 2024
-                      </div>
-                      <div class="event-time">9:00 PM</div>
-                    </td>
-                    <td>
-                      <div class="event-tickets">
-                        <i class="fas fa-ticket-alt"></i> 187/250
-                      </div>
-                      <div class="event-revenue">$2,805</div>
-                    </td>
-                    <td>
-                      <span class="event-status status-upcoming">Upcoming</span>
-                    </td>
-                    <td>
-                      <div class="event-actions">
-                        <button class="btn btn-primary btn-small">
-                          <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-secondary btn-small">
-                          <i class="fas fa-chart-bar"></i> Stats
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <tr class="event-row">
-                    <td>
-                      <div class="event-title">Campus Unplugged</div>
-                      <div class="event-details">
-                        <span class="event-venue"
-                          ><i class="fas fa-map-marker-alt"></i> Quad
-                          Amphitheater</span
-                        >
-                      </div>
-                    </td>
-                    <td>
-                      <div class="event-date">
-                        <i class="far fa-calendar"></i> May 26, 2024
-                      </div>
-                      <div class="event-time">7:30 PM</div>
-                    </td>
-                    <td>
-                      <div class="event-tickets">
-                        <i class="fas fa-ticket-alt"></i> 98/150
-                      </div>
-                      <div class="event-revenue">$980</div>
-                    </td>
-                    <td>
-                      <span class="event-status status-upcoming">Upcoming</span>
-                    </td>
-                    <td>
-                      <div class="event-actions">
-                        <button class="btn btn-primary btn-small">
-                          <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-secondary btn-small">
-                          <i class="fas fa-chart-bar"></i> Stats
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                  {% if events %}
+                    {% for event in events|slice:":2" %}
+                    <tr class="event-row">
+                      <td>
+                        <div class="event-title">{{ event.Event_title }}</div>
+                        <div class="event-details">
+                          <span class="event-venue"
+                            ><i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}</span
+                          >
+                        </div>
+                      </td>
+                      <td>
+                        <div class="event-date">
+                          <i class="far fa-calendar"></i> {{ event.Event_date|date:"M d, Y" }}
+                        </div>
+                        <div class="event-time">{{ event.Event_time|time:"g:i A" }}</div>
+                      </td>
+                      <td>
+                        <div class="event-tickets">
+                          <i class="fas fa-ticket-alt"></i> {{ event.get_sold_tickets }}/{{ event.Event_total_tickets }}
+                        </div>
+                        <div class="event-revenue">${{ event.revenue }}</div>
+                      </td>
+                      <td>
+                        {% if event.Event_date >= today %}
+                          <span class="event-status status-upcoming">Upcoming</span>
+                        {% else %}
+                          <span class="event-status status-ended">Ended</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <div class="event-actions">
+                          <a href="{% url 'create_event' %}" class="btn btn-primary btn-small">
+                            <i class="fas fa-edit"></i> Edit
+                          </a>
+                          <button class="btn btn-secondary btn-small">
+                            <i class="fas fa-chart-bar"></i> Stats
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td colspan="5" style="text-align: center; padding: 40px; color: var(--vibe-text-light);">
+                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                        No events created yet. <a href="{% url 'create_event' %}" style="color: var(--vibe-primary);">Create your first event</a>
+                      </td>
+                    </tr>
+                  {% endif %}
                 </tbody>
               </table>
             </div>
@@ -1497,8 +1464,62 @@
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody id="eventsTableBody">
-                  <!-- Events will be loaded here -->
+                <tbody>
+                  {% if events %}
+                    {% for event in events %}
+                    <tr class="event-row">
+                      <td>
+                        <div class="event-title">{{ event.Event_title }}</div>
+                        <div class="event-details">
+                          <span class="event-venue">
+                            <i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="event-date">
+                          <i class="far fa-calendar"></i> {{ event.Event_date|date:"M d, Y" }}
+                        </div>
+                        <div class="event-time">{{ event.Event_time|time:"g:i A" }}</div>
+                      </td>
+                      <td>
+                        <div class="event-tickets">
+                          <i class="fas fa-ticket-alt"></i> {{ event.get_sold_tickets }}/{{ event.Event_total_tickets }}
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--vibe-text-light); margin-top: 3px;">
+                          {{ event.get_available_tickets }} available
+                        </div>
+                      </td>
+                      <td>
+                        <div style="font-weight: 600; color: var(--vibe-primary);">${{ event.revenue }}</div>
+                      </td>
+                      <td>
+                        {% if event.Event_date >= today %}
+                          <span class="event-status status-upcoming">Upcoming</span>
+                        {% else %}
+                          <span class="event-status status-ended">Ended</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <div class="event-actions">
+                          <a href="{% url 'create_event' %}" class="btn btn-primary btn-small">
+                            <i class="fas fa-edit"></i> Edit
+                          </a>
+                          <button class="btn btn-secondary btn-small">
+                            <i class="fas fa-chart-bar"></i> Stats
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td colspan="6" style="text-align: center; padding: 40px; color: var(--vibe-text-light);">
+                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                        No events created yet. <a href="{% url 'create_event' %}" style="color: var(--vibe-primary);">Create your first event</a>
+                      </td>
+                    </tr>
+                  {% endif %}
                 </tbody>
               </table>
             </div>
@@ -1517,7 +1538,7 @@
                     border-radius: 20px;
                     font-size: 0.85rem;
                   "
-                  >Total: 324</span
+                  >Total: {{ total_tickets_sold }}</span
                 >
                 <span
                   style="
@@ -1527,7 +1548,7 @@
                     border-radius: 20px;
                     font-size: 0.85rem;
                   "
-                  >Remaining: 176</span
+                  >{% widthratio total_tickets_sold total_events 1 %} avg per event</span
                 >
               </div>
             </div>
@@ -1558,7 +1579,7 @@
                         color: var(--vibe-primary);
                       "
                     >
-                      324
+                      {{ total_tickets_sold }}
                     </div>
                     <div
                       style="color: var(--vibe-text-light); font-size: 0.9rem"
@@ -1574,12 +1595,12 @@
                         color: var(--vibe-secondary);
                       "
                     >
-                      65%
+                      {{ total_attendees }}
                     </div>
                     <div
                       style="color: var(--vibe-text-light); font-size: 0.9rem"
                     >
-                      Sold Percentage
+                      Total Attendees
                     </div>
                   </div>
                   <div>
@@ -1590,7 +1611,7 @@
                         color: var(--vibe-accent);
                       "
                     >
-                      $4,820
+                      ${{ total_revenue }}
                     </div>
                     <div
                       style="color: var(--vibe-text-light); font-size: 0.9rem"
