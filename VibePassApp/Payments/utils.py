@@ -94,6 +94,13 @@ def initiate_b2c_request(amount, phone_number):
     access_token = generate_access_token()
     api_url = "https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest"
     headers = {"Authorization": f"Bearer {access_token}"}
+    callback_base = config('MPESA_CALLBACK_URL')
+    striped_url = callback_base.rstrip('/')
+    if not striped_url.endswith('/payments/mpesa_b2c_callback'):
+       result_url = f"{striped_url}/payments/mpesa_b2c_callback"
+    elif not striped_url.endswith('/payments/mpesa_b2c_callback'):
+       timeout_url = f"{striped_url}/payments/mpesa_b2c_callback"
+
 
     request_data = {
         "OriginatorConversationID": str(uuid.uuid4()),
@@ -104,8 +111,8 @@ def initiate_b2c_request(amount, phone_number):
         "PartyA": os.getenv('MPESA_SHORT_CODE'),
         "PartyB": phone_number,
         "Remarks": "remarked",
-        "QueueTimeOutURL": "https://mydomain.com/path",
-        "ResultURL": "https://mydomain.com/path",
+        "QueueTimeOutURL": timeout_url,
+        "ResultURL": result_url,
         "Occassion": "VibePass Organizer Withdrawal"
     }
 

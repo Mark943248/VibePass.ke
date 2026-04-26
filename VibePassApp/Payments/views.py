@@ -108,7 +108,7 @@ def mpesa_callback(request):
                         if item.get('Name') == "MpesaReceiptNumber":
                             payment.mpesa_receipt_number = item.get('Value')
                     payment.save()
-                    print(f'Payment successful payment_id : {payment.id}')
+                    print(f'Payment successful payment_id : {payment.payment_id}')
                     payment_successful.send(sender=Payment, payment=payment)  # send signal when payment is successful
                 else:
                     # Payment failed or cancelled 
@@ -139,19 +139,35 @@ def request_withdrawal(request):
     try:
         user = request.user
         events = Event.objects.filter(Event_organiser=user)
+        
+        # Calculate total revenue from all organizer's events
+        from django.db.models import Sum
+        total_revenue = Payment.objects.filter(
+            event__Event_organiser=user, 
+            payment_status='Completed'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Get mpesa number from first event that has one
+        mpesa_number = None
         for event in events:
-            mpesa_number = event.Event_mpesa_number
-            amount = event.get_total_revenue()
+            if event.Event_mpesa_number:
+                mpesa_number = event.Event_mpesa_number
+                break
+        
+        print(f"mpesa_number {mpesa_number} - amount {total_revenue}")
+        
         # Validate inputs
-        if not amount or not mpesa_number:
-            messages.error(request, 'Please provide both amount and M-Pesa number.')
+        if not total_revenue or not mpesa_number:
+            messages.error(request, 'Insufficient funds please try again !.')
             return redirect('organizers_dashboard') 
+        
         # Format phone number
         formatted_mpesa_number = format_phone_number(mpesa_number)
+        
         # Create withdrawal record
         withdrawal = Withdrawal.objects.create(
             organizer=request.user,
-            amount=amount,
+            amount=total_revenue,
             mpesa_number=formatted_mpesa_number,
             status='pending'
         )
@@ -159,7 +175,7 @@ def request_withdrawal(request):
         # Initiate B2C payment
         try:
             response = initiate_b2c_request(
-                amount=amount,
+                amount=total_revenue,
                 phone_number=formatted_mpesa_number,
             )
             print(response)
@@ -170,20 +186,23 @@ def request_withdrawal(request):
                 withdrawal.originator_conversation_id = response.get('OriginatorConversationID')
                 withdrawal.mpesa_conversation_id = response.get('ConversationID')
                 withdrawal.save()
-                print(f'B2C withdrawal initiated successfully for {event.Event_organiser}: Withdrawal ID {withdrawal.withdrawal_id}')
+                messages.success(request, f'Withdrawal of KES {total_revenue} initiated successfully!')
+                print(f'B2C withdrawal initiated successfully for {user.username}: Withdrawal ID {withdrawal.withdrawal_id}')
             else:
                 withdrawal.status = 'failed'
                 withdrawal.reason = response.get('ResponseDescription', 'B2C request failed')
                 withdrawal.save()
                 error_msg = response.get('ResponseDescription', 'Withdrawal initiation failed. Please try again.')
-                print(f'B2C withdrawal failed for {event.Event_organiser}: {error_msg}')
+                messages.error(request, error_msg)
+                print(f'B2C withdrawal failed for {user.username}: {error_msg}')
         
         except Exception as e:
             withdrawal.status = 'failed'
             withdrawal.reason = str(e)
             withdrawal.save()
             error_msg = str(e)
-            print(f'Error initiating B2C withdrawal for {event.Event_organiser}: {error_msg}')
+            messages.error(request, 'Error initiating withdrawal. Please try again.')
+            print(f'Error initiating B2C withdrawal for {user.username}: {error_msg}')
         
         return redirect('organizers_dashboard')
     
@@ -221,4 +240,30 @@ def mpesa_b2c_callback(request):
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
     
     return JsonResponse({"Error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def mpesa_timeout_handler(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        print(data)
+        timeout_details = data.get('Result', {})
+        originator_conversation_id = timeout_details.get('OriginatorConversationID')
+        transaction_id = timeout_details.get('TransactionID')
+        result_desc = timeout_details.get('ResultDesc')
+        try:
+            withdrawal = Withdrawal.objects.get(originator_conversation_id=originator_conversation_id)
+            withdrawal.status = 'failed'
+            withdrawal.reason = f'Timeout: {result_desc}'
+            withdrawal.Transaction_id = transaction_id
+            withdrawal.save()
+            print(f'Withdrawal timed out: {withdrawal.withdrawal_id} - Reason: {result_desc}')
+            messages.error(request, f'Your withdrawal request has timed out. Please try again')
+            return redirect('organizers_dashboard')
+        except Withdrawal.DoesNotExist:
+            print(f'Transaction does not exist for timeout: {originator_conversation_id}')
+
+        return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+    
+    return JsonResponse({"Error": "Invalid request method"}, status=400)
+
 

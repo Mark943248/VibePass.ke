@@ -623,6 +623,22 @@
         background-color: #5a3bc5;
       }
 
+      .withdraw-btn {
+        background: linear-gradient(135deg, var(--vibe-primary), #7e57c2);
+        box-shadow: 0 4px 15px rgba(108, 75, 221, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .withdraw-btn:hover {
+        background: linear-gradient(135deg, #5a3bc5, #6c4bdd);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 75, 221, 0.3);
+      }
+
+      .withdraw-btn:active {
+        transform: translateY(0);
+      }
+
       .btn-secondary {
         background-color: transparent;
         color: var(--vibe-primary);
@@ -897,7 +913,22 @@
 
         .organizer-menu {
           width: 100%;
-          justify-content: space-between;
+          justify-content: flex-start;
+          gap: clamp(8px, 2vw, 15px);
+          flex-wrap: wrap;
+        }
+
+        .create-event-btn {
+          order: 1;
+        }
+
+        .btn {
+          flex: 0 1 auto;
+        }
+
+        .withdraw-btn {
+          order: 3;
+        }
         }
 
         .analytics-grid {
@@ -925,7 +956,7 @@
         .ticket-option {
           grid-template-columns: 1fr;
         }
-      }
+      
 
       @media (max-width: 576px) {
         .container {
@@ -1214,6 +1245,9 @@
             <i class="fas fa-plus-circle"></i> Create Event
           </a>
           <a href="{% url 'finders_dashboard' %}" type="button" class="btn btn-outline-primary">Manage my Tickets</a>
+          <a href="{% url 'request_withdrawal' %}" class="btn btn-primary withdraw-btn">
+            <i class="fas fa-wallet"></i> Withdraw
+          </a>
         </div>
       </div>
     </header>

@@ -5,4 +5,4 @@ from .views import create_ticket
 
 @receiver(payment_successful)
 def create_ticket_on_payment_success(sender, payment, **kwargs):
-    create_ticket(None, payment.id)
+    create_ticket(None, payment.payment_id)
