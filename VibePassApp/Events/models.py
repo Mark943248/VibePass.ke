@@ -7,8 +7,10 @@ from django.utils.text import slugify
 def validate_image_size(file):
     # Limit to 2MB (2 * 1024 * 1024 bytes)
     limit_mb = 2
-    if file.size > limit_mb * 1024 * 1024:
-        raise ValidationError(f"Maximum file size is {limit_mb}MB")
+    # Skip validation for CloudinaryResource objects (already hosted on Cloudinary)
+    if hasattr(file, 'size'):
+        if file.size > limit_mb * 1024 * 1024:
+            raise ValidationError(f"Maximum file size is {limit_mb}MB")
 
 # Event model
 class Event(models.Model):

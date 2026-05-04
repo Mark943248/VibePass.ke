@@ -1326,7 +1326,7 @@
             </div>
             <div class="stat-item">
               <span class="stat-label">Total Revenue</span>
-              <span class="stat-value">${{ total_revenue }}</span>
+              <span class="stat-value">KES {{ total_revenue }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-label">Total Events</span>
@@ -1356,7 +1356,7 @@
                 <i class="fas fa-dollar-sign"></i>
               </div>
               <div class="analytics-content">
-                <div class="analytics-value">${{ total_revenue }}</div>
+                <div class="analytics-value">KES {{ total_revenue }}</div>
                 <div class="analytics-label">Total Revenue</div>
               </div>
             </div>
@@ -1434,7 +1434,7 @@
                         <div class="event-tickets">
                           <i class="fas fa-ticket-alt"></i> {{ event.get_sold_tickets }}/{{ event.Event_total_tickets }}
                         </div>
-                        <div class="event-revenue">${{ event.revenue }}</div>
+                        <div class="event-revenue">KES {{ event.revenue }}</div>
                       </td>
                       <td>
                         {% if event.Event_date >= today %}
@@ -1645,7 +1645,7 @@
                         color: var(--vibe-accent);
                       "
                     >
-                      ${{ total_revenue }}
+                       KES {{ total_revenue }}
                     </div>
                     <div
                       style="color: var(--vibe-text-light); font-size: 0.9rem"

@@ -104,7 +104,7 @@ def EventOrganizersDashboard(request):
         total_attendees += event.tickets.filter(status__in=['active', 'scanned']).count()
     
     # Get total number of active events (events in the future)
-    active_events = events.filter(Event_date__gte=date.today()).count()
+    active_events = events.filter(Event_is_active=True).count()
     
     # Prepare context
     context = {

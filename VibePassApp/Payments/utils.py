@@ -1,12 +1,14 @@
 import base64
+import json
+import os
 import requests
 import uuid
 from datetime import datetime
+from pathlib import Path
 from decouple import config
 from django.conf import settings
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
-import os
 
 
 # generate timestamp for mpesa
@@ -14,10 +16,13 @@ def generate_timestamp():
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     return timestamp
 
+
 # generate access token for mpesa
 def generate_access_token():
     consumer_key = os.getenv('MPESA_CONSUMER_KEY')
     consumer_secret = os.getenv('MPESA_CONSUMER_SECRET')
+    if not consumer_key or not consumer_secret:
+        raise Exception('M-Pesa consumer key or secret not set in environment variables')
     api_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
     response = requests.get(api_url, auth=(consumer_key, consumer_secret))
     if response.status_code == 200:
@@ -94,21 +99,17 @@ def initiate_b2c_request(amount, phone_number):
     access_token = generate_access_token()
     api_url = "https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest"
     headers = {"Authorization": f"Bearer {access_token}"}
-    callback_base = config('MPESA_CALLBACK_URL')
-    striped_url = callback_base.rstrip('/')
-    if not striped_url.endswith('/payments/mpesa_b2c_callback'):
-       result_url = f"{striped_url}/payments/mpesa_b2c_callback"
-    elif not striped_url.endswith('/payments/mpesa_b2c_callback'):
-       timeout_url = f"{striped_url}/payments/mpesa_b2c_callback"
-
+    callback_base = config('MPESA_CALLBACK_URL').rstrip('/')
+    result_url = f"{callback_base}/payments/mpesa_b2c_callback"
+    timeout_url = f"{callback_base}/payments/mpesa_b2c_timeout"
 
     request_data = {
         "OriginatorConversationID": str(uuid.uuid4()),
         "InitiatorName": os.getenv('MPESA_INITIATOR_NAME'),
         "SecurityCredential": generate_mpesa_security_credential(),
         "CommandID": "BusinessPayment",
-        "Amount": amount,
-        "PartyA": os.getenv('MPESA_SHORT_CODE'),
+        "Amount": int(amount),
+        "PartyA": os.getenv('MPESA_B2C_SHORT_CODE'),
         "PartyB": phone_number,
         "Remarks": "remarked",
         "QueueTimeOutURL": timeout_url,

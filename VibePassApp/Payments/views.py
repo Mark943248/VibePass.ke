@@ -5,9 +5,11 @@ from django.views.decorators.csrf import csrf_exempt
 from Events.models import Event
 from django.http import JsonResponse
 from django.contrib import messages
+from django.conf import settings
 from .utils import mpesa_stk_push, format_phone_number, initiate_b2c_request
 from .models import Payment, Withdrawal
 import json
+import os
 
 # Create your views here.
 @login_required
@@ -15,9 +17,17 @@ def initiate_payment(request, slug):
     event = get_object_or_404(Event, slug=slug)
     amount = event.Event_ticket_price
     if request.method == 'POST':
-        phone_number = request.POST.get('phone_number')
+        phone_number = request.POST.get('phone_number', '').strip()
+        if not phone_number:
+            messages.error(request, 'Please enter a phone number.')
+            return redirect('event_details', slug=event.slug)
+
         formatted_phone = format_phone_number(phone_number)
-    # create a payment record in the database
+        if not formatted_phone.startswith('254') or len(formatted_phone) != 12:
+            messages.error(request, 'Invalid phone number.')
+            return redirect('event_details', slug=event.slug)
+
+        # create a payment record in the database
         payment = Payment.objects.create(
             user=request.user,
             event=event,
@@ -28,12 +38,15 @@ def initiate_payment(request, slug):
         # initiate mpesa stk push
         try:
             response = mpesa_stk_push(formatted_phone, amount, event.Event_title, payment.payment_id)
+            stk_json_path = os.path.join(settings.BASE_DIR, 'mpesa_logs', 'stk.json')
+            with open(stk_json_path, 'w') as f:
+                json.dump(response, f, indent=4)
             # handle the response from mpesa
             if response.get('ResponseCode') == '0':
                 payment.checkout_request_id = response.get('CheckoutRequestID')
                 payment.save()
                 print(f'MPESA STK Push initiated successfully for payment ID {payment.payment_id}')
-                return render(request, 'Payments/payment_waiting.html', {'event': event, 'payment': payment})
+                return render(request, 'payments/payment_waiting.html', {'event': event, 'payment': payment})
             else:
                 payment.payment_status = 'Failed'
                 payment.save()
@@ -86,8 +99,9 @@ def mpesa_callback(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            print('Received MPESA callback:', data)  # Log the received data for debugging
-            
+            stk_json_path = os.path.join(settings.BASE_DIR, 'mpesa_logs', 'stk_callback.json')
+            with open(stk_json_path, 'w') as f:
+                json.dump(data, f, indent=4)
             mpesa_info = data.get('Body', {}).get('stkCallback', {})
             checkout_request_id = mpesa_info.get('CheckoutRequestID')
             result_code = mpesa_info.get('ResultCode')
@@ -178,8 +192,11 @@ def request_withdrawal(request):
                 amount=total_revenue,
                 phone_number=formatted_mpesa_number,
             )
-            print(response)
-            
+
+            b2c_json_path = os.path.join(settings.BASE_DIR, 'mpesa_logs', 'b2c.json')
+            with open(b2c_json_path, 'w') as f:
+                json.dump(response, f, indent=4)
+
             # Handle M-Pesa B2C response
             if response.get('ResponseCode') == '0':
                 withdrawal.status = 'processing'
@@ -214,28 +231,42 @@ def request_withdrawal(request):
 @csrf_exempt
 def mpesa_b2c_callback(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        print(data)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError as e:
+            print(f'Error decoding B2C callback JSON: {e}')
+            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+        originator_conversation_id = data.get("Result", {}).get("OriginatorConversationID", "unknown")
+        b2c_callback_json_path = os.path.join(settings.BASE_DIR, 'mpesa_logs', 'b2c_callback.json')
+        with open(b2c_callback_json_path, 'w') as f:
+            json.dump(data, f, indent=4)
+        print(f'MPESA B2C Callback received: {data}')
         mpesa_details = data.get("Result", {})
         Result_code = mpesa_details.get("ResultCode")
-        originator_conversational_id = mpesa_details.get("OriginatorConversationalID")
+        originator_conversation_id = mpesa_details.get("OriginatorConversationID")
         transaction_id = mpesa_details.get("TransactionID")
         Result_desc = mpesa_details.get("ResultDesc")
         try:
-            withdrawal = Withdrawal.objects.get(originator_conversation_id=originator_conversational_id)
-            if Result_code == 0:
-                withdrawal.status = 'completed'
-                withdrawal.mpesa_receipt_number = transaction_id
-                withdrawal.save()
-                print(f'Withdrawal completed successfully: {withdrawal.withdrawal_id}')
+            withdrawals = Withdrawal.objects.filter(originator_conversation_id=originator_conversation_id)
+            if not withdrawals.exists():
+                print(f'Transaction does not exist: {originator_conversation_id}')
             else:
-                withdrawal.status = 'failed'
-                withdrawal.reason = Result_desc
-                withdrawal.save()
-                print(f'Withdrawal failed: {withdrawal.withdrawal_id} - Reason: {Result_desc}')
+                if Result_code == 0:
+                    for withdrawal in withdrawals:
+                        withdrawal.status = 'completed'
+                        withdrawal.mpesa_receipt_number = transaction_id
+                        withdrawal.save()
+                        print(f'Withdrawal completed successfully: {withdrawal.withdrawal_id}')
+                else:
+                    for withdrawal in withdrawals:
+                        withdrawal.status = 'failed'
+                        withdrawal.reason = Result_desc
+                        withdrawal.save()
+                        print(f'Withdrawal failed: {withdrawal.withdrawal_id} - Reason: {Result_desc}')
 
-        except Withdrawal.DoesNotExist:
-            print(f'Transaction does not exist: {originator_conversational_id}')
+        except Exception as e:
+            print(f'Error processing B2C callback for {originator_conversation_id}: {e}')
         
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
     
@@ -244,23 +275,30 @@ def mpesa_b2c_callback(request):
 @csrf_exempt
 def mpesa_timeout_handler(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        print(data)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError as e:
+            print(f'Error decoding B2C timeout JSON: {e}')
+            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+        originator_conversation_id = data.get('Result', {}).get('OriginatorConversationID', 'unknown')
+        b2c_timeout_json_path = os.path.join(settings.BASE_DIR, 'mpesa_logs', 'b2c_timeout.json')
+        with open(b2c_timeout_json_path, 'w') as f:
+            json.dump(data, f, indent=4)
         timeout_details = data.get('Result', {})
-        originator_conversation_id = timeout_details.get('OriginatorConversationID')
         transaction_id = timeout_details.get('TransactionID')
         result_desc = timeout_details.get('ResultDesc')
-        try:
-            withdrawal = Withdrawal.objects.get(originator_conversation_id=originator_conversation_id)
-            withdrawal.status = 'failed'
-            withdrawal.reason = f'Timeout: {result_desc}'
-            withdrawal.Transaction_id = transaction_id
-            withdrawal.save()
-            print(f'Withdrawal timed out: {withdrawal.withdrawal_id} - Reason: {result_desc}')
-            messages.error(request, f'Your withdrawal request has timed out. Please try again')
-            return redirect('organizers_dashboard')
-        except Withdrawal.DoesNotExist:
-            print(f'Transaction does not exist for timeout: {originator_conversation_id}')
+        withdrawals = Withdrawal.objects.filter(originator_conversation_id=originator_conversation_id)
+        if not withdrawals.exists():
+            print(f'Timeout callback transaction does not exist: {originator_conversation_id}')
+        else:
+            for withdrawal in withdrawals:
+                withdrawal.status = 'failed'
+                withdrawal.reason = f'Timeout: {result_desc}'
+                withdrawal.Transaction_id = transaction_id
+                withdrawal.save()
+                print(f'Withdrawal timed out: {withdrawal.withdrawal_id} - Reason: {result_desc}')
+    
 
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
     
