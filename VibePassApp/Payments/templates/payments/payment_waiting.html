@@ -447,129 +447,117 @@
         // Get payment ID from URL
         const paymentId = '{{ payment.payment_id }}';
         const eventSlug = '{{ event.slug }}';
-        let checkStatusInterval = null;
-        let checkCount = 0;
+        let websocket = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
         let finalStatusShown = false;
-        const maxChecks = 180; // Check for 3 minutes (180 * 1 second) to allow for callback delays
-        const statusCheckInterval = 1000; // Check every 1 second
 
-        // Function to check payment status
-        function checkPaymentStatus() {
-            fetch(`/payments/check-status/${paymentId}/`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
+        // Function to connect to WebSocket
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/payments/${paymentId}/`;
+
+            websocket = new WebSocket(wsUrl);
+
+            websocket.onopen = function(event) {
+                console.log('WebSocket connected');
+                reconnectAttempts = 0;
+            };
+
+            websocket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                console.log('WebSocket message received:', data);
+
+                if (data.type === 'status_update') {
+                    updatePaymentStatus(data);
                 }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+            };
+
+            websocket.onclose = function(event) {
+                console.log('WebSocket disconnected');
+                if (!finalStatusShown && reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    console.log(`Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})...`);
+                    setTimeout(connectWebSocket, 2000); // Reconnect after 2 seconds
                 }
-                return response.json();
-            })
-            .then(data => {
-                const statusElement = document.getElementById('paymentStatus');
-                const messageElement = document.getElementById('paymentMessage');
-                const actionButtons = document.getElementById('actionButtons');
-                const viewTicketsBtn = document.getElementById('viewTicketsBtn');
+            };
 
-                console.log('Payment Status Check #' + checkCount + ':', data.status);
+            websocket.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+        }
 
-                // Only update if we haven't already shown a final status
-                if (!finalStatusShown) {
-                    if (data.status === 'Completed') {
-                        // Payment successful
-                        finalStatusShown = true;
-                        statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Payment Successful';
-                        statusElement.style.color = 'var(--vibe-success)';
-                        
-                        messageElement.innerHTML = `
-                            <div class="info-box" style="background: #E8F5E9; border-left-color: var(--vibe-success);">
-                                <i class="fas fa-check-circle" style="color: var(--vibe-success);"></i>
-                                <div class="info-box-text" style="color: #2E7D32;">
-                                    <strong>Payment Successful!</strong>
-                                    Your ticket has been generated and an Mpesa SMS confirmation has been sent to your phone.
-                                </div>
-                            </div>
-                        `;
+        // Function to update payment status
+        function updatePaymentStatus(data) {
+            const statusElement = document.getElementById('paymentStatus');
+            const messageElement = document.getElementById('paymentMessage');
+            const actionButtons = document.getElementById('actionButtons');
+            const viewTicketsBtn = document.getElementById('viewTicketsBtn');
 
-                        // Hide spinner
-                        document.querySelector('.spinner-container').style.display = 'none';
-                        
-                        // Show action buttons
-                        actionButtons.style.display = 'flex';
-                        viewTicketsBtn.style.display = 'block';
-                        
-                        // Stop checking
-                        clearInterval(checkStatusInterval);
-                        
-                    } else if (data.status === 'Failed') {
-                        // Payment failed or cancelled
-                        finalStatusShown = true;
-                        statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Payment Failed';
-                        statusElement.style.color = 'var(--vibe-danger)';
-                        
-                        const failureMessage = data.message || 'Your payment could not be processed. Please try again.';
-                        messageElement.innerHTML = `
-                            <div class="info-box" style="background: #FFEBEE; border-left-color: var(--vibe-danger);">
-                                <i class="fas fa-exclamation-circle" style="color: var(--vibe-danger);"></i>
-                                <div class="info-box-text" style="color: #C62828;">
-                                    <strong>Payment Failed</strong>
-                                    ${failureMessage}
-                                </div>
-                            </div>
-                        `;
+            // Only update if we haven't already shown a final status
+            if (!finalStatusShown) {
+                if (data.status === 'Completed') {
+                    // Payment successful
+                    finalStatusShown = true;
+                    statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Payment Successful';
+                    statusElement.style.color = 'var(--vibe-success)';
 
-                        // Hide spinner
-                        document.querySelector('.spinner-container').style.display = 'none';
-                        
-                        // Show action buttons
-                        actionButtons.style.display = 'flex';
-                        
-                        // Stop checking
-                        clearInterval(checkStatusInterval);
-                        console.log('Payment failed - stopping status checks');
-                    } else {
-                        // Still pending
-                        checkCount++;
-                        
-                        // If we've checked too many times, show a message but keep checking
-                        if (checkCount === maxChecks) {
-                            messageElement.innerHTML = `
-                                <div class="info-box" style="background: #FFF3E0; border-left-color: var(--vibe-warning);">
-                                    <i class="fas fa-hourglass-end" style="color: var(--vibe-warning);"></i>
-                                    <div class="info-box-text" style="color: #E65100;">
-                                        <strong>Taking Longer Than Expected</strong>
-                                        The payment is still being processed. Please check your phone to ensure you completed the M-PESA prompt, or wait a bit longer for the confirmation.
-                                    </div>
-                                </div>
-                            `;
-                            console.log('Max checks reached - still waiting for callback');
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error checking payment status:', error);
-                // Don't show error on first few attempts, might be temporary network issue
-                if (checkCount > 5 && !finalStatusShown) {
-                    document.getElementById('paymentMessage').innerHTML = `
-                        <div class="info-box" style="background: #FFEBEE; border-left-color: var(--vibe-danger);">
-                            <i class="fas fa-exclamation-circle" style="color: var(--vibe-danger);"></i>
-                            <div class="info-box-text" style="color: #C62828;">
-                                <strong>Connection Error</strong>
-                                Unable to check payment status. Please refresh the page or try again later.
+                    messageElement.innerHTML = `
+                        <div class="info-box" style="background: #E8F5E9; border-left-color: var(--vibe-success);">
+                            <i class="fas fa-check-circle" style="color: var(--vibe-success);"></i>
+                            <div class="info-box-text" style="color: #2E7D32;">
+                                <strong>Payment Successful!</strong>
+                                Your ticket has been generated and an Mpesa SMS confirmation has been sent to your phone.
                             </div>
                         </div>
                     `;
+
+                    // Hide spinner
+                    document.querySelector('.spinner-container').style.display = 'none';
+
+                    // Show action buttons
+                    actionButtons.style.display = 'flex';
+                    viewTicketsBtn.style.display = 'block';
+
+                    // Close WebSocket
+                    if (websocket) {
+                        websocket.close();
+                    }
+
+                } else if (data.status === 'Failed') {
+                    // Payment failed or cancelled
+                    finalStatusShown = true;
+                    statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Payment Failed';
+                    statusElement.style.color = 'var(--vibe-danger)';
+
+                    const failureMessage = data.message || 'Your payment could not be processed. Please try again.';
+                    messageElement.innerHTML = `
+                        <div class="info-box" style="background: #FFEBEE; border-left-color: var(--vibe-danger);">
+                            <i class="fas fa-exclamation-circle" style="color: var(--vibe-danger);"></i>
+                            <div class="info-box-text" style="color: #C62828;">
+                                <strong>Payment Failed</strong>
+                                ${failureMessage}
+                            </div>
+                        </div>
+                    `;
+
+                    // Hide spinner
+                    document.querySelector('.spinner-container').style.display = 'none';
+
+                    // Show action buttons
+                    actionButtons.style.display = 'flex';
+
+                    // Close WebSocket
+                    if (websocket) {
+                        websocket.close();
+                    }
                 }
-            });
+                // For 'Pending' status, we don't update the UI since it's already showing processing
+            }
         }
 
-        // Start checking status immediately and then every 1 second
-        checkPaymentStatus();
-        checkStatusInterval = setInterval(checkPaymentStatus, statusCheckInterval);
+        // Connect to WebSocket when page loads
+        connectWebSocket();
 
         // Function to go back to event
         function goBack() {
@@ -581,10 +569,10 @@
             window.location.href = '/users/tickets/';
         }
 
-        // Stop checking when user leaves the page
+        // Close WebSocket when user leaves the page
         window.addEventListener('beforeunload', function() {
-            if (checkStatusInterval) {
-                clearInterval(checkStatusInterval);
+            if (websocket) {
+                websocket.close();
             }
         });
     </script>

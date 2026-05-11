@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.conf import settings
 from .utils import mpesa_stk_push, format_phone_number, initiate_b2c_request
 from .models import Payment, Withdrawal
+from .consumers import send_payment_status_update
 import json
 import os
 
@@ -124,11 +125,13 @@ def mpesa_callback(request):
                     payment.save()
                     print(f'Payment successful payment_id : {payment.payment_id}')
                     payment_successful.send(sender=Payment, payment=payment)  # send signal when payment is successful
+                    send_payment_status_update(payment)  # send WebSocket update
                 else:
                     # Payment failed or cancelled 
                     payment.payment_status = 'Failed'
                     payment.save()
                     print(f'Payment failed for payment ID {payment.payment_id} (Result Code: {result_code}): {result_desc}')
+                    send_payment_status_update(payment)  # send WebSocket update
             
             except Payment.DoesNotExist:
                 print(f'Payment record not found for the given checkout request ID: {checkout_request_id}')

@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
-import cloudinary
 import os
+import cloudinary
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
     
     'Users',
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'cloudinary',
     'django_ngrok',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -99,6 +101,11 @@ DATABASES = {
 # specify custom user model
 AUTH_USER_MODEL = 'Users.User'
 
+# Authentication redirects
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'finders_dashboard'
+LOGOUT_REDIRECT_URL = 'login'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -146,9 +153,18 @@ STORAGES = {
     },
 }
 
-# cloudinary configurations
 cloudinary.config(
     cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
     api_key=os.getenv('CLOUDINARY_API_KEY'),
     api_secret=os.getenv('CLOUDINARY_API_SECRET')
 )
+
+# Channels configuration
+ASGI_APPLICATION = 'VibePassApp.asgi.application'
+
+# Channel layers for WebSockets
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
