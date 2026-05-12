@@ -95,6 +95,7 @@ def EventOrganizersDashboard(request):
     total_revenue = 0
     total_tickets_sold = 0
     total_attendees = 0
+    account_balance = user.account_balance
     
     for event in events:
         event_revenue = event.payments.filter(payment_status='Completed').aggregate(total=Sum('amount'))['total'] or 0
@@ -103,6 +104,15 @@ def EventOrganizersDashboard(request):
         total_tickets_sold += event.get_sold_tickets()
         total_attendees += event.tickets.filter(status__in=['active', 'scanned']).count()
     
+    # Subtract only the latest withdrawal that is pending, processing, or completed
+    latest_withdrawal = user.withdrawals.filter(status__in=['pending', 'processing', 'completed']).order_by('-created_at').first()
+    total_withdrawn = latest_withdrawal.amount if latest_withdrawal else 0
+    account_balance = total_revenue - total_withdrawn
+    if account_balance < 0:
+        account_balance = 0
+    user.account_balance = account_balance
+    user.save(update_fields=['account_balance'])
+    
     # Get total number of active events (events in the future)
     active_events = events.filter(Event_is_active=True).count()
     
@@ -110,12 +120,13 @@ def EventOrganizersDashboard(request):
     context = {
         'user': user,
         'events': events,
-        'total_revenue': total_revenue,
         'total_tickets_sold': total_tickets_sold,
         'total_attendees': total_attendees,
         'total_events': events.count(),
         'active_events': active_events,
         'today': date.today(),
+        'account_balance': account_balance,
+        'total_withdrawn': total_withdrawn,
     }
     
     return render(request, 'users/Event_organiser.html', context) 

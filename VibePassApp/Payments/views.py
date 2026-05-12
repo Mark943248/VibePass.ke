@@ -163,7 +163,12 @@ def request_withdrawal(request):
             event__Event_organiser=user, 
             payment_status='Completed'
         ).aggregate(total=Sum('amount'))['total'] or 0
-        
+        total_withdrawn = Withdrawal.objects.filter(
+            organizer=user,
+            status__in=['pending', 'processing', 'completed']
+        ).order_by("-created_at").first()
+        available_balance = total_revenue - (total_withdrawn.amount if total_withdrawn else 0)
+
         # Get mpesa number from first event that has one
         mpesa_number = None
         for event in events:
@@ -171,10 +176,10 @@ def request_withdrawal(request):
                 mpesa_number = event.Event_mpesa_number
                 break
         
-        print(f"mpesa_number {mpesa_number} - amount {total_revenue}")
+        print(f"mpesa_number {mpesa_number} - available_balance {available_balance}")  # Debugging log
         
         # Validate inputs
-        if not total_revenue or not mpesa_number:
+        if available_balance <= 0 or not mpesa_number:
             messages.error(request, 'Insufficient funds please try again !.')
             return redirect('organizers_dashboard') 
         
@@ -184,7 +189,7 @@ def request_withdrawal(request):
         # Create withdrawal record
         withdrawal = Withdrawal.objects.create(
             organizer=request.user,
-            amount=total_revenue,
+            amount=available_balance,
             mpesa_number=formatted_mpesa_number,
             status='pending'
         )
@@ -192,7 +197,7 @@ def request_withdrawal(request):
         # Initiate B2C payment
         try:
             response = initiate_b2c_request(
-                amount=total_revenue,
+                amount=available_balance,
                 phone_number=formatted_mpesa_number,
             )
 
@@ -251,22 +256,20 @@ def mpesa_b2c_callback(request):
         transaction_id = mpesa_details.get("TransactionID")
         Result_desc = mpesa_details.get("ResultDesc")
         try:
-            withdrawals = Withdrawal.objects.filter(originator_conversation_id=originator_conversation_id)
-            if not withdrawals.exists():
+            withdrawal = Withdrawal.objects.get(originator_conversation_id=originator_conversation_id)
+            if not withdrawal:
                 print(f'Transaction does not exist: {originator_conversation_id}')
             else:
                 if Result_code == 0:
-                    for withdrawal in withdrawals:
-                        withdrawal.status = 'completed'
-                        withdrawal.mpesa_receipt_number = transaction_id
-                        withdrawal.save()
-                        print(f'Withdrawal completed successfully: {withdrawal.withdrawal_id}')
+                    withdrawal.status = 'completed'
+                    withdrawal.mpesa_receipt_number = transaction_id
+                    withdrawal.save()
+                    print(f'Withdrawal completed successfully: {withdrawal.withdrawal_id}')
                 else:
-                    for withdrawal in withdrawals:
-                        withdrawal.status = 'failed'
-                        withdrawal.reason = Result_desc
-                        withdrawal.save()
-                        print(f'Withdrawal failed: {withdrawal.withdrawal_id} - Reason: {Result_desc}')
+                    withdrawal.status = 'failed'
+                    withdrawal.reason = Result_desc
+                    withdrawal.save()
+                    print(f'Withdrawal failed: {withdrawal.withdrawal_id} - Reason: {Result_desc}')
 
         except Exception as e:
             print(f'Error processing B2C callback for {originator_conversation_id}: {e}')
@@ -291,16 +294,16 @@ def mpesa_timeout_handler(request):
         timeout_details = data.get('Result', {})
         transaction_id = timeout_details.get('TransactionID')
         result_desc = timeout_details.get('ResultDesc')
-        withdrawals = Withdrawal.objects.filter(originator_conversation_id=originator_conversation_id)
-        if not withdrawals.exists():
+        try:
+            withdrawal = Withdrawal.objects.get(originator_conversation_id=originator_conversation_id)
+        except Withdrawal.DoesNotExist:
             print(f'Timeout callback transaction does not exist: {originator_conversation_id}')
         else:
-            for withdrawal in withdrawals:
-                withdrawal.status = 'failed'
-                withdrawal.reason = f'Timeout: {result_desc}'
-                withdrawal.Transaction_id = transaction_id
-                withdrawal.save()
-                print(f'Withdrawal timed out: {withdrawal.withdrawal_id} - Reason: {result_desc}')
+            withdrawal.status = 'failed'
+            withdrawal.reason = f'Timeout: {result_desc}'
+            withdrawal.Transaction_id = transaction_id
+            withdrawal.save()
+            print(f'Withdrawal timed out: {withdrawal.withdrawal_id} - Reason: {result_desc}')
     
 
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})

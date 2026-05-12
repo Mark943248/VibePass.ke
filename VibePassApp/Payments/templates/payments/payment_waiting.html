@@ -421,12 +421,12 @@
                 <div id="paymentMessage"></div>
 
                 <div class="btn-group" style="display: none;" id="actionButtons">
-                    <button class="btn btn-secondary" onclick="goBack()">
+                    <a href="{% url 'event_details' event.slug %}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Event
-                    </button>
-                    <button class="btn btn-primary" onclick="viewTickets()" id="viewTicketsBtn" style="display: none;">
+                    </a>
+                    <a href="#" class="btn btn-primary" id="viewTicketsBtn" style="display: none;">
                         <i class="fas fa-ticket-alt"></i> View Tickets
-                    </button>
+                    </a>
                 </div>
 
                 <p style="margin-top: 25px; font-size: 0.85rem; color: var(--vibe-text-light);">
@@ -559,15 +559,6 @@
         // Connect to WebSocket when page loads
         connectWebSocket();
 
-        // Function to go back to event
-        function goBack() {
-            window.location.href = `/event_details/${eventSlug}/`;
-        }
-
-        // Function to view tickets
-        function viewTickets() {
-            window.location.href = '/users/tickets/';
-        }
 
         // Close WebSocket when user leaves the page
         window.addEventListener('beforeunload', function() {
