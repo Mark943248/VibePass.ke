@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from Payments.models import Withdrawal
 from Events.models import Event
 from Tickets.models import Ticket
 from django.db.models import Sum
@@ -95,7 +96,6 @@ def EventOrganizersDashboard(request):
     total_revenue = 0
     total_tickets_sold = 0
     total_attendees = 0
-    account_balance = user.account_balance
     
     for event in events:
         event_revenue = event.payments.filter(payment_status='Completed').aggregate(total=Sum('amount'))['total'] or 0
@@ -103,15 +103,10 @@ def EventOrganizersDashboard(request):
         total_revenue += event_revenue
         total_tickets_sold += event.get_sold_tickets()
         total_attendees += event.tickets.filter(status__in=['active', 'scanned']).count()
-    
-    # Subtract only the latest withdrawal that is pending, processing, or completed
-    latest_withdrawal = user.withdrawals.filter(status__in=['pending', 'processing', 'completed']).order_by('-created_at').first()
-    total_withdrawn = latest_withdrawal.amount if latest_withdrawal else 0
-    account_balance = total_revenue - total_withdrawn
-    if account_balance < 0:
-        account_balance = 0
-    user.account_balance = account_balance
-    user.save(update_fields=['account_balance'])
+    latest_withdrawal = Withdrawal.objects.filter(organiser=user).order_by('-created_at').first()
+    user.account_balance = total_revenue - (latest_withdrawal.amount if latest_withdrawal and latest_withdrawal.status == 'completed' else 0)
+    print(f"User account balance: {user.account_balance}")
+    user.save()
     
     # Get total number of active events (events in the future)
     active_events = events.filter(Event_is_active=True).count()
@@ -125,8 +120,6 @@ def EventOrganizersDashboard(request):
         'total_events': events.count(),
         'active_events': active_events,
         'today': date.today(),
-        'account_balance': account_balance,
-        'total_withdrawn': total_withdrawn,
     }
     
     return render(request, 'users/Event_organiser.html', context) 

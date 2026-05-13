@@ -158,16 +158,8 @@ def request_withdrawal(request):
         events = Event.objects.filter(Event_organiser=user)
         
         # Calculate total revenue from all organizer's events
-        from django.db.models import Sum
-        total_revenue = Payment.objects.filter(
-            event__Event_organiser=user, 
-            payment_status='Completed'
-        ).aggregate(total=Sum('amount'))['total'] or 0
-        total_withdrawn = Withdrawal.objects.filter(
-            organizer=user,
-            status__in=['pending', 'processing', 'completed']
-        ).order_by("-created_at").first()
-        available_balance = total_revenue - (total_withdrawn.amount if total_withdrawn else 0)
+        total_revenue = user.account_balance
+        
 
         # Get mpesa number from first event that has one
         mpesa_number = None
@@ -176,10 +168,10 @@ def request_withdrawal(request):
                 mpesa_number = event.Event_mpesa_number
                 break
         
-        print(f"mpesa_number {mpesa_number} - available_balance {available_balance}")  # Debugging log
+        print(f"mpesa_number {mpesa_number} - available_balance {total_revenue}")  # Debugging log
         
         # Validate inputs
-        if available_balance <= 0 or not mpesa_number:
+        if total_revenue <= 0 or not mpesa_number:
             messages.error(request, 'Insufficient funds please try again !.')
             return redirect('organizers_dashboard') 
         
@@ -188,8 +180,8 @@ def request_withdrawal(request):
         
         # Create withdrawal record
         withdrawal = Withdrawal.objects.create(
-            organizer=request.user,
-            amount=available_balance,
+            organiser=request.user,
+            amount=total_revenue,
             mpesa_number=formatted_mpesa_number,
             status='pending'
         )
@@ -197,7 +189,7 @@ def request_withdrawal(request):
         # Initiate B2C payment
         try:
             response = initiate_b2c_request(
-                amount=available_balance,
+                amount=total_revenue,
                 phone_number=formatted_mpesa_number,
             )
 
@@ -265,6 +257,11 @@ def mpesa_b2c_callback(request):
                     withdrawal.mpesa_receipt_number = transaction_id
                     withdrawal.save()
                     print(f'Withdrawal completed successfully: {withdrawal.withdrawal_id}')
+                    user_account_balance = withdrawal.organiser.account_balance
+                    print(f"Users account balance before deduction: {user_account_balance}")
+                    withdrawal.organiser.account_balance = user_account_balance - withdrawal.amount
+                    withdrawal.organiser.save()
+                    print(f"Users account balance after deduction: {withdrawal.organiser.account_balance}")
                 else:
                     withdrawal.status = 'failed'
                     withdrawal.reason = Result_desc

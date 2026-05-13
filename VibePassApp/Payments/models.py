@@ -33,7 +33,7 @@ class Withdrawal(models.Model):
     ]
     
     withdrawal_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='withdrawals')
+    organiser = models.ForeignKey(User, on_delete=models.CASCADE, related_name='withdrawals')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     mpesa_number = models.CharField(max_length=15)  # M-Pesa number where funds are withdrawn to
     status = models.CharField(max_length=20, choices=WITHDRAWAL_STATUS, default='pending')
@@ -46,4 +46,4 @@ class Withdrawal(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Withdrawal {self.withdrawal_id} - Organizer: {self.organizer.username} - Amount: {self.amount} - Status: {self.status}"
+        return f"Withdrawal {self.withdrawal_id} - Organizer: {self.organiser.username} - Amount: {self.amount} - Status: {self.status}"
