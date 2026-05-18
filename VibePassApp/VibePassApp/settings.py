@@ -176,6 +176,8 @@ CHANNEL_LAYERS = {
     },
 }
 
+
+
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",
@@ -188,25 +190,21 @@ AUTHENTICATION_BACKENDS = (
 SOCIALACCOUNT_PROVIDERS = \
     { 'google':
         { 
-           'APP': {
-               'client_id': os.getenv('GOOGLE_CLIENT_ID'),
-               'client_secret': os.getenv('GOOGLE_CLIENT_SECRET')
-           },
+          'APP': {
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
+            'key': ''
+          },
           'SCOPE': ['profile', 'email'],
           'AUTH_PARAMS': { 'access_type': 'online' },
           'METHOD': 'oauth2',
-          'VERIFIED_EMAIL': True,
         }
     }
-# login on GET allows users to be automatically logged in when they click the social login button, without needing to submit a form. If set to False, users will need to submit a form after clicking the social login button to complete the login process.
-SOCIALACCOUNT_LOGIN_ON_GET = True
-# This setting allows users to be automatically signed up when they log in with a social account for the first time. If set to False, users will be prompted to complete the signup process after logging in with their social account.
-SOCIALACCOUNT_AUTO_SIGNUP = True
-# authentication method is set to email, which means users will log in using their email address instead of a username. This is a common configuration when using django-allauth for authentication.
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'username',]
-ACCOUNT_UNIQUE_EMAIL = True
 
-SOCIALACCOUNT_UNIQUE_USERNAMES = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+ACCOUNT_SIGNUP_METHODS = {'email*', 'username'}
+ACCOUNT_UNIQUE_EMAIL = True
 
 SITE_ID = 1
