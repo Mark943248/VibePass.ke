@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'daphne',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     
     'Users',
     'Events',
@@ -51,6 +52,11 @@ INSTALLED_APPS = [
     'cloudinary',
     'django_ngrok',
     'channels',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -61,6 +67,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'VibePassApp.urls'
@@ -68,7 +75,7 @@ ROOT_URLCONF = 'VibePassApp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -168,3 +175,38 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+
+SOCIALACCOUNT_PROVIDERS = \
+    { 'google':
+        { 
+           'APP': {
+               'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+               'client_secret': os.getenv('GOOGLE_CLIENT_SECRET')
+           },
+          'SCOPE': ['profile', 'email'],
+          'AUTH_PARAMS': { 'access_type': 'online' },
+          'METHOD': 'oauth2',
+          'VERIFIED_EMAIL': True,
+        }
+    }
+# login on GET allows users to be automatically logged in when they click the social login button, without needing to submit a form. If set to False, users will need to submit a form after clicking the social login button to complete the login process.
+SOCIALACCOUNT_LOGIN_ON_GET = True
+# This setting allows users to be automatically signed up when they log in with a social account for the first time. If set to False, users will be prompted to complete the signup process after logging in with their social account.
+SOCIALACCOUNT_AUTO_SIGNUP = True
+# authentication method is set to email, which means users will log in using their email address instead of a username. This is a common configuration when using django-allauth for authentication.
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username',]
+ACCOUNT_UNIQUE_EMAIL = True
+
+SOCIALACCOUNT_UNIQUE_USERNAMES = True
+
+SITE_ID = 1

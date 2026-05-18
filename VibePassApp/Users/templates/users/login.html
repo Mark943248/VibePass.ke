@@ -1,3 +1,4 @@
+{% load socialaccount %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -764,9 +765,9 @@
                 <span>Or continue with</span>
               </div>
 
-              <button type="button" class="btn btn-google" id="googleLoginBtn">
+              <a href="{% provider_login_url 'google' %}" type="button" class="btn btn-google" id="googleLoginBtn">
                 <i class="fab fa-google"></i> Google
-              </button>
+              </a>
             </form>
 
             <div class="form-footer">

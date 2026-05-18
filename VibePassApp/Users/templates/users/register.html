@@ -1,3 +1,4 @@
+{% load socialaccount %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -678,9 +679,9 @@
                 <span>Or sign up with</span>
               </div>
              <!-- Sign up with google-->
-              <button type="button" class="btn btn-google">
+              <a href="{% provider_login_url 'google' %}" type="button" class="btn btn-google">
                 <i class="fab fa-google"></i> Google
-              </button>
+              </a>
             </form>
 
           </div>
