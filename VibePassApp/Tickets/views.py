@@ -1,9 +1,14 @@
 import qrcode
+import json
 from io import BytesIO
 import cloudinary.uploader
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 from django.contrib import messages
+from django.db import transaction
+from django.utils import timezone
 from Events.models import Event
 from .models import Ticket
 import logging
@@ -146,4 +151,44 @@ def render_users_tickets(request, ticket_id):
     return render(request, 'tickets/tickets.html', {
         'ticket': ticket,
     })
+
+# scanner page
+@login_required
+@user_passes_test(lambda u: u.is_Event_Organizer(), login_url='login')
+def scanner_page(request):
+    return render(request, 'tickets/tickets_scanner.html')
+
+# validate ticket (mark as scanned)
+@login_required
+@require_POST
+def validate_ticket(request):
+    try:
+        body = json.loads(request.body)
+        ticket_id = body.get('ticket_id')
+    except (json.JSONDecodeError, KeyError) as e:
+        logger.error(f"Error parsing request body: {str(e)}")
+        return JsonResponse({'error': 'Invalid request body'}, status=400)
+    # Validate ticket ID
+    if not ticket_id:
+        logger.warning("Ticket ID is missing in request")
+        return JsonResponse({'status': 'Error', 'message': 'Ticket ID is required'}, status=400)
+    # Use transaction to ensure atomicity of validation process
+    with transaction.atomic():
+        try:
+            ticket = Ticket.objects.select_for_update().get(ticket_id=ticket_id)
+        except Ticket.DoesNotExist:
+            logger.info(f"Ticket not found: {ticket_id}")
+            return JsonResponse({'status': 'Error', 'message': 'Ticket does not exist'}, status=404)
+        
+        if ticket.status == 'cancelled':
+            logger.info(f"Attempt to validate cancelled ticket: {ticket_id}")
+            return JsonResponse({'status': 'Error', 'message': 'This ticket has been cancelled'}, status=400)
+        elif ticket.is_scanned:
+            logger.info(f"Attempt to re-validate already scanned ticket: {ticket_id}")
+            return JsonResponse({'status': 'Error', 'message': 'This ticket has already been scanned'}, status=400)
+        
+        # Mark ticket as scanned
+        ticket.mark_as_scanned()
+        logger.info(f"Ticket validated and marked as scanned: {ticket_id}")
+        return JsonResponse({'status': 'Success', 'message': 'Ticket validated successfully'}, status=200)
     
