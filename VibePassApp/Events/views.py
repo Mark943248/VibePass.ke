@@ -83,15 +83,6 @@ def Filter_by_category(request, category):
     page_obj = paginator.get_page(page_number)
     return render(request, 'events/list_event.html', {'page_obj':page_obj})
 
-# filter based on time 
-def Filter_by_time(request):
-    now = timezone.now()
-    Events = Event.objects.filter(Event_date__gte=now).order_by('-Event_created_at')
-    paginator = Paginator(Events,10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'events/list_event.html', {'page_obj':page_obj})
-
 # Event details
 def EventDetails(request, slug):
     event = Event.objects.get(slug=slug)

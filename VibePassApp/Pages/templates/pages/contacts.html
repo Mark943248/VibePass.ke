@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>VibePass - Contact & Support</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Brand Colors */
+        :root {
+            --vibe-primary: #FF6B35;
+            --vibe-primary-dark: #E85D2C;
+            --vibe-secondary: #00C9A7;
+            --vibe-secondary-dark: #00B092;
+            --vibe-dark: #1A1A2E;
+            --vibe-light: #FFF9F5;
+            --vibe-accent: #FFE66D;
+            --vibe-text: #2D2D3A;
+            --vibe-text-light: #6B6B7A;
+            --vibe-card-bg: #FFFFFF;
+            --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+            --vibe-success: #00C9A7;
+            --vibe-danger: #FF4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--vibe-light) 0%, #FFF5EF 100%);
+            color: var(--vibe-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon i {
+            font-size: 1.3rem;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--vibe-primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 50px 0 80px;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--vibe-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .page-title i {
+            color: var(--vibe-primary);
+        }
+
+        .page-subtitle {
+            color: var(--vibe-text-light);
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Contact Grid */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        /* Contact Card */
+        .contact-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(255, 107, 53, 0.1);
+        }
+
+        .card-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .card-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .contact-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--vibe-dark);
+            margin-bottom: 10px;
+        }
+
+        .contact-card p {
+            color: var(--vibe-text-light);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--vibe-light);
+            border-radius: 40px;
+            text-decoration: none;
+            color: var(--vibe-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .contact-link:hover {
+            background: var(--vibe-primary);
+            color: white;
+        }
+
+        /* Social Section */
+        .social-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 50px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .social-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--vibe-dark);
+            margin-bottom: 10px;
+        }
+
+        .social-subtitle {
+            color: var(--vibe-text-light);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .social-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-size: 1.8rem;
+        }
+
+        .social-icon.whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .social-icon.whatsapp:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
+        }
+
+        .social-icon.instagram {
+            background: linear-gradient(45deg, #f09433, #d6688f, #bc2a8d);
+            color: white;
+        }
+
+        .social-icon.instagram:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(188, 42, 141, 0.3);
+        }
+
+        .social-icon.twitter {
+            background: #1DA1F2;
+            color: white;
+        }
+
+        .social-icon.twitter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(29, 161, 242, 0.3);
+        }
+
+        .social-icon.facebook {
+            background: #1877F2;
+            color: white;
+        }
+
+        .social-icon.facebook:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(24, 119, 242, 0.3);
+        }
+
+        .social-icon.tiktok {
+            background: #010101;
+            color: white;
+        }
+
+        .social-icon.tiktok:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Steps Section */
+        .steps-section {
+            background: linear-gradient(135deg, var(--vibe-dark), #2D2D3A);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            text-align: center;
+        }
+
+        .steps-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .steps-subtitle {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+        }
+
+        .step-item {
+            text-align: center;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--vibe-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0 auto 15px;
+        }
+
+        .step-item h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .step-item p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--vibe-dark);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--vibe-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .social-icons {
+                gap: 15px;
+            }
+
+            .social-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .steps-section {
+                padding: 30px;
+            }
+
+            .social-section {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .main-content {
+                padding: 30px 0 60px;
+            }
+
+            .page-title {
+                font-size: 1.3rem;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .contact-card {
+                padding: 25px;
+            }
+
+            .card-icon {
+                width: 55px;
+                height: 55px;
+            }
+
+            .card-icon i {
+                font-size: 1.5rem;
+            }
+
+            .social-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="{% url 'home' %}" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <span class="logo-text">VibePass</span>
+            </a>
+            <a href="javascript:history.back()" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-headset"></i>
+                    Get in Touch
+                </h1>
+                <p class="page-subtitle">
+                    We're here to help! Choose the best way to reach us
+                </p>
+            </div>
+
+            <!-- Contact Grid -->
+            <div class="contact-grid">
+                <!-- Email Support -->
+                <div class="contact-card">
+                    <div class="card-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h3>Email Support</h3>
+                    <p>For general inquiries, event issues, or account help</p>
+                    <a href="mailto:support@vibepass.com" class="contact-link">
+                        <i class="fas fa-envelope"></i> support@vibepass.com
+                    </a>
+                </div>
+
+                <!-- Business Inquiries -->
+                <div class="contact-card">
+                    <div class="card-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3>Business & Partnerships</h3>
+                    <p>For event organizers, sponsors, and business opportunities</p>
+                    <a href="mailto:partners@vibepass.com" class="contact-link">
+                        <i class="fas fa-envelope"></i> partners@vibepass.com
+                    </a>
+                </div>
+
+                <!-- Press & Media -->
+                <div class="contact-card">
+                    <div class="card-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <h3>Press & Media</h3>
+                    <p>For media inquiries and press releases</p>
+                    <a href="mailto:press@vibepass.com" class="contact-link">
+                        <i class="fas fa-envelope"></i> press@vibepass.com
+                    </a>
+                </div>
+            </div>
+
+            <!-- Social Media Section -->
+            <div class="social-section">
+                <h2 class="social-title">
+                    <i class="fas fa-share-alt" style="color: var(--vibe-primary);"></i> Connect With Us
+                </h2>
+                <p class="social-subtitle">Follow us on social media for updates, announcements, and community news</p>
+
+                <div class="social-icons">
+                    <a href="https://wa.me/254700000000" target="_blank" class="social-icon whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://instagram.com/vibepass" target="_blank" class="social-icon instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://twitter.com/vibepass" target="_blank" class="social-icon twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://facebook.com/vibepass" target="_blank" class="social-icon facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://tiktok.com/@vibepass" target="_blank" class="social-icon tiktok">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Support Steps -->
+            <div class="steps-section">
+                <h2 class="steps-title">
+                    <i class="fas fa-life-ring"></i> Need Help?
+                </h2>
+                <p class="steps-subtitle">Follow these steps to get your issue resolved quickly</p>
+
+                <div class="steps-grid">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <h4>Check Our FAQs</h4>
+                        <p>Visit our FAQ page for quick answers to common questions</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <h4>Email Support</h4>
+                        <p>Send us an email with your issue and we'll respond within 24 hours</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <h4>WhatsApp Us</h4>
+                        <p>Chat with our support team on WhatsApp for faster responses</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <h4>Social Media DM</h4>
+                        <p>Reach out via Instagram or Twitter DMs for quick assistance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VibePass. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">FAQ</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

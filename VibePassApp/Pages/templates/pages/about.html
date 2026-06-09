@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes"
+    />
+    <title>VibePass - About Us | Student Events Platform</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* Brand Colors */
+      :root {
+        --vibe-primary: #ff6b35;
+        --vibe-primary-dark: #e85d2c;
+        --vibe-secondary: #00c9a7;
+        --vibe-secondary-dark: #00b092;
+        --vibe-dark: #1a1a2e;
+        --vibe-light: #fff9f5;
+        --vibe-accent: #ffe66d;
+        --vibe-text: #2d2d3a;
+        --vibe-text-light: #6b6b7a;
+        --vibe-card-bg: #ffffff;
+        --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+        --vibe-success: #00c9a7;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, var(--vibe-light) 0%, #fff5ef 100%);
+        color: var(--vibe-text);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header */
+      .header {
+        background: rgba(26, 26, 46, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 15px 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+
+      .logo-icon {
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .logo-icon i {
+        font-size: 1.3rem;
+        color: white;
+      }
+
+      .logo-text {
+        font-size: 1.4rem;
+        font-weight: 800;
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-secondary)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 25px;
+        list-style: none;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: color 0.3s;
+      }
+
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--vibe-primary);
+      }
+
+      .mobile-menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.3rem;
+        cursor: pointer;
+      }
+
+      /* Hero Section */
+      .hero {
+        background: linear-gradient(135deg, var(--vibe-dark), #2d2d3a);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(
+          circle,
+          rgba(255, 107, 53, 0.1),
+          transparent
+        );
+        border-radius: 50%;
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        bottom: -30%;
+        left: -20%;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(
+          circle,
+          rgba(0, 201, 167, 0.08),
+          transparent
+        );
+        border-radius: 50%;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 700px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Section Styles */
+      .section {
+        padding: 70px 0;
+      }
+
+      .section-alt {
+        background: white;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--vibe-dark);
+        margin-bottom: 15px;
+      }
+
+      .section-subtitle {
+        text-align: center;
+        color: var(--vibe-text-light);
+        font-size: 1rem;
+        max-width: 700px;
+        margin: 0 auto 50px;
+      }
+
+      /* Mission Cards */
+      .mission-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+      }
+
+      .mission-card {
+        background: white;
+        border-radius: 20px;
+        padding: 35px 25px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
+      }
+
+      .mission-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(255, 107, 53, 0.1);
+      }
+
+      .mission-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+      }
+
+      .mission-icon i {
+        font-size: 2rem;
+        color: white;
+      }
+
+      .mission-card h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+
+      .mission-card p {
+        color: var(--vibe-text-light);
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      /* How It Works */
+      .howitworks {
+        background: var(--vibe-light);
+      }
+
+      .steps-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+      }
+
+      .step {
+        text-align: center;
+      }
+
+      .step-number {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        margin: 0 auto 20px;
+      }
+
+      .step h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .step p {
+        color: var(--vibe-text-light);
+        font-size: 0.85rem;
+        line-height: 1.5;
+      }
+
+      /* Benefits Section */
+      .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+      }
+
+      .benefit-item {
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        transition: all 0.3s;
+      }
+
+      .benefit-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .benefit-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 107, 53, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .benefit-icon i {
+        font-size: 1.3rem;
+        color: var(--vibe-primary);
+      }
+
+      .benefit-content h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .benefit-content p {
+        color: var(--vibe-text-light);
+        font-size: 0.85rem;
+        line-height: 1.5;
+      }
+
+      /* Stats Section */
+      .stats-section {
+        background: linear-gradient(135deg, var(--vibe-dark), #2d2d3a);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 40px;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--vibe-primary);
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      /* CTA Section */
+      .cta-section {
+        background: white;
+        text-align: center;
+        padding: 60px 20px;
+        border-radius: 20px;
+        margin: 40px 0;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      }
+
+      .cta-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+
+      .cta-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 25px;
+      }
+
+      .btn {
+        padding: 12px 28px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        border: 2px solid var(--vibe-primary);
+        color: var(--vibe-primary);
+      }
+
+      .btn-secondary:hover {
+        background: var(--vibe-primary);
+        color: white;
+      }
+
+      /* Footer */
+      .footer {
+        background: var(--vibe-dark);
+        color: white;
+        padding: 40px 0 30px;
+        text-align: center;
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+      }
+
+      .footer-links a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 0.85rem;
+      }
+
+      .footer-links a:hover {
+        color: var(--vibe-primary);
+      }
+
+      /* Responsive */
+      @media (max-width: 992px) {
+        .hero h1 {
+          font-size: 2rem;
+        }
+
+        .section-title {
+          font-size: 1.8rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .mobile-menu-toggle {
+          display: block;
+        }
+
+        .nav-links {
+          display: none;
+          width: 100%;
+          flex-direction: column;
+          text-align: center;
+          gap: 15px;
+          padding: 20px 0 0;
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .hero {
+          padding: 60px 0;
+        }
+
+        .hero h1 {
+          font-size: 1.6rem;
+        }
+
+        .hero p {
+          font-size: 0.95rem;
+        }
+
+        .section {
+          padding: 50px 0;
+        }
+
+        .section-title {
+          font-size: 1.5rem;
+        }
+
+        .stats-grid {
+          gap: 25px;
+        }
+
+        .stat-number {
+          font-size: 2rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .container {
+          padding: 0 15px;
+        }
+
+        .hero h1 {
+          font-size: 1.4rem;
+        }
+
+        .section-title {
+          font-size: 1.3rem;
+        }
+
+        .mission-card {
+          padding: 25px;
+        }
+
+        .benefit-item {
+          flex-direction: column;
+          text-align: center;
+          align-items: center;
+        }
+
+        .step-number {
+          width: 50px;
+          height: 50px;
+          font-size: 1.2rem;
+        }
+
+        .cta-title {
+          font-size: 1.2rem;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          font-size: 0.85rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="container header-container">
+        <a href="{% url 'home' %}" class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          <span class="logo-text">VibePass</span>
+        </a>
+
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <ul class="nav-links" id="navLinks">
+          <li><a href="{% url 'home' %}">Home</a></li>
+          <li><a href="{% url 'list_event' %}">Events</a></li>
+          <li><a href="{% url 'about' %}" class="active">About</a></li>
+          <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <h1>Connecting Students Through Unforgettable Experiences</h1>
+        <p>
+          VibePass is the ultimate platform for students to discover, create,
+          and attend amazing campus events — all in one place.
+        </p>
+      </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">Our Purpose</h2>
+        <p class="section-subtitle">
+          We're on a mission to transform campus life and make every moment
+          count
+        </p>
+
+        <div class="mission-grid">
+          <div class="mission-card">
+            <div class="mission-icon">
+              <i class="fas fa-rocket"></i>
+            </div>
+            <h3>Empower Students</h3>
+            <p>
+              Give students the tools to discover exciting events, connect with
+              peers, and create lasting memories throughout their campus
+              journey.
+            </p>
+          </div>
+
+          <div class="mission-card">
+            <div class="mission-icon">
+              <i class="fas fa-chalkboard-user"></i>
+            </div>
+            <h3>Support Organizers</h3>
+            <p>
+              Provide event organizers with a simple, powerful platform to reach
+              their audience, sell tickets, and manage events effortlessly.
+            </p>
+          </div>
+
+          <div class="mission-card">
+            <div class="mission-icon">
+              <i class="fas fa-handshake"></i>
+            </div>
+            <h3>Build Community</h3>
+            <p>
+              Create a vibrant community where students, organizers, and campus
+              groups can connect, collaborate, and grow together.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section howitworks">
+      <div class="container">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">
+          Creating an event on VibePass is simple and takes just a few minutes
+        </p>
+
+        <div class="steps-container">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3>Create an Account</h3>
+            <p>Sign up and create an account on the dashboard click create event button</p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3>Fill Event Details</h3>
+            <p>Add title, description, date, location, and ticket pricing</p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3>Upload Flyer</h3>
+            <p>Add an eye-catching image to attract attendees</p>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <h3>Publish & Share</h3>
+            <p>
+              Your event is live! Share with students and start selling tickets
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">Why Choose VibePass?</h2>
+        <p class="section-subtitle">
+          Everything you need to create amazing events and find great
+          experiences
+        </p>
+
+        <div class="benefits-grid">
+          <div class="benefit-item">
+            <div class="benefit-icon">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <div class="benefit-content">
+              <h3>Lightning Fast Setup</h3>
+              <p>
+                Create and publish events in under 5 minutes with our intuitive
+                form
+              </p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">
+              <i class="fas fa-mobile-alt"></i>
+            </div>
+            <div class="benefit-content">
+              <h3>Mobile Friendly</h3>
+              <p>
+                Access your dashboard and manage events from any device,
+                anywhere
+              </p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">
+              <i class="fas fa-qrcode"></i>
+            </div>
+            <div class="benefit-content">
+              <h3>QR Code Tickets</h3>
+              <p>
+                Generate unique QR codes for every ticket sold — easy check-in
+                at the door
+              </p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="benefit-content">
+              <h3>Real-time Analytics</h3>
+              <p>
+                Track ticket sales, revenue, and attendee insights in real-time
+              </p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">
+              <i class="fas fa-wallet"></i>
+            </div>
+            <div class="benefit-content">
+              <h3>M-PESA Integration</h3>
+              <p>
+                Accept payments easily with Kenya's most trusted mobile money
+                service
+              </p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">
+              <i class="fas fa-headset"></i>
+            </div>
+            <div class="benefit-content">
+              <h3>24/7 Support</h3>
+              <p>
+                Our dedicated support team is always ready to help you succeed
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div>
+            <div class="stat-number">500+</div>
+            <div class="stat-label">Events Hosted</div>
+          </div>
+          <div>
+            <div class="stat-number">25K+</div>
+            <div class="stat-label">Happy Students</div>
+          </div>
+          <div>
+            <div class="stat-number">50+</div>
+            <div class="stat-label">Campus Partners</div>
+          </div>
+          <div>
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Free to Start</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="section">
+      <div class="container">
+        <div class="cta-section">
+          <h2 class="cta-title">Ready to Create Your First Event?</h2>
+          <p
+            style="
+              color: var(--vibe-text-light);
+              max-width: 500px;
+              margin: 0 auto;
+            "
+          >
+            Join hundreds of organizers already using VibePass to bring amazing
+            events to campus
+          </p>
+          <div class="cta-buttons">
+            <a href="{% url 'register' %}" class="btn btn-primary">
+              <i class="fas fa-user-plus"></i> Sign Up Free
+            </a>
+            <a href="{% url 'list_event' %}" class="btn btn-secondary">
+              <i class="fas fa-search"></i> Browse Events
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>
+          &copy; 2026 VibePass. All rights reserved. Made for students, by
+          students.
+        </p>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">FAQ</a>
+          <a href="{% url 'contact' %}">Contact</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Mobile menu toggle
+      const mobileMenuToggle = document.getElementById("mobileMenuToggle");
+      const navLinks = document.getElementById("navLinks");
+
+      mobileMenuToggle.addEventListener("click", () => {
+        navLinks.classList.toggle("active");
+        mobileMenuToggle.innerHTML = navLinks.classList.contains("active")
+          ? '<i class="fas fa-times"></i>'
+          : '<i class="fas fa-bars"></i>';
+      });
+    </script>
+  </body>
+</html>

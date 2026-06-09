@@ -1,899 +1,1008 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
     <title>VibePass - Ticket Scanner</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.4/esm/html5-qrcode.min.js"></script>
     <style>
-        /* Brand Colors */
-        :root {
-            --vibe-primary: #6c4bdd;
-            --vibe-secondary: #00d4aa;
-            --vibe-dark: #1a1a2e;
-            --vibe-light: #f8f9ff;
-            --vibe-accent: #ff6b9d;
-            --vibe-text: #333333;
-            --vibe-text-light: #777777;
-            --vibe-card-bg: #ffffff;
-            --vibe-card-shadow: rgba(108, 75, 221, 0.08);
-            --vibe-success: #00c853;
-            --vibe-warning: #ff9800;
-            --vibe-danger: #ff4d4d;
-            --vibe-info: #2196f3;
+      /* New Brand Colors - Vibrant Orange & Teal */
+      :root {
+        --vibe-primary: #ff6b35;
+        --vibe-primary-dark: #e85d2c;
+        --vibe-secondary: #00c9a7;
+        --vibe-secondary-dark: #00b092;
+        --vibe-dark: #1a1a2e;
+        --vibe-light: #fff9f5;
+        --vibe-accent: #ffe66d;
+        --vibe-text: #2d2d3a;
+        --vibe-text-light: #6b6b7a;
+        --vibe-card-bg: #ffffff;
+        --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+        --vibe-success: #00c9a7;
+        --vibe-warning: #ffc107;
+        --vibe-danger: #ff4757;
+        --vibe-info: #2196f3;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, var(--vibe-dark) 0%, #2d2d3a 100%);
+        color: var(--vibe-text);
+        font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .scanner-container {
+        max-width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      /* Header */
+      .scanner-header {
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        padding: 1.25rem 1rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        z-index: 10;
+      }
+
+      .scanner-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+
+      .scanner-header p {
+        font-size: 0.85rem;
+        opacity: 0.95;
+        margin: 0;
+      }
+
+      /* Video Container */
+      .scanner-video-wrapper {
+        flex: 1;
+        position: relative;
+        background: var(--vibe-dark);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        min-height: 60vh;
+      }
+
+      #qr-reader {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Scanner Frame Overlay - Modern Design */
+      .scanner-frame {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 75%;
+        max-width: 400px;
+        aspect-ratio: 1 / 1;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 24px;
+        box-shadow:
+          0 0 0 9999px rgba(26, 26, 46, 0.75),
+          0 0 0 3px rgba(255, 107, 53, 0.5);
+        pointer-events: none;
+        z-index: 5;
+        backdrop-filter: blur(2px);
+      }
+
+      /* Corner decorations */
+      .corner-tl,
+      .corner-tr,
+      .corner-bl,
+      .corner-br {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border-color: var(--vibe-secondary);
+        border-style: solid;
+        border-width: 0;
+      }
+
+      .corner-tl {
+        top: -10px;
+        left: -10px;
+        border-top-width: 3px;
+        border-left-width: 3px;
+        border-radius: 8px 0 0 0;
+      }
+
+      .corner-tr {
+        top: -10px;
+        right: -10px;
+        border-top-width: 3px;
+        border-right-width: 3px;
+        border-radius: 0 8px 0 0;
+      }
+
+      .corner-bl {
+        bottom: -10px;
+        left: -10px;
+        border-bottom-width: 3px;
+        border-left-width: 3px;
+        border-radius: 0 0 0 8px;
+      }
+
+      .corner-br {
+        bottom: -10px;
+        right: -10px;
+        border-bottom-width: 3px;
+        border-right-width: 3px;
+        border-radius: 0 0 8px 0;
+      }
+
+      /* Scanning Line Animation */
+      .scan-line {
+        position: absolute;
+        top: 20%;
+        left: 10%;
+        width: 80%;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--vibe-secondary),
+          transparent
+        );
+        animation: scanMove 2s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 6;
+      }
+
+      @keyframes scanMove {
+        0% {
+          top: 20%;
+          opacity: 0;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        50% {
+          top: 80%;
+          opacity: 1;
         }
 
-        body {
-            background: linear-gradient(135deg, var(--vibe-light) 0%, #f0f7ff 100%);
-            color: var(--vibe-text);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
+        100% {
+          top: 20%;
+          opacity: 0;
+        }
+      }
+
+      /* Info Text */
+      .scanner-info {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 107, 53, 0.95);
+        color: white;
+        padding: 0.6rem 1.25rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        z-index: 8;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+      }
+
+      .scanner-info i {
+        animation: pulseIcon 1.5s ease-in-out infinite;
+      }
+
+      @keyframes pulseIcon {
+        0%,
+        100% {
+          opacity: 1;
         }
 
-        .scanner-container {
-            max-width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: var(--vibe-dark);
-            position: relative;
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      /* Result Feedback - Modern Slide-up */
+      .result-feedback {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        transform: translateY(100%);
+        transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        z-index: 20;
+        padding: 1rem;
+        max-width: 100%;
+      }
+
+      .result-feedback.show {
+        transform: translateY(0);
+      }
+
+      .feedback-card {
+        border-radius: 20px;
+        padding: 1.25rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.4s ease-out;
+      }
+
+      .feedback-card.success {
+        background: linear-gradient(
+          135deg,
+          var(--vibe-success) 0%,
+          #00a876 100%
+        );
+      }
+
+      .feedback-card.error {
+        background: linear-gradient(
+          135deg,
+          var(--vibe-danger) 0%,
+          #e8414f 100%
+        );
+      }
+
+      .feedback-card.warning {
+        background: linear-gradient(
+          135deg,
+          var(--vibe-warning) 0%,
+          #e8960c 100%
+        );
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(100%);
+          opacity: 0;
         }
 
-        /* Header */
-        .scanner-header {
-            background: linear-gradient(135deg, var(--vibe-primary) 0%, var(--vibe-secondary) 100%);
-            padding: 1rem;
-            color: white;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(108, 75, 221, 0.2);
-            z-index: 10;
+        to {
+          transform: translateY(0);
+          opacity: 1;
         }
+      }
 
+      .feedback-message {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .feedback-message i {
+        font-size: 2rem;
+      }
+
+      .feedback-details {
+        flex: 1;
+      }
+
+      .feedback-details .title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .feedback-details .subtitle {
+        font-size: 0.85rem;
+        opacity: 0.95;
+      }
+
+      /* Controls Footer */
+      .scanner-footer {
+        background: white;
+        padding: 1rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 107, 53, 0.1);
+      }
+
+      .btn-scanner {
+        flex: 1;
+        min-width: 120px;
+        padding: 0.75rem 1.25rem;
+        border: none;
+        border-radius: 40px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .btn-scanner.start {
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+      }
+
+      .btn-scanner.start:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+      }
+
+      .btn-scanner.stop {
+        background: linear-gradient(135deg, var(--vibe-danger), #e8414f);
+        color: white;
+      }
+
+      .btn-scanner.stop:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+      }
+
+      .btn-scanner.back {
+        background: transparent;
+        color: var(--vibe-primary);
+        border: 2px solid var(--vibe-primary);
+      }
+
+      .btn-scanner.back:hover {
+        background: var(--vibe-primary);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      /* Stats Display - Modern */
+      .stats-display {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(26, 26, 46, 0.9);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 16px;
+        font-size: 0.85rem;
+        z-index: 8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .stat-badge {
+        background: var(--vibe-secondary);
+        color: var(--vibe-dark);
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-weight: 700;
+        min-width: 35px;
+        text-align: center;
+      }
+
+      .stat-success {
+        color: var(--vibe-success);
+      }
+
+      .stat-error {
+        color: var(--vibe-danger);
+      }
+
+      /* Loading State */
+      .scanner-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: white;
+        z-index: 5;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        border-top-color: var(--vibe-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
         .scanner-header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
+          font-size: 1.25rem;
         }
 
         .scanner-header p {
-            font-size: 0.85rem;
-            opacity: 0.95;
-            margin: 0;
+          font-size: 0.75rem;
         }
 
-        /* Video Container */
-        .scanner-video-wrapper {
-            flex: 1;
-            position: relative;
-            background: var(--vibe-dark);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        #qr-reader {
-            width: 100%;
-            height: 100%;
-        }
-
-        .qr-reader__scan-region {
-            position: relative;
-        }
-
-        /* Scanner Frame Overlay */
         .scanner-frame {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 500px;
-            aspect-ratio: 1 / 1;
-            border: 3px dashed var(--vibe-secondary);
-            border-radius: 20px;
-            box-shadow: 
-                inset 0 0 0 9999px rgba(26, 26, 46, 0.7),
-                0 0 20px rgba(0, 212, 170, 0.3);
-            pointer-events: none;
-            z-index: 5;
+          width: 85%;
         }
 
-        .scanner-frame::before,
-        .scanner-frame::after {
-            content: '';
-            position: absolute;
-            background: var(--vibe-secondary);
-            animation: pulse-corner 2s ease-in-out infinite;
+        .stats-display {
+          top: 15px;
+          right: 15px;
+          padding: 0.5rem 0.75rem;
+          font-size: 0.75rem;
         }
 
-        .scanner-frame::before {
-            top: -6px;
-            left: -6px;
-            width: 40px;
-            height: 40px;
-            border-top: 3px solid var(--vibe-secondary);
-            border-left: 3px solid var(--vibe-secondary);
-            border-radius: 5px;
-            background: none;
-        }
-
-        .scanner-frame::after {
-            bottom: -6px;
-            right: -6px;
-            width: 40px;
-            height: 40px;
-            border-bottom: 3px solid var(--vibe-secondary);
-            border-right: 3px solid var(--vibe-secondary);
-            border-radius: 5px;
-            background: none;
-        }
-
-        @keyframes pulse-corner {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        /* Info Text */
         .scanner-info {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(108, 75, 221, 0.95);
-            color: white;
-            padding: 0.75rem 1.25rem;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            z-index: 8;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .scanner-info i {
-            animation: spin 2s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Result Feedback */
-        .result-feedback {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-            z-index: 20;
-            padding: 1rem;
-            max-width: 100%;
-        }
-
-        .result-feedback.show {
-            transform: translateY(0);
-        }
-
-        .feedback-card {
-            border-radius: 15px;
-            padding: 1.25rem;
-            color: white;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.4s ease;
-        }
-
-        .feedback-card.success {
-            background: linear-gradient(135deg, var(--vibe-success) 0%, #00b83a 100%);
-        }
-
-        .feedback-card.error {
-            background: linear-gradient(135deg, var(--vibe-danger) 0%, #ff3333 100%);
-        }
-
-        .feedback-card.warning {
-            background: linear-gradient(135deg, var(--vibe-warning) 0%, #ff8800 100%);
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .feedback-message {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .feedback-message i {
-            font-size: 1.75rem;
-        }
-
-        .feedback-details {
-            flex: 1;
-        }
-
-        .feedback-details .title {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .feedback-details .subtitle {
-            font-size: 0.85rem;
-            opacity: 0.95;
-        }
-
-        /* Controls Footer */
-        .scanner-footer {
-            background: white;
-            padding: 1rem;
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-            border-top: 1px solid rgba(108, 75, 221, 0.1);
+          font-size: 0.75rem;
+          padding: 0.5rem 1rem;
+          bottom: 15px;
+          white-space: nowrap;
         }
 
         .btn-scanner {
-            flex: 1;
-            min-width: 120px;
-            padding: 0.75rem 1.25rem;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-size: 0.95rem;
+          min-width: 100px;
+          padding: 0.6rem 1rem;
+          font-size: 0.85rem;
         }
 
-        .btn-scanner.start {
-            background: linear-gradient(135deg, var(--vibe-primary) 0%, var(--vibe-secondary) 100%);
-            color: white;
+        .feedback-card {
+          padding: 1rem;
+          border-radius: 16px;
         }
 
-        .btn-scanner.start:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(108, 75, 221, 0.3);
+        .feedback-message i {
+          font-size: 1.5rem;
         }
 
-        .btn-scanner.stop {
-            background: linear-gradient(135deg, var(--vibe-danger) 0%, #ff3333 100%);
-            color: white;
+        .feedback-details .title {
+          font-size: 1rem;
         }
 
-        .btn-scanner.stop:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(255, 77, 77, 0.3);
+        .feedback-details .subtitle {
+          font-size: 0.8rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .scanner-header {
+          padding: 1rem;
         }
 
-        .btn-scanner.back {
-            background: var(--vibe-light);
-            color: var(--vibe-primary);
-            border: 2px solid var(--vibe-primary);
+        .scanner-header h1 {
+          font-size: 1.1rem;
+          gap: 0.5rem;
         }
 
-        .btn-scanner.back:hover {
-            background: var(--vibe-primary);
-            color: white;
+        .scanner-header p {
+          font-size: 0.7rem;
         }
 
-        /* Stats Display */
+        .scanner-frame {
+          width: 90%;
+          border-radius: 20px;
+        }
+
+        .corner-tl,
+        .corner-tr,
+        .corner-bl,
+        .corner-br {
+          width: 30px;
+          height: 30px;
+        }
+
         .stats-display {
-            position: absolute;
-            top: 80px;
-            right: 15px;
-            background: rgba(26, 26, 46, 0.85);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            backdrop-filter: blur(10px);
-            z-index: 8;
+          top: 10px;
+          right: 10px;
+          padding: 0.4rem 0.6rem;
+          border-radius: 12px;
         }
 
         .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-item:last-child {
-            margin-bottom: 0;
+          font-size: 0.7rem;
         }
 
         .stat-badge {
-            background: var(--vibe-secondary);
-            color: var(--vibe-dark);
-            padding: 0.25rem 0.6rem;
-            border-radius: 20px;
-            font-weight: 600;
-            min-width: 30px;
-            text-align: center;
+          min-width: 28px;
+          font-size: 0.7rem;
         }
 
-        /* Loading State */
-        .scanner-loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: white;
-            z-index: 5;
+        .scanner-info {
+          font-size: 0.7rem;
+          padding: 0.4rem 0.8rem;
+          bottom: 10px;
         }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            border-top-color: var(--vibe-secondary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+        .scanner-footer {
+          padding: 0.75rem;
+          gap: 0.5rem;
         }
 
-        /* Error State */
-        .error-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: white;
-            text-align: center;
-            padding: 2rem;
+        .btn-scanner {
+          padding: 0.5rem 0.75rem;
+          font-size: 0.8rem;
+          min-width: 90px;
         }
 
-        .error-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--vibe-danger);
+        .feedback-card {
+          padding: 0.75rem;
+          border-radius: 14px;
         }
 
-        .error-state h2 {
-            margin-bottom: 0.5rem;
+        .feedback-message {
+          gap: 0.75rem;
         }
 
-        .error-state p {
-            margin-bottom: 1.5rem;
-            opacity: 0.9;
+        .feedback-message i {
+          font-size: 1.25rem;
+        }
+      }
+
+      /* Tablet Optimization */
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .scanner-frame {
+          width: 65%;
+          max-width: 450px;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .scanner-header h1 {
-                font-size: 1.25rem;
-            }
+        .btn-scanner {
+          min-width: 140px;
+          padding: 0.85rem 1.5rem;
+        }
+      }
 
-            .scanner-frame {
-                width: 85%;
-            }
-
-            .stats-display {
-                font-size: 0.75rem;
-                padding: 0.6rem 0.75rem;
-                right: 10px;
-                top: 70px;
-            }
-
-            .scanner-info {
-                font-size: 0.8rem;
-                padding: 0.6rem 1rem;
-                top: 15px;
-            }
-
-            .btn-scanner {
-                min-width: 100px;
-                padding: 0.6rem 1rem;
-                font-size: 0.85rem;
-            }
-
-            .feedback-card {
-                padding: 1rem;
-            }
-
-            .feedback-message i {
-                font-size: 1.5rem;
-            }
-
-            .feedback-details .title {
-                font-size: 1rem;
-            }
-
-            .feedback-details .subtitle {
-                font-size: 0.8rem;
-            }
+      /* Landscape Mode */
+      @media (orientation: landscape) and (max-height: 500px) {
+        .scanner-container {
+          min-height: auto;
         }
 
-        @media (max-width: 480px) {
-            .scanner-header {
-                padding: 0.75rem;
-            }
-
-            .scanner-header h1 {
-                font-size: 1.1rem;
-                gap: 0.5rem;
-            }
-
-            .scanner-header p {
-                font-size: 0.75rem;
-            }
-
-            .scanner-frame {
-                width: 90%;
-            }
-
-            .stats-display {
-                font-size: 0.7rem;
-                padding: 0.5rem 0.6rem;
-                right: 8px;
-                top: 65px;
-            }
-
-            .scanner-footer {
-                padding: 0.75rem;
-                gap: 0.5rem;
-            }
-
-            .btn-scanner {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.75rem;
-                min-width: 80px;
-            }
-
-            .feedback-card {
-                padding: 0.75rem;
-                border-radius: 10px;
-            }
-
-            .feedback-message {
-                gap: 0.75rem;
-            }
-
-            .feedback-message i {
-                font-size: 1.25rem;
-            }
-
-            .error-state {
-                padding: 1rem;
-            }
-
-            .error-state i {
-                font-size: 2.5rem;
-            }
+        .scanner-video-wrapper {
+          min-height: 65vh;
         }
 
-        /* iPad/Tablet Optimization */
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .scanner-frame {
-                width: 70%;
-                max-width: 450px;
-            }
-
-            .btn-scanner {
-                min-width: 140px;
-                padding: 0.85rem 1.5rem;
-            }
+        .scanner-footer {
+          padding: 0.5rem;
         }
 
-        /* Landscape Mode */
-        @media (orientation: landscape) and (max-height: 500px) {
-            .scanner-container {
-                height: auto;
-            }
-
-            .scanner-video-wrapper {
-                min-height: 60vh;
-            }
-
-            .scanner-footer {
-                padding: 0.5rem;
-            }
-
-            .btn-scanner {
-                padding: 0.5rem 1rem;
-                font-size: 0.8rem;
-            }
+        .btn-scanner {
+          padding: 0.5rem 1rem;
+          font-size: 0.8rem;
         }
 
-        /* Accessibility */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+        .stats-display {
+          top: 10px;
+          right: 10px;
         }
+      }
 
-        /* Dark Mode Support */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: var(--vibe-dark);
-            }
-
-            .scanner-footer {
-                background: #2a2a3e;
-                border-top-color: rgba(108, 75, 221, 0.2);
-            }
+      /* Reduced Motion */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
         }
+      }
     </style>
-</head>
-<body>
+  </head>
+
+  <body>
     <div class="scanner-container">
-        <!-- Header -->
-        <div class="scanner-header">
-            <h1>
-                <i class="fas fa-qrcode"></i>
-                Ticket Scanner
-            </h1>
-            <p>Scan QR codes to validate tickets</p>
+      <!-- Header -->
+      <div class="scanner-header">
+        <h1>
+          <i class="fas fa-qrcode"></i>
+          Ticket Scanner
+        </h1>
+        <p>Scan QR codes to validate tickets instantly</p>
+      </div>
+
+      <!-- Scanner Video Section -->
+      <div class="scanner-video-wrapper">
+        <div id="qr-reader" style="width: 100%; height: 100%"></div>
+
+        <!-- Modern Scanner Frame -->
+        <div class="scanner-frame">
+          <div class="corner-tl"></div>
+          <div class="corner-tr"></div>
+          <div class="corner-bl"></div>
+          <div class="corner-br"></div>
+        </div>
+        <div class="scan-line"></div>
+
+        <div class="scanner-info">
+          <i class="fas fa-camera"></i>
+          <span id="status-text">Ready to scan</span>
         </div>
 
-        <!-- Scanner Video Section -->
-        <div class="scanner-video-wrapper">
-            <div id="qr-reader" style="width: 100%; height: 100%;"></div>
-            <div class="scanner-frame"></div>
-            <div class="scanner-info">
-                <i class="fas fa-camera"></i>
-                <span id="status-text">Initializing camera...</span>
-            </div>
-            <div class="stats-display">
-                <div class="stat-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Scanned: <span class="stat-badge" id="scanned-count">0</span></span>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-times-circle"></i>
-                    <span>Errors: <span class="stat-badge" id="error-count">0</span></span>
-                </div>
-            </div>
+        <!-- Stats Display -->
+        <div class="stats-display">
+          <div class="stat-item">
+            <i class="fas fa-check-circle stat-success"></i>
+            <span
+              >Scanned:
+              <span class="stat-badge" id="scanned-count">0</span></span
+            >
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-times-circle stat-error"></i>
+            <span
+              >Errors: <span class="stat-badge" id="error-count">0</span></span
+            >
+          </div>
         </div>
+      </div>
 
-        <!-- Result Feedback -->
-        <div class="result-feedback" id="result-feedback">
-            <div class="feedback-card" id="feedback-card">
-                <div class="feedback-message">
-                    <i id="feedback-icon"></i>
-                    <div class="feedback-details">
-                        <div class="title" id="feedback-title">Processing...</div>
-                        <div class="subtitle" id="feedback-subtitle"></div>
-                    </div>
-                </div>
+      <!-- Result Feedback -->
+      <div class="result-feedback" id="result-feedback">
+        <div class="feedback-card" id="feedback-card">
+          <div class="feedback-message">
+            <i id="feedback-icon"></i>
+            <div class="feedback-details">
+              <div class="title" id="feedback-title">Processing...</div>
+              <div class="subtitle" id="feedback-subtitle"></div>
             </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Footer Controls -->
-        <div class="scanner-footer">
-            <button class="btn-scanner start" id="btn-start" onclick="startScanner()">
-                <i class="fas fa-play"></i>
-                Start Scanner
-            </button>
-            <button class="btn-scanner stop" id="btn-stop" onclick="stopScanner()" style="display: none;">
-                <i class="fas fa-stop"></i>
-                Stop Scanner
-            </button>
-            <button class="btn-scanner back" onclick="goBack()">
-                <i class="fas fa-arrow-left"></i>
-                Back
-            </button>
-        </div>
+      <!-- Footer Controls -->
+      <div class="scanner-footer">
+        <button
+          class="btn-scanner start"
+          id="btn-start"
+          onclick="startScanner()"
+        >
+          <i class="fas fa-play"></i>
+          Start Scanner
+        </button>
+        <button
+          class="btn-scanner stop"
+          id="btn-stop"
+          onclick="stopScanner()"
+          style="display: none"
+        >
+          <i class="fas fa-stop"></i>
+          Stop Scanner
+        </button>
+        <button class="btn-scanner back" onclick="goBack()">
+          <i class="fas fa-arrow-left"></i>
+          Back
+        </button>
+      </div>
     </div>
 
     <script>
-        // Configuration
-        const CONFIG = {
-            apiEndpoint: '{% url "validate_ticket" %}',
-            feedbackDuration: 3000,
-            csrfToken: '{{ csrf_token }}'
-        };
+      // Configuration
+      const CONFIG = {
+        apiEndpoint: '{% url "validate_ticket" %}',
+        feedbackDuration: 3000,
+        csrfToken: "{{ csrf_token }}",
+      };
 
-        // State Management
-        let scannerState = {
-            isRunning: false,
-            scannedCount: 0,
-            errorCount: 0,
-            lastScannedTicket: null,
-            html5QrcodeScanner: null,
-            isProcessing: false
-        };
+      // State Management
+      let scannerState = {
+        isRunning: false,
+        scannedCount: 0,
+        errorCount: 0,
+        lastScannedTicket: null,
+        html5QrcodeScanner: null,
+        isProcessing: false,
+      };
 
-        /**
-         * Initialize the QR Code Scanner
-         */
-        function initializeScanner() {
-            if (scannerState.html5QrcodeScanner) {
-                return;
-            }
-
-            scannerState.html5QrcodeScanner = new Html5Qrcode('qr-reader');
-            updateStatusText('Ready to scan');
+      /**
+       * Initialize the QR Code Scanner
+       */
+      function initializeScanner() {
+        if (scannerState.html5QrcodeScanner) {
+          return;
         }
 
-        /**
-         * Start the Scanner
-         */
-        function startScanner() {
-            if (scannerState.isRunning) return;
+        scannerState.html5QrcodeScanner = new Html5Qrcode("qr-reader");
+        updateStatusText("Ready to scan");
+      }
 
-            initializeScanner();
+      /**
+       * Start the Scanner
+       */
+      function startScanner() {
+        if (scannerState.isRunning) return;
 
-            const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 250 },
-                aspectRatio: 1.0,
-                disableFlip: false
-            };
+        initializeScanner();
 
-            scannerState.html5QrcodeScanner.start(
-                { facingMode: 'environment' },
-                config,
-                onScanSuccess,
-                onScanError
-            ).then(() => {
-                scannerState.isRunning = true;
-                document.getElementById('btn-start').style.display = 'none';
-                document.getElementById('btn-stop').style.display = 'flex';
-                updateStatusText('Scanning active');
-                console.log('Scanner started successfully');
-            }).catch(err => {
-                console.error('Failed to start scanner:', err);
-                showError('Camera Access Denied', 'Please enable camera access in your browser settings.');
+        const config = {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0,
+          disableFlip: false,
+        };
+
+        scannerState.html5QrcodeScanner
+          .start(
+            { facingMode: "environment" },
+            config,
+            onScanSuccess,
+            onScanError,
+          )
+          .then(() => {
+            scannerState.isRunning = true;
+            document.getElementById("btn-start").style.display = "none";
+            document.getElementById("btn-stop").style.display = "flex";
+            updateStatusText("Scanning active");
+            console.log("Scanner started successfully");
+          })
+          .catch((err) => {
+            console.error("Failed to start scanner:", err);
+            showError(
+              "Camera Access Denied",
+              "Please enable camera access in your browser settings.",
+            );
+          });
+      }
+
+      /**
+       * Stop the Scanner
+       */
+      function stopScanner() {
+        if (!scannerState.isRunning) return;
+
+        if (scannerState.html5QrcodeScanner) {
+          scannerState.html5QrcodeScanner
+            .stop()
+            .then(() => {
+              scannerState.isRunning = false;
+              document.getElementById("btn-start").style.display = "flex";
+              document.getElementById("btn-stop").style.display = "none";
+              updateStatusText("Scanner stopped");
+              console.log("Scanner stopped");
+            })
+            .catch((err) => {
+              console.error("Failed to stop scanner:", err);
             });
         }
+      }
 
-        /**
-         * Stop the Scanner
-         */
-        function stopScanner() {
-            if (!scannerState.isRunning) return;
+      /**
+       * Handle Successful QR Code Scan
+       */
+      function onScanSuccess(decodedText, decodedResult) {
+        if (scannerState.isProcessing) return;
 
-            if (scannerState.html5QrcodeScanner) {
-                scannerState.html5QrcodeScanner.stop().then(() => {
-                    scannerState.isRunning = false;
-                    document.getElementById('btn-start').style.display = 'flex';
-                    document.getElementById('btn-stop').style.display = 'none';
-                    updateStatusText('Scanner stopped');
-                    console.log('Scanner stopped');
-                }).catch(err => {
-                    console.error('Failed to stop scanner:', err);
-                });
-            }
+        // Extract ticket ID from QR code
+        const ticketIdMatch = decodedText.match(/TICKET-ID:\s*(.+)/i);
+        const ticketId = ticketIdMatch
+          ? ticketIdMatch[1].trim()
+          : decodedText.trim();
+
+        // Prevent duplicate scans
+        if (scannerState.lastScannedTicket === ticketId) {
+          return;
         }
 
-        /**
-         * Handle Successful QR Code Scan
-         */
-        function onScanSuccess(decodedText, decodedResult) {
-            if (scannerState.isProcessing) return;
+        scannerState.lastScannedTicket = ticketId;
+        scannerState.isProcessing = true;
 
-            // Extract ticket ID from QR code
-            const ticketIdMatch = decodedText.match(/TICKET-ID:\s*(.+)/i);
-            const ticketId = ticketIdMatch ? ticketIdMatch[1].trim() : decodedText.trim();
+        console.log("QR Code detected:", ticketId);
+        updateStatusText("Processing ticket...");
 
-            // Prevent duplicate scans
-            if (scannerState.lastScannedTicket === ticketId) {
-                return;
-            }
+        // Send to validation API
+        validateTicket(ticketId);
+      }
 
-            scannerState.lastScannedTicket = ticketId;
-            scannerState.isProcessing = true;
+      /**
+       * Handle Scan Errors (silent handling)
+       */
+      function onScanError(error) {
+        // Silently handle scanning errors - this is normal behavior
+        console.debug("Scan error (expected):", error);
+      }
 
-            console.log('QR Code detected:', ticketId);
-            updateStatusText('Processing ticket...');
+      /**
+       * Validate Ticket with Backend API
+       */
+      async function validateTicket(ticketId) {
+        try {
+          const response = await fetch(CONFIG.apiEndpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": CONFIG.csrfToken,
+            },
+            body: JSON.stringify({ ticket_id: ticketId }),
+          });
 
-            // Send to validation API
-            validateTicket(ticketId);
-        }
+          const data = await response.json();
 
-        /**
-         * Handle Scan Errors (silent handling)
-         */
-        function onScanError(error) {
-            // Silently handle scanning errors - this is normal behavior
-            console.debug('Scan error (expected):', error);
-        }
-
-        /**
-         * Validate Ticket with Backend API
-         */
-        async function validateTicket(ticketId) {
-            try {
-                const response = await fetch(CONFIG.apiEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': CONFIG.csrfToken
-                    },
-                    body: JSON.stringify({ ticket_id: ticketId })
-                });
-
-                const data = await response.json();
-
-                if (data.status === 'Success') {
-                    showSuccess(data.message, `Ticket: ${ticketId.substring(0, 8)}...`);
-                    scannerState.scannedCount++;
-                    updateStats();
-                    updateStatusText('Scanning active');
-                } else {
-                    showError(data.message || 'Validation Failed', `Ticket: ${ticketId.substring(0, 8)}...`);
-                    scannerState.errorCount++;
-                    updateStats();
-                    updateStatusText('Scanning active');
-                }
-            } catch (error) {
-                console.error('Validation error:', error);
-                showError('Connection Error', 'Unable to reach the server. Please try again.');
-                scannerState.errorCount++;
-                updateStats();
-                updateStatusText('Scanning active');
-            } finally {
-                scannerState.isProcessing = false;
-                // Reset last scanned ticket after a short delay to allow new scans
-                setTimeout(() => {
-                    scannerState.lastScannedTicket = null;
-                }, 500);
-            }
-        }
-
-        /**
-         * Show Success Feedback
-         */
-        function showSuccess(title, subtitle) {
-            const feedback = document.getElementById('result-feedback');
-            const card = document.getElementById('feedback-card');
-            const icon = document.getElementById('feedback-icon');
-            const feedbackTitle = document.getElementById('feedback-title');
-            const feedbackSubtitle = document.getElementById('feedback-subtitle');
-
-            card.className = 'feedback-card success';
-            icon.className = 'fas fa-check-circle';
-            feedbackTitle.textContent = title || 'Ticket Validated!';
-            feedbackSubtitle.textContent = subtitle || 'Guest can enter';
-
-            feedback.classList.add('show');
-
-            setTimeout(() => {
-                feedback.classList.remove('show');
-            }, CONFIG.feedbackDuration);
-        }
-
-        /**
-         * Show Error Feedback
-         */
-        function showError(title, subtitle) {
-            const feedback = document.getElementById('result-feedback');
-            const card = document.getElementById('feedback-card');
-            const icon = document.getElementById('feedback-icon');
-            const feedbackTitle = document.getElementById('feedback-title');
-            const feedbackSubtitle = document.getElementById('feedback-subtitle');
-
-            card.className = 'feedback-card error';
-            icon.className = 'fas fa-times-circle';
-            feedbackTitle.textContent = title || 'Validation Failed';
-            feedbackSubtitle.textContent = subtitle || 'Please try again';
-
-            feedback.classList.add('show');
-
-            setTimeout(() => {
-                feedback.classList.remove('show');
-            }, CONFIG.feedbackDuration);
-        }
-
-        /**
-         * Show Warning Feedback
-         */
-        function showWarning(title, subtitle) {
-            const feedback = document.getElementById('result-feedback');
-            const card = document.getElementById('feedback-card');
-            const icon = document.getElementById('feedback-icon');
-            const feedbackTitle = document.getElementById('feedback-title');
-            const feedbackSubtitle = document.getElementById('feedback-subtitle');
-
-            card.className = 'feedback-card warning';
-            icon.className = 'fas fa-exclamation-triangle';
-            feedbackTitle.textContent = title || 'Warning';
-            feedbackSubtitle.textContent = subtitle || 'Please check the ticket';
-
-            feedback.classList.add('show');
-
-            setTimeout(() => {
-                feedback.classList.remove('show');
-            }, CONFIG.feedbackDuration);
-        }
-
-        /**
-         * Update Status Text
-         */
-        function updateStatusText(text) {
-            document.getElementById('status-text').textContent = text;
-        }
-
-        /**
-         * Update Statistics Display
-         */
-        function updateStats() {
-            document.getElementById('scanned-count').textContent = scannerState.scannedCount;
-            document.getElementById('error-count').textContent = scannerState.errorCount;
-        }
-
-        /**
-         * Navigate Back
-         */
-        function goBack() {
-            stopScanner();
-            window.history.back();
-        }
-
-        /**
-         * Handle Page Visibility Changes
-         */
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                if (scannerState.isRunning) {
-                    stopScanner();
-                }
-            }
-        });
-
-        /**
-         * Handle Page Unload
-         */
-        window.addEventListener('beforeunload', () => {
-            if (scannerState.isRunning) {
-                stopScanner();
-            }
-        });
-
-        /**
-         * Initialize on Page Load
-         */
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Scanner page loaded');
-            // Don't auto-start scanner - let user click start
+          if (data.status === "Success") {
+            showSuccess(data.message, `Ticket: ${ticketId.substring(0, 8)}...`);
+            scannerState.scannedCount++;
             updateStats();
-        });
+            updateStatusText("Scanning active");
+          } else {
+            showError(
+              data.message || "Validation Failed",
+              `Ticket: ${ticketId.substring(0, 8)}...`,
+            );
+            scannerState.errorCount++;
+            updateStats();
+            updateStatusText("Scanning active");
+          }
+        } catch (error) {
+          console.error("Validation error:", error);
+          showError(
+            "Connection Error",
+            "Unable to reach the server. Please try again.",
+          );
+          scannerState.errorCount++;
+          updateStats();
+          updateStatusText("Scanning active");
+        } finally {
+          scannerState.isProcessing = false;
+          // Reset last scanned ticket after a short delay to allow new scans
+          setTimeout(() => {
+            scannerState.lastScannedTicket = null;
+          }, 500);
+        }
+      }
 
-        /**
-         * Request Camera Permissions on Interaction (for iOS)
-         */
-        document.getElementById('btn-start').addEventListener('click', function() {
-            // Handle permission request explicitly
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showError('Camera Not Supported', 'Your device does not support camera access.');
-            }
+      /**
+       * Show Success Feedback
+       */
+      function showSuccess(title, subtitle) {
+        const feedback = document.getElementById("result-feedback");
+        const card = document.getElementById("feedback-card");
+        const icon = document.getElementById("feedback-icon");
+        const feedbackTitle = document.getElementById("feedback-title");
+        const feedbackSubtitle = document.getElementById("feedback-subtitle");
+
+        card.className = "feedback-card success";
+        icon.className = "fas fa-check-circle";
+        feedbackTitle.textContent = title || "Ticket Validated!";
+        feedbackSubtitle.textContent = subtitle || "Guest can enter";
+
+        feedback.classList.add("show");
+
+        // Vibrate on success (if supported)
+        if (navigator.vibrate) navigator.vibrate(200);
+
+        setTimeout(() => {
+          feedback.classList.remove("show");
+        }, CONFIG.feedbackDuration);
+      }
+
+      /**
+       * Show Error Feedback
+       */
+      function showError(title, subtitle) {
+        const feedback = document.getElementById("result-feedback");
+        const card = document.getElementById("feedback-card");
+        const icon = document.getElementById("feedback-icon");
+        const feedbackTitle = document.getElementById("feedback-title");
+        const feedbackSubtitle = document.getElementById("feedback-subtitle");
+
+        card.className = "feedback-card error";
+        icon.className = "fas fa-times-circle";
+        feedbackTitle.textContent = title || "Validation Failed";
+        feedbackSubtitle.textContent = subtitle || "Please try again";
+
+        feedback.classList.add("show");
+
+        // Vibrate on error (if supported)
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+        setTimeout(() => {
+          feedback.classList.remove("show");
+        }, CONFIG.feedbackDuration);
+      }
+
+      /**
+       * Update Status Text
+       */
+      function updateStatusText(text) {
+        document.getElementById("status-text").textContent = text;
+      }
+
+      /**
+       * Update Statistics Display
+       */
+      function updateStats() {
+        document.getElementById("scanned-count").textContent =
+          scannerState.scannedCount;
+        document.getElementById("error-count").textContent =
+          scannerState.errorCount;
+      }
+
+      /**
+       * Navigate Back
+       */
+      function goBack() {
+        stopScanner();
+        window.history.back();
+      }
+
+      /**
+       * Handle Page Visibility Changes
+       */
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && scannerState.isRunning) {
+          stopScanner();
+        }
+      });
+
+      /**
+       * Handle Page Unload
+       */
+      window.addEventListener("beforeunload", () => {
+        if (scannerState.isRunning) {
+          stopScanner();
+        }
+      });
+
+      /**
+       * Initialize on Page Load
+       */
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("Scanner page loaded");
+        updateStats();
+      });
+
+      /**
+       * Request Camera Permissions on Interaction (for iOS)
+       */
+      document
+        .getElementById("btn-start")
+        .addEventListener("click", function () {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showError(
+              "Camera Not Supported",
+              "Your device does not support camera access.",
+            );
+          }
         });
     </script>
-</body>
+  </body>
 </html>

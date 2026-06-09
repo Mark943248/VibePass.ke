@@ -307,4 +307,9 @@ def mpesa_timeout_handler(request):
     
     return JsonResponse({"Error": "Invalid request method"}, status=400)
 
+# render checkout page
+def checkout(request, slug):
+    event = get_object_or_404(Event, slug=slug)
+    return render(request, 'payments/checkout.html', {'event': event})
+
 

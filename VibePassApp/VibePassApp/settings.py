@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'Events',
     'Tickets',
     'Payments',
+    'Pages',
 
     'cloudinary_storage',
     'cloudinary',

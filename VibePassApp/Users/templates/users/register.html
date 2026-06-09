@@ -1,743 +1,604 @@
 {% load socialaccount %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VibePass - Student Sign Up</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link 
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
-      rel="stylesheet" 
-      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" 
-      crossorigin="anonymous"
-      />
-    <script 
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
-        crossorigin="anonymous"
-        ></script>
-    <style>
-      /* Brand Colors */
-      :root {
-        --vibe-primary: #6c4bdd;
-        --vibe-secondary: #00d4aa;
-        --vibe-dark: #1a1a2e;
-        --vibe-light: #f8f9ff;
-        --vibe-accent: #ff6b9d;
-        --vibe-text: #333333;
-        --vibe-text-light: #777777;
-        --vibe-error: #ff4d4d;
-        --vibe-success: #00c853;
-      }
 
-      /* Reset & Base Styles */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+  <title>VibePass - Join the Community</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    /* New Brand Colors - Vibrant Orange & Teal */
+    :root {
+      --vibe-primary: #FF6B35;
+      --vibe-primary-dark: #E85D2C;
+      --vibe-secondary: #00C9A7;
+      --vibe-secondary-dark: #00B092;
+      --vibe-dark: #1A1A2E;
+      --vibe-light: #FFF9F5;
+      --vibe-accent: #FFE66D;
+      --vibe-text: #2D2D3A;
+      --vibe-text-light: #6B6B7A;
+      --vibe-card-bg: #FFFFFF;
+      --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+      --vibe-success: #00C9A7;
+      --vibe-danger: #FF4757;
+      --vibe-info: #FF6B35;
+    }
 
-      body {
-        background-color: var(--vibe-light);
-        color: var(--vibe-text);
-        line-height: 1.6;
-        min-height: 100vh;
-        display: flex;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--vibe-light) 0%, #FFF5EF 100%);
+      color: var(--vibe-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    .header {
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 15px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon i {
+      font-size: 1.3rem;
+      color: white;
+    }
+
+    .logo-text {
+      font-size: 1.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .back-link {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .back-link:hover {
+      background: var(--vibe-primary);
+    }
+
+    /* Main Layout */
+    .main-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 50px 0;
+      min-height: calc(100vh - 80px);
+    }
+
+    .signup-card {
+      display: flex;
+      max-width: 1100px;
+      width: 100%;
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Left Side - Hero */
+    .signup-hero {
+      flex: 1;
+      background: linear-gradient(135deg, var(--vibe-dark), #2D2D3A);
+      padding: 40px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .signup-hero::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -30%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255, 107, 53, 0.15), transparent);
+      border-radius: 50%;
+    }
+
+    .signup-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -30%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(0, 201, 167, 0.1), transparent);
+      border-radius: 50%;
+    }
+
+    .hero-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+      opacity: 0.85;
+      margin-bottom: 30px;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+
+    .benefits {
+      list-style: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .benefits li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+    }
+
+    .benefit-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--vibe-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    /* Right Side - Form */
+    .signup-form-side {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .form-header {
+      margin-bottom: 30px;
+    }
+
+    .form-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--vibe-dark);
+      margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+      color: var(--vibe-text-light);
+      font-size: 0.9rem;
+    }
+
+    .form-subtitle a {
+      color: var(--vibe-primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .form-subtitle a:hover {
+      text-decoration: underline;
+    }
+
+    /* Form Styles */
+    .signup-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--vibe-dark);
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--vibe-text-light);
+      font-size: 0.9rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 15px 12px 42px;
+      border: 2px solid #E8E8E8;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      background: white;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--vibe-primary);
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--vibe-text-light);
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 14px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-google {
+      background: white;
+      color: var(--vibe-text);
+      border: 2px solid #E8E8E8;
+    }
+
+    .btn-google:hover {
+      border-color: var(--vibe-primary);
+      transform: translateY(-2px);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      color: var(--vibe-text-light);
+      font-size: 0.85rem;
+      margin: 5px 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: #E8E8E8;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--vibe-dark);
+      color: white;
+      padding: 30px 0;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--vibe-primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .signup-card {
         flex-direction: column;
+        max-width: 550px;
       }
 
-      .container {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
+      .signup-hero {
+        padding: 30px;
       }
 
-      /* Navbar */
-      .navbar {
-        background-color: var(--vibe-dark);
-        padding: 15px 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      .hero-title {
+        font-size: 1.6rem;
       }
 
-      .nav-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+      .benefits li {
+        font-size: 0.85rem;
       }
+    }
 
-      .logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: white;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 1.8rem;
-      }
-
-      .logo-icon {
-        color: var(--vibe-secondary);
-        background: var(--vibe-primary);
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transform: rotate(-10deg);
-      }
-
-      .back-to-home {
-        color: white;
-        text-decoration: none;
-        font-weight: 600;
-        transition: color 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .back-to-home:hover {
-        color: var(--vibe-secondary);
-      }
-
-      /* Main Content */
-      .main-content {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 0;
-      }
-
-      .signup-container {
-        display: flex;
-        width: 100%;
-        max-width: 1000px;
-        background: white;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 15px 40px rgba(108, 75, 221, 0.1);
-      }
-
-      /* Left Side - Visual */
-      .signup-visual {
-        flex: 1;
-        background: linear-gradient(
-          135deg,
-          var(--vibe-dark) 0%,
-          var(--vibe-primary) 100%
-        );
-        color: white;
-        padding: 50px;
-        display: flex;
+    @media (max-width: 768px) {
+      .header-container {
         flex-direction: column;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
+        align-items: flex-start;
       }
 
-      .signup-visual::before {
-        content: "";
-        position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 200px;
-        height: 200px;
-        background-color: rgba(255, 107, 157, 0.1);
-        border-radius: 50%;
+      .back-link {
+        align-self: flex-start;
       }
 
-      .signup-visual::after {
-        content: "";
-        position: absolute;
-        bottom: -80px;
-        left: -80px;
-        width: 300px;
-        height: 300px;
-        background-color: rgba(0, 212, 170, 0.1);
-        border-radius: 50%;
-      }
-
-      .signup-title {
-        font-size: 2.5rem;
-        margin-bottom: 20px;
-        position: relative;
-        z-index: 1;
-      }
-
-      .signup-subtitle {
-        font-size: 1.2rem;
-        opacity: 0.9;
-        margin-bottom: 30px;
-        position: relative;
-        z-index: 1;
-      }
-
-      .benefits-list {
-        list-style: none;
-        margin-top: 30px;
-        position: relative;
-        z-index: 1;
-      }
-
-      .benefits-list li {
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .benefit-icon {
-        width: 24px;
-        height: 24px;
-        background-color: var(--vibe-secondary);
-        color: var(--vibe-dark);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-      }
-
-      /* Right Side - Form */
-      .signup-form-container {
-        flex: 1;
-        padding: 50px;
-      }
-
-      .form-header {
-        margin-bottom: 30px;
+      .signup-form-side {
+        padding: 30px;
       }
 
       .form-title {
-        font-size: 2rem;
-        color: var(--vibe-dark);
-        margin-bottom: 10px;
-      }
-
-      .form-subtitle {
-        color: var(--vibe-text-light);
-        font-size: 1rem;
-      }
-
-      .form-subtitle a {
-        color: var(--vibe-primary);
-        text-decoration: none;
-        font-weight: 600;
-      }
-
-      .form-subtitle a:hover {
-        text-decoration: underline;
-      }
-
-      .signup-form {
-        width: 100%;
-      }
-
-      .form-group {
-        margin-bottom: 20px;
-      }
-
-      .form-row {
-        display: flex;
-        gap: 15px;
-      }
-
-      .form-row .form-group {
-        flex: 1;
-      }
-
-      .form-label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: var(--vibe-dark);
-      }
-
-      .input-with-icon {
-        position: relative;
-      }
-
-      .form-input {
-        width: 100%;
-        padding: 15px 15px 15px 45px;
-        border: 2px solid #e1e5f1;
-        border-radius: 10px;
-        font-size: 1rem;
-        transition: all 0.3s;
-        background-color: #f8f9ff;
-      }
-
-      .form-input:focus {
-        outline: none;
-        border-color: var(--vibe-primary);
-        background-color: white;
-        box-shadow: 0 0 0 3px rgba(108, 75, 221, 0.1);
-      }
-
-      .input-icon {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--vibe-text-light);
-      }
-
-      .error-message {
-        color: var(--vibe-error);
-        font-size: 0.9rem;
-        margin-top: 5px;
-        display: none;
-      }
-
-      .form-input.error {
-        border-color: var(--vibe-error);
-      }
-
-      .form-input.success {
-        border-color: var(--vibe-success);
-      }
-
-      .password-toggle {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: var(--vibe-text-light);
-        cursor: pointer;
-        font-size: 1rem;
-      }
-
-      .university-select {
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23777' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 15px center;
-        background-size: 16px;
-        padding-right: 40px;
-      }
-
-      .terms-group {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        margin-bottom: 25px;
-      }
-
-      .terms-checkbox {
-        margin-top: 5px;
-      }
-
-      .terms-label {
-        font-size: 0.9rem;
-        color: var(--vibe-text-light);
-      }
-
-      .terms-label a {
-        color: var(--vibe-primary);
-        text-decoration: none;
-        font-weight: 600;
-      }
-
-      .terms-label a:hover {
-        text-decoration: underline;
-      }
-
-      .btn {
-        padding: 15px 30px;
-        border-radius: 10px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        border: none;
-        font-size: 1rem;
-        width: 100%;
-      }
-
-      .btn-primary {
-        background-color: var(--vibe-primary);
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background-color: #5a3bc5;
-        transform: translateY(-2px);
-        box-shadow: 0 7px 15px rgba(108, 75, 221, 0.3);
-      }
-
-      .btn-google {
-        background-color: white;
-        color: var(--vibe-text);
-        border: 2px solid #e1e5f1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 15px;
-      }
-
-      .btn-google:hover {
-        border-color: var(--vibe-primary);
-        transform: translateY(-2px);
-      }
-
-      .divider {
-        display: flex;
-        align-items: center;
-        margin: 25px 0;
-        color: var(--vibe-text-light);
-      }
-
-      .divider::before,
-      .divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background-color: #e1e5f1;
-      }
-
-      .divider span {
-        padding: 0 15px;
-        font-size: 0.9rem;
-      }
-
-      .form-footer {
-        text-align: center;
-        margin-top: 30px;
-        font-size: 0.95rem;
-        color: var(--vibe-text-light);
-      }
-
-      .form-footer a {
-        color: var(--vibe-primary);
-        text-decoration: none;
-        font-weight: 600;
-      }
-
-      .form-footer a:hover {
-        text-decoration: underline;
-      }
-
-      /* Footer */
-      .footer {
-        background-color: var(--vibe-dark);
-        color: white;
-        padding: 30px 0;
-        margin-top: 40px;
-      }
-
-      .footer-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .footer-logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 700;
         font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .signup-hero {
+        padding: 25px;
+      }
+
+      .signup-form-side {
+        padding: 25px;
+      }
+
+      .hero-title {
+        font-size: 1.4rem;
+      }
+
+      .hero-subtitle {
+        font-size: 0.85rem;
+      }
+
+      .benefits li {
+        font-size: 0.8rem;
+      }
+
+      .form-title {
+        font-size: 1.3rem;
       }
 
       .footer-links {
-        display: flex;
-        gap: 20px;
+        gap: 15px;
       }
+    }
+  </style>
+</head>
 
-      .footer-links a {
-        color: white;
-        text-decoration: none;
-        opacity: 0.8;
-        transition: opacity 0.3s;
-      }
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-container">
+      <a href="{% url 'home' %}" class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-ticket-alt"></i>
+        </div>
+        <span class="logo-text">VibePass</span>
+      </a>
+      <a href="{% url 'home' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Home
+      </a>
+    </div>
+  </header>
 
-      .footer-links a:hover {
-        opacity: 1;
-      }
+  <!-- Django Messages -->
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+  {% endif %}
 
-      /* Responsive Styles */
-      @media (max-width: 992px) {
-        .signup-container {
-          flex-direction: column;
-          max-width: 600px;
-        }
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <div class="signup-card">
+        <!-- Left Side - Hero -->
+        <div class="signup-hero">
+          <h1 class="hero-title">Join the VibePass Community 🎉</h1>
+          <p class="hero-subtitle">Sign up now to unlock exclusive student events, parties, and experiences on campus
+            and beyond.</p>
+          <ul class="benefits">
+            <li>
+              <div class="benefit-icon"><i class="fas fa-calendar-star"></i></div>
+              <span>Discover curated events for students</span>
+            </li>
+            <li>
+              <div class="benefit-icon"><i class="fas fa-tags"></i></div>
+              <span>Exclusive student discounts & early-bird offers</span>
+            </li>
+            <li>
+              <div class="benefit-icon"><i class="fas fa-users"></i></div>
+              <span>Connect with other students</span>
+            </li>
+            <li>
+              <div class="benefit-icon"><i class="fas fa-bell"></i></div>
+              <span>Personalized event recommendations</span>
+            </li>
+          </ul>
+        </div>
 
-        .signup-visual,
-        .signup-form-container {
-          padding: 40px;
-        }
-
-        .signup-title {
-          font-size: 2.2rem;
-        }
-
-        .form-title {
-          font-size: 1.8rem;
-        }
-      }
-
-      @media (max-width: 768px) {
-        .form-row {
-          flex-direction: column;
-          gap: 0;
-        }
-
-        .signup-visual,
-        .signup-form-container {
-          padding: 30px;
-        }
-
-        .signup-title {
-          font-size: 1.8rem;
-        }
-
-        .footer-content {
-          flex-direction: column;
-          gap: 20px;
-          text-align: center;
-        }
-      }
-
-      @media (max-width: 576px) {
-        .signup-visual,
-        .signup-form-container {
-          padding: 25px;
-        }
-
-        .signup-title {
-          font-size: 1.6rem;
-        }
-
-        .form-title {
-          font-size: 1.5rem;
-        }
-
-        .form-input {
-          padding: 12px 12px 12px 40px;
-        }
-
-        .input-icon {
-          left: 12px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-      <div class="container nav-container">
-        <a href="index.html" class="logo">
-          <div class="logo-icon">
-            <i class="fas fa-ticket-alt"></i>
+        <!-- Right Side - Form -->
+        <div class="signup-form-side">
+          <div class="form-header">
+            <h2 class="form-title">Create Your Account</h2>
+            <p class="form-subtitle">Already have an account? <a href="{% url 'login' %}">Sign in here</a></p>
           </div>
-          VibePass
-        </a>
 
-        <a href="index.html" class="back-to-home">
-          <i class="fas fa-arrow-left"></i> Back to Home
-        </a>
-      </div>
-    </nav>
+          <form class="signup-form" method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
 
-      <!--Django messages-->
-    {% if messages %}
-      {% for message in messages %}
-         <div class="alert alert-warning alert-dismissible fade show" role="alert">
-           {{ message }}
-           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-         </div>
-      {% endfor %}
-    {% endif %}
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="container">
-        <div class="signup-container">
-          <!-- Left Side - Visual -->
-          <div class="signup-visual">
-            <h1 class="signup-title">Join the VibePass Community</h1>
-            <p class="signup-subtitle">
-              Sign up now to unlock exclusive student events, parties, and
-              experiences on campus and beyond.
-            </p>
-
-            <ul class="benefits-list">
-              <li>
-                <div class="benefit-icon">
-                  <i class="fas fa-calendar-star"></i>
-                </div>
-                <span>Discover curated events tailored for students</span>
-              </li>
-              <li>
-                <div class="benefit-icon">
-                  <i class="fas fa-tags"></i>
-                </div>
-                <span
-                  >Get exclusive student discounts and early-bird offers</span
-                >
-              </li>
-              <li>
-                <div class="benefit-icon">
-                  <i class="fas fa-users"></i>
-                </div>
-                <span
-                  >Connect with other students and build your social
-                  network</span
-                >
-              </li>
-              <li>
-                <div class="benefit-icon">
-                  <i class="fas fa-bell"></i>
-                </div>
-                <span>Receive personalized event recommendations</span>
-              </li>
-            </ul>
-          </div>
-     
-          <!-- Right Side - Form -->
-          <div class="signup-form-container">
-            <div class="form-header">
-              <h2 class="form-title">Create Your Account</h2>
-              <p class="form-subtitle">
-                Already have an account? <a href="{% url 'login' %}">Sign in here</a>
-              </p>
+            <!-- Username -->
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <div class="input-wrapper">
+                <i class="fas fa-user"></i>
+                <input type="text" name="username" class="form-input" placeholder="Choose a username" required>
+              </div>
             </div>
 
-            <form class="signup-form" id="signupForm" method="POST" action="{% url 'register' %}">
-              <!-- Username -->
-              {% csrf_token %}
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" for="firstName">Username</label>
-                  <div class="input-with-icon">
-                    <i class="fas fa-user input-icon"></i>
-                    <input
-                      type="text"
-                      id="username"
-                      class="form-input"
-                      placeholder="Enter your Username"
-                      name="username"
-                      required
-                    />
-                  </div>
-                </div>
+            <!-- Email -->
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <div class="input-wrapper">
+                <i class="fas fa-envelope"></i>
+                <input type="email" name="email" class="form-input" placeholder="student@university.edu" required>
               </div>
-             <!-- Email Address -->
-              <div class="form-group">
-                <label class="form-label" for="email">Email Address</label>
-                <div class="input-with-icon">
-                  <i class="fas fa-envelope input-icon"></i>
-                  <input
-                    type="email"
-                    id="email"
-                    class="form-input"
-                    placeholder="Enter your Email Address"
-                    name="email"
-                    required
-                  />
-                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <div class="input-wrapper">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" name="password" class="form-input"
+                  placeholder="Create a strong password" required>
+                <button type="button" class="password-toggle" id="togglePassword">
+                  <i class="fas fa-eye"></i>
+                </button>
               </div>
+            </div>
 
-              <!-- Password -->
-              <div class="form-group">
-                <label class="form-label" for="password">Password</label>
-                <div class="input-with-icon">
-                  <i class="fas fa-lock input-icon"></i>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    class="form-input"
-                    placeholder="Create a strong password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    class="password-toggle"
-                    id="togglePassword"
-                  >
-                    <i class="fas fa-eye"></i>
-                  </button>
-                </div>
-              </div>
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-rocket"></i> Create Account
+            </button>
 
-              <button type="submit" class="btn btn-primary" id="submitBtn">
-                Create Account
-              </button>
+            <!-- Divider -->
+            <div class="divider">
+              <div class="divider-line"></div>
+              <span>Or continue with</span>
+              <div class="divider-line"></div>
+            </div>
 
-              <div class="divider">
-                <span>Or sign up with</span>
-              </div>
-             <!-- Sign up with google-->
-              <a href="{% provider_login_url 'google' %}" type="button" class="btn btn-google">
-                <i class="fab fa-google"></i> Google
-              </a>
-            </form>
-
-          </div>
+            <!-- Google Sign Up -->
+            <a href="{% provider_login_url 'google' %}" class="btn btn-google">
+              <i class="fab fa-google"></i> Sign up with Google
+            </a>
+          </form>
         </div>
       </div>
-    </main>
+    </div>
+  </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="container footer-content">
-        <div class="footer-logo">
-          <div
-            class="logo-icon"
-            style="width: 30px; height: 30px; font-size: 1rem"
-          >
-            <i class="fas fa-ticket-alt"></i>
-          </div>
-          VibePass
-        </div>
-
-        <div class="footer-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-          <a href="#">Support</a>
-          <a href="#">Contact Us</a>
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">
+        <div class="logo-icon" style="width: 32px; height: 32px; margin: 0 auto;">
+          <i class="fas fa-ticket-alt"></i>
         </div>
       </div>
-    </footer>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Support</a>
+        <a href="#">Contact Us</a>
+      </div>
+      <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.6;">&copy; 2024 VibePass. All rights reserved.</p>
+    </div>
+  </footer>
 
-    <script>
-      // DOM Elements
-      const signupForm = document.getElementById("signupForm");
-      const firstNameInput = document.getElementById("firstName");
-      const lastNameInput = document.getElementById("lastName");
-      const emailInput = document.getElementById("email");
-      const universityInput = document.getElementById("university");
-      const passwordInput = document.getElementById("password");
-      const confirmPasswordInput = document.getElementById("confirmPassword");
-      const submitBtn = document.getElementById("submitBtn");
-      const togglePasswordBtn = document.getElementById("togglePassword");
-      const toggleConfirmPasswordBtn = document.getElementById(
-        "toggleConfirmPassword",
-      );
+  <script>
+    // Password visibility toggle
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
 
-      // Toggle Password Visibility
-      togglePasswordBtn.addEventListener("click", function () {
-        const type =
-          passwordInput.getAttribute("type") === "password"
-            ? "text"
-            : "password";
-        passwordInput.setAttribute("type", type);
-        this.innerHTML =
-          type === "password"
-            ? '<i class="fas fa-eye"></i>'
-            : '<i class="fas fa-eye-slash"></i>';
+    if (togglePassword && passwordInput) {
+      togglePassword.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
       });
-    </script>
-  </body>
+    }
+  </script>
+</body>
+
 </html>

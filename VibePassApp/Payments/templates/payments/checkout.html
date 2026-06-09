@@ -1,39 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>VibePass - Checkout | Complete Your Purchase</title>
+    <title>VibePass - Checkout</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Brand Colors */
+        /* New Brand Colors - Vibrant Orange & Teal */
         :root {
-            --vibe-primary: #6C4BDD;
-            --vibe-secondary: #00D4AA;
+            --vibe-primary: #FF6B35;
+            --vibe-primary-dark: #E85D2C;
+            --vibe-secondary: #00C9A7;
+            --vibe-secondary-dark: #00B092;
             --vibe-dark: #1A1A2E;
-            --vibe-light: #F8F9FF;
-            --vibe-accent: #FF6B9D;
-            --vibe-text: #333333;
-            --vibe-text-light: #777777;
+            --vibe-light: #FFF9F5;
+            --vibe-accent: #FFE66D;
+            --vibe-text: #2D2D3A;
+            --vibe-text-light: #6B6B7A;
             --vibe-card-bg: #FFFFFF;
-            --vibe-card-shadow: rgba(108, 75, 221, 0.08);
-            --vibe-success: #00C853;
-            --vibe-warning: #FF9800;
-            --vibe-danger: #FF4D4D;
+            --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+            --vibe-success: #00C9A7;
+            --vibe-danger: #FF4757;
             --vibe-info: #2196F3;
         }
 
-        /* Reset & Base Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, var(--vibe-light) 0%, #F0F2FF 100%);
+            background: linear-gradient(135deg, var(--vibe-light) 0%, #FFF5EF 100%);
             color: var(--vibe-text);
             line-height: 1.6;
             min-height: 100vh;
@@ -41,19 +40,20 @@
 
         .container {
             width: 100%;
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 clamp(12px, 4vw, 24px);
+            padding: 0 20px;
         }
 
         /* Header */
         .header {
-            background-color: var(--vibe-dark);
-            padding: clamp(12px, 3vw, 20px) 0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .header-container {
@@ -68,128 +68,116 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: white;
             text-decoration: none;
-            font-weight: 700;
-            font-size: clamp(1.3rem, 4vw, 1.8rem);
         }
 
         .logo-icon {
-            color: var(--vibe-secondary);
-            background: var(--vibe-primary);
-            width: clamp(35px, 8vw, 45px);
-            height: clamp(35px, 8vw, 45px);
+            background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+            width: 42px;
+            height: 42px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transform: rotate(-10deg);
-            flex-shrink: 0;
+        }
+
+        .logo-icon i {
+            font-size: 1.3rem;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .back-btn {
             color: white;
             text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-            padding: 8px 16px;
-            border-radius: 8px;
             background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
         }
 
         .back-btn:hover {
-            color: var(--vibe-secondary);
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--vibe-primary);
         }
 
-        /* Main Content */
+        /* Main Layout */
         .main-content {
-            padding: clamp(20px, 5vw, 50px) 0;
+            padding: 40px 0;
         }
 
-        /* Checkout Layout */
-        .checkout-layout {
+        .checkout-grid {
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 380px;
             gap: 30px;
         }
 
-        /* Checkout Form Section */
-        .checkout-form-section {
-            background: var(--vibe-card-bg);
-            border-radius: 20px;
-            padding: clamp(25px, 5vw, 35px);
-            box-shadow: 0 8px 30px var(--vibe-card-shadow);
+        /* Form Section */
+        .form-section {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
         }
 
-        .section-header {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--vibe-light);
-        }
-
-        .section-header h1 {
-            font-size: clamp(1.5rem, 4vw, 2rem);
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
             color: var(--vibe-dark);
             margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
-        .section-header p {
+        .section-subtitle {
             color: var(--vibe-text-light);
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         /* Progress Steps */
         .progress-steps {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            margin-bottom: 40px;
-            position: relative;
-        }
-
-        .progress-steps::before {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--vibe-light);
-            z-index: 1;
+            margin-bottom: 30px;
+            padding: 0 20px;
         }
 
         .step {
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             flex: 1;
-            position: relative;
-            z-index: 2;
         }
 
         .step-number {
-            width: 40px;
-            height: 40px;
-            background: var(--vibe-light);
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
+            background: #f0f0f0;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 10px;
             font-weight: 600;
             color: var(--vibe-text-light);
-            transition: all 0.3s;
         }
 
         .step.active .step-number {
             background: var(--vibe-primary);
             color: white;
-            box-shadow: 0 0 0 3px rgba(108, 75, 221, 0.2);
         }
 
         .step.completed .step-number {
@@ -197,15 +185,24 @@
             color: white;
         }
 
+        .step.completed .step-number i {
+            font-size: 0.8rem;
+        }
+
         .step-label {
             font-size: 0.85rem;
             color: var(--vibe-text-light);
-            font-weight: 500;
         }
 
         .step.active .step-label {
             color: var(--vibe-primary);
             font-weight: 600;
+        }
+
+        .step-line {
+            flex: 0.5;
+            height: 2px;
+            background: #f0f0f0;
         }
 
         /* Form Styles */
@@ -215,10 +212,10 @@
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
             font-weight: 600;
+            font-size: 0.85rem;
             color: var(--vibe-dark);
-            font-size: 0.95rem;
+            margin-bottom: 8px;
         }
 
         .form-label.required::after {
@@ -226,34 +223,33 @@
             color: var(--vibe-danger);
         }
 
-        .input-with-icon {
+        .input-wrapper {
             position: relative;
         }
 
-        .input-icon {
+        .input-wrapper i {
             position: absolute;
-            left: 15px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--vibe-text-light);
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .form-input {
             width: 100%;
-            padding: 14px 15px 14px 45px;
-            border: 2px solid #E1E5F1;
-            border-radius: 10px;
-            font-size: 1rem;
+            padding: 12px 15px 12px 42px;
+            border: 2px solid #E8E8E8;
+            border-radius: 12px;
+            font-size: 0.95rem;
             transition: all 0.3s;
-            background-color: var(--vibe-light);
+            background: white;
         }
 
         .form-input:focus {
             outline: none;
             border-color: var(--vibe-primary);
-            background-color: white;
-            box-shadow: 0 0 0 3px rgba(108, 75, 221, 0.1);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
         }
 
         .form-input.error {
@@ -262,214 +258,166 @@
 
         .error-message {
             color: var(--vibe-danger);
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             margin-top: 5px;
             display: none;
         }
 
         .form-help {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: var(--vibe-text-light);
-            margin-top: 6px;
+            margin-top: 5px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
-        /* Payment Methods */
-        .payment-methods {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
+        /* Payment Method */
         .payment-method {
-            padding: 15px;
-            border: 2px solid #E1E5F1;
-            border-radius: 10px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 15px;
+            padding: 15px;
+            border: 2px solid #E8E8E8;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s;
-            background: var(--vibe-light);
+            background: white;
         }
 
         .payment-method:hover {
             border-color: var(--vibe-primary);
-            transform: translateY(-2px);
         }
 
         .payment-method.selected {
             border-color: var(--vibe-primary);
-            background: rgba(108, 75, 221, 0.05);
+            background: rgba(255, 107, 53, 0.03);
         }
 
-        .payment-method i {
-            font-size: 1.5rem;
+        .payment-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(0, 201, 167, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--vibe-secondary);
+            font-size: 1.2rem;
         }
 
-        .payment-method span {
+        .payment-info h4 {
+            font-size: 0.95rem;
             font-weight: 600;
-            font-size: 0.9rem;
+            margin-bottom: 2px;
         }
 
-        /* M-PESA Details */
-        .mpesa-details {
-            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), rgba(108, 75, 221, 0.05));
-            border-radius: 15px;
+        .payment-info p {
+            font-size: 0.75rem;
+            color: var(--vibe-text-light);
+        }
+
+        /* M-PESA Instructions */
+        .mpesa-box {
+            background: var(--vibe-light);
+            border-radius: 16px;
             padding: 20px;
             margin-top: 20px;
         }
 
-        .mpesa-instructions {
+        .mpesa-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
         }
 
-        .instruction-step {
-            flex: 1;
-            text-align: center;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
+        .instructions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
         }
 
-        .instruction-step .step-num {
-            width: 30px;
-            height: 30px;
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: var(--vibe-text);
+        }
+
+        .instruction-num {
+            width: 22px;
+            height: 22px;
             background: var(--vibe-secondary);
-            color: var(--vibe-dark);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 10px;
+            font-size: 0.7rem;
             font-weight: 700;
-        }
-
-        /* Order Summary */
-        .order-summary {
-            background: var(--vibe-card-bg);
-            border-radius: 20px;
-            padding: clamp(20px, 4vw, 30px);
-            box-shadow: 0 8px 30px var(--vibe-card-shadow);
-            position: sticky;
-            top: 100px;
-        }
-
-        .summary-header {
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--vibe-light);
-            margin-bottom: 20px;
-        }
-
-        .summary-header h2 {
-            font-size: 1.3rem;
-            color: var(--vibe-dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .event-info {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .event-image {
-            width: 80px;
-            height: 80px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: white;
-            font-size: 1.5rem;
-            flex-shrink: 0;
         }
 
-        .event-details {
-            flex: 1;
-        }
-
-        .event-name {
-            font-weight: 700;
-            color: var(--vibe-dark);
-            margin-bottom: 5px;
-        }
-
-        .event-meta {
-            font-size: 0.85rem;
-            color: var(--vibe-text-light);
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        /* Price Breakdown */
-        .price-breakdown {
-            margin-bottom: 20px;
-        }
-
-        .price-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            color: var(--vibe-text);
-        }
-
-        .price-row.total {
-            border-top: 2px solid var(--vibe-light);
-            margin-top: 10px;
-            padding-top: 20px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--vibe-dark);
-        }
-
-        .price-amount {
+        .amount-box {
+            background: rgba(255, 107, 53, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
             font-weight: 600;
         }
 
-        .grand-total {
-            font-size: 1.3rem;
+        /* Terms */
+        .terms-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .terms-checkbox input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--vibe-primary);
+        }
+
+        .terms-checkbox label {
+            font-size: 0.85rem;
+            color: var(--vibe-text-light);
+        }
+
+        .terms-checkbox a {
             color: var(--vibe-primary);
+            text-decoration: none;
         }
 
         /* Buttons */
         .btn {
-            padding: 15px 25px;
-            border-radius: 10px;
+            padding: 14px 24px;
+            border-radius: 40px;
             font-weight: 600;
+            font-size: 0.95rem;
             cursor: pointer;
             transition: all 0.3s;
             border: none;
-            font-size: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
 
         .btn-primary {
-            background-color: var(--vibe-primary);
+            background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #5a3bc5;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(108, 75, 221, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
         }
 
         .btn-primary:disabled {
@@ -478,42 +426,97 @@
             transform: none;
         }
 
-        .btn-secondary {
-            background-color: var(--vibe-secondary);
+        /* Order Summary */
+        .order-summary {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 90px;
+            height: fit-content;
+        }
+
+        .summary-title {
+            font-size: 1.1rem;
+            font-weight: 700;
             color: var(--vibe-dark);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-secondary:hover {
-            background-color: #00b894;
-            transform: translateY(-3px);
+        .event-card {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
-        /* Loading State */
-        .loading {
-            position: relative;
-            pointer-events: none;
+        .event-img {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
         }
 
-        .loading::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            border: 2px solid white;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+        .event-details h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 3px;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        .event-details p {
+            font-size: 0.75rem;
+            color: var(--vibe-text-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        /* Success Modal */
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 0.85rem;
+        }
+
+        .price-row.total {
+            border-top: 2px solid #f0f0f0;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .total-amount {
+            color: var(--vibe-primary);
+            font-size: 1.1rem;
+        }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 0.75rem;
+            color: var(--vibe-text-light);
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -534,17 +537,16 @@
 
         .modal-content {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 40px;
             text-align: center;
-            max-width: 500px;
+            max-width: 400px;
             width: 100%;
-            animation: fadeIn 0.5s ease-out;
         }
 
         .modal-icon {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: var(--vibe-success);
             border-radius: 50%;
             display: flex;
@@ -552,227 +554,149 @@
             justify-content: center;
             margin: 0 auto 20px;
             color: white;
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
 
         .modal-title {
-            font-size: 1.5rem;
-            color: var(--vibe-dark);
+            font-size: 1.3rem;
+            font-weight: 700;
             margin-bottom: 10px;
         }
 
         .modal-text {
             color: var(--vibe-text-light);
-            margin-bottom: 25px;
-        }
-
-        /* Footer */
-        .footer {
-            background-color: var(--vibe-dark);
-            color: white;
-            padding: 30px 0;
-            margin-top: 60px;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: white;
-            text-decoration: none;
-            opacity: 0.8;
-            transition: opacity 0.3s;
             font-size: 0.9rem;
-        }
-
-        .footer-links a:hover {
-            opacity: 1;
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 992px) {
-            .checkout-layout {
-                grid-template-columns: 1fr;
-                gap: 25px;
-            }
-
-            .order-summary {
-                position: static;
-                order: -1;
-            }
-
-            .payment-methods {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .mpesa-instructions {
-                flex-direction: column;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .progress-steps {
-                margin-bottom: 30px;
-            }
-
-            .step-number {
-                width: 35px;
-                height: 35px;
-                font-size: 0.9rem;
-            }
-
-            .step-label {
-                font-size: 0.75rem;
-            }
-
-            .payment-methods {
-                grid-template-columns: 1fr;
-            }
-
-            .event-info {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .event-meta {
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .checkout-form-section {
-                padding: 20px;
-                border-radius: 15px;
-            }
-
-            .progress-steps {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .progress-steps::before {
-                display: none;
-            }
-
-            .step {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                text-align: left;
-            }
-
-            .step-number {
-                margin: 0;
-            }
-
-            .modal-content {
-                padding: 30px 20px;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .section-header h1 {
-                font-size: 1.3rem;
-            }
-
-            .payment-method {
-                padding: 12px;
-            }
-
-            .payment-method i {
-                font-size: 1.2rem;
-            }
-
-            .instruction-step {
-                padding: 12px;
-                font-size: 0.85rem;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .checkout-form-section,
-        .order-summary {
-            animation: fadeIn 0.5s ease-out;
+            margin-bottom: 25px;
         }
 
         /* Loading Overlay */
         .loading-overlay {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
+            flex-direction: column;
         }
 
         .loading-overlay.active {
             display: flex;
         }
 
-        .loading-content {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            max-width: 400px;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--vibe-primary);
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top-color: var(--vibe-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin-bottom: 20px;
         }
 
-        .loading-content h2 {
-            color: var(--vibe-dark);
-            font-size: 1.3rem;
-            margin-bottom: 10px;
+        .loading-overlay p {
+            color: white;
+            font-size: 1rem;
         }
 
-        .loading-content p {
-            color: var(--vibe-text-light);
-            font-size: 0.95rem;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--vibe-dark);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--vibe-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .checkout-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .order-summary {
+                position: static;
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .progress-steps {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .step {
+                flex: none;
+                width: 100%;
+            }
+            
+            .step-line {
+                display: none;
+            }
+            
+            .instructions {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-section {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .form-section {
+                padding: 20px;
+                border-radius: 20px;
+            }
+            
+            .section-title {
+                font-size: 1.2rem;
+            }
+            
+            .event-card {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+            
+            .modal-content {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
-
 <body>
     <!-- Header -->
     <header class="header">
@@ -781,9 +705,8 @@
                 <div class="logo-icon">
                     <i class="fas fa-ticket-alt"></i>
                 </div>
-                VibePass
+                <span class="logo-text">VibePass</span>
             </a>
-
             <a href="{% url 'event_details' event.slug %}" class="back-btn">
                 <i class="fas fa-arrow-left"></i> Back to Event
             </a>
@@ -793,104 +716,93 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="container">
-            <div class="checkout-layout">
-                <!-- Left Column - Checkout Form -->
-                <div class="checkout-form-section">
-                    <div class="section-header">
-                        <h1>
-                            <i class="fas fa-shopping-cart"></i> Complete Your Purchase
-                        </h1>
-                        <p>Enter your M-PESA number to complete the transaction</p>
-                    </div>
+            <div class="checkout-grid">
+                <!-- Checkout Form -->
+                <div class="form-section">
+                    <h1 class="section-title">Complete Your Purchase</h1>
+                    <p class="section-subtitle">Enter your M-PESA number to complete the transaction</p>
 
                     <!-- Progress Steps -->
                     <div class="progress-steps">
                         <div class="step completed">
-                            <div class="step-number">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="step-label">Event Details</div>
+                            <div class="step-number"><i class="fas fa-check"></i></div>
+                            <span class="step-label">Event Details</span>
                         </div>
+                        <div class="step-line"></div>
                         <div class="step active">
                             <div class="step-number">2</div>
-                            <div class="step-label">Payment</div>
+                            <span class="step-label">Payment</span>
                         </div>
+                        <div class="step-line"></div>
                         <div class="step">
                             <div class="step-number">3</div>
-                            <div class="step-label">Confirmation</div>
+                            <span class="step-label">Confirmation</span>
                         </div>
                     </div>
 
-                    <!-- Payment Form -->
                     <form id="checkoutForm" action="{% url 'initiate_payment' event.slug %}" method="post">
                         {% csrf_token %}
-                        <!-- Payment Method Selection -->
+                        
+                        <!-- Payment Method -->
                         <div class="form-group">
                             <label class="form-label required">Payment Method</label>
-                            <div class="payment-methods">
-                                <div class="payment-method selected" data-method="mpesa">
-                                    <i class="fas fa-mobile-alt" style="color: #4CAF50;"></i>
-                                    <span>M-PESA</span>
+                            <div class="payment-method selected" data-method="mpesa">
+                                <div class="payment-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="payment-info">
+                                    <h4>M-PESA</h4>
+                                    <p>Pay using your M-PESA account</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- M-PESA Payment Section -->
-                        <div id="mpesaSection">
-                            <div class="form-group">
-                                <label for="phoneNumber" class="form-label required">M-PESA Phone Number</label>
-                                <div class="input-with-icon">
-                                    <i class="fas fa-phone-alt input-icon"></i>
-                                    <input type="tel" id="phoneNumber" name="phone_number" class="form-input"
-                                        placeholder="0712 345 678" maxlength="10" required>
+                        <!-- Phone Number -->
+                        <div class="form-group">
+                            <label class="form-label required">M-PESA Phone Number</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-phone-alt"></i>
+                                <input type="tel" id="phoneNumber" name="phone_number" class="form-input" 
+                                    placeholder="0712 345 678" maxlength="10" required>
+                            </div>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i> Enter the M-PESA registered phone number
+                            </div>
+                            <div class="error-message" id="phoneError">Please enter a valid 10-digit M-PESA number</div>
+                        </div>
+
+                        <!-- M-PESA Instructions -->
+                        <div class="mpesa-box">
+                            <div class="mpesa-title">
+                                <i class="fas fa-mobile-alt"></i> How to pay via M-PESA:
+                            </div>
+                            <div class="instructions">
+                                <div class="instruction-item">
+                                    <span class="instruction-num">1</span>
+                                    <span>STK push will appear on your phone</span>
                                 </div>
-                                <div class="form-help">
-                                    <i class="fas fa-info-circle"></i> Enter the M-PESA registered phone number
+                                <div class="instruction-item">
+                                    <span class="instruction-num">2</span>
+                                    <span>Enter your M-PESA PIN</span>
                                 </div>
-                                <div class="error-message" id="phoneError">Please enter a valid 10-digit M-PESA number
+                                <div class="instruction-item">
+                                    <span class="instruction-num">3</span>
+                                    <span>Wait for confirmation</span>
+                                </div>
+                                <div class="instruction-item">
+                                    <span class="instruction-num">4</span>
+                                    <span>Done! Ticket will be sent</span>
                                 </div>
                             </div>
-
-                            <!-- M-PESA Instructions -->
-                            <div class="mpesa-details">
-                                <h4 style="margin-bottom: 15px; color: var(--vibe-dark);">
-                                    <i class="fas fa-mobile-alt"></i> How to pay via M-PESA:
-                                </h4>
-                                <div class="mpesa-instructions">
-                                    <div class="instruction-step">
-                                        <div class="step-num">1</div>
-                                        <div>On your phone a stk pop up will appear</div>
-                                    </div>
-                                    <div class="instruction-step">
-                                        <div class="step-num">2</div>
-                                        <div>Enter your M-PESA PIN</div>
-                                    </div>
-                                    <div class="instruction-step">
-                                        <div class="step-num">3</div>
-                                        <div>Wait untill payment is confirmed</div>
-                                    </div>
-                                    <div class="instruction-step">
-                                        <div class="step-num">4</div>
-                                        <div>Done transaction is complete</div>
-                                    </div>
-                                </div>
-                                <div class="form-help" style="margin-top: 10px;">
-                                    <i class="fas fa-clock"></i> You'll receive a Ticket within seconds
-                                </div>
-                                <div style="margin-top: 10px; font-weight: 600;">Amount to Pay: <span id="mpesaAmountDisplay">KES {{ event.Event_ticket_price }}</span></div>
+                            <div class="amount-box">
+                                Amount to Pay: <strong id="mpesaAmountDisplay">KES {{ event.Event_ticket_price }}</strong>
                             </div>
                         </div>
 
-                        <!-- Terms and Conditions -->
-                        <div class="form-group" style="margin-top: 25px;">
-                            <div style="display: flex; align-items: flex-start; gap: 10px;">
-                                <input type="checkbox" id="termsCheckbox" style="margin-top: 3px;">
-                                <label for="termsCheckbox" style="font-size: 0.9rem; color: var(--vibe-text-light);">
-                                    I agree to the <a href="#" style="color: var(--vibe-primary);">Terms of Service</a>
-                                    and
-                                    <a href="#" style="color: var(--vibe-primary);">Privacy Policy</a>
-                                </label>
-                            </div>
+                        <!-- Terms -->
+                        <div class="terms-checkbox">
+                            <input type="checkbox" id="termsCheckbox">
+                            <label>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
                         </div>
 
                         <!-- Submit Button -->
@@ -898,65 +810,50 @@
                             <i class="fas fa-lock"></i> Complete Payment
                         </button>
 
-                        <p
-                            style="text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--vibe-text-light);">
+                        <div class="secure-badge">
                             <i class="fas fa-shield-alt"></i> Your payment is secure and encrypted
-                        </p>
+                        </div>
                     </form>
                 </div>
 
-                <!-- Right Column - Order Summary -->
+                <!-- Order Summary -->
                 <div class="order-summary">
-                    <div class="summary-header">
-                        <h2>
-                            <i class="fas fa-receipt"></i> Order Summary
-                        </h2>
+                    <div class="summary-title">
+                        <i class="fas fa-receipt"></i> Order Summary
                     </div>
 
-                    <!-- Event Information -->
-                    <div class="event-info">
-                        <div class="event-image">
-                            <i class="fas fa-glass-cheers"></i>
+                    <div class="event-card">
+                        <div class="event-img">
+                            <i class="fas fa-ticket-alt"></i>
                         </div>
                         <div class="event-details">
-                            <div class="event-name">{{ event.Event_title }}</div>
-                            <div class="event-meta">
-                                <span><i class="far fa-calendar"></i> {{ event.Event_date }}</span>
-                                <span><i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}</span>
-                            </div>
+                            <h4>{{ event.Event_title }}</h4>
+                            <p><i class="far fa-calendar"></i> {{ event.Event_date }} &nbsp;|&nbsp; <i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}</p>
                         </div>
                     </div>
 
-                    <!-- Ticket Details -->
-                    <div class="price-breakdown">
-                        <div class="price-row">
-                            <span>Ticket Type</span>
-                            <span id="ticketTypeDisplay">General</span>
-                        </div>
-                        <div class="price-row">
-                            <span>Quantity</span>
-                            <span id="quantityDisplay">1 tickets</span>
-                        </div>
-                        <div class="price-row">
-                            <span>Unit Price</span>
-                            <span id="unitPriceDisplay">KES {{ event.Event_ticket_price }}</span>
-                        </div>
-                        <div class="price-row">
-                            <span>Subtotal</span>
-                            <span id="subtotalDisplay">KES {{ event.Event_ticket_price }}</span>
-                        </div>
-                        <div class="price-row">
-                            <span>Processing Fee</span>
-                            <span id="feeDisplay">KES 0</span>
-                        </div>
-                        <div class="price-row total">
-                            <span>Total Amount</span>
-                            <span class="price-amount" id="totalAmountDisplay">KES {{ event.Event_ticket_price }}</span>
-                        </div>
+                    <div class="price-row">
+                        <span>Ticket Type</span>
+                        <span>General Admission</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Quantity</span>
+                        <span>1 ticket</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Unit Price</span>
+                        <span>KES {{ event.Event_ticket_price }}</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Processing Fee</span>
+                        <span>KES 0</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total Amount</span>
+                        <span class="total-amount">KES {{ event.Event_ticket_price }}</span>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
     </main>
 
@@ -967,9 +864,7 @@
                 <i class="fas fa-check"></i>
             </div>
             <h3 class="modal-title">Payment Successful!</h3>
-            <p class="modal-text">
-                Your tickets have been booked successfully. A confirmation SMS has been sent to your phone.
-            </p>
+            <p class="modal-text">Your tickets have been booked successfully. A confirmation SMS has been sent to your phone.</p>
             <button class="btn btn-primary" id="viewTicketsBtn">
                 <i class="fas fa-ticket-alt"></i> View My Tickets
             </button>
@@ -978,23 +873,15 @@
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <h2>Processing Payment</h2>
-            <p>Please complete the M-PESA prompt on your phone and wait...</p>
-        </div>
+        <div class="spinner"></div>
+        <p>Processing Payment...</p>
+        <p style="font-size: 0.85rem; opacity: 0.7;">Please complete the M-PESA prompt on your phone</p>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container footer-content">
-            <div class="footer-logo">
-                <div class="logo-icon" style="width: 30px; height: 30px; font-size: 0.9rem;">
-                    <i class="fas fa-ticket-alt"></i>
-                </div>
-                VibePass
-            </div>
-
+        <div class="container">
+            <p>&copy; 2024 VibePass. All rights reserved.</p>
             <div class="footer-links">
                 <a href="#">Privacy Policy</a>
                 <a href="#">Terms of Service</a>
@@ -1005,15 +892,7 @@
     </footer>
 
     <script>
-        // Get event price from the page
-
-        // Update order summary display
-        document.getElementById('ticketTypeDisplay').textContent = 'General';
-        document.getElementById('quantityDisplay').textContent = '1 ticket';
-        document.getElementById('unitPriceDisplay').textContent = `KES ${eventPrice.toLocaleString()}`;
-        document.getElementById('subtotalDisplay').textContent = `KES ${eventPrice.toLocaleString()}`;
-        document.getElementById('feeDisplay').textContent = 'KES 0';
-        document.getElementById('totalAmountDisplay').textContent = `KES ${eventPrice.toLocaleString()}`;
+        const eventPrice = '{{ event.Event_ticket_price|default:0 }}';
 
         // Update M-PESA amount display
         const mpesaAmountDisplay = document.getElementById('mpesaAmountDisplay');
@@ -1022,8 +901,6 @@
         }
 
         // DOM Elements
-        const paymentMethods = document.querySelectorAll('.payment-method');
-        const mpesaSection = document.getElementById('mpesaSection');
         const phoneInput = document.getElementById('phoneNumber');
         const termsCheckbox = document.getElementById('termsCheckbox');
         const payNowBtn = document.getElementById('payNowBtn');
@@ -1032,66 +909,16 @@
         const loadingOverlay = document.getElementById('loadingOverlay');
         const viewTicketsBtn = document.getElementById('viewTicketsBtn');
 
-        // Payment method switching
-        paymentMethods.forEach(method => {
-            method.addEventListener('click', function () {
-                // Remove selected class from all methods
-                paymentMethods.forEach(m => m.classList.remove('selected'));
-                // Add selected class to clicked method
-                this.classList.add('selected');
-            });
-        });
-
         // Phone number validation
         function validatePhoneNumber(phone) {
-            // Remove any non-digit characters
             const cleaned = phone.replace(/\D/g, '');
-            // Check if it's a valid Kenyan phone number (10 digits starting with 07 or 01)
             return /^(07|01)\d{8}$/.test(cleaned);
         }
 
-        phoneInput.addEventListener('input', function () {
+        phoneInput.addEventListener('input', function() {
             let value = this.value.replace(/\D/g, '');
             if (value.length > 10) value = value.slice(0, 10);
-            this.value = value;
-
-            const errorElement = document.getElementById('phoneError');
-            if (value.length === 10 && validatePhoneNumber(value)) {
-                this.classList.remove('error');
-                errorElement.style.display = 'none';
-            } else if (value.length > 0 && value.length < 10) {
-                this.classList.add('error');
-                errorElement.style.display = 'block';
-                errorElement.textContent = 'Please enter a valid 10-digit M-PESA number';
-            }
-        });
-
-        phoneInput.addEventListener('blur', function () {
-            const value = this.value;
-            const errorElement = document.getElementById('phoneError');
-            if (value && !validatePhoneNumber(value)) {
-                this.classList.add('error');
-                errorElement.style.display = 'block';
-                errorElement.textContent = 'Please enter a valid M-PESA number (starting with 07 or 01)';
-            }
-        });
-
-       ment.body.style.overflow = 'hidden';
-
-      
-        // Close modal when clicking outside
-        successModal.addEventListener('click', function (e) {
-            if (e.target === this) {
-                this.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            }
-        });
-
-        // Format phone number as user types
-        phoneInput.addEventListener('input', function (e) {
-            let value = this.value.replace(/\D/g, '');
-            if (value.length > 10) value = value.slice(0, 10);
-
+            
             // Format as 0712 345 678
             if (value.length > 6) {
                 this.value = `${value.slice(0, 4)} ${value.slice(4, 7)} ${value.slice(7)}`;
@@ -1102,8 +929,60 @@
             }
         });
 
-        init();
+        phoneInput.addEventListener('blur', function() {
+            const rawValue = this.value.replace(/\D/g, '');
+            const errorElement = document.getElementById('phoneError');
+            if (rawValue && !validatePhoneNumber(rawValue)) {
+                this.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                this.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+        });
+
+        // Form submission
+        checkoutForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const phoneNumber = phoneInput.value.replace(/\D/g, '');
+            
+            if (!phoneNumber || !validatePhoneNumber(phoneNumber)) {
+                phoneInput.classList.add('error');
+                document.getElementById('phoneError').style.display = 'block';
+                phoneInput.focus();
+                return;
+            }
+            
+            if (!termsCheckbox.checked) {
+                alert('Please agree to the Terms of Service and Privacy Policy');
+                return;
+            }
+            
+            // Show loading overlay
+            loadingOverlay.classList.add('active');
+            payNowBtn.disabled = true;
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                loadingOverlay.classList.remove('active');
+                successModal.classList.add('active');
+                payNowBtn.disabled = false;
+            }, 2000);
+        });
+
+        // View tickets button
+        viewTicketsBtn.addEventListener('click', function() {
+            successModal.classList.remove('active');
+            window.location.href = 'user-dashboard.html';
+        });
+
+        // Close modal on outside click
+        successModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
     </script>
 </body>
-
 </html>

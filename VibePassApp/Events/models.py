@@ -15,6 +15,17 @@ def validate_image_size(file):
 # Event model
 class Event(models.Model):
 
+    EVENT_CATEGORIES = [
+        ('live music', 'Live Music'),
+        ('sports', 'Sports'),
+        ('workshop', 'Workshop'),
+        ('campus parties', 'Campus Parties'),
+        ('tech events', 'Tech Events'),
+        ('networking', 'Networking'),
+        ('festivals', 'Festivals'),
+        ('other', 'Other'),
+    ]
+    
     # Event basic info
     Event_organiser = models.ForeignKey(
         'Users.User', 
@@ -24,7 +35,7 @@ class Event(models.Model):
     Event_title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
     Event_flyer = CloudinaryField('image', allowed_formats=['jpg', 'jpeg', 'png'], validators=[validate_image_size])
-    Event_category = models.CharField(max_length=50, default='other')
+    Event_category = models.CharField(max_length=50, choices=EVENT_CATEGORIES, default='other')
     Event_details = models.TextField()
     Event_location = models.CharField(max_length=200)
     Event_date = models.DateField()
