@@ -16,7 +16,7 @@ import os
 @login_required
 def initiate_payment(request, slug):
     event = get_object_or_404(Event, slug=slug)
-    amount = event.Event_ticket_price
+    amount = event.min_ticket_price
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number', '').strip()
         if not phone_number:

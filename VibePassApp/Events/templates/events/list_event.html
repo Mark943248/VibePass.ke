@@ -1,1063 +1,1270 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-  <title>VibePass - Discover Events</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* Modern Brand Colors - Vibrant & Appealing */
-    :root {
-      --vibe-primary: #FF6B35;
-      --vibe-primary-dark: #E85D2C;
-      --vibe-secondary: #00C9A7;
-      --vibe-secondary-dark: #00B092;
-      --vibe-dark: #1A1A2E;
-      --vibe-light: #FFF9F5;
-      --vibe-accent: #FFE66D;
-      --vibe-gradient-start: #FF6B35;
-      --vibe-gradient-end: #FF8C42;
-      --vibe-text: #2D2D3A;
-      --vibe-text-light: #6B6B7A;
-      --vibe-card-bg: #FFFFFF;
-      --vibe-card-shadow: rgba(255, 107, 53, 0.08);
-      --vibe-success: #00C9A7;
-      --vibe-warning: #FFC107;
-      --vibe-danger: #FF4757;
-      --vibe-purple: #A05EFF;
-      --vibe-pink: #FF6B9D;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background: linear-gradient(135deg, var(--vibe-light) 0%, #FFF5EF 100%);
-      color: var(--vibe-text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 clamp(16px, 4vw, 32px);
-    }
-
-    /* Header */
-    .header {
-      background: rgba(26, 26, 46, 0.95);
-      backdrop-filter: blur(10px);
-      padding: clamp(12px, 3vw, 18px) 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .header-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-
-    .logo-icon {
-      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
-      width: clamp(40px, 8vw, 50px);
-      height: clamp(40px, 8vw, 50px);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
-    }
-
-    .logo-icon i {
-      font-size: clamp(1.3rem, 3vw, 1.8rem);
-      color: white;
-    }
-
-    .logo-text {
-      font-size: clamp(1.3rem, 4vw, 1.8rem);
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: clamp(20px, 4vw, 40px);
-      list-style: none;
-    }
-
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s;
-    }
-
-    .nav-links a:hover,
-    .nav-links a.active {
-      color: var(--vibe-primary);
-    }
-
-    .nav-buttons {
-      display: flex;
-      gap: 12px;
-    }
-
-    .btn-outline-light {
-      background: transparent;
-      border: 2px solid var(--vibe-primary);
-      color: var(--vibe-primary);
-      padding: 8px 20px;
-      border-radius: 30px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .btn-outline-light:hover {
-      background: var(--vibe-primary);
-      color: white;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
-      border: none;
-      padding: 8px 24px;
-      border-radius: 30px;
-      font-weight: 600;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
-    }
-
-    .mobile-menu-btn {
-      display: none;
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    /* Page Header */
-    .page-header {
-      padding: clamp(30px, 5vw, 50px) 0 clamp(20px, 4vw, 30px);
-      text-align: center;
-    }
-
-    .page-title {
-      font-size: clamp(1.8rem, 5vw, 2.5rem);
-      font-weight: 800;
-      color: var(--vibe-dark);
-      margin-bottom: 15px;
-    }
-
-    .page-subtitle {
-      color: var(--vibe-text-light);
-      font-size: clamp(1rem, 2.5vw, 1.1rem);
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    /* Search & Filter Section */
-    .search-section {
-      background: white;
-      border-radius: 20px;
-      padding: clamp(20px, 4vw, 30px);
-      margin-bottom: 30px;
-      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
-    }
-
-    .search-bar {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-    }
-
-    .search-input-wrapper {
-      flex: 1;
-      position: relative;
-      min-width: 200px;
-    }
-
-    .search-input-wrapper i {
-      position: absolute;
-      left: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--vibe-text-light);
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 14px 18px 14px 48px;
-      border: 2px solid #f0f0f0;
-      border-radius: 50px;
-      font-size: 1rem;
-      transition: all 0.3s;
-    }
-
-    .search-input:focus {
-      outline: none;
-      border-color: var(--vibe-primary);
-      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-    }
-
-    .filter-toggle {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .filter-toggle-btn {
-      background: var(--vibe-light);
-      border: none;
-      padding: 10px 20px;
-      border-radius: 30px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .filter-toggle-btn.active {
-      background: var(--vibe-primary);
-      color: white;
-    }
-
-    /* Category Filters */
-    .category-filters {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #f0f0f0;
-      display: none;
-    }
-
-    .category-filters.show {
-      display: block;
-    }
-
-    .category-title {
-      font-weight: 600;
-      margin-bottom: 15px;
-      color: var(--vibe-dark);
-    }
-
-    .category-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .category-btn {
-      padding: 8px 20px;
-      border-radius: 30px;
-      border: 2px solid #f0f0f0;
-      color: var(--vibe-dark);
-      text-decoration: none;
-      background: white;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .category-btn:hover {
-      border-color: var(--vibe-primary);
-      color: var(--vibe-primary);
-    }
-
-    .category-btn.active {
-      background: var(--vibe-primary);
-      border-color: var(--vibe-primary);
-      color: white;
-    }
-
-    /* Events Grid */
-    .events-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 30px;
-      margin-bottom: 40px;
-    }
-
-    .event-card {
-      background: white;
-      border-radius: 20px;
-      overflow: hidden;
-      transition: all 0.3s;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-      cursor: pointer;
-    }
-
-    .event-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(255, 107, 53, 0.15);
-    }
-
-    .event-image {
-      height: 200px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .event-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s;
-    }
-
-    .event-card:hover .event-image img {
-      transform: scale(1.05);
-    }
-
-    .event-category {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      background: var(--vibe-primary);
-      color: white;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .event-date {
-      position: absolute;
-      bottom: 15px;
-      right: 15px;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 5px 12px;
-      border-radius: 10px;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    .event-content {
-      padding: 20px;
-    }
-
-    .event-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: var(--vibe-dark);
-    }
-
-    .event-meta {
-      display: flex;
-      gap: 15px;
-      font-size: 0.85rem;
-      color: var(--vibe-text-light);
-      margin-bottom: 15px;
-      flex-wrap: wrap;
-    }
-
-    .event-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #f0f0f0;
-    }
-
-    .event-price {
-      font-weight: 700;
-      color: var(--vibe-primary);
-      font-size: 1.2rem;
-    }
-
-    .free-badge {
-      background: var(--vibe-success);
-      color: white;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    .btn-small {
-      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
-      color: white;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 25px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 0.85rem;
-    }
-
-    /* Pagination */
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
-    .page-btn {
-      width: 45px;
-      height: 45px;
-      border-radius: 12px;
-      border: 2px solid #f0f0f0;
-      background: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .page-btn:hover {
-      border-color: var(--vibe-primary);
-      color: var(--vibe-primary);
-    }
-
-    .page-btn.active {
-      background: var(--vibe-primary);
-      border-color: var(--vibe-primary);
-      color: white;
-    }
-
-    .page-btn.disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* No Results */
-    .no-results {
-      text-align: center;
-      padding: 60px 20px;
-      background: white;
-      border-radius: 20px;
-    }
-
-    /* Footer */
-    .footer {
-      background-color: var(--vibe-dark);
-      color: white;
-      padding: 50px 0 30px;
-      margin-top: 60px;
-    }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 40px;
-      margin-bottom: 40px;
-    }
-
-    .footer-col h3 {
-      font-size: 1.1rem;
-      margin-bottom: 20px;
-    }
-
-    .footer-col p {
-      opacity: 0.7;
-      line-height: 1.8;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .social-links a {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      transition: all 0.3s;
-    }
-
-    .social-links a:hover {
-      background: var(--vibe-primary);
-      transform: translateY(-3px);
-    }
-
-    .footer-links {
-      list-style: none;
-    }
-
-    .footer-links li {
-      margin-bottom: 12px;
-    }
-
-    .footer-links a {
-      color: rgba(255, 255, 255, 0.7);
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-
-    .footer-links a:hover {
-      color: var(--vibe-primary);
-    }
-
-    .footer-bottom {
-      text-align: center;
-      padding-top: 30px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      opacity: 0.7;
-      font-size: 0.9rem;
-    }
-
-    /* Floating Buttons - Opposite Sides */
-    .float-btn-left {
-      position: fixed;
-      bottom: 30px;
-      left: 30px;
-      z-index: 1000;
-    }
-
-    .float-btn-right {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      z-index: 1000;
-    }
-
-    .float-btn {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-      position: relative;
-    }
-
-    .float-btn:hover {
-      transform: scale(1.1);
-    }
-
-    .float-btn i {
-      font-size: 1.5rem;
-      color: white;
-    }
-
-    .btn-whatsapp {
-      background: #25D366;
-    }
-
-    .btn-whatsapp:hover {
-      background: #128C7E;
-    }
-
-    .btn-phone {
-      background: #FF4757;
-    }
-
-    .btn-phone:hover {
-      background: #E8414F;
-    }
-
-    .tooltip-left {
-      position: absolute;
-      left: 70px;
-      background: var(--vibe-dark);
-      color: white;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      white-space: nowrap;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s;
-    }
-
-    .tooltip-right {
-      position: absolute;
-      right: 70px;
-      background: var(--vibe-dark);
-      color: white;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      white-space: nowrap;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s;
-    }
-
-    .float-btn:hover .tooltip-left {
-      opacity: 1;
-      visibility: visible;
-      left: 65px;
-    }
-
-    .float-btn:hover .tooltip-right {
-      opacity: 1;
-      visibility: visible;
-      right: 65px;
-    }
-
-    /* Responsive */
-    @media (max-width: 992px) {
-      .events-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      }
-    }
-
-    @media (max-width: 768px) {
-      .mobile-menu-btn {
-        display: block;
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes"
+    />
+    <title>VibePass - Discover Events</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+      /* Modern Brand Colors - Vibrant & Appealing */
+      :root {
+        --vibe-primary: #ff6b35;
+        --vibe-primary-dark: #e85d2c;
+        --vibe-secondary: #00c9a7;
+        --vibe-secondary-dark: #00b092;
+        --vibe-dark: #1a1a2e;
+        --vibe-light: #fff9f5;
+        --vibe-accent: #ffe66d;
+        --vibe-gradient-start: #ff6b35;
+        --vibe-gradient-end: #ff8c42;
+        --vibe-text: #2d2d3a;
+        --vibe-text-light: #6b6b7a;
+        --vibe-card-bg: #ffffff;
+        --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+        --vibe-success: #00c9a7;
+        --vibe-warning: #ffc107;
+        --vibe-danger: #ff4757;
+        --vibe-purple: #a05eff;
+        --vibe-pink: #ff6b9d;
       }
 
-      .nav-links,
-      .nav-buttons {
-        display: none;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       }
 
-      .nav-links.active,
-      .nav-buttons.active {
+      body {
+        background: linear-gradient(135deg, var(--vibe-light) 0%, #fff5ef 100%);
+        color: var(--vibe-text);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 clamp(16px, 4vw, 32px);
+      }
+
+      /* Header */
+      .header {
+        background: rgba(26, 26, 46, 0.95);
+        backdrop-filter: blur(10px);
+        padding: clamp(12px, 3vw, 18px) 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .header-container {
         display: flex;
-        flex-direction: column;
-        width: 100%;
-        order: 3;
-        margin-top: 20px;
-      }
-
-      .nav-links.active {
-        flex-direction: column;
+        justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
       }
 
-      .search-bar {
-        flex-direction: column;
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
       }
 
-      .events-grid {
-        grid-template-columns: 1fr;
+      .logo-icon {
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-gradient-end)
+        );
+        width: clamp(40px, 8vw, 50px);
+        height: clamp(40px, 8vw, 50px);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
       }
 
-      .float-btn-left,
-      .float-btn-right {
-        bottom: 20px;
+      .logo-icon i {
+        font-size: clamp(1.3rem, 3vw, 1.8rem);
+        color: white;
       }
 
-      .float-btn-left {
-        left: 20px;
+      .logo-text {
+        font-size: clamp(1.3rem, 4vw, 1.8rem);
+        font-weight: 800;
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-secondary)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
       }
 
-      .float-btn-right {
-        right: 20px;
+      .nav-links {
+        display: flex;
+        gap: clamp(20px, 4vw, 40px);
+        list-style: none;
       }
 
-      .float-btn {
-        width: 45px;
-        height: 45px;
-      }
-    }
-
-    @media (max-width: 576px) {
-      .event-meta {
-        flex-direction: column;
-        gap: 5px;
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
       }
 
-      .event-footer {
-        flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--vibe-primary);
       }
 
-      .btn-small {
-        width: 100%;
+      .nav-buttons {
+        display: flex;
+        gap: 12px;
+      }
+
+      .btn-outline-light {
+        background: transparent;
+        border: 2px solid var(--vibe-primary);
+        color: var(--vibe-primary);
+        padding: 8px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-outline-light:hover {
+        background: var(--vibe-primary);
+        color: white;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-gradient-end)
+        );
+        border: none;
+        padding: 8px 24px;
+        border-radius: 30px;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+      }
+
+      .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      /* Page Header */
+      .page-header {
+        padding: clamp(30px, 5vw, 50px) 0 clamp(20px, 4vw, 30px);
         text-align: center;
       }
 
-      .category-buttons {
-        justify-content: center;
+      .page-title {
+        font-size: clamp(1.8rem, 5vw, 2.5rem);
+        font-weight: 800;
+        color: var(--vibe-dark);
+        margin-bottom: 15px;
       }
 
+      .page-subtitle {
+        color: var(--vibe-text-light);
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+        max-width: 700px;
+        margin: 0 auto;
+      }
+
+      /* Search & Filter Section */
+      .search-section {
+        background: white;
+        border-radius: 20px;
+        padding: clamp(20px, 4vw, 30px);
+        margin-bottom: 30px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
+      }
+
+      .search-bar {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .search-input-wrapper {
+        flex: 1;
+        position: relative;
+        min-width: 200px;
+      }
+
+      .search-input-wrapper i {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--vibe-text-light);
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 14px 18px 14px 48px;
+        border: 2px solid #f0f0f0;
+        border-radius: 50px;
+        font-size: 1rem;
+        transition: all 0.3s;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: var(--vibe-primary);
+        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+      }
+
+      .filter-toggle {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .filter-toggle-btn {
+        background: var(--vibe-light);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .filter-toggle-btn.active {
+        background: var(--vibe-primary);
+        color: white;
+      }
+
+      /* Category Filters */
+      .category-filters {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #f0f0f0;
+        display: none;
+      }
+
+      .category-filters.show {
+        display: block;
+      }
+
+      .category-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: var(--vibe-dark);
+      }
+
+      .category-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .category-btn {
+        padding: 8px 20px;
+        border-radius: 30px;
+        border: 2px solid #f0f0f0;
+        color: var(--vibe-dark);
+        text-decoration: none;
+        background: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .category-btn:hover {
+        border-color: var(--vibe-primary);
+        color: var(--vibe-primary);
+      }
+
+      .category-btn.active {
+        background: var(--vibe-primary);
+        border-color: var(--vibe-primary);
+        color: white;
+      }
+
+      /* Events Grid - Responsive: 3 columns on desktop, 2 on tablet, 1 on mobile */
+      .events-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      .event-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .event-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(255, 107, 53, 0.15);
+      }
+
+      .event-image {
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .event-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s;
+      }
+
+      .event-card:hover .event-image img {
+        transform: scale(1.05);
+      }
+
+      .event-category {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: var(--vibe-primary);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .event-date {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .event-content {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .event-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--vibe-dark);
+        line-height: 1.3;
+      }
+
+      .event-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: var(--vibe-text-light);
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+      }
+
+      .event-description {
+        color: var(--vibe-text-light);
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .event-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+      }
+
+      .event-price {
+        font-weight: 700;
+        color: var(--vibe-primary);
+        font-size: 1.2rem;
+      }
+
+      .free-badge {
+        background: var(--vibe-success);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .btn-small {
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-gradient-end)
+        );
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-small:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+      }
+
+      /* Pagination */
       .pagination {
-        gap: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+        flex-wrap: wrap;
       }
 
       .page-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 0.85rem;
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        border: 2px solid #f0f0f0;
+        background: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: var(--vibe-text);
       }
-    }
 
-    /* Animations */
-    @keyframes fadeInUp {
-      from {
+      .page-btn:hover {
+        border-color: var(--vibe-primary);
+        color: var(--vibe-primary);
+      }
+
+      .page-btn.active {
+        background: var(--vibe-primary);
+        border-color: var(--vibe-primary);
+        color: white;
+      }
+
+      .page-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* No Results */
+      .no-results {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 20px;
+      }
+
+      /* Footer */
+      .footer {
+        background-color: var(--vibe-dark);
+        color: white;
+        padding: 50px 0 30px;
+        margin-top: 60px;
+      }
+
+      .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        margin-bottom: 40px;
+      }
+
+      .footer-col h3 {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+      }
+
+      .footer-col p {
+        opacity: 0.7;
+        line-height: 1.8;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .social-links a {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.3s;
+        text-decoration: none;
+      }
+
+      .social-links a:hover {
+        background: var(--vibe-primary);
+        transform: translateY(-3px);
+      }
+
+      .footer-links {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 12px;
+      }
+
+      .footer-links a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer-links a:hover {
+        color: var(--vibe-primary);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 30px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        opacity: 0.7;
+        font-size: 0.9rem;
+      }
+
+      /* Floating Buttons - Opposite Sides */
+      .float-btn-left {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        z-index: 1000;
+      }
+
+      .float-btn-right {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 1000;
+      }
+
+      .float-btn {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        position: relative;
+        text-decoration: none;
+      }
+
+      .float-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .float-btn i {
+        font-size: 1.5rem;
+        color: white;
+      }
+
+      .btn-whatsapp {
+        background: #25d366;
+      }
+
+      .btn-whatsapp:hover {
+        background: #128c7e;
+      }
+
+      .btn-phone {
+        background: #ff4757;
+      }
+
+      .btn-phone:hover {
+        background: #e8414f;
+      }
+
+      .tooltip-left {
+        position: absolute;
+        left: 70px;
+        background: var(--vibe-dark);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        white-space: nowrap;
         opacity: 0;
-        transform: translateY(30px);
+        visibility: hidden;
+        transition: all 0.3s;
       }
 
-      to {
+      .tooltip-right {
+        position: absolute;
+        right: 70px;
+        background: var(--vibe-dark);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
+      }
+
+      .float-btn:hover .tooltip-left {
         opacity: 1;
-        transform: translateY(0);
+        visibility: visible;
+        left: 65px;
       }
-    }
 
-    .event-card {
-      animation: fadeInUp 0.5s ease-out forwards;
-    }
-  </style>
-</head>
+      .float-btn:hover .tooltip-right {
+        opacity: 1;
+        visibility: visible;
+        right: 65px;
+      }
 
-<body>
+      /* ============================================
+       RESPONSIVE GRID BREAKPOINTS
+       ============================================ */
 
-  <!-- Django Messages -->
-  {% if messages %}
-  {% for message in messages %}
-  <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  {% endfor %}
-  {% endif %}
+      /* Large Desktop (1200px and above) - 3 columns */
+      @media (min-width: 1200px) {
+        .events-grid {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 30px;
+        }
+      }
 
-  <!-- Header -->
-  <header class="header">
-    <div class="container header-container">
-      <a href="{% url 'home' %}" class="logo">
-        <div class="logo-icon">
-          <i class="fas fa-ticket-alt"></i>
+      /* Desktop (992px - 1199px) - 3 columns */
+      @media (min-width: 992px) and (max-width: 1199px) {
+        .events-grid {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 25px;
+        }
+      }
+
+      /* Tablet (768px - 991px) - 2 columns */
+      @media (min-width: 768px) and (max-width: 991px) {
+        .events-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 25px;
+        }
+      }
+
+      /* Mobile Landscape (576px - 767px) - 2 columns */
+      @media (min-width: 576px) and (max-width: 767px) {
+        .events-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+        }
+
+        .event-title {
+          font-size: 1rem;
+        }
+
+        .event-meta {
+          font-size: 0.75rem;
+          gap: 10px;
+        }
+      }
+
+      /* Mobile Portrait (below 576px) - 1 column */
+      @media (max-width: 575px) {
+        .events-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+      }
+
+      /* Responsive Navigation */
+      @media (max-width: 768px) {
+        .mobile-menu-btn {
+          display: block;
+        }
+
+        .nav-links,
+        .nav-buttons {
+          display: none;
+        }
+
+        .nav-links.active,
+        .nav-buttons.active {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          order: 3;
+          margin-top: 20px;
+        }
+
+        .nav-links.active {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .search-bar {
+          flex-direction: column;
+        }
+
+        .float-btn-left,
+        .float-btn-right {
+          bottom: 20px;
+        }
+
+        .float-btn-left {
+          left: 20px;
+        }
+
+        .float-btn-right {
+          right: 20px;
+        }
+
+        .float-btn {
+          width: 45px;
+          height: 45px;
+        }
+
+        .float-btn i {
+          font-size: 1.2rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .event-meta {
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        .event-footer {
+          flex-direction: column;
+          gap: 15px;
+          align-items: stretch;
+        }
+
+        .btn-small {
+          width: 100%;
+          text-align: center;
+        }
+
+        .category-buttons {
+          justify-content: center;
+        }
+
+        .pagination {
+          gap: 5px;
+        }
+
+        .page-btn {
+          width: 38px;
+          height: 38px;
+          font-size: 0.85rem;
+        }
+
+        .tooltip-left,
+        .tooltip-right {
+          display: none;
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .event-card {
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Django Messages -->
+    {% if messages %} {% for message in messages %}
+    <div
+      class="alert alert-warning alert-dismissible fade show m-3"
+      role="alert"
+    >
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %} {% endif %}
+
+    <!-- Header -->
+    <header class="header">
+      <div class="container header-container">
+        <a href="{% url 'home' %}" class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          <span class="logo-text">VibePass</span>
+        </a>
+
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <ul class="nav-links" id="navLinks">
+          <li><a href="{% url 'home' %}">Home</a></li>
+          <li><a href="{% url 'list_event' %}" class="active">Events</a></li>
+          <li><a href="{% url 'about' %}">About</a></li>
+          <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+
+        <div class="nav-buttons" id="navButtons">
+          {% if user.is_authenticated %}
+          <a
+            style="text-decoration: none"
+            href="{% url 'finders_dashboard' %}"
+            class="btn-outline-light"
+            >Profile</a
+          >
+          <a
+            style="text-decoration: none"
+            href="{% url 'logout' %}"
+            class="btn-primary"
+            >Log Out</a
+          >
+          {% else %}
+          <a
+            style="text-decoration: none"
+            href="{% url 'login' %}"
+            class="btn-outline-light"
+            >Log In</a
+          >
+          <a
+            style="text-decoration: none"
+            href="{% url 'register' %}"
+            class="btn-primary"
+            >Sign Up</a
+          >
+          {% endif %}
         </div>
-        <span class="logo-text">VibePass</span>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title">Discover Amazing Events 🎉</h1>
+          <p class="page-subtitle">
+            Find the best parties, concerts, workshops, and campus events
+            happening near you
+          </p>
+        </div>
+
+        <!-- Search & Filter Section -->
+        <div class="search-section">
+          <div class="search-bar">
+            <div class="search-input-wrapper">
+              <form
+                action="{% url 'search_event' %}"
+                method="GET"
+                class="header-search"
+                style="width: 100%"
+              >
+                <i class="fas fa-search search-icon"></i>
+                <input
+                  type="text"
+                  class="search-input"
+                  placeholder="Search events, parties, venues..."
+                  id="searchInput"
+                  value="{{ request.GET.q }}"
+                  name="q"
+                />
+              </form>
+            </div>
+            <div class="filter-toggle">
+              <button class="filter-toggle-btn" id="filterToggleBtn">
+                <i class="fas fa-filter"></i> Filter Events
+              </button>
+            </div>
+          </div>
+
+          <!-- Category Filters (Hidden by default) -->
+          <div class="category-filters" id="categoryFilters">
+            <div class="category-title">
+              <i class="fas fa-tags"></i> Filter by Category
+            </div>
+            <div class="category-buttons">
+              <!-- All Events -->
+              <a
+                href="{% url 'list_event' %}"
+                class="category-btn active"
+                data-category="all"
+              >
+                <i class="fas fa-globe"></i> All Events
+              </a>
+
+              <!-- Campus Parties -->
+              <a
+                href="{% url 'filter_by_category' 'Campus Parties'%}"
+                class="category-btn"
+                data-category="party"
+              >
+                <i class="fas fa-glass-cheers"></i> Campus Parties
+              </a>
+
+              <!-- Live Music -->
+              <a
+                href="{% url 'filter_by_category' 'Live Music'%}"
+                class="category-btn"
+                data-category="music"
+              >
+                <i class="fas fa-music"></i> Live Music
+              </a>
+
+              <!-- Workshops -->
+              <a
+                href="{% url 'filter_by_category' 'Workshops'%}"
+                class="category-btn"
+                data-category="workshop"
+              >
+                <i class="fas fa-chalkboard-user"></i> Workshops
+              </a>
+
+              <!-- Sports -->
+              <a
+                href="{% url 'filter_by_category' 'Sports'%}"
+                class="category-btn"
+                data-category="sports"
+              >
+                <i class="fas fa-futbol"></i> Sports
+              </a>
+
+              <!-- Networking -->
+              <a
+                href="{% url 'filter_by_category' 'Networking'%}"
+                class="category-btn"
+                data-category="networking"
+              >
+                <i class="fas fa-handshake"></i> Networking
+              </a>
+
+              <!--Festivals -->
+              <a
+                href="{% url 'filter_by_category' 'Festivals'%}"
+                class="category-btn"
+                data-category="food"
+              >
+                <i class="fas fa-utensils"></i> Festivals
+              </a>
+
+              <!-- Tech Events -->
+              <a
+                href="{% url 'filter_by_category' 'Tech Events'%}"
+                class="category-btn"
+                data-category="tech"
+              >
+                <i class="fas fa-laptop-code"></i> Tech Events
+              </a>
+
+              <!-- Others -->
+              <a
+                href="{% url 'filter_by_category' 'Others'%}"
+                class="category-btn"
+                data-category="others"
+              >
+                <i class="fas fa-list"></i> Others
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Events Grid - Responsive: 3 on desktop, 2 on tablet, 1 on mobile -->
+        <div class="events-grid" id="eventsGrid">
+          {% for Event in page_obj %}
+          <div class="event-card">
+            <div class="event-image">
+              <img
+                src="{{ Event.Event_flyer.url }}"
+                alt="{{ Event.Event_title }}"
+              />
+              <span class="event-category">{{ Event.Event_category }}</span>
+              <span class="event-date"
+                >{{ Event.Event_date }} • {{ Event.Event_time }}</span
+              >
+            </div>
+            <div class="event-content">
+              <h3 class="event-title">{{ Event.Event_title }}</h3>
+              <div class="event-meta">
+                <span
+                  ><i class="fas fa-map-marker-alt"></i> {{ Event.Event_location}}
+                  </span
+                >
+                <span
+                  ><i class="fas fa-users"></i> {{ Event.get_sold_tickets }}
+                  going</span
+                >
+              </div>
+              <p class="event-description">
+                {{ Event.Event_details|truncatechars:100 }}
+              </p>
+              <div class="event-footer">
+                {% if Event.Event_is_free %}
+                <div class="free-badge">FREE</div>
+                {% else %}
+                <div class="event-price">{{ Event.price_summary }}</div>
+                {% endif %}
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                  <a class="btn-small" href="{% url 'event_details' Event.slug %}">Get Tickets</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="no-results">
+            <i
+              class="fas fa-calendar-times"
+              style="font-size: 3rem; color: #ccc; margin-bottom: 20px"
+            ></i>
+            <h3>No Events Found</h3>
+            <p>Try adjusting your search or filter criteria</p>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+          {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}" class="page-btn">
+            &laquo;
+          </a>
+          {% endif %} {% for num in page_obj.paginator.page_range %}
+          <a
+            href="?page={{ num }}"
+            class="page-btn {% if page_obj.number == num %} active {% endif %}"
+          >
+            {{ num }}
+          </a>
+          {% endfor %} {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}" class="page-btn">
+            &raquo;
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-col">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 20px;
+              "
+            >
+              <div class="logo-icon" style="width: 40px; height: 40px">
+                <i class="fas fa-ticket-alt"></i>
+              </div>
+              <span style="font-size: 1.3rem; font-weight: 700">VibePass</span>
+            </div>
+            <p>
+              Connecting students with unforgettable campus experiences. Find
+              the best events, parties, and gatherings in your area.
+            </p>
+            <div class="social-links">
+              <a href="https://wa.me/254799302544" target="_blank"
+                ><i class="fab fa-whatsapp"></i
+              ></a>
+              <a href="https://instagram.com/vibepass" target="_blank"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a href="https://twitter.com/vibepass" target="_blank"
+                ><i class="fab fa-twitter"></i
+              ></a>
+              <a href="#"><i class="fab fa-tiktok"></i></a>
+            </div>
+          </div>
+
+          <div class="footer-col">
+            <h3>Quick Links</h3>
+            <ul class="footer-links">
+              <li><a href="#">Browse Events</a></li>
+              <li><a href="#">How It Works</a></li>
+              <li><a href="#">Become an Organizer</a></li>
+              <li><a href="#">Student Discounts</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h3>Legal</h3>
+            <ul class="footer-links">
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+              <li><a href="#">Refund Policy</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h3>Contact</h3>
+            <ul class="footer-links">
+              <li><i class="fas fa-envelope"></i> hello@vibepass.com</li>
+              <li><i class="fas fa-phone"></i> +254 700 000 000</li>
+              <li><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 VibePass. All rights reserved. Made for students, by
+            students.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Floating Buttons - Opposite Sides -->
+    <div class="float-btn-left">
+      <a
+        style="text-decoration: none"
+        href="https://wa.me/254799302544"
+        target="_blank"
+        class="float-btn btn-whatsapp"
+      >
+        <i class="fab fa-whatsapp"></i>
+        <span class="tooltip-left">Chat on WhatsApp</span>
       </a>
-
-      <button class="mobile-menu-btn" id="mobileMenuBtn">
-        <i class="fas fa-bars"></i>
-      </button>
-
-      <ul class="nav-links" id="navLinks">
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'list_event' %}" class="active">Events</a></li>
-        <li><a href="{% url 'about' %}">About</a></li>
-        <li><a href="{% url 'contact' %}">Contact</a></li>
-      </ul>
-
-      <div class="nav-buttons" id="navButtons">
-        {% if user.is_authenticated %}
-        <a style="text-decoration: none;" href="{% url 'finders_dashboard' %}" class="btn-outline-light">Profile</a>
-        <a style="text-decoration: none;" href="{% url 'logout' %}" class="btn-primary">Log Out</a>
-        {% else %}
-        <a style="text-decoration: none;" href="{% url 'login' %}" class="btn-outline-light">Log In</a>
-        <a style="text-decoration: none;" href="{% url 'register' %}" class="btn-primary">Sign Up</a>
-        {% endif %}
-      </div>
     </div>
-  </header>
 
-  <!-- Main Content -->
-  <main>
-    <div class="container">
-      <!-- Page Header -->
-      <div class="page-header">
-        <h1 class="page-title">Discover Amazing Events 🎉</h1>
-        <p class="page-subtitle">Find the best parties, concerts, workshops, and campus events happening near you</p>
-      </div>
-
-      <!-- Search & Filter Section -->
-      <div class="search-section">
-        <div class="search-bar">
-          <div class="search-input-wrapper">
-            <form action="{% url 'search_event' %}" method="GET" class="header-search">
-              <i class="fas fa-search search-icon"></i>
-              <input type="text" class="search-input" placeholder="Search events, parties, venues..." id="searchInput"
-                value="{{ request.GET.q }}" name="q" />
-            </form>
-          </div>
-          <div class="filter-toggle">
-            <button class="filter-toggle-btn" id="filterToggleBtn">
-              <i class="fas fa-filter"></i> Filter Events
-            </button>
-          </div>
-        </div>
-
-        <!-- Category Filters (Hidden by default) -->
-        <div class="category-filters" id="categoryFilters">
-          <div class="category-title">
-            <i class="fas fa-tags"></i> Filter by Category
-          </div>
-          <div class="category-buttons">
-            <!-- All Events -->
-            <a href="{% url 'list_event' %}" class="category-btn active" data-category="all">
-              <i class="fas fa-globe"></i> All Events
-            </a>
-
-            <!-- Campus Parties -->
-            <a href="{% url 'filter_by_category' 'Campus Parties'%}" class="category-btn" data-category="party">
-              <i class="fas fa-glass-cheers"></i> Campus Parties
-            </a>
-
-            <!-- Live Music -->
-            <a href="{% url 'filter_by_category' 'Live Music'%}" class="category-btn" data-category="music">
-              <i class="fas fa-music"></i> Live Music
-            </a>
-
-            <!-- Workshops -->
-            <a href="{% url 'filter_by_category' 'Workshops'%}" class="category-btn" data-category="workshop">
-              <i class="fas fa-chalkboard-user"></i> Workshops
-            </a>
-
-            <!-- Sports -->
-            <a href="{% url 'filter_by_category' 'Sports'%}" class="category-btn" data-category="sports">
-              <i class="fas fa-futbol"></i> Sports
-            </a>
-
-            <!-- Networking -->
-            <a href="{% url 'filter_by_category' 'Networking'%}" class="category-btn" data-category="networking">
-              <i class="fas fa-handshake"></i> Networking
-            </a>
-
-            <!--Festivals -->
-            <a href="{% url 'filter_by_category' 'Festivals'%}" class="category-btn" data-category="food">
-              <i class="fas fa-utensils"></i> Festivals
-            </a>
-
-            <!-- Tech Events -->
-            <a href="{% url 'filter_by_category' 'Tech Events'%}" class="category-btn" data-category="tech">
-              <i class="fas fa-laptop-code"></i> Tech Events
-            </a>
-
-            <!-- Others -->
-            <a href="{% url 'filter_by_category' 'Others'%}" class="category-btn" data-category="others">
-              <i class="fas fa-list"></i> Others
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Events Grid -->
-      <div class="events-grid" id="eventsGrid">
-        {% for Event in page_obj %}
-        <div class="event-card">
-          <div class="event-image">
-            <img src="{{ Event.Event_flyer.url }}" alt="{{ Event.Event_title }}">
-            <span class="event-category">{{ Event.Event_category }}</span>
-            <span class="event-date">{{ Event.Event_date }} • {{ Event.Event_time }}</span>
-          </div>
-          <div class="event-content">
-            <h3 class="event-title">{{ Event.Event_title }}</h3>
-            <div class="event-meta">
-              <span><i class="fas fa-map-marker-alt"></i> {{ Event.Event_location }}</span>
-              <span><i class="fas fa-users"></i> {{ Event.Event_attendees }} going</span>
-            </div>
-            <p style="color: var(--vibe-text-light); font-size: 0.9rem; margin-bottom: 15px;">
-              {{ Event.Event_details }}</p>
-            <div class="event-footer">
-              {% if Event.Event_is_free %}
-              <div class="free-badge">FREE</div>
-              {% else %}
-              <div class="event-price">KES {{ Event.Event_ticket_price|floatformat:2 }}</div>
-              {% endif %}
-              <a class="btn-small" href="{% url 'event_details' Event.slug %}">Get Tickets</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-        <!-- No Results -->
-        {% empty %}
-        <div class="no-results" id="noResults" style="display: none;">
-          <i class="fas fa-calendar-times" style="font-size: 3rem; color: #ccc; margin-bottom: 20px;"></i>
-          <h3>No Events Found</h3>
-          <p>Try adjusting your search or filter criteria</p>
-        </div>
-        {% endfor %}
-      </div>
-
-      <!-- Pagination -->
-      <div class="pagination" id="pagination">
-        {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}" class="page-btn">
-          &laquo;
-        </a>
-        {% endif %} {% for num in page_obj.paginator.page_range %}
-        <a href="?page={{ num }}" class="page-btn {% if page_obj.number == num %} active {% endif %}">
-          {{ num }}
-        </a>
-        {% endfor %} {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}" class="page-btn">
-          &raquo;
-        </a>
-        {% endif %}
-      </div>
+    <div class="float-btn-right">
+      <a
+        style="text-decoration: none"
+        href="tel:+254799302544"
+        class="float-btn btn-phone"
+      >
+        <i class="fas fa-phone-alt"></i>
+        <span class="tooltip-right">Call Us</span>
+      </a>
     </div>
-  </main>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-col">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-            <div class="logo-icon" style="width: 40px; height: 40px;">
-              <i class="fas fa-ticket-alt"></i>
-            </div>
-            <span style="font-size: 1.3rem; font-weight: 700;">VibePass</span>
-          </div>
-          <p>Connecting students with unforgettable campus experiences. Find the best events, parties, and gatherings in
-            your area.</p>
-          <div class="social-links">
-            <a href="https://wa.me/254799302544" target="_blank"><i class="fab fa-whatsapp"></i></a>
-            <a href="https://instagram.com/vibepass" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="https://twitter.com/vibepass" target="_blank"><i class="fab fa-twitter"></i></a>
-            <a href="#"><i class="fab fa-tiktok"></i></a>
-          </div>
-        </div>
+    <script>
+      // DOM Elements
+      const filterToggleBtn = document.getElementById("filterToggleBtn");
+      const categoryFilters = document.getElementById("categoryFilters");
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+      const navLinks = document.getElementById("navLinks");
+      const navButtons = document.getElementById("navButtons");
 
-        <div class="footer-col">
-          <h3>Quick Links</h3>
-          <ul class="footer-links">
-            <li><a href="#">Browse Events</a></li>
-            <li><a href="#">How It Works</a></li>
-            <li><a href="#">Become an Organizer</a></li>
-            <li><a href="#">Student Discounts</a></li>
-          </ul>
-        </div>
+      // Filter toggle
+      if (filterToggleBtn) {
+        filterToggleBtn.addEventListener("click", () => {
+          categoryFilters.classList.toggle("show");
+          filterToggleBtn.classList.toggle("active");
+        });
+      }
 
-        <div class="footer-col">
-          <h3>Legal</h3>
-          <ul class="footer-links">
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Refund Policy</a></li>
-          </ul>
-        </div>
+      // Mobile menu toggle
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener("click", () => {
+          navLinks.classList.toggle("active");
+          navButtons.classList.toggle("active");
+          mobileMenuBtn.innerHTML = navLinks.classList.contains("active")
+            ? '<i class="fas fa-times"></i>'
+            : '<i class="fas fa-bars"></i>';
+        });
+      }
 
-        <div class="footer-col">
-          <h3>Contact</h3>
-          <ul class="footer-links">
-            <li><i class="fas fa-envelope"></i> hello@vibepass.com</li>
-            <li><i class="fas fa-phone"></i> +254 700 000 000</li>
-            <li><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</li>
-          </ul>
-        </div>
-      </div>
+      // Active category highlighting based on current URL
+      const currentUrl = window.location.href;
+      const categoryBtns = document.querySelectorAll(".category-btn");
 
-      <div class="footer-bottom">
-        <p>&copy; 2024 VibePass. All rights reserved. Made for students, by students.</p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Floating Buttons - Opposite Sides -->
-  <div class="float-btn-left">
-    <a style="text-decoration: none;" href="https://wa.me/254799302544" target="_blank" class="float-btn btn-whatsapp">
-      <i class="fab fa-whatsapp"></i>
-      <span class="tooltip-left">Chat on WhatsApp</span>
-    </a>
-  </div>
-
-  <div class="float-btn-right">
-    <a style="text-decoration: none;" href="tel:+254799302544" class="float-btn btn-phone">
-      <i class="fas fa-phone-alt"></i>
-      <span class="tooltip-right">Call Us</span>
-    </a>
-  </div>
-
-  <script>
-    // State variables
-    let currentCategory = 'all';
-    let currentSearch = '';
-    let currentPage = 1;
-    const itemsPerPage = 6;
-
-    // DOM Elements
-    const eventsGrid = document.getElementById('eventsGrid');
-    const noResults = document.getElementById('noResults');
-    const pagination = document.getElementById('pagination');
-    const searchInput = document.getElementById('searchInput');
-    const filterToggleBtn = document.getElementById('filterToggleBtn');
-    const categoryFilters = document.getElementById('categoryFilters');
-    const categoryBtns = document.querySelectorAll('.category-btn');
-
-    // Filter toggle
-    filterToggleBtn.addEventListener('click', () => {
-      categoryFilters.classList.toggle('show');
-      filterToggleBtn.classList.toggle('active');
-    });
-
-    // Category filter buttons
-    categoryBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        categoryBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentCategory = btn.getAttribute('data-category');
-        currentPage = 1;
-        filterAndRenderEvents();
+      categoryBtns.forEach((btn) => {
+        if (currentUrl.includes(btn.getAttribute("href"))) {
+          categoryBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+        }
       });
-    });
-
-    // Search input
-    searchInput.addEventListener('input', (e) => {
-      currentSearch = e.target.value.toLowerCase();
-      currentPage = 1;
-      filterAndRenderEvents();
-    });
-
-
-
-    // Mobile menu toggle
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const navLinks = document.getElementById('navLinks');
-    const navButtons = document.getElementById('navButtons');
-
-    mobileMenuBtn.addEventListener('click', () => {
-      navLinks.classList.toggle('active');
-      navButtons.classList.toggle('active');
-      mobileMenuBtn.innerHTML = navLinks.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-    });
-
-    // Initialize
-    filterAndRenderEvents();
-  </script>
-</body>
-
+    </script>
+  </body>
 </html>

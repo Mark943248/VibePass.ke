@@ -17,6 +17,13 @@ class Ticket(models.Model):
     ticket_qr_image = CloudinaryField('ticket_qr_image', blank=True, null=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='tickets')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='booked_tickets')
+    ticket_type = models.ForeignKey(
+        'Events.TicketType',
+        on_delete=models.CASCADE,
+        related_name='tickets',
+        null=True,
+        blank=True
+    )
     payment = models.OneToOneField(
         Payment, 
         on_delete=models.CASCADE, 
@@ -28,6 +35,8 @@ class Ticket(models.Model):
     is_scanned = models.BooleanField(default=False)
     scanned_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    
 
     def mark_as_scanned(self):
         if self.is_scanned:

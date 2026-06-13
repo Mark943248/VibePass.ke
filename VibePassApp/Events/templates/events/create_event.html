@@ -1,741 +1,1222 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
-  <title>VibePass - Create New Event</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  <style>
-    /* New Brand Colors - Vibrant & Modern */
-    :root {
-      --vibe-primary: #FF6B35;
-      --vibe-primary-dark: #E85D2C;
-      --vibe-secondary: #00C9A7;
-      --vibe-secondary-dark: #00B092;
-      --vibe-dark: #1A1A2E;
-      --vibe-light: #FFF9F5;
-      --vibe-accent: #FFE66D;
-      --vibe-text: #2D2D3A;
-      --vibe-text-light: #6B6B7A;
-      --vibe-card-bg: #FFFFFF;
-      --vibe-card-shadow: rgba(255, 107, 53, 0.08);
-      --vibe-success: #00C9A7;
-      --vibe-danger: #FF4757;
-      --vibe-info: #FF6B35;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background: linear-gradient(135deg, var(--vibe-light) 0%, #FFF5EF 100%);
-      color: var(--vibe-text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* Header */
-    .header {
-      background: rgba(26, 26, 46, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 15px 0;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .header-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-
-    .logo-icon {
-      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .logo-icon i {
-      font-size: 1.3rem;
-      color: white;
-    }
-
-    .logo-text {
-      font-size: 1.4rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .back-btn {
-      color: white;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-weight: 500;
-      transition: all 0.3s;
-    }
-
-    .back-btn:hover {
-      background: var(--vibe-primary);
-    }
-
-    /* Page Header */
-    .page-header {
-      text-align: center;
-      padding: 40px 0 30px;
-    }
-
-    .page-title {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--vibe-dark);
-      margin-bottom: 10px;
-    }
-
-    .page-subtitle {
-      color: var(--vibe-text-light);
-      font-size: 1rem;
-    }
-
-    /* Form Container */
-    .form-container {
-      background: white;
-      border-radius: 24px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-      margin-bottom: 50px;
-    }
-
-    /* Form Sections */
-    .form-section {
-      background: var(--vibe-light);
-      border-radius: 16px;
-      padding: 25px;
-      margin-bottom: 25px;
-    }
-
-    .section-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: var(--vibe-dark);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .section-title i {
-      color: var(--vibe-primary);
-    }
-
-    /* Form Groups */
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .form-label {
-      display: block;
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--vibe-dark);
-      margin-bottom: 8px;
-    }
-
-    .form-label.required::after {
-      content: " *";
-      color: var(--vibe-danger);
-    }
-
-    .form-input,
-    .form-textarea,
-    .form-select {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #E8E8E8;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      transition: all 0.3s;
-      background: white;
-    }
-
-    .form-input:focus,
-    .form-textarea:focus,
-    .form-select:focus {
-      outline: none;
-      border-color: var(--vibe-primary);
-      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-    }
-
-    .form-textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    /* File Upload */
-    .file-upload-area {
-      border: 2px dashed #E8E8E8;
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      background: white;
-    }
-
-    .file-upload-area:hover {
-      border-color: var(--vibe-primary);
-      background: rgba(255, 107, 53, 0.02);
-    }
-
-    .file-upload-area i {
-      font-size: 2rem;
-      color: var(--vibe-primary);
-      margin-bottom: 10px;
-    }
-
-    .file-preview {
-      margin-top: 15px;
-      display: none;
-    }
-
-    .file-preview img {
-      max-width: 150px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Category Tags */
-    .category-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .category-tag {
-      padding: 8px 16px;
-      background: white;
-      border: 2px solid #E8E8E8;
-      border-radius: 30px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .category-tag:hover {
-      border-color: var(--vibe-primary);
-      color: var(--vibe-primary);
-    }
-
-    .category-tag.active {
-      background: var(--vibe-primary);
-      border-color: var(--vibe-primary);
-      color: white;
-    }
-
-    /* Checkbox Group */
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 15px;
-      background: white;
-      border-radius: 12px;
-      border: 2px solid #E8E8E8;
-      cursor: pointer;
-    }
-
-    .checkbox-group input {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--vibe-primary);
-    }
-
-    .checkbox-group label {
-      font-weight: 600;
-      cursor: pointer;
-      flex: 1;
-    }
-
-    /* Conditional Fields */
-    .conditional-fields {
-      display: none;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-top: 15px;
-      border: 2px solid #E8E8E8;
-    }
-
-    /* Price Display */
-    .price-display {
-      background: rgba(255, 107, 53, 0.05);
-      padding: 10px 15px;
-      border-radius: 10px;
-      margin-top: 10px;
-      font-size: 0.9rem;
-    }
-
-    .price-amount {
-      font-weight: 700;
-      color: var(--vibe-primary);
-    }
-
-    /* M-PESA Note */
-    .mpesa-note {
-      background: rgba(0, 201, 167, 0.08);
-      border-left: 3px solid var(--vibe-secondary);
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 10px;
-      font-size: 0.85rem;
-    }
-
-    /* Form Actions */
-    .form-actions {
-      display: flex;
-      gap: 15px;
-      margin-top: 30px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border: 2px solid var(--vibe-primary);
-      color: var(--vibe-primary);
-    }
-
-    .btn-secondary:hover {
-      background: var(--vibe-primary);
-      color: white;
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 2px solid #E8E8E8;
-      color: var(--vibe-text);
-    }
-
-    .btn-outline:hover {
-      border-color: var(--vibe-primary);
-      color: var(--vibe-primary);
-    }
-
-    /* Preview Section */
-    .preview-section {
-      background: var(--vibe-light);
-      border-radius: 16px;
-      padding: 25px;
-      margin-top: 30px;
-      display: none;
-    }
-
-    .preview-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .preview-content {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-    }
-
-    /* Help Text */
-    .form-help {
-      font-size: 0.75rem;
-      color: var(--vibe-text-light);
-      margin-top: 5px;
-    }
-
-    /* Footer */
-    .footer {
-      background: var(--vibe-dark);
-      color: white;
-      padding: 30px 0;
-      text-align: center;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .form-container {
-        padding: 20px;
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes"
+    />
+    <title>VibePass - Create New Event</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+      /* New Brand Colors - Vibrant & Modern */
+      :root {
+        --vibe-primary: #ff6b35;
+        --vibe-primary-dark: #e85d2c;
+        --vibe-secondary: #00c9a7;
+        --vibe-secondary-dark: #00b092;
+        --vibe-dark: #1a1a2e;
+        --vibe-light: #fff9f5;
+        --vibe-accent: #ffe66d;
+        --vibe-text: #2d2d3a;
+        --vibe-text-light: #6b6b7a;
+        --vibe-card-bg: #ffffff;
+        --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+        --vibe-success: #00c9a7;
+        --vibe-danger: #ff4757;
+        --vibe-info: #ff6b35;
       }
 
-      .form-section {
-        padding: 20px;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       }
 
-      .form-row {
-        grid-template-columns: 1fr;
+      body {
+        background: linear-gradient(135deg, var(--vibe-light) 0%, #fff5ef 100%);
+        color: var(--vibe-text);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header */
+      .header {
+        background: rgba(26, 26, 46, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 15px 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
         gap: 15px;
       }
 
-      .form-actions {
-        flex-direction: column;
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
       }
 
-      .btn {
-        width: 100%;
+      .logo-icon {
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
         justify-content: center;
       }
 
-      .category-tags {
-        justify-content: center;
+      .logo-icon i {
+        font-size: 1.3rem;
+        color: white;
       }
 
-      .page-title {
-        font-size: 1.5rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .header-container {
-        flex-direction: column;
-        align-items: flex-start;
+      .logo-text {
+        font-size: 1.4rem;
+        font-weight: 800;
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-secondary)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
       }
 
       .back-btn {
-        align-self: flex-start;
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-weight: 500;
+        transition: all 0.3s;
       }
 
+      .back-btn:hover {
+        background: var(--vibe-primary);
+      }
+
+      /* Page Header */
+      .page-header {
+        text-align: center;
+        padding: 40px 0 30px;
+      }
+
+      .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--vibe-dark);
+        margin-bottom: 10px;
+      }
+
+      .page-subtitle {
+        color: var(--vibe-text-light);
+        font-size: 1rem;
+      }
+
+      /* Form Container */
       .form-container {
-        padding: 15px;
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        margin-bottom: 50px;
       }
 
+      /* Form Sections */
       .form-section {
-        padding: 15px;
+        background: var(--vibe-light);
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 25px;
       }
 
       .section-title {
-        font-size: 1rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--vibe-dark);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
-    }
-  </style>
-</head>
 
-<body>
-  <!-- Django Messages -->
-  {% if messages %}
-  {% for message in messages %}
-  <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  {% endfor %}
-  {% endif %}
+      .section-title i {
+        color: var(--vibe-primary);
+      }
 
-  <!-- Header -->
-  <header class="header">
-    <div class="container header-container">
-      <a href="{% url 'organizers_dashboard' %}" class="logo">
-        <div class="logo-icon">
-          <i class="fas fa-ticket-alt"></i>
-        </div>
-        <span class="logo-text">VibePass</span>
-      </a>
-      <a href="{% url 'organizers_dashboard' %}" class="back-btn">
-        <i class="fas fa-arrow-left"></i> Back to Dashboard
-      </a>
+      /* Form Groups */
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .form-label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--vibe-dark);
+        margin-bottom: 8px;
+      }
+
+      .form-label.required::after {
+        content: " *";
+        color: var(--vibe-danger);
+      }
+
+      .form-input,
+      .form-textarea,
+      .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e8e8e8;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        background: white;
+      }
+
+      .form-input:focus,
+      .form-textarea:focus,
+      .form-select:focus {
+        outline: none;
+        border-color: var(--vibe-primary);
+        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+      }
+
+      .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      /* File Upload */
+      .file-upload-area {
+        border: 2px dashed #e8e8e8;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+      }
+
+      .file-upload-area:hover {
+        border-color: var(--vibe-primary);
+        background: rgba(255, 107, 53, 0.02);
+      }
+
+      .file-upload-area i {
+        font-size: 2rem;
+        color: var(--vibe-primary);
+        margin-bottom: 10px;
+      }
+
+      .file-preview {
+        margin-top: 15px;
+        display: none;
+      }
+
+      .file-preview img {
+        max-width: 150px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Category Tags */
+      .category-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .category-tag {
+        padding: 8px 16px;
+        background: white;
+        border: 2px solid #e8e8e8;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .category-tag:hover {
+        border-color: var(--vibe-primary);
+        color: var(--vibe-primary);
+      }
+
+      .category-tag.active {
+        background: var(--vibe-primary);
+        border-color: var(--vibe-primary);
+        color: white;
+      }
+
+      /* Checkbox Group */
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px;
+        background: white;
+        border-radius: 12px;
+        border: 2px solid #e8e8e8;
+        cursor: pointer;
+      }
+
+      .checkbox-group input {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--vibe-primary);
+      }
+
+      .checkbox-group label {
+        font-weight: 600;
+        cursor: pointer;
+        flex: 1;
+      }
+
+      /* Ticket Types Section */
+      .ticket-types-section {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 15px;
+        border: 2px solid #e8e8e8;
+      }
+
+      .ticket-types-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .ticket-types-header h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--vibe-dark);
+      }
+
+      .add-ticket-btn {
+        background: transparent;
+        border: 2px dashed var(--vibe-primary);
+        color: var(--vibe-primary);
+        padding: 8px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .add-ticket-btn:hover {
+        background: rgba(255, 107, 53, 0.05);
+      }
+
+      /* Ticket Item */
+      .ticket-item {
+        background: var(--vibe-light);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        position: relative;
+        border: 1px solid #e8e8e8;
+      }
+
+      .ticket-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .ticket-type-badge {
+        background: var(--vibe-primary);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .remove-ticket-btn {
+        background: none;
+        border: none;
+        color: var(--vibe-danger);
+        cursor: pointer;
+        font-size: 1.1rem;
+        padding: 5px;
+        transition: all 0.3s;
+      }
+
+      .remove-ticket-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .ticket-fields {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .ticket-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .ticket-field label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--vibe-text-light);
+      }
+
+      .ticket-field input,
+      .ticket-field textarea {
+        padding: 10px 12px;
+        border: 2px solid #e8e8e8;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        background: white;
+      }
+
+      .ticket-field input:focus,
+      .ticket-field textarea:focus {
+        outline: none;
+        border-color: var(--vibe-primary);
+      }
+
+      /* Conditional Fields */
+      .conditional-fields {
+        display: none;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 15px;
+        border: 2px solid #e8e8e8;
+      }
+
+      /* Price Display */
+      .price-display {
+        background: rgba(255, 107, 53, 0.05);
+        padding: 10px 15px;
+        border-radius: 10px;
+        margin-top: 10px;
+        font-size: 0.9rem;
+      }
+
+      .price-amount {
+        font-weight: 700;
+        color: var(--vibe-primary);
+      }
+
+      /* M-PESA Note */
+      .mpesa-note {
+        background: rgba(0, 201, 167, 0.08);
+        border-left: 3px solid var(--vibe-secondary);
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 10px;
+        font-size: 0.85rem;
+      }
+
+      /* Form Actions */
+      .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        border: 2px solid var(--vibe-primary);
+        color: var(--vibe-primary);
+      }
+
+      .btn-secondary:hover {
+        background: var(--vibe-primary);
+        color: white;
+      }
+
+      .btn-outline {
+        background: transparent;
+        border: 2px solid #e8e8e8;
+        color: var(--vibe-text);
+      }
+
+      .btn-outline:hover {
+        border-color: var(--vibe-primary);
+        color: var(--vibe-primary);
+      }
+
+      /* Preview Section */
+      .preview-section {
+        background: var(--vibe-light);
+        border-radius: 16px;
+        padding: 25px;
+        margin-top: 30px;
+        display: none;
+      }
+
+      .preview-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .preview-content {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+      }
+
+      /* Help Text */
+      .form-help {
+        font-size: 0.75rem;
+        color: var(--vibe-text-light);
+        margin-top: 5px;
+      }
+
+      /* Footer */
+      .footer {
+        background: var(--vibe-dark);
+        color: white;
+        padding: 30px 0;
+        text-align: center;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .form-container {
+          padding: 20px;
+        }
+
+        .form-section {
+          padding: 20px;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        .form-actions {
+          flex-direction: column;
+        }
+
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .category-tags {
+          justify-content: center;
+        }
+
+        .page-title {
+          font-size: 1.5rem;
+        }
+
+        .ticket-fields {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header-container {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .back-btn {
+          align-self: flex-start;
+        }
+
+        .form-container {
+          padding: 15px;
+        }
+
+        .form-section {
+          padding: 15px;
+        }
+
+        .section-title {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Django Messages -->
+    {% if messages %} {% for message in messages %}
+    <div
+      class="alert alert-warning alert-dismissible fade show m-3"
+      role="alert"
+    >
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-  </header>
+    {% endfor %} {% endif %}
 
-  <!-- Main Content -->
-  <main>
-    <div class="container">
-      <div class="page-header">
-        <h1 class="page-title">Create New Event</h1>
-        <p class="page-subtitle">Fill in the details below to list your event</p>
+    <!-- Header -->
+    <header class="header">
+      <div class="container header-container">
+        <a href="{% url 'organizers_dashboard' %}" class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          <span class="logo-text">VibePass</span>
+        </a>
+        <a href="{% url 'organizers_dashboard' %}" class="back-btn">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
       </div>
+    </header>
 
-      <div class="form-container">
-        <form method="POST" action="{% url 'create_event' %}" enctype="multipart/form-data" id="createEventForm">
-          {% csrf_token %}
+    <!-- Main Content -->
+    <main>
+      <div class="container">
+        <div class="page-header">
+          <h1 class="page-title">{% if is_edit %}Edit Event{% else %}Create New Event{% endif %}</h1>
+          <p class="page-subtitle">
+            {% if is_edit %}Update your event details and ticket types{% else %}Fill in the details below to list your event{% endif %}
+          </p>
+        </div>
 
-          <!-- Basic Information -->
-          <div class="form-section">
-            <h3 class="section-title">
-              <i class="fas fa-info-circle"></i> Basic Information
-            </h3>
+        <div class="form-container">
+          <form
+            method="POST"
+            action="{% if is_edit %}{% url 'edit_event' event.slug %}{% else %}{% url 'create_event' %}{% endif %}"
+            enctype="multipart/form-data"
+            id="createEventForm"
+          >
+            {% csrf_token %}
 
-            <div class="form-group">
-              <label class="form-label required">Event Title</label>
-              <input type="text" name="Event_title" class="form-input" placeholder="e.g., Spring Bash: Neon Night"
-                required>
-              <div class="form-help">Make it catchy and descriptive!</div>
-            </div>
+            <!-- Basic Information -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <i class="fas fa-info-circle"></i> Basic Information
+              </h3>
 
-            <div class="form-group">
-              <label class="form-label required">Event Flyer/Image</label>
-              <div class="file-upload-area" onclick="document.getElementById('eventFlyer').click()">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <p>Click to upload image</p>
-                <small>JPG, PNG, JPEG (max 5MB)</small>
-                <input type="file" id="eventFlyer" name="Event_flyer" accept="image/*" style="display: none;" required>
-              </div>
-              <div class="file-preview" id="filePreview">
-                <img id="previewImage" src="#" alt="Preview">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label required">Event Category</label>
-              <select name="Event_category" class="form-select" id="eventCategory" required>
-                <option value="">Select a category</option>
-                <option value="Campus Parties">🎉 Campus Parties</option>
-                <option value="Live Music">🎵 Live Music</option>
-                <option value="Workshops">💡 Workshops</option>
-                <option value="Sports">⚽ Sports</option>
-                <option value="Networking">🤝 Networking</option>
-                <option value="Festivals">🎪 Festivals</option>
-                <option value="Tech Events">💻 Tech Events</option>
-                <option value="Others">Others</option>
-              </select>
-              <div class="category-tags">
-                <span class="category-tag" data-value="Campus Parties">🎉 Party</span>
-                <span class="category-tag" data-value="Live Music">🎵 Music</span>
-                <span class="category-tag" data-value="Workshops">💡 Workshop</span>
-                <span class="category-tag" data-value="Sports">⚽ Sports</span>
-                <span class="category-tag" data-value="Networking">🤝 Networking</span>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label required">Event Details</label>
-              <textarea name="Event_details" class="form-textarea" placeholder="Describe your event in detail..."
-                rows="4" required></textarea>
-              <div class="form-help">Be descriptive! Include what attendees can expect.</div>
-            </div>
-          </div>
-
-          <!-- Location & Time -->
-          <div class="form-section">
-            <h3 class="section-title">
-              <i class="fas fa-map-marker-alt"></i> Location & Time
-            </h3>
-
-            <div class="form-group">
-              <label class="form-label required">Event Location</label>
-              <input type="text" name="Event_location" class="form-input" placeholder="e.g., Student Union, Room 101"
-                required>
-            </div>
-
-            <div class="form-row">
               <div class="form-group">
-                <label class="form-label required">Event Date</label>
-                <input type="date" name="Event_date" class="form-input" id="eventDate" required>
+                <label class="form-label required">Event Title</label>
+                <input
+                  type="text"
+                  name="Event_title"
+                  class="form-input"
+                  placeholder="e.g., Spring Bash: Neon Night"
+                  value="{% if event %}{{ event.Event_title }}{% endif %}"
+                  required
+                />
+                <div class="form-help">Make it catchy and descriptive!</div>
               </div>
+
               <div class="form-group">
-                <label class="form-label required">Event Time</label>
-                <input type="time" name="Event_time" class="form-input" id="eventTime" required>
+                <label class="form-label required">Event Flyer/Image</label>
+                <div
+                  class="file-upload-area"
+                  onclick="document.getElementById('eventFlyer').click()"
+                >
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p>Click to upload image</p>
+                  <small>JPG, PNG, JPEG (max 5MB)</small>
+                  <input
+                    type="file"
+                    id="eventFlyer"
+                    name="Event_flyer"
+                    accept="image/*"
+                    style="display: none"
+                    {% if not is_edit %}required{% endif %}
+                  />
+                </div>
+                <div class="file-preview" id="filePreview" {% if event and event.Event_flyer %}style="display: block;"{% endif %}>
+                  <img id="previewImage" src="{% if event and event.Event_flyer %}{{ event.Event_flyer.url }}{% else %}#{% endif %}" alt="Preview" />
+                </div>
+                {% if is_edit and event and event.Event_flyer %}<p style="color: var(--vibe-text-light); font-size: 0.85rem; margin-top: 10px;">Current image displayed above. Upload a new one to change.</p>{% endif %}
               </div>
-            </div>
-          </div>
 
-          <!-- Tickets & Pricing -->
-          <div class="form-section">
-            <h3 class="section-title">
-              <i class="fas fa-ticket-alt"></i> Tickets & Pricing
-            </h3>
-
-            <div class="checkbox-group" id="freeEventCheckbox">
-              <input type="checkbox" id="eventIsFree" name="Event_is_free">
-              <label>This is a free event</label>
-            </div>
-
-            <div class="conditional-fields" id="paidEventFields">
               <div class="form-group">
-                <label class="form-label required">Ticket Price (KES)</label>
-                <input type="number" name="Event_ticket_price" id="eventTicketPrice" class="form-input"
-                  placeholder="e.g., 500" min="0" step="50">
-                <div class="price-display">
-                  <span>Price: </span>
-                  <span class="price-amount" id="priceAmount">KES 0</span>
+                <label class="form-label required">Event Category</label>
+                <select
+                  name="Event_category"
+                  class="form-select"
+                  id="eventCategory"
+                  required
+                >
+                  <option value="">Select a category</option>
+                  <option value="Campus Parties" {% if event.Event_category == 'Campus Parties' %}selected{% endif %}>🎉 Campus Parties</option>
+                  <option value="Live Music" {% if event.Event_category == 'Live Music' %}selected{% endif %}>🎵 Live Music</option>
+                  <option value="Workshops" {% if event.Event_category == 'Workshops' %}selected{% endif %}>💡 Workshops</option>
+                  <option value="Sports" {% if event.Event_category == 'Sports' %}selected{% endif %}>⚽ Sports</option>
+                  <option value="Networking" {% if event.Event_category == 'Networking' %}selected{% endif %}>🤝 Networking</option>
+                  <option value="Festivals" {% if event.Event_category == 'Festivals' %}selected{% endif %}>🎪 Festivals</option>
+                  <option value="Tech Events" {% if event.Event_category == 'Tech Events' %}selected{% endif %}>💻 Tech Events</option>
+                  <option value="Others" {% if event.Event_category == 'Others' %}selected{% endif %}>Others</option>
+                </select>
+                <div class="category-tags">
+                  <span class="category-tag" data-value="Campus Parties" {% if event.Event_category == 'Campus Parties' %}style="background: var(--vibe-primary); border-color: var(--vibe-primary); color: white;"{% endif %}>🎉 Party</span>
+                  <span class="category-tag" data-value="Live Music" {% if event.Event_category == 'Live Music' %}style="background: var(--vibe-primary); border-color: var(--vibe-primary); color: white;"{% endif %}>🎵 Music</span>
+                  <span class="category-tag" data-value="Workshops" {% if event.Event_category == 'Workshops' %}style="background: var(--vibe-primary); border-color: var(--vibe-primary); color: white;"{% endif %}>💡 Workshop</span>
+                  <span class="category-tag" data-value="Sports" {% if event.Event_category == 'Sports' %}style="background: var(--vibe-primary); border-color: var(--vibe-primary); color: white;"{% endif %}>⚽ Sports</span>
+                  <span class="category-tag" data-value="Networking" {% if event.Event_category == 'Networking' %}style="background: var(--vibe-primary); border-color: var(--vibe-primary); color: white;"{% endif %}>🤝 Networking</span>
                 </div>
               </div>
 
               <div class="form-group">
-                <label class="form-label required">M-PESA Payment Number</label>
-                <input type="tel" name="Event_mpesa_number" id="eventMpesaNumber" class="form-input"
-                  placeholder="0712 345 678" maxlength="10">
-                <div class="mpesa-note">
-                  <strong>📱 Note:</strong> This is the M-PESA number attendees will pay to.
+                <label class="form-label required">Event Details</label>
+                <textarea
+                  name="Event_details"
+                  class="form-textarea"
+                  placeholder="Describe your event in detail..."
+                  rows="4"
+                  required
+                >{% if event %}{{ event.Event_details }}{% endif %}</textarea>
+                <div class="form-help">
+                  Be descriptive! Include what attendees can expect.
                 </div>
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label required">Total Tickets Available</label>
-              <input type="number" name="Event_total_tickets" class="form-input" placeholder="e.g., 100" min="1"
-                required>
-              <div class="form-help">Set the maximum number of attendees</div>
-            </div>
-          </div>
+            <!-- Location & Time -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <i class="fas fa-map-marker-alt"></i> Location & Time
+              </h3>
 
-          <!-- Form Actions -->
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-rocket"></i> Publish Event
+              <div class="form-group">
+                <label class="form-label required">Event Location</label>
+                <input
+                  type="text"
+                  name="Event_location"
+                  class="form-input"
+                  placeholder="e.g., Student Union, Room 101"
+                  value="{% if event %}{{ event.Event_location }}{% endif %}"
+                  required
+                />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label required">Event Date</label>
+                  <input
+                    type="date"
+                    name="Event_date"
+                    class="form-input"
+                    id="eventDate"
+                    value="{% if event %}{{ event.Event_date|date:'Y-m-d' }}{% endif %}"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label required">Event Time</label>
+                  <input
+                    type="time"
+                    name="Event_time"
+                    class="form-input"
+                    id="eventTime"
+                    value="{% if event %}{{ event.Event_time|time:'H:i' }}{% endif %}"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Tickets & Pricing -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <i class="fas fa-ticket-alt"></i> Tickets & Pricing
+              </h3>
+
+              <div class="checkbox-group" id="freeEventCheckbox">
+                <input type="checkbox" id="eventIsFree" name="Event_is_free" {% if event and event.Event_is_free %}checked{% endif %} />
+                <label>This is a free event</label>
+              </div>
+
+              <!-- Paid Event Fields (M-PESA & Ticket Price - Hidden when free) -->
+              <div class="conditional-fields" id="paidEventFields" {% if not event or not event.Event_is_free %}style="display: block;"{% endif %}>
+                <div class="form-group">
+                  <label class="form-label required"
+                    >M-PESA Payment Number</label
+                  >
+                  <input
+                    type="tel"
+                    name="Event_mpesa_number"
+                    id="eventMpesaNumber"
+                    class="form-input"
+                    placeholder="0712 345 678"
+                    maxlength="10"
+                    value="{% if event and event.Event_mpesa_number %}{{ event.Event_mpesa_number }}{% endif %}"
+                  />
+                  <div class="mpesa-note">
+                    <strong>📱 Note:</strong> This is the M-PESA number
+                    attendees will pay to.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ticket Types Section (Always visible - Capacity is always shown) -->
+              <div class="ticket-types-section">
+                <div class="ticket-types-header">
+                  <h4><i class="fas fa-layer-group"></i> Ticket Types</h4>
+                  <button
+                    type="button"
+                    class="add-ticket-btn"
+                    id="addTicketBtn"
+                  >
+                    <i class="fas fa-plus"></i> Add Ticket Type
+                  </button>
+                </div>
+                
+                <!-- Hidden elements to store existing ticket data for edit mode -->
+                {% for ticket_type in ticket_types %}
+                  <div style="display: none;" 
+                       data-ticket-id="{{ ticket_type.id }}"
+                       data-ticket-name="{{ ticket_type.name }}"
+                       data-ticket-price="{{ ticket_type.price }}"
+                       data-ticket-capacity="{{ ticket_type.capacity }}"
+                       data-ticket-description="{{ ticket_type.description }}">
+                  </div>
+                {% endfor %}
+                
+                <div id="ticketsContainer">
+                  <!-- Default ticket type will be added by JavaScript -->
+                </div>
+                <div class="form-help" style="margin-top: 15px">
+                  <i class="fas fa-info-circle"></i> Add different ticket types
+                  like General, VIP, Early Bird, etc.
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" id="previewBtn">
+                <i class="fas fa-eye"></i> Preview Event
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-rocket"></i> {% if is_edit %}Update Event{% else %}Publish Event{% endif %}
+              </button>
+            </div>
+          </form>
+
+          <!-- Preview Section -->
+          <div class="preview-section" id="previewSection">
+            <h3 class="preview-title">
+              <i class="fas fa-desktop"></i> Event Preview
+            </h3>
+            <div class="preview-content" id="previewContent"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2024 VibePass. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      // DOM Elements
+      const freeCheckbox = document.getElementById("eventIsFree");
+      const paidFields = document.getElementById("paidEventFields");
+      const fileInput = document.getElementById("eventFlyer");
+      const filePreview = document.getElementById("filePreview");
+      const previewImage = document.getElementById("previewImage");
+      const categorySelect = document.getElementById("eventCategory");
+      const categoryTags = document.querySelectorAll(".category-tag");
+      const previewBtn = document.getElementById("previewBtn");
+      const previewSection = document.getElementById("previewSection");
+      const previewContent = document.getElementById("previewContent");
+      const ticketsContainer = document.getElementById("ticketsContainer");
+      const addTicketBtn = document.getElementById("addTicketBtn");
+
+      const isEditMode = '{{ is_edit|lower }}';
+      let ticketCounter = 1;
+
+      // Set default date and time only if creating new event
+      if (!isEditMode) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById("eventDate").value = tomorrow
+          .toISOString()
+          .split("T")[0];
+
+        const now = new Date();
+        now.setHours(now.getHours() + 2);
+        document.getElementById("eventTime").value =
+          `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+      }
+
+      // Toggle paid fields (M-PESA only - ticket types always visible)
+      freeCheckbox.addEventListener("change", function () {
+        if (this.checked) {
+          paidFields.style.display = "none";
+          // Mark all tickets as free when event is free
+          document.querySelectorAll(".ticket-price-input").forEach((input) => {
+            input.value = 0;
+            input.disabled = true;
+            input.parentElement.querySelector(".price-display-small")?.remove();
+          });
+        } else {
+          paidFields.style.display = "block";
+          // Enable price inputs
+          document.querySelectorAll(".ticket-price-input").forEach((input) => {
+            input.disabled = false;
+          });
+        }
+      });
+
+      // File preview
+      fileInput.addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            filePreview.style.display = "block";
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Category tags
+      categoryTags.forEach((tag) => {
+        tag.addEventListener("click", function () {
+          categoryTags.forEach((t) => t.classList.remove("active"));
+          this.classList.add("active");
+          categorySelect.value = this.getAttribute("data-value");
+        });
+      });
+
+      // Ticket Functions
+      function createTicketElement(ticketId, ticketData) {
+        const ticketDiv = document.createElement("div");
+        ticketDiv.className = "ticket-item";
+        ticketDiv.dataset.ticketId = ticketId;
+
+        const isFree = freeCheckbox.checked;
+
+        // FIX: Properly sanitize ticket ID to prevent "undefined"/"null" strings
+        let ticketIdValue = "";
+        if (ticketData && ticketData.id !== null && ticketData.id !== undefined && ticketData.id !== "") {
+          const rawId = String(ticketData.id).trim();
+          if (rawId && rawId !== "null" && rawId !== "undefined" && rawId !== "None") {
+            ticketIdValue = rawId;
+          }
+        }
+
+        ticketDiv.innerHTML = `
+          <div class="ticket-item-header">
+            <span class="ticket-type-badge">Ticket Type ${ticketId}</span>
+            <button type="button" class="remove-ticket-btn" onclick="removeTicket(this)">
+              <i class="fas fa-trash-alt"></i>
             </button>
           </div>
-        </form>
+          <div class="ticket-fields">
+            <div class="ticket-field">
+              <label>Ticket Name <span style="color: var(--vibe-danger);">*</span></label>
+              <input type="text" name="ticket_name[]" class="ticket-name-input" placeholder="e.g., General Admission, VIP, Early Bird" value="${ticketData ? ticketData.name : ''}" required>
+              <input type="hidden" name="ticket_id[]" class="ticket-id-input" value="${ticketIdValue}">
+            </div>
+            <div class="ticket-field">
+              <label>Price (KES) ${!isFree ? '<span style="color: var(--vibe-danger);">*</span>' : ""}</label>
+              <input type="number" name="ticket_price[]" class="ticket-price-input" placeholder="0" min="0" step="50" value="${ticketData ? ticketData.price : 0}" ${isFree ? "disabled" : ""} ${!isFree ? "required" : ""}>
+              ${!isFree ? '<div class="price-display-small" style="font-size:0.7rem; color: var(--vibe-primary); margin-top: 3px;">KES 0</div>' : ""}
+            </div>
+            <div class="ticket-field">
+              <label>Capacity <span style="color: var(--vibe-danger);">*</span></label>
+              <input type="number" name="ticket_capacity[]" class="ticket-capacity-input" placeholder="Number of tickets" min="1" value="${ticketData ? ticketData.capacity : 100}" required>
+            </div>
+            <div class="ticket-field">
+              <label>Description (Optional)</label>
+              <textarea name="ticket_description[]" class="ticket-desc-input" rows="2" placeholder="e.g., Includes free drink, early entry, etc.">${ticketData ? ticketData.description : ''}</textarea>
+            </div>
+          </div>
+        `;
 
-        <!-- Preview Section -->
-        <div class="preview-section" id="previewSection">
-          <h3 class="preview-title">
-            <i class="fas fa-desktop"></i> Event Preview
-          </h3>
-          <div class="preview-content" id="previewContent"></div>
-        </div>
-      </div>
-    </div>
-  </main>
+        // Add price display update for this ticket
+        const priceInput = ticketDiv.querySelector(".ticket-price-input");
+        if (priceInput && !isFree) {
+          const priceDisplay = ticketDiv.querySelector(".price-display-small");
+          priceInput.addEventListener("input", function () {
+            const price = parseInt(this.value) || 0;
+            if (priceDisplay)
+              priceDisplay.textContent = `KES ${price.toLocaleString()}`;
+          });
+          // Initial update
+          priceInput.dispatchEvent(new Event("input"));
+        }
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <p>&copy; 2024 VibePass. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <script>
-    // DOM Elements
-    const freeCheckbox = document.getElementById('eventIsFree');
-    const paidFields = document.getElementById('paidEventFields');
-    const fileInput = document.getElementById('eventFlyer');
-    const filePreview = document.getElementById('filePreview');
-    const previewImage = document.getElementById('previewImage');
-    const priceInput = document.getElementById('eventTicketPrice');
-    const priceAmount = document.getElementById('priceAmount');
-    const categorySelect = document.getElementById('eventCategory');
-    const categoryTags = document.querySelectorAll('.category-tag');
-    const previewBtn = document.getElementById('previewBtn');
-    const previewSection = document.getElementById('previewSection');
-    const previewContent = document.getElementById('previewContent');
-
-    // Set default date (tomorrow)
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    document.getElementById('eventDate').value = tomorrow.toISOString().split('T')[0];
-
-    // Set default time (2 hours from now)
-    const now = new Date();
-    now.setHours(now.getHours() + 2);
-    document.getElementById('eventTime').value = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-
-    // Toggle paid fields
-    freeCheckbox.addEventListener('change', function () {
-      if (this.checked) {
-        paidFields.style.display = 'none';
-      } else {
-        paidFields.style.display = 'block';
+        return ticketDiv;
       }
-    });
 
-    // File preview
-    fileInput.addEventListener('change', function (e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          previewImage.src = e.target.result;
-          filePreview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
+      // Add new ticket
+      function addTicket() {
+        ticketCounter++;
+        const newTicket = createTicketElement(ticketCounter, null);
+        ticketsContainer.appendChild(newTicket);
       }
-    });
 
-    // Price display
-    priceInput.addEventListener('input', function () {
-      const price = parseInt(this.value) || 0;
-      priceAmount.textContent = `KES ${price.toLocaleString()}`;
-    });
+      // Remove ticket
+      window.removeTicket = function (button) {
+        const ticketItem = button.closest(".ticket-item");
+        if (ticketsContainer.children.length > 1) {
+          ticketItem.remove();
+        } else {
+          alert("You must have at least one ticket type");
+        }
+      };
 
-    // Category tags
-    categoryTags.forEach(tag => {
-      tag.addEventListener('click', function () {
-        categoryTags.forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        categorySelect.value = this.getAttribute('data-value');
+      // Update price displays when free checkbox changes
+      freeCheckbox.addEventListener("change", function () {
+        const priceInputs = document.querySelectorAll(".ticket-price-input");
+        const priceDisplays = document.querySelectorAll(".price-display-small");
+
+        if (this.checked) {
+          priceInputs.forEach((input) => {
+            input.disabled = true;
+            input.value = 0;
+            input.removeAttribute("required");
+          });
+          priceDisplays.forEach((display) => {
+            if (display) display.textContent = "KES 0";
+          });
+        } else {
+          priceInputs.forEach((input) => {
+            input.disabled = false;
+            input.setAttribute("required", "required");
+            input.dispatchEvent(new Event("input"));
+          });
+        }
       });
-    });
 
-    
+      // Preview functionality
+      function generatePreview() {
+        const title =
+          document.querySelector('input[name="Event_title"]').value ||
+          "Not specified";
+        const category =
+          categorySelect.options[categorySelect.selectedIndex]?.text ||
+          "Not specified";
+        const date =
+          document.getElementById("eventDate").value || "Not specified";
+        const time =
+          document.getElementById("eventTime").value || "Not specified";
+        const location =
+          document.querySelector('input[name="Event_location"]').value ||
+          "Not specified";
+        const details =
+          document.querySelector('textarea[name="Event_details"]').value ||
+          "No description";
+        const isFree = freeCheckbox.checked;
 
-    // Preview button
-    previewBtn.addEventListener('click', generatePreview);
+        // Get ticket info
+        const tickets = [];
+        const ticketItems = document.querySelectorAll(".ticket-item");
+        ticketItems.forEach((item, index) => {
+          const name =
+            item.querySelector(".ticket-name-input")?.value ||
+            `Ticket Type ${index + 1}`;
+          const price = item.querySelector(".ticket-price-input")?.value || 0;
+          const capacity =
+            item.querySelector(".ticket-capacity-input")?.value || 0;
+          const description =
+            item.querySelector(".ticket-desc-input")?.value || "";
+          tickets.push({ name, price, capacity, description });
+        });
+
+        // Build tickets HTML
+        let ticketsHtml = "";
+        tickets.forEach((ticket) => {
+          ticketsHtml += `
+            <div style="background: var(--vibe-light); padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+              <div style="font-weight: 700; margin-bottom: 5px;">${ticket.name}</div>
+              <div style="font-size: 0.85rem; color: var(--vibe-text-light);">Price: ${isFree ? "FREE" : `KES ${parseInt(ticket.price).toLocaleString()}`}</div>
+              <div style="font-size: 0.85rem; color: var(--vibe-text-light);">Capacity: ${ticket.capacity} tickets</div>
+              ${ticket.description ? `<div style="font-size: 0.8rem; color: var(--vibe-text-light); margin-top: 5px;">${ticket.description}</div>` : ""}
+            </div>
+          `;
+        });
+
+        const previewHTML = `
+          <div style="border: 1px solid #E8E8E8; border-radius: 12px; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #FF6B35, #FF8C42); padding: 15px; color: white;">
+              <strong>Event Preview</strong>
+            </div>
+            <div style="padding: 20px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                  <div style="font-size: 0.8rem; color: #6B6B7A;">Event Title</div>
+                  <div style="font-weight: 600;">${title}</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.8rem; color: #6B6B7A;">Category</div>
+                  <div><span style="background: #FFF9F5; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;">${category}</span></div>
+                </div>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <div style="font-size: 0.8rem; color: #6B6B7A;">Date & Time</div>
+                <div>📅 ${date} • ⏰ ${time}</div>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <div style="font-size: 0.8rem; color: #6B6B7A;">Location</div>
+                <div>📍 ${location}</div>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <div style="font-size: 0.8rem; color: #6B6B7A;">Ticket Types</div>
+                ${ticketsHtml}
+              </div>
+              ${
+                !isFree
+                  ? `
+              <div style="margin-bottom: 15px;">
+                <div style="font-size: 0.8rem; color: #6B6B7A;">M-PESA Number</div>
+                <div>📱 ${document.getElementById("eventMpesaNumber")?.value || "Not specified"}</div>
+              </div>
+              `
+                  : ""
+              }
+              <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #E8E8E8;">
+                <div style="font-size: 0.8rem; color: #6B6B7A;">Description</div>
+                <div style="font-size: 0.9rem;">${details}</div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        previewContent.innerHTML = previewHTML;
+        previewSection.style.display = "block";
+        previewSection.scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Initialize with one default ticket or load existing tickets
+      function initializeTickets() {
+        ticketsContainer.innerHTML = "";
+        ticketCounter = 1;
+        
+        const existingTickets = document.querySelectorAll('[data-ticket-id]');
+        
+        if (existingTickets.length > 0) {
+          // Load existing ticket types from the page
+          existingTickets.forEach((ticketElement, index) => {
+            // FIX: Sanitize dataset values - they are always strings from HTML
+            console.log("Target Element:", ticketElement);
+            const rawId = ticketElement.dataset.ticketId;
+            console.log(`${rawId}`)
+            let sanitizedId = null;
+            if (rawId && rawId.trim() !== "" && rawId.trim() !== "None" && rawId.trim() !== "null" && rawId.trim() !== "undefined") {
+              sanitizedId = rawId.trim();
+            }
+
+            const ticketData = {
+              id: sanitizedId,
+              name: ticketElement.dataset.ticketName || "",
+              price: parseFloat(ticketElement.dataset.ticketPrice) || 0,
+              capacity: parseInt(ticketElement.dataset.ticketCapacity) || 100,
+              description: ticketElement.dataset.ticketDescription || "",
+            };
+            console.log(`id: ${ticketData.id} - name: ${ticketData.name}`)
+            const newTicket = createTicketElement(index + 1, ticketData);
+            ticketsContainer.appendChild(newTicket);
+            ticketCounter = index + 1;
+          });
+        } else {
+          // Create default ticket for new events
+          const defaultTicket = createTicketElement(ticketCounter, {
+            name: "General Admission",
+            price: freeCheckbox.checked ? 0 : 500,
+            capacity: 100,
+            description: "Standard entry ticket",
+          });
+          ticketsContainer.appendChild(defaultTicket);
+        }
+      }
 
 
-  </script>
-</body>
+      // Add ticket button listener
+      addTicketBtn.addEventListener("click", addTicket);
 
+      // Preview button
+      previewBtn.addEventListener("click", generatePreview);
+
+      // Initialize on page load
+      initializeTickets();
+      
+    </script>
+  </body>
 </html>
+
+

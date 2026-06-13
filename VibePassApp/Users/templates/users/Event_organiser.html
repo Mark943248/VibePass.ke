@@ -784,7 +784,7 @@
         <div class="dashboard-section tab-content active" id="overview">
           <div class="section-header">
             <h2><i class="fas fa-fire"></i> Recent Events</h2>
-            <a href="#" class="view-all" data-tab="events">View All <i class="fas fa-arrow-right"></i></a>
+            <a href="{% url 'list_event' %}" class="view-all" data-tab="events">View All <i class="fas fa-arrow-right"></i></a>
           </div>
 
           <table class="events-table">
@@ -806,11 +806,11 @@
                   <div class="event-details"><i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}</div>
                 </td>
                 <td>{{ event.Event_date|date:"M d, Y" }}<br><small>{{ event.Event_time|time:"g:i A" }}</small></td>
-                <td>{{ event.get_sold_tickets }}/{{ event.Event_total_tickets }}</td>
-                <td>{% if event.Event_date >= today %}<span class="event-status status-upcoming">Upcoming</span>{% else
-                  %}<span class="event-status status-ended">Ended</span>{% endif %}</td>
+                <td>{{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}</td>
+                <td>{% if event.Event_date >= today %}<span class="event-status status-upcoming">Upcoming</span>{% else %}
+                  <span class="event-status status-ended">Ended</span>{% endif %}</td>
                 <td class="event-actions">
-                  <a href="{% url 'create_event' %}" class="btn-small btn-primary"><i class="fas fa-edit"></i> Edit</a>
+                  <a href="{% url 'edit_event' event.slug %}" class="btn-small btn-primary"><i class="fas fa-edit"></i> Edit</a>
                   <button class="btn-small btn-secondary"><i class="fas fa-chart-bar"></i> Stats</button>
                 </td>
               </tr>
@@ -862,11 +862,11 @@
                   <div class="event-details"><i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}</div>
                 </td>
                 <td>{{ event.Event_date|date:"M d, Y" }}</td>
-                <td>{{ event.get_sold_tickets }}/{{ event.Event_total_tickets }}</td>
+                <td>{{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}</td>
                 <td>KES {{ event.revenue }}</td>
                 <td>{% if event.Event_date >= today %}<span class="event-status status-upcoming">Upcoming</span>{% else
                   %}<span class="event-status status-ended">Ended</span>{% endif %}</td>
-                <td class="event-actions"><a href="{% url 'create_event' %}" class="btn-small btn-primary"><i
+                <td class="event-actions"><a href="{% url 'edit_event' event.slug %}" class="btn-small btn-primary"><i
                       class="fas fa-edit"></i></a><button class="btn-small btn-secondary"><i
                       class="fas fa-chart-bar"></i></button></td>
               </tr>

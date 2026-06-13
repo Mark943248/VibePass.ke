@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum, Min
 from cloudinary.models import CloudinaryField
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
@@ -42,42 +43,38 @@ class Event(models.Model):
     Event_time = models.TimeField()
     Event_mpesa_number = models.CharField(max_length=15, blank=True, null=True)  # Optional field for event-specific payment number 
     # Event ticketing info
-    Event_ticket_price = models.DecimalField(max_digits=10, decimal_places=2)
     Event_is_free = models.BooleanField(default=False)
-    Event_total_tickets = models.PositiveIntegerField()
     # Event status
     Event_is_active = models.BooleanField(default=True)
     Event_created_at = models.DateTimeField(auto_now_add=True)
 
-    # return available tickets
-    def get_available_tickets(self):
-        """Returns the number of available tickets for this event"""
-        claimed = self.tickets.filter(status__in=['active', 'scanned']).count()
-        return self.Event_total_tickets - claimed
-    
-    # get sold tickets
+    @property
+    def total_ticket_capacity(self):
+        return self.ticket_types.aggregate(total=Sum('capacity'))['total'] or 0
+
+    @property
+    def min_ticket_price(self):
+        price = self.ticket_types.filter(is_active=True).aggregate(min_price=Min('price'))['min_price']
+        if price is None:
+            price = self.ticket_types.aggregate(min_price=Min('price'))['min_price']
+        return price or 0
+
+    @property
+    def price_summary(self):
+        if self.Event_is_free:
+            return 'FREE'
+        price = self.min_ticket_price
+        return f"KES {price:.2f}" if price else 'FREE'
+
     def get_sold_tickets(self):
         """Returns the number of sold tickets for this event"""
         sold_tickets = self.tickets.filter(status__in=['active', 'scanned']).count()
         return sold_tickets
-    
-    # get total revenue from completed payments
-    def get_total_revenue(self):
-        """Calculate total revenue from completed payments for this event"""
-        from django.db.models import Sum
-        revenue = self.payments.filter(payment_status='Completed').aggregate(total=Sum('amount'))['total'] or 0
-        return revenue
-    
-    # checks if there are any available tickets
-    def has_available_tickets(self):
-        """Check if tickets are still available"""
-        return self.get_available_tickets() > 0
-    
+
     def percentage_of_sold_tickets(self):
         sold_tickets = self.get_sold_tickets()
-        total_tickets = self.Event_total_tickets
-        percentage = sold_tickets * 100 / total_tickets
-        return percentage
+        total_tickets = self.total_ticket_capacity
+        return round(sold_tickets * 100 / total_tickets, 2) if total_tickets else 0
     
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -90,6 +87,46 @@ class Event(models.Model):
             self.slug = slug
         super(Event, self).save(*args, **kwargs)
 
+
     def __str__(self):
         return self.Event_title
+
+
+class TicketType(models.Model):
+    """
+    Model to represent different ticket types for an event.
+    Examples: Early Bird, VIP, Regular, Standard, etc.
+    """
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='ticket_types')
+    name = models.CharField(max_length=100)  # e.g., "Early Bird", "VIP", "Regular"
+    description = models.TextField(blank=True, null=True)  # Additional description for the ticket type
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    capacity = models.PositiveIntegerField()  # Maximum number of tickets available for this type
+    sold_count = models.PositiveIntegerField(default=0)  # Number of tickets sold
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['created_at']
+        unique_together = ('event', 'name')  # Prevent duplicate ticket types for the same event
+
+    def get_available_count(self):
+        """Get the number of available tickets for this ticket type"""
+        return self.capacity - self.sold_count
+    
+    def get_total_tickets(self):
+        return self.event.ticket_types.aggregate(total=Sum('capacity'))['total'] or 0
+
+    def has_available(self):
+        """Check if this ticket type has available tickets"""
+        return self.get_available_count() > 0
+
+    
+    def deactivate_ticket_type(self):
+        if not self.has_available:
+            self.is_active = False
+
+    def __str__(self):
+        return f"{self.event.Event_title} - {self.name}"
   

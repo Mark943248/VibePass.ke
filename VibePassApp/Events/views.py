@@ -1,53 +1,169 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from .models import Event
+from django.db import transaction
+from django.views.decorators.http import require_POST
+from .models import Event, TicketType
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
-
 @login_required
 @user_passes_test(lambda u: u.is_organiser, login_url='login', redirect_field_name=None)
-def CreateEvent(request):
+def CreateEvent(request, slug=None):
+    """
+    Handle both creating and editing events with multi-ticket types.
+    If slug is provided, it's an edit operation; otherwise, it's a create operation.
+    """
+    event_instance = None
+    ticket_types = []
+    is_edit = False
+    
+    # Check if this is an edit operation
+    if slug:
+        is_edit = True
+        try:
+            event_instance = Event.objects.get(slug=slug)
+            # Verify ownership - only the organizer can edit their event
+            if event_instance.Event_organiser != request.user:
+                messages.error(request, "Unauthorised request")
+                return redirect('organizers_dashboard')
+            ticket_types = event_instance.ticket_types.all()
+            print(ticket_types)
+        except Event.DoesNotExist:
+            messages.error(request, "Event not found.")
+            return redirect('list_event')
+    
     if request.method == 'POST':
-        # Use .get() to prevent crashes if a field is hidden/missing
         data = request.POST
         is_free = data.get('Event_is_free') == 'on'
-        
-        # 1. Collect common fields
-        params = {
-            'Event_organiser': request.user,  # LINK THE USER!
+
+        event_data = {
             'Event_title': data.get('Event_title'),
-            'Event_flyer': request.FILES.get('Event_flyer'),
             'Event_category': data.get('Event_category'),
             'Event_details': data.get('Event_details'),
             'Event_location': data.get('Event_location'),
             'Event_date': data.get('Event_date'),
             'Event_time': data.get('Event_time'),
-            'Event_total_tickets': data.get('Event_total_tickets'),
             'Event_is_free': is_free,
         }
 
-        # 2. Add Paid-only fields if it's NOT free
-        if not is_free:
-            params['Event_mpesa_number'] = data.get('Event_mpesa_number')
-            params['Event_ticket_price'] = data.get('Event_ticket_price')
-        else:
-            params['Event_ticket_price'] = 0
+        # Only update flyer if a new one is provided
+        if request.FILES.get('Event_flyer'):
+            event_data['Event_flyer'] = request.FILES.get('Event_flyer')
 
-        # 3. Simple Validation Check
-        # Check if basic fields are present (Title, Date, etc.)
-        if not all([params['Event_title'], params['Event_date']]):
-            messages.error(request, 'Please fill in the required fields!')
-        else:
-            # 4. Create the event using the params dictionary
-            Event.objects.create(**params)
-            messages.success(request, 'Event created successfully!')
-            return redirect('list_event')
+        name = data.getlist('ticket_name[]')
+        price = data.getlist('ticket_price[]')
+        capacity = data.getlist('ticket_capacity[]')
+        description = data.getlist('ticket_description[]')
+        ticket_ids = data.getlist('ticket_id[]')
 
-    return render(request, 'events/create_event.html')
+        print(f"{ticket_ids}")
+        print(f"{name}")
+        print(f"{price}")
+        print(f"{capacity}")
+        print(f"{description}")
+        
+
+
+        try:
+            with transaction.atomic():
+                if not is_free:
+                    event_data['Event_mpesa_number'] = data.get('Event_mpesa_number')
+                
+                # Create or update event
+                if event_instance:
+                    # Update existing event
+                    for key, value in event_data.items():
+                        setattr(event_instance, key, value)
+                    event_instance.save()
+                    print("Event updated succesfully")
+                    events = event_instance
+                else:
+                    # Create new event
+                    event_data['Event_organiser'] = request.user
+                    events = Event.objects.create(**event_data)
+
+                # Handle ticket types - update existing and create new ones
+                updated_ticket_ids = set()
+                
+                for idx, (name_val, price_val, capacity_val, desc_val) in enumerate(zip(name, price, capacity, description)):
+                    if not name_val:
+                        print("missing info")
+                        continue
+
+                    # Clean price value
+                    clean_price = 0.00 if (not price_val or str(price_val).strip() == "" or str(price_val).strip() == "0") else price_val
+
+                    ticket_id = ticket_ids[idx] if idx < len(ticket_ids) and ticket_ids[idx] else None
+                    print(ticket_id)
+
+                    if ticket_id and ticket_id.isdigit():
+                        # Update existing ticket type
+                        try:
+                            ticket_type = TicketType.objects.get(id=int(ticket_id), event=events)
+                            ticket_type.name = name_val
+                            ticket_type.price = clean_price
+                            ticket_type.capacity = capacity_val
+                            ticket_type.description = desc_val
+                            ticket_type.save()
+                            print("Ticket types updated succesfully")
+                            updated_ticket_ids.add(int(ticket_id))
+                            print(updated_ticket_ids)
+                        except TicketType.DoesNotExist:
+                            # Create new ticket type if ID doesn't exist
+                            logger.debug("Ticket does not exist")
+                            new_ticket = TicketType.objects.create(
+                                event=events,
+                                name=name_val,
+                                price=clean_price,
+                                capacity=capacity_val,
+                                description=desc_val
+                            )
+                            updated_ticket_ids.add(new_ticket.id)
+                    else:
+                        # Create new ticket type
+                        new_ticket = TicketType.objects.create(
+                            event=events,
+                            name=name_val,
+                            price=clean_price,
+                            capacity=capacity_val,
+                            description=desc_val
+                        )
+                        print(f"New ticket: {new_ticket}")
+                        updated_ticket_ids.add(new_ticket.id)
+                        
+
+                # Delete ticket types that were removed
+                if event_instance:
+                    all_ticket_ids = set(events.ticket_types.values_list('id', flat=True))
+                    tickets_to_delete = all_ticket_ids - updated_ticket_ids
+                    TicketType.objects.filter(id__in=tickets_to_delete).delete()
+
+                success_msg = "Event updated successfully!" if event_instance else "Event created successfully!"
+                messages.success(request, success_msg)
+                return redirect('list_event')
+
+        except Exception as e:
+            logger.error(f"Error {'updating' if event_instance else 'creating'} event: {e}")
+            messages.error(request, f"Error {'updating' if event_instance else 'creating'} event. Please try again.")
+            if event_instance:
+                return redirect('edit_event', slug=event_instance.slug)
+            return redirect('create_event')
+
+    # GET request - render form
+    context = {
+        'is_edit': is_edit,
+        'event': event_instance,
+        'ticket_types': ticket_types,
+    }
+    return render(request, 'events/create_event.html', context)
+
+
 
 # list events view
 def ListEvent(request):
@@ -86,8 +202,11 @@ def Filter_by_category(request, category):
 # Event details
 def EventDetails(request, slug):
     event = Event.objects.get(slug=slug)
-    related_events = Event.objects.filter(
-        Event_category=event.Event_category
-        ).order_by('-Event_created_at').exclude(id=event.id)[:6]
-    return render(request, 'events/event_details.html', {'event':event, 'related_events':related_events})
+    # Get all active ticket types for this event
+    ticket_types = event.ticket_types.filter(is_active=True)
+    
+    return render(request, 'events/event_details.html', {
+        'event': event, 
+        'ticket_types': ticket_types
+    })
 

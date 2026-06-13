@@ -795,7 +795,7 @@
                                 </div>
                             </div>
                             <div class="amount-box">
-                                Amount to Pay: <strong id="mpesaAmountDisplay">KES {{ event.Event_ticket_price }}</strong>
+                                Amount to Pay: <strong id="mpesaAmountDisplay">{{ event.price_summary }}</strong>
                             </div>
                         </div>
 
@@ -842,7 +842,7 @@
                     </div>
                     <div class="price-row">
                         <span>Unit Price</span>
-                        <span>KES {{ event.Event_ticket_price }}</span>
+                        <span>{{ event.price_summary }}</span>
                     </div>
                     <div class="price-row">
                         <span>Processing Fee</span>
@@ -850,7 +850,7 @@
                     </div>
                     <div class="price-row total">
                         <span>Total Amount</span>
-                        <span class="total-amount">KES {{ event.Event_ticket_price }}</span>
+                        <span class="total-amount">{{ event.price_summary }}</span>
                     </div>
                 </div>
             </div>
@@ -892,7 +892,7 @@
     </footer>
 
     <script>
-        const eventPrice = '{{ event.Event_ticket_price|default:0 }}';
+        const eventPrice = parseFloat('{{ event.min_ticket_price|default:"0" }}');
 
         // Update M-PESA amount display
         const mpesaAmountDisplay = document.getElementById('mpesaAmountDisplay');

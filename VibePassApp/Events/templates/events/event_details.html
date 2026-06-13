@@ -608,8 +608,7 @@
       <div class="event-card">
         <!-- Event Image -->
         <div class="event-image">
-          <img src="{{ event.Event_flyer.url }}"
-            alt="{{ event.Event_title }} Flyer">
+          <img src="{{ event.Event_flyer.url }}" alt="{{ event.Event_title }} Flyer">
           <span class="event-category">{{ event.Event_category }}</span>
         </div>
 
@@ -643,7 +642,7 @@
               </div>
               <div class="info-text">
                 <h4>ATTENDEES</h4>
-                <p>{{ event.get_sold_tickets | default:"0" }} / {{ event.Event_total_tickets }} tickets sold</p>
+                <p>{{ event.get_sold_tickets | default:"0" }} / {{ event.total_ticket_capacity }} tickets sold</p>
               </div>
             </div>
           </div>
@@ -657,9 +656,9 @@
             </div>
             <div class="free-badge">Free Event!</div>
             {% else %}
-              <div class="price-label">Ticket Price</div>
-              <div class="price-amount" id="priceAmount">KES {{ event.Event_ticket_price | floatformat:2 }}</div>
-              <div class="free-badge">Limited Tickets Available!</div>
+            <div class="price-label">Ticket Price</div>
+            <div class="price-amount" id="priceAmount">{{ event.price_summary }}</div>
+            <div class="free-badge">Limited Tickets Available!</div>
             {% endif %}
           </div>
 
@@ -675,27 +674,38 @@
           <div class="tickets-section">
             <h3>Select Tickets</h3>
 
+            {% if ticket_types %}
+            <!-- Display multiple ticket types -->
+            {% for ticket_type in ticket_types %}
             <div class="ticket-option">
               <div>
-                <div class="ticket-type">General Tickets</div>
-                <div style="font-size: 0.85rem; color: var(--vibe-text-light);">Full access to all areas</div>
+                <div class="ticket-type">{{ ticket_type.name }}</div>
+                <div style="font-size: 0.85rem; color: var(--vibe-text-light);">
+                  {{ ticket_type.description|default:"" }}
+                  <br>
+                  <span style="font-weight: 600; color: var(--vibe-text);">
+                    Available: {{ ticket_type.get_available_count }} / {{ ticket_type.capacity }}
+                  </span>
+                </div>
               </div>
-              <div class="ticket-price">KES {{ event.Event_ticket_price | floatformat:2 }}</div>
+              <div class="ticket-price">KES {{ ticket_type.price | floatformat:2 }}</div>
               <div class="quantity-control">
-                <button class="qty-btn" onclick="changeQuantity(-1)">-</button>
-                <span class="qty-value" id="quantity">1</span>
-                <button class="qty-btn" onclick="changeQuantity(1)">+</button>
+                <button class="qty-btn" onclick="updateQuantity('{{ ticket_type.id }}', -1)">-</button>
+                <span class="qty-value" id="quantity-{{ ticket_type.id }}">0</span>
+                <button class="qty-btn" onclick="updateQuantity('{{ ticket_type.id }}', 1)">+</button>
               </div>
             </div>
+            {% endfor %}
+            {% endif %}
 
             <div class="total-section">
               <span class="total-label">Total Amount</span>
-              <span class="total-amount" id="totalAmount">KES {{ event.Event_ticket_price | floatformat:2 }}</span>
+              <span class="total-amount" id="totalAmount">KES 0</span>
             </div>
-            
-            <a href="{% url 'checkout' event.slug%}" class="book-btn" onclick="bookTicket()">
+
+            <button class="book-btn" id="bookBtn" onclick="handleCheckout(event)">
               <i class="fas fa-ticket-alt"></i> Get Tickets
-            </a>
+            </button>
           </div>
 
           <!-- Organizer Info -->
@@ -704,7 +714,7 @@
               <i class="fas fa-user"></i>
             </div>
             <div>
-              <h4 style="margin-bottom: 5px;">{{ event.Event_organizer }}</h4>
+              <h4 style="margin-bottom: 5px;">{{ event.Event_organiser }}</h4>
               <p style="color: var(--vibe-text-light); font-size: 0.9rem;">Professional event organizers </p>
             </div>
           </div>
@@ -741,24 +751,95 @@
   </div>
 
   <script>
-    let quantity = 1;
-    const ticketPrice = parseFloat('{{ event.Event_ticket_price | floatformat:2 }}');
+    // Object to store ticket quantities for each ticket type
+    let ticketCart = {};
+    let ticketTypes = {};
 
-    function changeQuantity(delta) {
-      const newQuantity = quantity + delta;
-      if (newQuantity >= 1 && newQuantity <= 10) {
-        quantity = newQuantity;
-        document.getElementById('quantity').textContent = quantity;
-        const total = quantity * ticketPrice;
-        document.getElementById('totalAmount').textContent = `KES ${total.toLocaleString()}`;
+    // I am commenting to keep editor happy 
+    /*{% if ticket_types %} */
+    ticketTypes = {
+      /* {% for ticket_type in ticket_types %} */
+      "{{ ticket_type.id }}": {
+        name: "{{ ticket_type.name }}",
+        price: parseFloat("{{ ticket_type.price }}"),
+        available: parseInt("{{ ticket_type.get_available_count }}")
+      }, /* {% if not forloop.last %},{% endif %} */
+      /* {% endfor %} */
+    };
+
+    // Initialize all quantities to 0
+    Object.keys(ticketTypes).forEach(id => {
+      ticketCart[id] = 0;
+    });
+    /* {% endif %} */
+
+    // Update quantity for a ticket type
+    function updateQuantity(ticketTypeId, change) {
+      const id = Number(ticketTypeId);
+
+      if (!ticketTypes[id]) {
+        console.error(`Ticket type ID ${id} not found in ticketTypes data object.`);
+        return;
+      }
+      const currentQty = ticketCart[id] || 0;
+      const newQty = currentQty + change;
+      const available = ticketTypes[id].available;
+
+      if (newQty >= 0 && newQty <= available) {
+        ticketCart[id] = newQty;
+
+        // Pass the corrected ID to your display functions
+        updateDisplay(id);
+        updateTotal();
       }
     }
 
-    function bookTicket() {
-      const total = quantity * ticketPrice;
-      alert(`🎟️ Booking Confirmation!\n\nEvent: Spring Bash: Neon Night\nQuantity: ${quantity} ticket(s)\nTotal: KES ${total.toLocaleString()}\n\nProceed to checkout?`);
-      window.location.href = 'checkout.html';
+    // Update the display for a specific ticket type
+    function updateDisplay(ticketTypeId) {
+      const qtySpan = document.getElementById(`quantity-${ticketTypeId}`);
+      if (qtySpan) {
+        qtySpan.textContent = ticketCart[ticketTypeId] || 0;
+      }
     }
+
+    // Calculate and update total amount
+    function updateTotal() {
+      let total = 0;
+      Object.keys(ticketCart).forEach(id => {
+        if (ticketTypes[id]) {
+          total += ticketTypes[id].price * (ticketCart[id] || 0);
+        }
+      });
+
+      const totalElement = document.getElementById('totalAmount');
+      if (totalElement) {
+        totalElement.textContent = 'KES ' + total.toLocaleString('en-KE', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      // Store cart in sessionStorage for checkout
+      sessionStorage.setItem('ticketCart', JSON.stringify(ticketCart));
+    }
+
+    // Handle checkout
+    function handleCheckout() {
+      const hasTickets = Object.values(ticketCart).some(qty => qty > 0);
+
+      if (!hasTickets) {
+        alert('Please select at least one ticket');
+        return false;
+      }
+
+      // Redirect to checkout page with cart data
+      window.location.href = "{% url 'checkout' event.slug %}";
+    }
+
+    // Initialize event listeners on page load
+    document.addEventListener('DOMContentLoaded', function () {
+      updateTotal();
+    });
   </script>
 </body>
 
