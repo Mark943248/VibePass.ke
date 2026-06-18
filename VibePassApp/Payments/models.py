@@ -12,6 +12,8 @@ class Payment(models.Model):
     checkout_request_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
     mpesa_receipt_number = models.CharField(max_length=255, unique=True, blank=True, null=True)  # receipt number for each transaction by mpesa
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    is_agreed_to_terms = models.BooleanField(default=False) # verify of user has agreed to terms 
+    checkout_data_snapshot = models.JSONField(null=True, blank=True) # to preserve the data across async webhooks
     mpesa_number = models.CharField(max_length=20)  # phone number used for payment
     payment_status = models.CharField(max_length=20)  # e.g., 'Pending', 'Completed', 'Failed'
     created_at = models.DateTimeField(auto_now_add=True)

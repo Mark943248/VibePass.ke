@@ -703,7 +703,7 @@
               <span class="total-amount" id="totalAmount">KES 0</span>
             </div>
 
-            <button class="book-btn" id="bookBtn" onclick="handleCheckout(event)">
+            <button class="book-btn" id="bookBtn" onclick="sendCartToBackend()">
               <i class="fas fa-ticket-alt"></i> Get Tickets
             </button>
           </div>
@@ -823,17 +823,54 @@
       sessionStorage.setItem('ticketCart', JSON.stringify(ticketCart));
     }
 
-    // Handle checkout
-    function handleCheckout() {
-      const hasTickets = Object.values(ticketCart).some(qty => qty > 0);
+    
 
-      if (!hasTickets) {
-        alert('Please select at least one ticket');
-        return false;
+    // Handle sending ticketCart to the backend
+    function sendCartToBackend() {
+      const payload = {
+        cart: ticketCart 
+      };
+
+      // 2. Fire the POST request to your URL
+      fetch("{% url 'event_details' event.slug %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Django requires this token for security on all POST requests
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        // Convert the JavaScript object into a JSON string
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+          /* {% if event.is_free %} */
+            window.location.href = "{% url 'book_for_free' event.slug %}";
+           /* {% else %} */
+            window.location.href = "{% url 'checkout' event.slug %}";
+          /* {% endif %} */
+          } else {
+            alert("Error processing cart: " + data.message);
+          }
+        })
+        .catch(error => console.error('Network Error:', error));
+    }
+
+    // Quick helper function to extract Django's CSRF token from the browser cookies
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
       }
-
-      // Redirect to checkout page with cart data
-      window.location.href = "{% url 'checkout' event.slug %}";
+      return cookieValue;
     }
 
     // Initialize event listeners on page load

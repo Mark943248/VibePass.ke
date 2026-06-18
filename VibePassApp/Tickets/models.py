@@ -24,7 +24,7 @@ class Ticket(models.Model):
         null=True,
         blank=True
     )
-    payment = models.OneToOneField(
+    payment = models.ForeignKey(
         Payment, 
         on_delete=models.CASCADE, 
         related_name='ticket',

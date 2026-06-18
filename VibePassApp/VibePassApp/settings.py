@@ -23,8 +23,7 @@ load_dotenv()
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-q=#dxnjif=mvgvn6x00&_xq4k624$pft^1@38-6gexqs21214f'
-
+SECRET_KEY=os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -32,7 +31,6 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.ngrok.io', '.ngrok-free.dev']
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -209,3 +207,4 @@ ACCOUNT_SIGNUP_METHODS = {'email*', 'username'}
 ACCOUNT_UNIQUE_EMAIL = True
 
 SITE_ID = 1
+

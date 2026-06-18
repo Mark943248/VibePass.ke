@@ -2,42 +2,81 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .signals import payment_successful
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
-from Events.models import Event
+from Events.models import Event, TicketType
 from django.http import JsonResponse
 from django.contrib import messages
+from django.db import transaction
 from django.conf import settings
 from .utils import mpesa_stk_push, format_phone_number, initiate_b2c_request
 from .models import Payment, Withdrawal
 from .consumers import send_payment_status_update
 import json
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 @login_required
 def initiate_payment(request, slug):
-    event = get_object_or_404(Event, slug=slug)
-    amount = event.min_ticket_price
-    if request.method == 'POST':
+   try:
+     checkout_data=request.session.get('checkout_data')
+     print(f"Checkoutdat: {checkout_data}")
+     event = get_object_or_404(Event, slug=slug)
+     amount = checkout_data['grand_total']
+     checkout_items = checkout_data['items']
+   except Exception as e:
+     print(f"Error occured: {e}")
+   
+   if request.method == 'POST':
         phone_number = request.POST.get('phone_number', '').strip()
+        agreed_to_terms = 'terms' in request.POST  # To this (evaluates to True if checked, False if not)
+        # Validates the phone number
         if not phone_number:
             messages.error(request, 'Please enter a phone number.')
             return redirect('event_details', slug=event.slug)
-
+        # validates if user has agreed to terms & conditions
+        if not agreed_to_terms:
+            messages.error(request, "Agree to the Terms and Conditions")
+            return redirect('event_details', slug=event.slug)
+        # validates format of the phone number
         formatted_phone = format_phone_number(phone_number)
         if not formatted_phone.startswith('254') or len(formatted_phone) != 12:
             messages.error(request, 'Invalid phone number.')
             return redirect('event_details', slug=event.slug)
+        with transaction.atomic():
+          try:
+            for checkout_item in checkout_items:
+                ticket_type_id = checkout_item.get('id')
+                quantity_requested = checkout_item.get('quantity', 0)
 
-        # create a payment record in the database
-        payment = Payment.objects.create(
-            user=request.user,
-            event=event,
-            amount=amount,
-            mpesa_number=formatted_phone,
-            payment_status='Pending'
-        )
+                ticket_type = TicketType.objects.select_for_update().get(id=ticket_type_id, event=event)
+                # Ensures user can't buy a ticket if there no tickets
+                if not ticket_type.has_available:
+                    messages.error(request, f"Sorry there are no more tickets for: {ticket_type.name}")
+                    return redirect('event_details', slug=slug)
+                # Ensures the user can't buy more tickets than are actually available
+                if ticket_type.get_available_count() < quantity_requested:
+                    messages.error(request, f"Sorry, there are not enough tickets available for {ticket_type.name}.")
+                    return redirect('event_details', slug=event.slug)
+                
+          # create a payment record in the database
+            payment = Payment.objects.create(
+               user=request.user,
+               event=event,
+               amount=amount,
+               mpesa_number=formatted_phone,
+               is_agreed_to_terms=agreed_to_terms,
+               payment_status='Pending',
+               checkout_data_snapshot=checkout_data
+            )
+          except Exception as stock_error:
+              print(f"Database/Stock validation failed: {stock_error}")
+              messages.error(request, "An error occurred while matching ticket availability. Please try again.")
+              return redirect('event_details', slug=event.slug)
+          
         # initiate mpesa stk push
-        try:
+          try:
             response = mpesa_stk_push(formatted_phone, amount, event.Event_title, payment.payment_id)
             stk_json_path = os.path.join(settings.BASE_DIR, 'mpesa_logs', 'stk.json')
             with open(stk_json_path, 'w') as f:
@@ -54,10 +93,10 @@ def initiate_payment(request, slug):
                 error_msg = response.get('ResultDesc', 'Payment initiation failed. Please try again.')
                 print(f'MPESA STK Push failed for payment ID {payment.payment_id}: {error_msg} {response}')
                 return redirect('event_details', slug=event.slug)
-        except Exception as e:
+          except Exception as e:
             print(f'Error initiating payment: {str(e)}')
             return redirect('event_details', slug=event.slug)
-    return render(request, 'payments/checkout.html', {'event': event})
+   return render(request, 'payments/checkout.html', {'event': event})
 
 
 # Check payment status endpoint
@@ -310,6 +349,21 @@ def mpesa_timeout_handler(request):
 # render checkout page
 def checkout(request, slug):
     event = get_object_or_404(Event, slug=slug)
-    return render(request, 'payments/checkout.html', {'event': event})
+    print(f"Event slug: {event.slug}")
+    checkout_data = request.session.get('checkout_data')
+    print(f"Check out data: {checkout_data}")
+
+    if not checkout_data:
+        messages.error(request, "You have not selected the amount of tickets you wish to buy!")
+        redirect('event_details')
+
+    context = {
+        'event': event,
+        'items': checkout_data['items'],
+        'grand_total': checkout_data['grand_total']
+    }
+
+
+    return render(request, 'payments/checkout.html', context)
 
 

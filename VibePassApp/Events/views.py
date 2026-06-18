@@ -1,4 +1,7 @@
+import json
+import logging
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db import transaction
@@ -7,7 +10,7 @@ from .models import Event, TicketType
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.utils import timezone
-import logging
+
 
 logger = logging.getLogger(__name__)
 
@@ -204,7 +207,39 @@ def EventDetails(request, slug):
     event = Event.objects.get(slug=slug)
     # Get all active ticket types for this event
     ticket_types = event.ticket_types.filter(is_active=True)
-    
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        cart = data.get('cart', {})
+
+        checkout_items = []
+        grand_total = 0
+
+        for ticket_id, quantity in cart.items():
+            quantity = int(quantity)
+            if quantity >= 0:
+                ticket_type = TicketType.objects.get(id=ticket_id)
+                line_total = ticket_type.price * quantity
+                grand_total += line_total
+                
+                checkout_items.append({
+                    'id': ticket_type.id,
+                    'name': ticket_type.name,
+                    'quantity': quantity,
+                    'unit_price': float(ticket_type.price),
+                    'line_total': float(line_total)
+                })
+            
+        request.session['checkout_data'] = {
+            'items': checkout_items,
+            'grand_total': float(grand_total)
+        }
+
+        return JsonResponse({
+            'success': True,
+        })
+
+
     return render(request, 'events/event_details.html', {
         'event': event, 
         'ticket_types': ticket_types

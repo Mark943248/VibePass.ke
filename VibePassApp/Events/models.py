@@ -100,7 +100,7 @@ class TicketType(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='ticket_types')
     name = models.CharField(max_length=100)  # e.g., "Early Bird", "VIP", "Regular"
     description = models.TextField(blank=True, null=True)  # Additional description for the ticket type
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     capacity = models.PositiveIntegerField()  # Maximum number of tickets available for this type
     sold_count = models.PositiveIntegerField(default=0)  # Number of tickets sold
     is_active = models.BooleanField(default=True)
@@ -121,7 +121,6 @@ class TicketType(models.Model):
     def has_available(self):
         """Check if this ticket type has available tickets"""
         return self.get_available_count() > 0
-
     
     def deactivate_ticket_type(self):
         if not self.has_available:
