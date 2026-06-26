@@ -610,7 +610,7 @@
     <!-- Header -->
     <header class="header">
       <div class="container header-container">
-        <a href="index.html" class="logo">
+        <a href="{% url 'home' %}" class="logo">
           <div class="logo-icon">
             <i class="fas fa-ticket-alt"></i>
           </div>
@@ -809,8 +809,7 @@
             Event Information
           </h3>
           <div class="event-description">
-            {% if ticket.event.Event_details %} {{
-            ticket.event.Event_details|truncatechars:300 }} {% else %} Get
+            {% if ticket.event.Event_details %} {{ticket.event.Event_details|truncatechars:300 }} {% else %} Get
             ready for an amazing event experience! Check the venue and time for
             entry details. {% endif %}
           </div>

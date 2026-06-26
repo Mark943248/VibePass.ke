@@ -208,3 +208,7 @@ ACCOUNT_UNIQUE_EMAIL = True
 
 SITE_ID = 1
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://gawk-quack-uniformed.ngrok-free.dev',
+]
+

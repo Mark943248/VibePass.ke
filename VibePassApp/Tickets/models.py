@@ -46,6 +46,9 @@ class Ticket(models.Model):
         self.scanned_at = timezone.now()
         self.save()
         return True, "Ticket marked as scanned successfully."
+    
+    def get_status_display(self):
+        return self.status
 
     def __str__(self):
         return f"Ticket {self.ticket_id} for {self.event.Event_title} by {self.user.username}"

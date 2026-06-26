@@ -941,14 +941,14 @@
                                 </div>
                                 <div class="ticket-description">
                                     {% if 'VIP' in item.name %}
-                                    <i class="fa-solid fa-star gold-star"></i> 
+                                    <i class="fa-solid fa-star gold-star"></i>
                                     Priority entry • Reserved seating • Free drinks • Meet & greet
                                     {% elif 'Early' in item.name %}
-                                    <i class="fa-solid fa-gold-bars gold-bar"></i> 
+                                    <i class="fa-solid fa-gold-bars gold-bar"></i>
                                     Limited time offer • Save 20% • First access
                                     {% else %}
-                                     <i class="fa-regular fa-ticket"></i> 
-                                     Standard entry • Access to all areas
+                                    <i class="fa-regular fa-ticket"></i>
+                                    Standard entry • Access to all areas
                                     {% endif %}
                                 </div>
                             </div>
@@ -956,7 +956,7 @@
                                 <div class="ticket-price">{{ item.unit_price }}</div>
                                 <div class="ticket-availability">Available: {{ item.available_count }} left</div>
                             </div>
-                            
+
                         </div>
                         {% endfor %}
                     </div>
@@ -1037,14 +1037,14 @@
                         </div>
                     </form>
                 </div>
-                  
-                   
-                    <div class="price-row total">
-                        <span>Total Amount</span>
-                        <span class="total-amount" id="totalAmount">KES {{ grand_total }}</span>
-                    </div>
+
+
+                <div class="price-row total">
+                    <span>Total Amount</span>
+                    <span class="total-amount" id="totalAmount">KES {{ grand_total }}</span>
                 </div>
             </div>
+        </div>
         </div>
     </main>
 
@@ -1071,21 +1071,7 @@
         // DOM Elements
         const phoneInput = document.getElementById('phoneNumber');
         const termsCheckbox = document.getElementById('termsCheckbox');
-       
-    
-        // Phone input formatting
-        phoneInput.addEventListener('input', function () {
-            let value = this.value.replace(/\D/g, '');
-            if (value.length > 10) value = value.slice(0, 10);
 
-            if (value.length > 6) {
-                this.value = `${value.slice(0, 4)} ${value.slice(4, 7)} ${value.slice(7)}`;
-            } else if (value.length > 3) {
-                this.value = `${value.slice(0, 4)} ${value.slice(4)}`;
-            } else {
-                this.value = value;
-            }
-        });
 
         phoneInput.addEventListener('blur', function () {
             const rawValue = this.value.replace(/\D/g, '');

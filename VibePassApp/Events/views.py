@@ -1,6 +1,6 @@
 import json
 import logging
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -245,3 +245,18 @@ def EventDetails(request, slug):
         'ticket_types': ticket_types
     })
 
+# delete event view
+@login_required
+@user_passes_test(lambda u: u.is_organiser, login_url='login', redirect_field_name=None)
+def delete_event_view(request, slug):
+    event = get_object_or_404(Event, slug=slug)
+    # validate if user is the organiser
+    if not event.Event_organiser == request.user:
+        messages.error(request, "Sorry! you aren't authorised for this action")
+        return redirect('organizers_dashboard')
+    # validate request method
+    if request.method == 'POST':
+        event.delete()
+        return JsonResponse({'message': 'Deleted successfully'}, status=200)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

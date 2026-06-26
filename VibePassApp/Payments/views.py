@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from Events.models import Event, TicketType
 from django.http import JsonResponse
 from django.contrib import messages
+from django.utils import timezone
 from django.db import transaction
 from django.conf import settings
 from .utils import mpesa_stk_push, format_phone_number, initiate_b2c_request
@@ -31,6 +32,11 @@ def initiate_payment(request, slug):
    if request.method == 'POST':
         phone_number = request.POST.get('phone_number', '').strip()
         agreed_to_terms = 'terms' in request.POST  # To this (evaluates to True if checked, False if not)
+        # validate if event is expired
+        current_time = timezone.now().date() # gets current date
+        if event.Event_date < current_time:
+            messages.info(request, "Sorry this event is out of date!")
+            return redirect('event_details', slug=event.slug)
         # Validates the phone number
         if not phone_number:
             messages.error(request, 'Please enter a phone number.')

@@ -122,9 +122,6 @@ class TicketType(models.Model):
         """Check if this ticket type has available tickets"""
         return self.get_available_count() > 0
     
-    def deactivate_ticket_type(self):
-        if not self.has_available:
-            self.is_active = False
 
     def __str__(self):
         return f"{self.event.Event_title} - {self.name}"

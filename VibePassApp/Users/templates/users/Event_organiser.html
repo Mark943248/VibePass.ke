@@ -784,7 +784,8 @@
         <div class="dashboard-section tab-content active" id="overview">
           <div class="section-header">
             <h2><i class="fas fa-fire"></i> Recent Events</h2>
-            <a href="{% url 'list_event' %}" class="view-all" data-tab="events">View All <i class="fas fa-arrow-right"></i></a>
+            <a href="{% url 'list_event' %}" class="view-all" data-tab="events">View All <i
+                class="fas fa-arrow-right"></i></a>
           </div>
 
           <table class="events-table">
@@ -807,11 +808,16 @@
                 </td>
                 <td>{{ event.Event_date|date:"M d, Y" }}<br><small>{{ event.Event_time|time:"g:i A" }}</small></td>
                 <td>{{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}</td>
-                <td>{% if event.Event_date >= today %}<span class="event-status status-upcoming">Upcoming</span>{% else %}
-                  <span class="event-status status-ended">Ended</span>{% endif %}</td>
+                <td>{% if event.Event_date >= today %}<span class="event-status status-upcoming">Upcoming</span>{% else
+                  %}
+                  <span class="event-status status-ended">Ended</span>{% endif %}
+                </td>
                 <td class="event-actions">
-                  <a href="{% url 'edit_event' event.slug %}" class="btn-small btn-primary"><i class="fas fa-edit"></i> Edit</a>
-                  <button class="btn-small btn-secondary"><i class="fas fa-chart-bar"></i> Stats</button>
+                  <a href="{% url 'edit_event' event.slug %}" class="btn-small btn-primary"><i class="fas fa-edit"></i>
+                    Edit</a>
+                  <button class="btn-small btn-secondary" id="delete-event-btn"
+                    data-url="{% url 'delete_event' event.slug %}" data-slug="{{ event.slug }}"><i
+                      class="fas fa-chart-bar"></i> delete</button>
                 </td>
               </tr>
               {% endfor %}
@@ -955,6 +961,8 @@
     const currentDate = new Date();
     document.getElementById("currentDate").textContent = currentDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
+    const btnDel = document.getElementById('delete-event-btn');
+
     // Mobile menu toggle
     const mobileMenuToggle = document.getElementById("mobileMenuToggle");
     const sidebar = document.getElementById("sidebar");
@@ -999,6 +1007,37 @@
         const targetLink = document.querySelector(`.nav-link[data-tab="${targetTab}"]`);
         if (targetLink) targetLink.click();
       });
+    });
+    
+    // delete event
+    btnDel.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      const deleteUrl = this.getAttribute('data-url');
+      const eventSlug = this.getAttribute('data-slug');
+      // Double-check user intent
+      if (confirm('Are you sure you want to permanently delete this event?')) {
+        // Grab the CSRF token from the hidden input field Django generates
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        // 3. Make the asynchronous background request
+        fetch(deleteUrl, {
+          method: 'POST', // Still using POST for state modification!
+          headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest' // Tells Django this is an AJAX call
+          }
+        })
+          .then(response => {
+            if (response.ok) {
+              // 4. Smoothly remove the event element from the DOM without refreshing
+              alert('Event deleted successfully!');
+              window.location.reload(); // Or target the card element and do .remove()
+            } else {
+              alert('Something went wrong. Could not delete event.');
+            }
+          })
+          .catch(error => console.error('Error:', error));
+      }
     });
   </script>
 </body>
