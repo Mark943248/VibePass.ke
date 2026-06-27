@@ -815,6 +815,7 @@
                 <td class="event-actions">
                   <a href="{% url 'edit_event' event.slug %}" class="btn-small btn-primary"><i class="fas fa-edit"></i>
                     Edit</a>
+                  {% csrf_token %}  
                   <button class="btn-small btn-secondary" id="delete-event-btn"
                     data-url="{% url 'delete_event' event.slug %}" data-slug="{{ event.slug }}"><i
                       class="fas fa-chart-bar"></i> delete</button>

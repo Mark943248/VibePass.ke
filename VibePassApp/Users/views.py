@@ -7,6 +7,7 @@ from Payments.models import Withdrawal
 from Events.models import Event
 from Tickets.models import Ticket
 from django.db.models import Sum
+from django.utils import timezone
 from datetime import date
 from .models import User
 
@@ -80,7 +81,14 @@ def EventFindersDashboard(request):
     user = request.user
     events = Event.objects.order_by('-Event_created_at')[:4]
     tickets = Ticket.objects.filter(user=user).order_by('-created_at')
-    return render(request, 'users/Event_finder.html', {'user': user, 'events': events, 'tickets': tickets})
+    today_date = timezone.now().date()
+    context = {
+        'user': user,
+        'events': events,
+        'tickets': tickets,
+        'today': today_date
+    }
+    return render(request, 'users/Event_finder.html', context)
 
 
 # 2. Event Organizers Dashboard

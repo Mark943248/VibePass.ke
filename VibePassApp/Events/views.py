@@ -94,11 +94,18 @@ def CreateEvent(request, slug=None):
                 # Handle ticket types - update existing and create new ones
                 updated_ticket_ids = set()
                 
-                for idx, (name_val, price_val, capacity_val, desc_val) in enumerate(zip(name, price, capacity, description)):
+                for idx in range(len(name)):
+                    name_val = name[idx].strip() if idx < len(name) else None
+
                     if not name_val:
-                        print("missing info")
                         continue
 
+                    # Clean price value
+                    price_val = price[idx] if idx < len(price) else "0"
+                    capacity_val = capacity[idx] if idx < len(capacity) else 0
+                    desc_val = description[idx] if idx < len(description) else ""
+                    ticket_id = ticket_ids[idx] if idx < len(ticket_ids) and ticket_ids[idx] else None
+                    
                     # Clean price value
                     clean_price = 0.00 if (not price_val or str(price_val).strip() == "" or str(price_val).strip() == "0") else price_val
 
@@ -110,7 +117,7 @@ def CreateEvent(request, slug=None):
                         try:
                             ticket_type = TicketType.objects.get(id=int(ticket_id), event=events)
                             ticket_type.name = name_val
-                            ticket_type.price = clean_price
+                            ticket_type.price = clean_price 
                             ticket_type.capacity = capacity_val
                             ticket_type.description = desc_val
                             ticket_type.save()
@@ -174,7 +181,12 @@ def ListEvent(request):
     paginator = Paginator(Events, 10)  # Show 10 events per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'events/list_event.html', {'page_obj': page_obj})
+    date_today = timezone.now().date()
+    context = {
+        'page_obj': page_obj,
+        'today': date_today
+    }
+    return render(request, 'events/list_event.html', context)
 
 # search events view
 def SearchEvent(request):
@@ -204,41 +216,59 @@ def Filter_by_category(request, category):
 
 # Event details
 def EventDetails(request, slug):
-    event = Event.objects.get(slug=slug)
-    # Get all active ticket types for this event
+    event = get_object_or_404(Event, slug=slug)
     ticket_types = event.ticket_types.filter(is_active=True)
 
     if request.method == 'POST':
         data = json.loads(request.body)
         cart = data.get('cart', {})
+        logger.info(f"cart data {cart}")
 
         checkout_items = []
         grand_total = 0
+        total_tickets_selected = 0  # Track total items across all types
 
         for ticket_id, quantity in cart.items():
-            quantity = int(quantity)
-            if quantity >= 0:
+            try:
+                quantity = int(quantity)
+            except (ValueError, TypeError):
+                continue  # Skip if quantity data is corrupted or bad input
+
+            # If the user didn't buy this type, ignore it and check the next one
+            if quantity <= 0:
+                continue 
+ 
+            total_tickets_selected += quantity
+
+            try:
                 ticket_type = TicketType.objects.get(id=ticket_id)
-                line_total = ticket_type.price * quantity
-                grand_total += line_total
-                
-                checkout_items.append({
-                    'id': ticket_type.id,
-                    'name': ticket_type.name,
-                    'quantity': quantity,
-                    'unit_price': float(ticket_type.price),
-                    'line_total': float(line_total)
-                })
+            except TicketType.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Invalid ticket selection.'}, status=400)
+            
+            line_total = ticket_type.price * quantity
+            grand_total += line_total
+            
+            checkout_items.append({
+                'id': ticket_type.id,
+                'name': ticket_type.name,
+                'quantity': quantity,
+                'unit_price': float(ticket_type.price),
+                'line_total': float(line_total)
+            })
+        
+        # After looping, did they actually select any tickets?
+        if total_tickets_selected == 0:
+            return JsonResponse({
+                'success': False,
+                'message': 'Please select at least one ticket before proceeding to buy!'
+            }, status=400)
             
         request.session['checkout_data'] = {
             'items': checkout_items,
             'grand_total': float(grand_total)
         }
 
-        return JsonResponse({
-            'success': True,
-        })
-
+        return JsonResponse({'success': True})
 
     return render(request, 'events/event_details.html', {
         'event': event, 

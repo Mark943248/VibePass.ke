@@ -1105,7 +1105,7 @@
               <span><i class="fas fa-users"></i> {{ recent_event.get_sold_tickets }} going</span>
             </div>
             <p style="color: var(--vibe-text-light); font-size: 0.9rem; margin-bottom: 15px;">{{ recent_event.Event_details|truncatechars:120 }}</p>
-            {% if Event.Event_date >= today %}
+            {% if recent_event.Event_date >= today %}
             <span class="event-status status-upcoming">Upcoming</span>
             {% else %}
             <span class="event-status status-ended">Ended</span>

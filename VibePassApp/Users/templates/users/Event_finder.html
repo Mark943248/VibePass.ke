@@ -1299,7 +1299,7 @@
                   <div class="event-location">
                     <i class="fas fa-map-marker-alt"></i> {{ event.Event_location|truncatechars:25 }}
                   </div>
-                  {% if Event.Event_date >= today %}
+                  {% if event.Event_date >= today %}
                    <span class="event-status status-upcoming">Upcoming</span>
                   {% else %}
                    <span class="event-status status-ended">Ended</span>
@@ -1393,6 +1393,11 @@
                   <div class="event-location">
                     <i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}
                   </div>
+                  {% if event.Event_date >= today %}
+                   <span class="event-status status-upcoming">Upcoming</span>
+                  {% else %}
+                   <span class="event-status status-ended">Ended</span>
+                  {% endif %}
                   <div class="event-footer">
                     <div class="event-price">{{ event.price_summary }}</div>
                     <a
@@ -1457,7 +1462,7 @@
                       ></span>
                   </div>
                    
-                  {% if Event.Event_date >= today %}
+                  {% if ticket.event.Event_date >= today %}
                    <span class="event-status status-upcoming">Upcoming</span>
                   {% else %}
                    <span class="event-status status-ended">Ended</span>
