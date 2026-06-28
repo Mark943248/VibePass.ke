@@ -808,8 +808,7 @@
                 </td>
                 <td>{{ event.Event_date|date:"M d, Y" }}<br><small>{{ event.Event_time|time:"g:i A" }}</small></td>
                 <td>{{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}</td>
-                <td>{% if event.Event_date >= today %}<span class="event-status status-upcoming">Upcoming</span>{% else
-                  %}
+                <td>{% if event.Event_date >= today %}<span class="event-status status-upcoming">Upcoming</span>{% else %}
                   <span class="event-status status-ended">Ended</span>{% endif %}
                 </td>
                 <td class="event-actions">

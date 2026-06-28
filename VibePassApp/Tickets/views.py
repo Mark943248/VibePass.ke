@@ -62,32 +62,37 @@ def book_free_ticket(request, slug):
         messages.error(request, 'This event is no longer active.')
         return redirect('event_details', slug=slug)
     
-    # Check if user already has a ticket
-    if Ticket.objects.filter(event=event, user=request.user, status__in=['active', 'scanned']).exists():
-        messages.warning(request, 'You already have a ticket for this event.')
-        return redirect('event_details', slug=slug)
-    
-    # Check if tickets are available
-    if not event.ticket_types.has_available():
-        messages.error(request, 'Sorry, all tickets for this event have been sold out.')
-        return redirect('event_details', slug=slug)
     
     with transaction.atomic():
         try:
           for item in checkout_data['items']:
             ticket_type = TicketType.objects.select_for_update(nowait=True).get(id=item['id'])
+            # Check if tickets are available
+            if not ticket_type.has_available():
+              messages.error(request, 'Sorry, all tickets for this event have been sold out.')
+              return redirect('event_details', slug=slug)
+            
             quantity = item['quantity']
 
             for _ in range(quantity):
                 # Create ticket directly (no payment needed)
-                ticket, created = Ticket.objects.create(
+                ticket = Ticket.objects.create(
                    event=event,
                    ticket_type=ticket_type,
                    user=request.user,
                    payment=None,
                    status='active'
                 )
-                logger.info(f"Ticket generated {ticket} {created}")
+                logger.info(f"Ticket generated {ticket}")
+
+                  # Generate QR code immediately
+                if generate_qr_code(ticket):
+                   messages.success(request, 'Ticket booked successfully!')
+                   return redirect('finders_dashboard')
+                else:
+                   messages.warning(request, 'Ticket created, but QR code generation failed.')
+                   return redirect('finders_dashboard')
+    
             ticket_type.sold_count = F('sold_count') + quantity
             ticket_type.save()
             logger.info(f"Updated stock for TicketType ID {item['id']}: +{quantity} sold.")
@@ -97,14 +102,6 @@ def book_free_ticket(request, slug):
             logger.warning(f"Error has occured: {e}")
             redirect('event_details', slug=event.slug)
     
-    # Generate QR code immediately
-    if generate_qr_code(ticket):
-        messages.success(request, 'Ticket booked successfully!')
-    else:
-        messages.warning(request, 'Ticket created, but QR code generation failed.')
-    
-    return redirect('users_tickets', ticket_id=ticket.ticket_id)
-
 # create ticket view
 def create_ticket(request=None, payment_id=None):
     """Create ticket after payment is successful and generate QR code"""

@@ -178,7 +178,7 @@ def CreateEvent(request, slug=None):
 # list events view
 def ListEvent(request):
     Events = Event.objects.all().order_by('-Event_created_at')
-    paginator = Paginator(Events, 10)  # Show 10 events per page
+    paginator = Paginator(Events, 6)  # Show 10 events per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     date_today = timezone.now().date()

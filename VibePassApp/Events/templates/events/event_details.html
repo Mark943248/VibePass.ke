@@ -315,6 +315,12 @@
       font-weight: 700;
       font-size: 1.1rem;
     }
+    
+    .sold-out {
+      font-weight: 900;
+      font-size: 2.2rem;
+      color: var(--vibe-primary-dark);
+    }
 
     .total-section {
       display: flex;
@@ -690,20 +696,42 @@
                   </span>
                 </div>
               </div>
-              <div class="ticket-price">KES {{ ticket_type.price | floatformat:2 }}</div>
+
+              <!-- Checks if event is free -->
+              {% if event.Event_is_free %}
+              <div class="ticket-price">FREE</div>
+              {% else %}
+               <div class="ticket-price">KES {{ ticket_type.price | floatformat:2 }}</div>
+              {% endif %}
+              
+              <!-- Checks if this tickettype has available tickets -->
+              {% if ticket_type.has_available %}
               <div class="quantity-control">
                 <button class="qty-btn" onclick="updateQuantity('{{ ticket_type.id }}', -1)">-</button>
                 <span class="qty-value" id="quantity-{{ ticket_type.id }}">0</span>
                 <button class="qty-btn" onclick="updateQuantity('{{ ticket_type.id }}', 1)">+</button>
               </div>
+              {% else %}
+              <div class="quantity-control">
+                <span class="qty-value sold-out" >Sold Out</span>
+              </div>
+              {% endif %}
+
             </div>
             {% endfor %}
             {% endif %}
 
+            {% if event.Event_is_free %}
+            <div class="total-section">
+              <span class="total-label">FREE</span>
+            </div>
+            {% else %}
             <div class="total-section">
               <span class="total-label">Total Amount</span>
               <span class="total-amount" id="totalAmount">KES 0</span>
             </div>
+            {% endif %}
+
             
             <button class="book-btn" id="bookBtn" onclick="sendCartToBackend()">
               <i class="fas fa-ticket-alt"></i> Get Tickets
@@ -847,8 +875,8 @@
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-          /* {% if event.is_free %} */
-            window.location.href = "{% url 'book_for_free' event.slug %}";
+          /* {% if event.Event_is_free %} */
+            window.location.href = "{% url 'book_free_ticket' event.slug %}";
            /* {% else %} */
             window.location.href = "{% url 'checkout' event.slug %}";
           /* {% endif %} */
