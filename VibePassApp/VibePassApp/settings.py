@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 import os
 import cloudinary
@@ -56,6 +57,14 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+
+    'axes',
+
+    'django_otp',
+    'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_static',
+    'two_factor',
+    'two_factor.plugins.phonenumber',
 ]
 
 MIDDLEWARE = [
@@ -64,9 +73,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'VibePassApp.urls'
@@ -178,6 +189,9 @@ CHANNEL_LAYERS = {
 
 
 AUTHENTICATION_BACKENDS = (
+    # Axes backend for handling login attempts and lockouts
+    'axes.backends.AxesStandaloneBackend',
+
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",
 
@@ -211,4 +225,32 @@ SITE_ID = 1
 CSRF_TRUSTED_ORIGINS = [
     'https://gawk-quack-uniformed.ngrok-free.dev',
 ]
+
+# Django Axes configuration settings
+AXES_FAILURE_LIMIT = 3   # attempts user can try
+
+AXES_COOLOFF_TIME = timedelta(minutes=15)  # how long before reset
+
+AXES_LOCKOUT_PARAMETERS = [
+    ["username", "ip_address", "user_agent"],  # Locks device based on this
+]
+
+AXES_RESET_ON_SUCCESS = True # Resets the failed login attempts after a successful login
+
+AXES_VERBOSE = True # Enables verbose logging for Axes, providing detailed information about lockouts and failed login attempts
+
+
+
+# Django-OTP and Two-Factor Authentication settings
+TWO_FACTOR_PATCH_ADMIN = True  #Intercepts the admin login view and adds 2FA to it
+
+LOGIN_URL = 'two_factor:login' #Redirects the user to the 2FA login view instead of the default login view
+
+LOGIN_REDIRECT_URL = 'admin:index' #Redirects the user to the admin dashboard after successful login
+
+LOGOUT_REDIRECT_URL = '/' #Redirects the user to the home page after admin logout
+
+TWO_FACTOR_TOTP_DIGITS = 6 #N.O of TOTP digits
+
+TWO_FACTOR_LOGIN_TIMEOUT = 200 #Time in seconds before the 2FA login session expires
 

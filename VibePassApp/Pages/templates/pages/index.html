@@ -1159,7 +1159,6 @@
           <div class="social-links">
             <a href="https://wa.me/254799302544" target="_blank"><i class="fab fa-whatsapp"></i></a>
             <a href="https://instagram.com/vibepass" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="https://x.com/vibepass" target="_blank"><i class="fab fa-twitter"></i></a>
             <a href="#"><i class="fab fa-tiktok"></i></a>
           </div>
         </div>
@@ -1167,21 +1166,9 @@
         <div class="footer-col">
           <h3>Quick Links</h3>
           <ul class="footer-links">
-            <li><a href="#">Browse Events</a></li>
-            <li><a href="#">How It Works</a></li>
-            <li><a href="#">Become an Organizer</a></li>
-            <li><a href="#">Student Discounts</a></li>
-            <li><a href="#">FAQs</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-col">
-          <h3>Legal</h3>
-          <ul class="footer-links">
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Refund Policy</a></li>
-            <li><a href="#">Cookie Policy</a></li>
+            <li><a href="{% url 'list_event' %}">Events</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+            <li><a href="{% url 'faqs' %}">FAQs</a></li>
           </ul>
         </div>
 
@@ -1196,7 +1183,7 @@
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; 2024 VibePass. All rights reserved. Made for students, by students.</p>
+        <p>&copy; 2026 VibePass. All rights reserved. Made for students, by students.</p>
       </div>
     </div>
   </footer>

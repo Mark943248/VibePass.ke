@@ -507,29 +507,6 @@
                     </a>
                 </div>
 
-                <!-- Business Inquiries -->
-                <div class="contact-card">
-                    <div class="card-icon">
-                        <i class="fas fa-briefcase"></i>
-                    </div>
-                    <h3>Business & Partnerships</h3>
-                    <p>For event organizers, sponsors, and business opportunities</p>
-                    <a href="mailto:partners@vibepass.com" class="contact-link">
-                        <i class="fas fa-envelope"></i> partners@vibepass.com
-                    </a>
-                </div>
-
-                <!-- Press & Media -->
-                <div class="contact-card">
-                    <div class="card-icon">
-                        <i class="fas fa-newspaper"></i>
-                    </div>
-                    <h3>Press & Media</h3>
-                    <p>For media inquiries and press releases</p>
-                    <a href="mailto:press@vibepass.com" class="contact-link">
-                        <i class="fas fa-envelope"></i> press@vibepass.com
-                    </a>
-                </div>
             </div>
 
             <!-- Social Media Section -->
@@ -545,12 +522,6 @@
                     </a>
                     <a href="https://instagram.com/vibepass" target="_blank" class="social-icon instagram">
                         <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="https://twitter.com/vibepass" target="_blank" class="social-icon twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="https://facebook.com/vibepass" target="_blank" class="social-icon facebook">
-                        <i class="fab fa-facebook-f"></i>
                     </a>
                     <a href="https://tiktok.com/@vibepass" target="_blank" class="social-icon tiktok">
                         <i class="fab fa-tiktok"></i>
@@ -584,7 +555,7 @@
                     <div class="step-item">
                         <div class="step-number">4</div>
                         <h4>Social Media DM</h4>
-                        <p>Reach out via Instagram or Twitter DMs for quick assistance</p>
+                        <p>Reach out via InstagramDMs or for quick assistance</p>
                     </div>
                 </div>
             </div>
@@ -598,8 +569,8 @@
             <div class="footer-links">
                 <a href="#">Privacy Policy</a>
                 <a href="#">Terms of Service</a>
-                <a href="#">FAQ</a>
-                <a href="#">Contact</a>
+                <a href="{% url 'faqs' %}">FAQ</a>
+                <a href="{% url 'contact' %}">Contact</a>
             </div>
         </div>
     </footer>

@@ -1028,7 +1028,7 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary" id="payNowBtn">
+                        <button type="submit" class="btn btn-primary" id="payNowBtn" onclick="disableButton()">
                             <i class="fas fa-lock"></i> Complete Payment
                         </button>
 
@@ -1053,10 +1053,9 @@
         <div class="container">
             <p>&copy; 2024 VibePass. All rights reserved.</p>
             <div class="footer-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Refund Policy</a>
-                <a href="#">Contact Support</a>
+               <a href="{% url 'list_event' %}">Events</a>
+               <a href="{% url 'contact' %}">Contact</a>
+               <a href="{% url 'faqs' %}">FAQs</a>
             </div>
         </div>
     </footer>
@@ -1071,6 +1070,7 @@
         // DOM Elements
         const phoneInput = document.getElementById('phoneNumber');
         const termsCheckbox = document.getElementById('termsCheckbox');
+        const payNowBtn = document.getElementById('payNowBtn');
 
 
         phoneInput.addEventListener('blur', function () {
@@ -1085,7 +1085,17 @@
             }
         });
 
-
+        // prevent multiple payments
+        function disableButton() {
+            // checks if button is disabled, if so, prevent further action
+            if (payNowBtn.disabled) {
+               return false;
+            }
+            payNowBtn.disabled = true;
+            payNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            payNowBtn.style.opacity = '0.7';
+            payNowBtn.style.cursor = 'not-allowed';
+        }
 
     </script>
 </body>

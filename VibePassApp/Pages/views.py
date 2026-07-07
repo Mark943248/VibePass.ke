@@ -22,3 +22,7 @@ def ContactPage(request):
 # about page
 def AboutPage(request):
     return render(request, 'pages/about.html')
+
+# FAQS page
+def faqsPage(request):
+    return render(request, 'pages/faqs.html')

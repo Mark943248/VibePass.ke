@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <title>VibePass - Frequently Asked Questions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* New Brand Colors - Vibrant Orange & Teal */
+        :root {
+            --vibe-primary: #FF6B35;
+            --vibe-primary-dark: #E85D2C;
+            --vibe-secondary: #00C9A7;
+            --vibe-secondary-dark: #00B092;
+            --vibe-dark: #1A1A2E;
+            --vibe-light: #FFF9F5;
+            --vibe-accent: #FFE66D;
+            --vibe-text: #2D2D3A;
+            --vibe-text-light: #6B6B7A;
+            --vibe-card-bg: #FFFFFF;
+            --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+            --vibe-success: #00C9A7;
+            --vibe-warning: #FFC107;
+            --vibe-danger: #FF4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--vibe-light) 0%, #FFF5EF 100%);
+            color: var(--vibe-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon i {
+            font-size: 1.3rem;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--vibe-primary);
+        }
+
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--vibe-primary);
+        }
+
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            padding: 50px 0 30px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--vibe-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .page-title i {
+            color: var(--vibe-primary);
+        }
+
+        .page-subtitle {
+            color: var(--vibe-text-light);
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Search Box */
+        .faq-search {
+            background: white;
+            border-radius: 60px;
+            padding: 5px;
+            max-width: 500px;
+            margin: 0 auto 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+
+        .faq-search i {
+            padding: 0 15px;
+            color: var(--vibe-text-light);
+            font-size: 1.1rem;
+        }
+
+        .faq-search input {
+            flex: 1;
+            padding: 15px 15px 15px 0;
+            border: none;
+            font-size: 0.95rem;
+            border-radius: 60px;
+            outline: none;
+        }
+
+        .faq-search input:focus {
+            outline: none;
+        }
+
+        .faq-search button {
+            background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .faq-search button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        /* Category Tabs */
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .category-tab {
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 2px solid #E8E8E8;
+            background: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .category-tab:hover {
+            border-color: var(--vibe-primary);
+            color: var(--vibe-primary);
+        }
+
+        .category-tab.active {
+            background: var(--vibe-primary);
+            border-color: var(--vibe-primary);
+            color: white;
+        }
+
+        .category-tab i {
+            margin-right: 6px;
+        }
+
+        /* FAQ Accordion */
+        .faq-section {
+            margin-bottom: 30px;
+        }
+
+        .faq-section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--vibe-dark);
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .faq-section-title.show {
+            display: flex;
+        }
+
+        .faq-section-title i {
+            color: var(--vibe-primary);
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .faq-item:hover {
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.1);
+        }
+
+        .faq-question {
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 107, 53, 0.02);
+        }
+
+        .faq-question h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--vibe-dark);
+            flex: 1;
+        }
+
+        .faq-question .icon {
+            font-size: 1.2rem;
+            color: var(--vibe-primary);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+
+        .faq-item.active .faq-question .icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease;
+            padding: 0 20px;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            padding: 0 20px 20px 20px;
+        }
+
+        .faq-answer p {
+            color: var(--vibe-text-light);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        .faq-answer ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .faq-answer ul li {
+            color: var(--vibe-text-light);
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .faq-answer ul li::before {
+            content: "•";
+            color: var(--vibe-primary);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* Contact Card */
+        .contact-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .contact-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--vibe-dark);
+        }
+
+        .contact-card p {
+            color: var(--vibe-text-light);
+            margin-bottom: 20px;
+        }
+
+        .contact-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--vibe-primary);
+            color: var(--vibe-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--vibe-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--vibe-dark);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--vibe-primary);
+        }
+
+        /* No Results */
+        .no-results {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 20px;
+        }
+
+        .no-results i {
+            font-size: 2.5rem;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+
+        .no-results h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--vibe-dark);
+        }
+
+        .no-results p {
+            color: var(--vibe-text-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+                padding: 20px 0 0;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .faq-search {
+                flex-direction: column;
+                border-radius: 20px;
+                padding: 15px;
+                background: white;
+            }
+
+            .faq-search input {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #E8E8E8;
+                border-radius: 10px;
+                margin-bottom: 10px;
+            }
+
+            .faq-search button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .faq-search i {
+                display: none;
+            }
+
+            .category-tabs {
+                gap: 8px;
+            }
+
+            .category-tab {
+                padding: 8px 14px;
+                font-size: 0.75rem;
+            }
+
+            .faq-question {
+                padding: 14px 16px;
+            }
+
+            .faq-question h3 {
+                font-size: 0.85rem;
+            }
+
+            .faq-item.active .faq-answer {
+                padding: 0 16px 16px 16px;
+            }
+
+            .contact-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .contact-buttons .btn {
+                text-align: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .page-header {
+                padding: 30px 0 20px;
+            }
+
+            .page-title {
+                font-size: 1.3rem;
+                flex-wrap: wrap;
+            }
+
+            .faq-item {
+                border-radius: 12px;
+            }
+
+            .faq-question h3 {
+                font-size: 0.8rem;
+            }
+
+            .faq-answer p {
+                font-size: 0.8rem;
+            }
+
+            .category-tab {
+                font-size: 0.7rem;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <span class="logo-text">VibePass</span>
+            </a>
+            <a href="javascript:history.back()" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-question-circle"></i>
+                    Frequently Asked Questions
+                </h1>
+                <p class="page-subtitle">
+                    Find answers to the most common questions about VibePass. Can't find what you're looking for?
+                    Contact us!
+                </p>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="category-tabs">
+                <button class="category-tab active" data-category="all">
+                    <i class="fas fa-globe"></i> All
+                </button>
+                <button class="category-tab" data-category="general">
+                    <i class="fas fa-info-circle"></i> General
+                </button>
+                <button class="category-tab" data-category="events">
+                    <i class="fas fa-calendar-alt"></i> Events
+                </button>
+                <button class="category-tab" data-category="tickets">
+                    <i class="fas fa-ticket-alt"></i> Tickets & Payments
+                </button>
+                <button class="category-tab" data-category="organizer">
+                    <i class="fas fa-user-tie"></i> Organizers
+                </button>
+                <button class="category-tab" data-category="account">
+                    <i class="fas fa-user"></i> Account
+                </button>
+            </div>
+
+            <!-- No Results -->
+            <div class="no-results" id="noResults">
+                <i class="fas fa-search"></i>
+                <h3>No Results Found</h3>
+                <p>Try adjusting your search terms or browse all categories</p>
+            </div>
+
+            <!-- FAQ Sections -->
+            <!-- General -->
+            <div class="faq-section" data-category="general">
+                <h3 class="faq-section-title show">
+                    <i class="fas fa-info-circle"></i> General
+                </h3>
+
+                <div class="faq-item active">
+                    <div class="faq-question">
+                        <h3>What is VibePass?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>VibePass is a platform that connects students with the best events, parties, concerts,
+                            workshops, and social gatherings. We make it easy to discover events, create events, buy
+                            tickets, and
+                            connect with your community.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Is VibePass free to use?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! VibePass is completely free for all to browse events, create events, and register for
+                            free events.
+                            There is a small service fee for paid ticket purchases to cover payment processing and
+                            platform maintenance.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Who can use VibePass?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>VibePass is designed for all who are interested in discovering and participating in events.
+                            Whether you're a student, event organizer, or just someone looking for fun activities,
+                            VibePass has something for everyone.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events -->
+            <div class="faq-section" data-category="events">
+                <h3 class="faq-section-title">
+                    <i class="fas fa-calendar-alt"></i> Events
+                </h3>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How do I find events near me?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Simply visit our Events page where you can browse all upcoming events. You can filter by
+                            category, or use the search bar to find events based on your interests or location.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How do I register for a free event?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>To create events, simply click the "Create Event" button on the organizers dashboard. You'll
+                            be asked to
+                            fill in the event details, and once submitted, your event will be published.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tickets & Payments -->
+            <div class="faq-section" data-category="tickets">
+                <h3 class="faq-section-title">
+                    <i class="fas fa-ticket-alt"></i> Tickets & Payments
+                </h3>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How do I buy tickets?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>To buy tickets, navigate to the event page and select the event you want to attend, select
+                            your ticket type and quantity, then
+                            proceed to checkout. You'll be prompted to enter your M-PESA phone number to complete the
+                            payment.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>What payment methods are accepted?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Currently, VibePass accepts M-PESA payments for all ticket purchases. We're working on adding
+                            more payment options soon.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How do I get my tickets after purchase?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>After a successful payment, you'll receive your tickets in two ways:
+                        <ul>
+                            <li>Your ticket will appear in your dashboard under "My Tickets"</li>
+                        </ul>
+                        Each ticket includes a unique QR code that will be scanned at the event entrance.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Can I get a refund for my ticket?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Refund policies are set by the event organizers. Check the event page for specific refund
+                            information. For issues, you can contact the organizer directly or reach out to our support
+                            team.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Organizers -->
+            <div class="faq-section" data-category="organizer">
+                <h3 class="faq-section-title">
+                    <i class="fas fa-user-tie"></i> Organizers
+                </h3>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How do I become an organizer?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>To become an organizer, just sign up to get an account and that's it</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How do I create an event?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>As an organizer, you can create events by clicking the "Create Event" button in your
+                            dashboard. You'll need to provide event details like title, description, date, time,
+                            location, ticket pricing, and upload an event flyer.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How do I manage ticket sales?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>You can track all ticket sales and revenue from your organizer dashboard. The dashboard
+                            provides real-time analytics including number of tickets sold, total revenue, and attendee
+                            information.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account -->
+            <div class="faq-section" data-category="account">
+                <h3 class="faq-section-title">
+                    <i class="fas fa-user"></i> Account
+                </h3>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How do I create an account?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Click the "Sign Up" button on the homepage. You'll need to provide your username, email
+                            address, and create a password.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How do I update my profile?</h3>
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Log in to your account, go to your dashboard, and click on "My Profile". You can update your
+                            username, email address, and other personal information from there.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Card -->
+            <div class="contact-card">
+                <h3>Still Have Questions? 🤔</h3>
+                <p>We're here to help! Reach out to us and we'll get back to you as soon as possible.</p>
+                <div class="contact-buttons">
+                    <a href="{% url 'contact' %}" class="btn btn-primary">
+                        <i class="fas fa-envelope"></i> Contact Us
+                    </a>
+                    <a href="tel:+254799302544" class="btn btn-secondary">
+                        <i class="fas fa-phone"></i> Call Us
+                    </a>
+                    <a href="https://wa.me/254799302544" target="_blank" class="btn btn-secondary">
+                        <i class="fas fa-comment"></i> WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 VibePass. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="{% url 'contact' %}">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+
+            question.addEventListener('click', function () {
+                item.classList.toggle('active');
+            });
+        });
+
+        // CATEGORY TABS
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        const faqSections = document.querySelectorAll('.faq-section');
+        const faqSectionTitles = document.querySelectorAll('.faq-section-title');
+        const noResults = document.getElementById('noResults');
+
+        function filterFAQs(category) {
+            let hasResults = false;
+
+            faqSections.forEach(section => {
+                const sectionCategory = section.getAttribute('data-category');
+
+                if (category === 'all' || sectionCategory === category) {
+                    section.style.display = 'block';
+                    hasResults = true;
+                    // Show the section title
+                    const title = section.querySelector('.faq-section-title');
+                    if (title) title.classList.add('show');
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            // Show/hide no results
+            if (hasResults) {
+                noResults.style.display = 'none';
+            } else {
+                noResults.style.display = 'block';
+            }
+        }
+
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                // Remove active class from all tabs
+                categoryTabs.forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+
+                const category = this.getAttribute('data-category');
+                filterFAQs(category);
+
+                // Clear search
+                document.getElementById('faqSearchInput').value = '';
+            });
+        });
+
+        // FAQ SEARCH
+        const searchInput = document.getElementById('faqSearchInput');
+        const searchBtn = document.getElementById('searchBtn');
+
+        function searchFAQs() {
+            const query = searchInput.value.toLowerCase().trim();
+
+            if (!query) {
+                // If search is empty, show current category
+                const activeTab = document.querySelector('.category-tab.active');
+                const category = activeTab ? activeTab.getAttribute('data-category') : 'all';
+                filterFAQs(category);
+                return;
+            }
+
+            let hasResults = false;
+
+            // Reset all sections to visible
+            faqSections.forEach(section => {
+                section.style.display = 'block';
+                const title = section.querySelector('.faq-section-title');
+                if (title) title.classList.add('show');
+            });
+
+            // Filter FAQ items by search query
+            faqItems.forEach(item => {
+                const questionText = item.querySelector('.faq-question h3').textContent.toLowerCase();
+                const answerText = item.querySelector('.faq-answer p')?.textContent.toLowerCase() || '';
+
+                if (questionText.includes(query) || answerText.includes(query)) {
+                    item.style.display = 'block';
+                    hasResults = true;
+                    // Auto-expand matching items
+                    item.classList.add('active');
+                } else {
+                    item.style.display = 'none';
+                    item.classList.remove('active');
+                }
+            });
+
+            // Hide sections with no visible items
+            faqSections.forEach(section => {
+                const visibleItems = section.querySelectorAll('.faq-item[style*="display: block"]');
+                if (visibleItems.length === 0) {
+                    section.style.display = 'none';
+                    const title = section.querySelector('.faq-section-title');
+                    if (title) title.classList.remove('show');
+                } else {
+                    section.style.display = 'block';
+                    const title = section.querySelector('.faq-section-title');
+                    if (title) title.classList.add('show');
+                }
+            });
+
+            // Show/hide no results
+            if (hasResults) {
+                noResults.style.display = 'none';
+            } else {
+                noResults.style.display = 'block';
+            }
+        }
+
+        searchInput.addEventListener('input', searchFAQs);
+        searchBtn.addEventListener('click', searchFAQs);
+
+        // Search on Enter key
+        searchInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchFAQs();
+            }
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        });
+
+        // SMOOTH SCROLL FOR ANCHOR LINKS
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
