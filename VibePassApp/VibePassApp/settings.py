@@ -118,11 +118,6 @@ DATABASES = {
 # specify custom user model
 AUTH_USER_MODEL = 'Users.User'
 
-# Authentication redirects
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'finders_dashboard'
-LOGOUT_REDIRECT_URL = 'login'
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -242,11 +237,11 @@ AXES_VERBOSE = True # Enables verbose logging for Axes, providing detailed infor
 
 
 # Django-OTP and Two-Factor Authentication settings
-TWO_FACTOR_PATCH_ADMIN = True  #Intercepts the admin login view and adds 2FA to it
+TWO_FACTOR_PATCH_ADMIN = False  #Intercepts the admin login view and adds 2FA to it
 
 LOGIN_URL = 'two_factor:login' #Redirects the user to the 2FA login view instead of the default login view
 
-LOGIN_REDIRECT_URL = 'admin:index' #Redirects the user to the admin dashboard after successful login
+LOGIN_REDIRECT_URL = 'finders_dashboard' #Redirects the user to the admin dashboard after successful login
 
 LOGOUT_REDIRECT_URL = '/' #Redirects the user to the home page after admin logout
 
