@@ -683,35 +683,35 @@
               <label class="form-label required">Event Category</label>
               <select name="Event_category" class="form-select" id="eventCategory" required>
                 <option value="">Select a category</option>
-                <option value="Campus Parties" {% if event.Event_category=='Campus Parties' %}selected{% endif %}>🎉
+                <option value="Campus Parties" {% if event.Event_category == 'Campus Parties' %}selected{% endif %}>🎉
                   Campus Parties</option>
-                <option value="Live Music" {% if event.Event_category=='Live Music' %}selected{% endif %}>🎵 Live Music
+                <option value="Live Music" {% if event.Event_category == 'Live Music' %}selected{% endif %}>🎵 Live Music
                 </option>
-                <option value="Workshops" {% if event.Event_category=='Workshops' %}selected{% endif %}>💡 Workshops
+                <option value="Workshops" {% if event.Event_category == 'Workshops' %}selected{% endif %}>💡 Workshops
                 </option>
-                <option value="Sports" {% if event.Event_category=='Sports' %}selected{% endif %}>⚽ Sports</option>
-                <option value="Networking" {% if event.Event_category=='Networking' %}selected{% endif %}>🤝 Networking
+                <option value="Sports" {% if event.Event_category == 'Sports' %}selected{% endif %}>⚽ Sports</option>
+                <option value="Networking" {% if event.Event_category == 'Networking' %}selected{% endif %}>🤝 Networking
                 </option>
-                <option value="Festivals" {% if event.Event_category=='Festivals' %}selected{% endif %}>🎪 Festivals
+                <option value="Festivals" {% if event.Event_category == 'Festivals' %}selected{% endif %}>🎪 Festivals
                 </option>
-                <option value="Tech Events" {% if event.Event_category=='Tech Events' %}selected{% endif %}>💻 Tech
+                <option value="Tech Events" {% if event.Event_category == 'Tech Events' %}selected{% endif %}>💻 Tech
                   Events</option>
-                <option value="Others" {% if event.Event_category=='Others' %}selected{% endif %}>Others</option>
+                <option value="Others" {% if event.Event_category == 'Others' %}selected{% endif %}>Others</option>
               </select>
               <div class="category-tags">
-                <span class="category-tag" data-value="Campus Parties" {% if event.Event_category=='Campus Parties' %}
+                <span class="category-tag" data-value="Campus Parties" {% if event.Event_category == 'Campus Parties' %}
                 style="background: var(--vibe-primary); border-color: var(--vibe-primary); color: white;" 
                 {% endif %}>🎉 Party</span>
-                <span class="category-tag" data-value="Live Music" {% if event.Event_category=='Live Music' %}
+                <span class="category-tag" data-value="Live Music" {% if event.Event_category == 'Live Music' %}
                 style="background: var(--vibe-primary); border-color: var(--vibe-primary); color: white;" 
                 {% endif %}>🎵 Music</span>
-                <span class="category-tag" data-value="Workshops" {% if event.Event_category=='Workshops' %}
+                <span class="category-tag" data-value="Workshops" {% if event.Event_category == 'Workshops' %}
                 style="background: var(--vibe-primary); border-color: var(--vibe-primary); color: white;" 
                 {% endif %}>💡 Workshop</span>
-                <span class="category-tag" data-value="Sports" {% if event.Event_category=='Sports' %}
+                <span class="category-tag" data-value="Sports" {% if event.Event_category == 'Sports' %}
                 style="background: var(--vibe-primary); border-color: var(--vibe-primary); color: white;" 
                 {% endif %}>⚽ Sports</span>
-                <span class="category-tag" data-value="Networking" {% if event.Event_category=='Networking' %}
+                <span class="category-tag" data-value="Networking" {% if event.Event_category == 'Networking' %}
                 style="background: var(--vibe-primary); border-color: var(--vibe-primary); color: white;" 
                 {% endif %}>🤝 Networking</span>
               </div>
@@ -760,7 +760,7 @@
             </h3>
 
             <div class="checkbox-group" id="freeEventCheckbox">
-              <input type="checkbox" id="eventIsFree" name="Event_is_free" {% if event and event.Event_is_free%}checked{% endif %} />
+              <input type="checkbox" id="eventIsFree" name="Event_is_free" {% if event and event.Event_is_free %}checked{% endif %} />
               <label>This is a free event</label>
             </div>
 

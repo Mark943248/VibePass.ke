@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from Events.models import Event
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 
 # Create your views here.
@@ -26,3 +27,15 @@ def AboutPage(request):
 # FAQS page
 def faqsPage(request):
     return render(request, 'pages/faqs.html')
+
+# add scanner page
+@login_required
+@user_passes_test(lambda u: u.is_Event_Organizer(), login_url='login')
+def add_scanner(request):
+    if request.method == 'POST':
+        username = request.POST.get('username') # usename
+        event = request.POST.get('event') # event
+        users_events = Event.objects.filter(organiser=request.user) # gets users events
+
+        
+    return render(request, 'pages/add_scanners.html')

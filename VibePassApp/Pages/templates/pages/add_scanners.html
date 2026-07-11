@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+  <title>VibePass - Add Event Scanner</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    /* Brand Colors - Vibrant Orange & Teal */
+    :root {
+      --vibe-primary: #FF6B35;
+      --vibe-primary-dark: #E85D2C;
+      --vibe-secondary: #00C9A7;
+      --vibe-secondary-dark: #00B092;
+      --vibe-dark: #1A1A2E;
+      --vibe-light: #FFF9F5;
+      --vibe-accent: #FFE66D;
+      --vibe-text: #2D2D3A;
+      --vibe-text-light: #6B6B7A;
+      --vibe-card-bg: #FFFFFF;
+      --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+      --vibe-success: #00C9A7;
+      --vibe-danger: #FF4757;
+      --vibe-warning: #FFC107;
+      --vibe-info: #2196F3;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--vibe-light) 0%, #FFF5EF 100%);
+      color: var(--vibe-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    .header {
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 15px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon i {
+      font-size: 1.3rem;
+      color: white;
+    }
+
+    .logo-text {
+      font-size: 1.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .back-btn {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: var(--vibe-primary);
+    }
+
+    /* Page Header */
+    .page-header {
+      text-align: center;
+      padding: 40px 0 30px;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--vibe-dark);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .page-title i {
+      color: var(--vibe-primary);
+    }
+
+    .page-subtitle {
+      color: var(--vibe-text-light);
+      font-size: 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Form Container */
+    .form-container {
+      background: white;
+      border-radius: 24px;
+      padding: 35px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      margin-bottom: 50px;
+    }
+
+    /* Form Sections */
+    .form-section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--vibe-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      color: var(--vibe-primary);
+    }
+
+    /* Form Groups */
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--vibe-dark);
+      margin-bottom: 8px;
+    }
+
+    .form-label.required::after {
+      content: " *";
+      color: var(--vibe-danger);
+    }
+
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-with-icon i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--vibe-text-light);
+      font-size: 1rem;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 14px 16px 14px 45px;
+      border: 2px solid #E8E8E8;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      background: white;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--vibe-primary);
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    }
+
+    .form-input.error,
+    .form-select.error {
+      border-color: var(--vibe-danger);
+    }
+
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236B6B7A' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 12px;
+      padding-right: 40px;
+    }
+
+    .form-select option {
+      padding: 10px;
+    }
+
+    /* Current Scanners List */
+    .scanners-list {
+      margin-top: 15px;
+    }
+
+    .scanner-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: var(--vibe-light);
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .scanner-item .scanner-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scanner-item .scanner-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .scanner-item .scanner-name {
+      font-weight: 500;
+      color: var(--vibe-dark);
+      font-size: 0.9rem;
+    }
+
+    .scanner-item .scanner-event {
+      font-size: 0.75rem;
+      color: var(--vibe-text-light);
+    }
+
+    .scanner-item .remove-scanner {
+      color: var(--vibe-danger);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 1rem;
+      transition: all 0.3s;
+      padding: 5px;
+    }
+
+    .scanner-item .remove-scanner:hover {
+      transform: scale(1.1);
+    }
+
+    .empty-scanners {
+      text-align: center;
+      padding: 30px 15px;
+      color: var(--vibe-text-light);
+    }
+
+    .empty-scanners i {
+      font-size: 2rem;
+      color: #ddd;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    /* Error Message */
+    .error-message {
+      color: var(--vibe-danger);
+      font-size: 0.8rem;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .form-help {
+      font-size: 0.75rem;
+      color: var(--vibe-text-light);
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 14px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--vibe-primary);
+      color: var(--vibe-primary);
+      width: 100%;
+    }
+
+    .btn-secondary:hover {
+      background: var(--vibe-primary);
+      color: white;
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 2px solid var(--vibe-danger);
+      color: var(--vibe-danger);
+    }
+
+    .btn-danger:hover {
+      background: var(--vibe-danger);
+      color: white;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .form-actions .btn {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    /* Success Message */
+    .success-message {
+      background: rgba(0, 201, 167, 0.1);
+      border: 2px solid var(--vibe-success);
+      color: var(--vibe-success);
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      display: none;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .success-message i {
+      margin-right: 10px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--vibe-dark);
+      color: white;
+      padding: 30px 0;
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+
+    .footer-links a:hover {
+      color: var(--vibe-primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .form-container {
+        padding: 25px;
+        border-radius: 20px;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .form-actions .btn {
+        width: 100%;
+      }
+
+      .scanner-item {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .scanner-item .scanner-info {
+        flex: 1;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .container {
+        padding: 0 15px;
+      }
+
+      .form-container {
+        padding: 20px;
+        border-radius: 16px;
+      }
+
+      .page-title {
+        font-size: 1.3rem;
+      }
+
+      .page-title i {
+        font-size: 1.2rem;
+      }
+
+      .form-input,
+      .form-select {
+        padding: 12px 14px 12px 40px;
+        font-size: 0.9rem;
+      }
+
+      .section-title {
+        font-size: 1rem;
+      }
+
+      .scanner-item {
+        padding: 10px 12px;
+      }
+
+      .scanner-item .scanner-name {
+        font-size: 0.8rem;
+      }
+
+      .scanner-item .scanner-event {
+        font-size: 0.7rem;
+      }
+
+      .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .back-btn {
+        align-self: flex-start;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .form-container {
+        padding: 15px;
+      }
+
+      .page-title {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-container">
+      <a href="{% url 'organizers_dashboard' %}" class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-ticket-alt"></i>
+        </div>
+        <span class="logo-text">VibePass</span>
+      </a>
+      <a href="{% url 'organizers_dashboard' %}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">
+          <i class="fas fa-qrcode"></i>
+          Add Event Scanner
+        </h1>
+        <p class="page-subtitle">
+          Assign users as scanners for your events. They can scan tickets at the venue entrance.
+        </p>
+      </div>
+
+      <!-- Form Container -->
+      <div class="form-container">
+        <form id="addScannerForm" method="POST" action="{% url 'add_scanner' %}">
+          {% csrf_token %}
+
+          <!-- Scanner Details -->
+          <div class="form-section">
+            <h3 class="section-title">
+              <i class="fas fa-user-plus"></i> Scanner Details
+            </h3>
+
+            <!-- Username Input -->
+            <div class="form-group">
+              <label class="form-label required">Username</label>
+              <div class="input-with-icon">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" name="username" class="form-input" placeholder="Enter the username of the scanner" required />
+              </div>
+              <div class="form-help">
+                <i class="fas fa-info-circle"></i> The user must have an existing VibePass account
+              </div>
+              <div class="error-message" id="usernameError">Please enter a valid username (minimum 3 characters)</div>
+            </div>
+
+            <!-- Event Selection -->
+            <div class="form-group">
+              <label class="form-label required">Select Event</label>
+              <div class="input-with-icon">
+                <i class="fas fa-calendar-alt"></i>
+                <select id="eventSelect" name="event_slug" class="form-select" required>
+                  <option value="">Select an event</option>
+                  {% for event in events %}
+                  <option value="{{ event.slug }}">{{ event.Event_title }} - {{ event.Event_date|date:"M d, Y" }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-help">
+                <i class="fas fa-info-circle"></i> Choose the event this scanner will be assigned to
+              </div>
+              <div class="error-message" id="eventError">Please select an event</div>
+            </div>
+          </div>
+
+          <!-- Current Scanners Section -->
+          <div class="form-section">
+            <h3 class="section-title">
+              <i class="fas fa-users"></i> Current Scanners
+            </h3>
+
+            <div class="scanners-list" id="scannersList">
+              <!-- Scanners will be displayed here dynamically -->
+              <div class="empty-scanners">
+                <i class="fas fa-qrcode"></i>
+                <p>No scanners assigned yet. Add a scanner to get started.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Success Message -->
+          <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <span id="successText">Scanner added successfully!</span>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <a href="{% url 'organizers_dashboard' %}" type="button" class="btn btn-secondary">
+              <i class="fas fa-times"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <i class="fas fa-plus-circle"></i> Add Scanner
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2024 VibePass. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="{% url 'list_event' %}">Events</a>
+        <a href="{% url 'contact' %}">Contact</a>
+        <a href="{% url 'faqs' %}">FAQs</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // DOM Elements
+    const usernameInput = document.getElementById('username');
+    const eventSelect = document.getElementById('eventSelect');
+    const submitBtn = document.getElementById('submitBtn');
+    const form = document.getElementById('addScannerForm');
+    const successMessage = document.getElementById('successMessage');
+    const successText = document.getElementById('successText');
+    const scannersList = document.getElementById('scannersList');
+
+    // ============================================
+    // REAL-TIME VALIDATION
+    // ============================================
+
+    // Username validation
+    usernameInput.addEventListener('blur', function() {
+      const errorElement = document.getElementById('usernameError');
+      const value = this.value.trim();
+      if (value && value.length >= 3) {
+        this.classList.remove('error');
+        errorElement.style.display = 'none';
+      } else if (value && value.length < 3) {
+        this.classList.add('error');
+        errorElement.textContent = 'Username must be at least 3 characters';
+        errorElement.style.display = 'block';
+      }
+    });
+
+    usernameInput.addEventListener('input', function() {
+      if (this.classList.contains('error')) {
+        const errorElement = document.getElementById('usernameError');
+        if (this.value.trim() && this.value.trim().length >= 3) {
+          this.classList.remove('error');
+          errorElement.style.display = 'none';
+        }
+      }
+    });
+
+    // Event validation
+    eventSelect.addEventListener('change', function() {
+      const errorElement = document.getElementById('eventError');
+      if (this.value) {
+        this.classList.remove('error');
+        errorElement.style.display = 'none';
+      }
+    });
+
+    // ============================================
+    // FORM SUBMISSION
+    // ============================================
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Validate form
+      let isValid = true;
+      const usernameError = document.getElementById('usernameError');
+      const eventError = document.getElementById('eventError');
+
+      // Validate username
+      const username = usernameInput.value.trim();
+      if (!username || username.length < 3) {
+        usernameInput.classList.add('error');
+        usernameError.textContent = username ? 'Username must be at least 3 characters' : 'Please enter a username';
+        usernameError.style.display = 'block';
+        isValid = false;
+      }
+
+      // Validate event
+      if (!eventSelect.value) {
+        eventSelect.classList.add('error');
+        eventError.style.display = 'block';
+        isValid = false;
+      }
+
+      if (!isValid) {
+        // Scroll to first error
+        const firstError = document.querySelector('.form-input.error, .form-select.error');
+        if (firstError) {
+          firstError.focus();
+        }
+        return;
+      }
+
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Scanner...';
+
+      // Simulate API call
+      setTimeout(function() {
+        // Get the selected event name
+        const selectedOption = eventSelect.options[eventSelect.selectedIndex];
+        const eventName = selectedOption ? selectedOption.text : 'Event';
+
+        // Add scanner to the list
+        addScannerToList(usernameInput.value.trim(), eventName);
+
+        // Show success message
+        successText.textContent = `Scanner "${usernameInput.value.trim()}" added successfully to "${eventName}"!`;
+        successMessage.style.display = 'block';
+
+        // Reset form
+        usernameInput.value = '';
+        eventSelect.value = '';
+        usernameInput.classList.remove('error');
+        eventSelect.classList.remove('error');
+
+        // Hide success message after 5 seconds
+        setTimeout(function() {
+          successMessage.style.display = 'none';
+        }, 5000);
+
+        // Reset button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Scanner';
+
+        // Remove empty state if exists
+        const emptyState = scannersList.querySelector('.empty-scanners');
+        if (emptyState) {
+          emptyState.remove();
+        }
+
+        // Scroll to success message
+        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 1500);
+    });
+
+    // ============================================
+    // ADD SCANNER TO LIST
+    // ============================================
+
+    function addScannerToList(username, eventName) {
+      // Remove empty state if it exists
+      const emptyState = scannersList.querySelector('.empty-scanners');
+      if (emptyState) {
+        emptyState.remove();
+      }
+
+      const scannerItem = document.createElement('div');
+      scannerItem.className = 'scanner-item';
+      scannerItem.style.animation = 'fadeIn 0.3s ease-out';
+
+      const initials = username
+        .split(' ')
+        .map(word => word[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+
+      scannerItem.innerHTML = `
+        <div class="scanner-info">
+          <div class="scanner-avatar">${initials}</div>
+          <div>
+            <div class="scanner-name">${username}</div>
+            <div class="scanner-event"><i class="fas fa-calendar-alt"></i> ${eventName}</div>
+          </div>
+        </div>
+        <button type="button" class="remove-scanner" onclick="removeScanner(this)" title="Remove scanner">
+          <i class="fas fa-times-circle"></i>
+        </button>
+      `;
+
+      scannersList.appendChild(scannerItem);
+    }
+
+    // ============================================
+    // REMOVE SCANNER
+    // ============================================
+
+    function removeScanner(button) {
+      if (confirm('Are you sure you want to remove this scanner?')) {
+        const item = button.closest('.scanner-item');
+        item.style.opacity = '0';
+        item.style.transition = 'opacity 0.3s';
+
+        setTimeout(function() {
+          item.remove();
+
+          // Show empty state if no scanners left
+          if (scannersList.children.length === 0) {
+            scannersList.innerHTML = `
+              <div class="empty-scanners">
+                <i class="fas fa-qrcode"></i>
+                <p>No scanners assigned yet. Add a scanner to get started.</p>
+              </div>
+            `;
+          }
+        }, 300);
+      }
+    }
+
+    // ============================================
+    // SAMPLE SCANNERS DATA (for demo)
+    // ============================================
+
+    // Pre-populate with some sample scanners for demo
+    document.addEventListener('DOMContentLoaded', function() {
+      const sampleScanners = [
+        { username: 'John Scanner', event: 'Spring Bash: Neon Night' },
+        { username: 'Jane Validator', event: 'Campus Unplugged' }
+      ];
+
+      // Remove empty state
+      const emptyState = scannersList.querySelector('.empty-scanners');
+      if (emptyState) {
+        emptyState.remove();
+      }
+
+      // Add sample scanners
+      sampleScanners.forEach(scanner => {
+        addScannerToList(scanner.username, scanner.event);
+      });
+    });
+
+    // ============================================
+    // HANDLE ENTER KEY
+    // ============================================
+
+    usernameInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (this.value.trim() && eventSelect.value) {
+          submitBtn.click();
+        } else if (!this.value.trim()) {
+          this.focus();
+          this.classList.add('error');
+          document.getElementById('usernameError').style.display = 'block';
+        } else if (!eventSelect.value) {
+          eventSelect.focus();
+          eventSelect.classList.add('error');
+          document.getElementById('eventError').style.display = 'block';
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

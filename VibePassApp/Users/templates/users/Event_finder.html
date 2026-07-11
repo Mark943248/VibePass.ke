@@ -1,472 +1,510 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes"
-    />
-    <title>VibePass - My Dashboard</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <style>
-      /* New Brand Colors - Vibrant Orange & Teal */
-      :root {
-        --vibe-primary: #ff6b35;
-        --vibe-primary-dark: #e85d2c;
-        --vibe-secondary: #00c9a7;
-        --vibe-secondary-dark: #00b092;
-        --vibe-dark: #1a1a2e;
-        --vibe-light: #fff9f5;
-        --vibe-accent: #ffe66d;
-        --vibe-text: #2d2d3a;
-        --vibe-text-light: #6b6b7a;
-        --vibe-card-bg: #ffffff;
-        --vibe-card-shadow: rgba(255, 107, 53, 0.08);
-        --vibe-success: #00c9a7;
-        --vibe-warning: #ffc107;
-        --vibe-danger: #ff4757;
-      }
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+  <title>VibePass - My Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    /* New Brand Colors - Vibrant Orange & Teal */
+    :root {
+      --vibe-primary: #FF6B35;
+      --vibe-primary-dark: #E85D2C;
+      --vibe-secondary: #00C9A7;
+      --vibe-secondary-dark: #00B092;
+      --vibe-dark: #1A1A2E;
+      --vibe-light: #FFF9F5;
+      --vibe-accent: #FFE66D;
+      --vibe-text: #2D2D3A;
+      --vibe-text-light: #6B6B7A;
+      --vibe-card-bg: #FFFFFF;
+      --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+      --vibe-success: #00C9A7;
+      --vibe-warning: #FFC107;
+      --vibe-danger: #FF4757;
+    }
 
-      body {
-        background: linear-gradient(135deg, var(--vibe-light) 0%, #fff5ef 100%);
-        color: var(--vibe-text);
-        line-height: 1.6;
-        min-height: 100vh;
-        overflow-x: hidden;
-      }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-      .container {
-        width: 100%;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 20px;
-      }
+    body {
+      background: linear-gradient(135deg, var(--vibe-light) 0%, #FFF5EF 100%);
+      color: var(--vibe-text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-      /* Header */
-      .header {
-        background: rgba(26, 26, 46, 0.95);
-        backdrop-filter: blur(10px);
-        padding: 12px 0;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
+    .container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
 
-      .header-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
+    /* ============================================
+       HEADER - Mobile First
+       ============================================ */
+    .header {
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 12px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-      .logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none;
-        flex-shrink: 0;
-      }
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
 
-      .logo-icon {
-        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
 
-      .logo-icon i {
-        font-size: 1rem;
-        color: white;
-      }
+    .logo-icon {
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-      .logo-text {
-        font-size: 1.2rem;
-        font-weight: 800;
-        background: linear-gradient(
-          135deg,
-          var(--vibe-primary),
-          var(--vibe-secondary)
-        );
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
+    .logo-icon i {
+      font-size: 0.9rem;
+      color: white;
+    }
 
-      .user-menu {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
+    .logo-text {
+      font-size: 1.1rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
 
-      .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-      }
+    /* Hamburger Button - Like ChatGPT */
+    .hamburger-btn {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      z-index: 101;
+      transition: all 0.3s;
+      border-radius: 8px;
+    }
 
-      .user-avatar {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-        font-size: 0.8rem;
-      }
+    .hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
 
-      .user-info {
-        color: white;
-      }
+    .hamburger-btn span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: white;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
 
-      .user-name {
-        font-weight: 600;
-        font-size: 0.85rem;
-      }
+    .hamburger-btn.active span:nth-child(1) {
+      transform: rotate(45deg) translate(3px, 3px);
+    }
 
-      .user-status {
-        font-size: 0.7rem;
-        opacity: 0.8;
-      }
+    .hamburger-btn.active span:nth-child(2) {
+      opacity: 0;
+    }
 
-      .logout-btn,
-      .manage-events-btn {
-        padding: 6px 14px;
-        border-radius: 30px;
-        font-weight: 500;
-        font-size: 0.75rem;
-        cursor: pointer;
-        transition: all 0.3s;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        white-space: nowrap;
-      }
+    .hamburger-btn.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(3px, -3px);
+    }
 
-      .logout-btn {
-        background: transparent;
-        border: 2px solid var(--vibe-danger);
-        color: var(--vibe-danger);
-      }
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-      .logout-btn:hover {
-        background: var(--vibe-danger);
-        color: white;
-      }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
 
-      .manage-events-btn {
-        background: transparent;
-        border: 2px solid var(--vibe-primary);
-        color: var(--vibe-primary);
-      }
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.7rem;
+    }
 
-      .manage-events-btn:hover {
-        background: var(--vibe-primary);
-        color: white;
-      }
+    .user-info {
+      color: white;
+    }
 
-      /* Mobile Navigation - Horizontal Tabs */
-      .mobile-nav {
-        display: none;
-        background: white;
-        border-radius: 14px;
-        padding: 8px 12px;
-        margin-bottom: 20px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        overflow-x: auto;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-      }
+    .user-name {
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
 
-      .mobile-nav::-webkit-scrollbar {
-        display: none;
-      }
+    .user-status {
+      font-size: 0.6rem;
+      opacity: 0.8;
+    }
 
-      .mobile-nav-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 12px;
-        border-radius: 8px;
-        text-decoration: none;
-        color: var(--vibe-text);
-        font-weight: 500;
-        font-size: 0.75rem;
-        transition: all 0.3s;
-        cursor: pointer;
-        border: none;
-        background: none;
-      }
+    .logout-btn,
+    .manage-events-btn {
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 0.65rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      min-height: 34px;
+      flex-shrink: 0;
+    }
 
-      .mobile-nav-item:hover {
-        background: rgba(255, 107, 53, 0.08);
-        color: var(--vibe-primary);
-      }
+    .logout-btn {
+      background: transparent;
+      border: 2px solid var(--vibe-danger);
+      color: var(--vibe-danger);
+    }
 
-      .mobile-nav-item.active {
-        background: var(--vibe-primary);
-        color: white;
-      }
+    .logout-btn:hover {
+      background: var(--vibe-danger);
+      color: white;
+    }
 
-      .mobile-nav-item i {
-        font-size: 0.8rem;
-      }
+    .manage-events-btn {
+      background: transparent;
+      border: 2px solid var(--vibe-primary);
+      color: var(--vibe-primary);
+    }
 
-      /* Dashboard Layout */
-      .dashboard {
-        display: grid;
-        grid-template-columns: 240px 1fr;
-        gap: 25px;
-        padding: 25px 0;
-        min-height: calc(100vh - 80px);
-      }
+    .manage-events-btn:hover {
+      background: var(--vibe-primary);
+      color: white;
+    }
 
-      /* Sidebar - Desktop Only */
-      .sidebar {
-        background: white;
-        border-radius: 20px;
-        padding: 25px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        height: fit-content;
-        position: sticky;
-        top: 85px;
-      }
+    /* ============================================
+       MOBILE SIDEBAR - Like ChatGPT/DeepSeek
+       ============================================ */
+    .mobile-sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 99;
+    }
 
-      .nav-section {
-        margin-bottom: 25px;
-      }
+    .mobile-sidebar-overlay.active {
+      display: block;
+    }
 
-      .section-title {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--vibe-text-light);
-        margin-bottom: 10px;
-        font-weight: 600;
-      }
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      left: -320px;
+      width: 320px;
+      height: 100%;
+      background: white;
+      z-index: 100;
+      transition: left 0.35s cubic-bezier(0.2, 0.9, 0.4, 1);
+      box-shadow: 2px 0 30px rgba(0, 0, 0, 0.15);
+      padding: 20px 0;
+      overflow-y: auto;
+    }
 
-      .nav-links {
-        list-style: none;
-      }
+    .mobile-sidebar.active {
+      left: 0;
+    }
 
-      .nav-links li {
-        margin-bottom: 5px;
-      }
+    .mobile-sidebar-header {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-      .nav-links a {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 14px;
-        border-radius: 10px;
-        text-decoration: none;
-        color: var(--vibe-text);
-        font-weight: 500;
-        font-size: 0.85rem;
-        transition: all 0.3s;
-      }
+    .mobile-sidebar-header .logo-text {
+      font-size: 1.2rem;
+    }
 
-      .nav-links a:hover {
-        background: rgba(255, 107, 53, 0.08);
-        color: var(--vibe-primary);
-      }
+    .mobile-sidebar-close {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      color: var(--vibe-text);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
 
-      .nav-links a.active {
-        background: var(--vibe-primary);
-        color: white;
-      }
+    .mobile-sidebar-close:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
 
-      .nav-icon {
-        width: 20px;
-        text-align: center;
-        font-size: 0.9rem;
-      }
+    .mobile-sidebar .nav-section {
+      padding: 15px 20px 0;
+    }
 
-      /* Main Content */
-      .main-content {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-      }
+    .mobile-sidebar .section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--vibe-text-light);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
 
-      .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
-      }
+    .mobile-sidebar .nav-links {
+      list-style: none;
+    }
 
-      .welcome-message h1 {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: var(--vibe-dark);
-        margin-bottom: 3px;
-      }
+    .mobile-sidebar .nav-links li {
+      margin-bottom: 4px;
+    }
 
-      .welcome-message p {
-        color: var(--vibe-text-light);
-        font-size: 0.85rem;
-      }
+    .mobile-sidebar .nav-links a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--vibe-text);
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      min-height: 44px;
+    }
 
-      .date-display {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 14px;
-        background: white;
-        border-radius: 30px;
-        font-weight: 500;
-        font-size: 0.75rem;
-        color: var(--vibe-primary);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      }
+    .mobile-sidebar .nav-links a:hover {
+      background: rgba(255, 107, 53, 0.08);
+      color: var(--vibe-primary);
+    }
 
-      /* Dashboard Cards */
-      .dashboard-section {
-        background: white;
-        border-radius: 18px;
-        padding: 20px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-      }
+    .mobile-sidebar .nav-links a.active {
+      background: var(--vibe-primary);
+      color: white;
+    }
 
-      .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
+    .mobile-sidebar .nav-icon {
+      width: 22px;
+      text-align: center;
+      font-size: 1rem;
+    }
 
-      .section-header h2 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--vibe-dark);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
+    /* ============================================
+       DASHBOARD LAYOUT
+       ============================================ */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding: 15px 0;
+      min-height: calc(100vh - 80px);
+    }
 
-      .view-all {
-        color: var(--vibe-primary);
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
+    /* Sidebar - Desktop Only */
+    .sidebar {
+      display: none;
+    }
 
-      /* Events Grid */
-      .events-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-      }
+    /* ============================================
+       MAIN CONTENT
+       ============================================ */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
 
-      .event-card {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s;
-        border: 1px solid #f0f0f0;
-      }
+    .dashboard-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-      .event-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(255, 107, 53, 0.1);
-      }
+    .welcome-message h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--vibe-dark);
+      margin-bottom: 2px;
+    }
 
-      .event-image {
-        height: 140px;
-        position: relative;
-        overflow: hidden;
-      }
+    .welcome-message p {
+      color: var(--vibe-text-light);
+      font-size: 0.8rem;
+    }
 
-      .event-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
+    .date-display {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: white;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 0.7rem;
+      color: var(--vibe-primary);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      min-height: 36px;
+      align-self: flex-start;
+    }
 
-      .event-category {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: var(--vibe-primary);
-        color: white;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 0.65rem;
-        font-weight: 600;
-      }
+    /* ============================================
+       DASHBOARD SECTIONS
+       ============================================ */
+    .dashboard-section {
+      background: white;
+      border-radius: 16px;
+      padding: 15px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
 
-      .event-date {
-        position: absolute;
-        bottom: 10px;
-        left: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 3px 8px;
-        border-radius: 8px;
-        font-size: 0.65rem;
-      }
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
 
-      .event-content {
-        padding: 15px;
-      }
+    .section-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--vibe-dark);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-      .event-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        margin-bottom: 6px;
-        color: var(--vibe-dark);
-      }
+    .view-all {
+      color: var(--vibe-primary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 36px;
+      padding: 4px 10px;
+    }
+
+    /* ============================================
+       EVENTS GRID
+       ============================================ */
+    .events-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .event-card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+      border: 1px solid #f0f0f0;
+    }
+
+    .event-image {
+      height: 120px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .event-category {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--vibe-primary);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 0.6rem;
+      font-weight: 600;
+    }
+
+    .event-date {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.6rem;
+    }
+
+    .event-content {
+      padding: 12px;
+    }
+
+    .event-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--vibe-dark);
+    }
 
     .event-status {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 20px;
-      font-size: 0.7rem;
+      font-size: 0.6rem;
       font-weight: 600;
+      margin-bottom: 6px;
     }
 
     .status-upcoming {
       background: rgba(0, 201, 167, 0.1);
       color: var(--vibe-secondary);
-    }
-
-    .status-draft {
-      background: rgba(255, 193, 7, 0.1);
-      color: var(--vibe-warning);
     }
 
     .status-ended {
@@ -477,1172 +515,1048 @@
     .event-location {
       display: flex;
       align-items: center;
-      gap: 5px;
-      font-size: 0.75rem;
+      gap: 4px;
+      font-size: 0.7rem;
       color: var(--vibe-text-light);
+      margin-bottom: 8px;
+    }
+
+    .event-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+      border-top: 1px solid #f0f0f0;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .event-price {
+      font-weight: 700;
+      color: var(--vibe-primary);
+      font-size: 0.85rem;
+    }
+
+    .btn {
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 36px;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--vibe-primary);
+      color: var(--vibe-primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--vibe-primary);
+      color: white;
+    }
+
+    /* ============================================
+       TICKETS GRID
+       ============================================ */
+    .tickets-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .ticket-card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f0f0f0;
+    }
+
+    .ticket-header {
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      color: white;
+      padding: 12px;
+    }
+
+    .ticket-event {
+      font-weight: 600;
+      margin-bottom: 2px;
+      font-size: 0.85rem;
+    }
+
+    .ticket-date {
+      font-size: 0.65rem;
+      opacity: 0.9;
+    }
+
+    .ticket-body {
+      padding: 12px;
+    }
+
+    .ticket-detail {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 0.75rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .ticket-detail:last-child {
+      border-bottom: none;
+    }
+
+    .ticket-label {
+      color: var(--vibe-text-light);
+    }
+
+    .ticket-value {
+      font-weight: 600;
+      color: var(--vibe-dark);
+    }
+
+    .ticket-qr {
+      text-align: center;
+      padding: 10px;
+      background: var(--vibe-light);
+      margin-top: 8px;
+      border-radius: 10px;
+    }
+
+    .ticket-qr img {
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 0.6rem;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: rgba(0, 201, 167, 0.15);
+      color: var(--vibe-secondary);
+    }
+
+    /* ============================================
+       EMPTY STATE
+       ============================================ */
+    .empty-state {
+      text-align: center;
+      padding: 25px 15px;
+    }
+
+    .empty-icon {
+      font-size: 2.2rem;
+      color: #ddd;
       margin-bottom: 10px;
     }
 
-      .event-footer {
+    .empty-state h3 {
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+      color: var(--vibe-dark);
+    }
+
+    .empty-state p {
+      color: var(--vibe-text-light);
+      font-size: 0.75rem;
+    }
+
+    /* ============================================
+       PROFILE SECTION
+       ============================================ */
+    .profile-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .profile-card {
+      text-align: center;
+      padding: 15px;
+      background: var(--vibe-light);
+      border-radius: 14px;
+    }
+
+    .profile-avatar {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+    }
+
+    .profile-avatar i {
+      font-size: 2rem;
+      color: white;
+    }
+
+    .profile-name {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .profile-email {
+      color: var(--vibe-text-light);
+      font-size: 0.75rem;
+      margin-bottom: 10px;
+    }
+
+    .profile-stats {
+      display: flex;
+      justify-content: space-around;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--vibe-primary);
+    }
+
+    .stat-label {
+      font-size: 0.6rem;
+      color: var(--vibe-text-light);
+    }
+
+    .profile-form {
+      background: var(--vibe-light);
+      padding: 15px;
+      border-radius: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 500;
+      font-size: 0.75rem;
+      margin-bottom: 4px;
+      color: var(--vibe-dark);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 2px solid #E8E8E8;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      min-height: 40px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--vibe-primary);
+    }
+
+    /* ============================================
+       ACTIVITY ITEM
+       ============================================ */
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: var(--vibe-light);
+      border-radius: 10px;
+      margin-bottom: 6px;
+    }
+
+    .activity-icon {
+      width: 32px;
+      height: 32px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--vibe-primary);
+      flex-shrink: 0;
+    }
+
+    .activity-content p {
+      margin-bottom: 1px;
+      font-size: 0.75rem;
+    }
+
+    .activity-time {
+      font-size: 0.6rem;
+      color: var(--vibe-text-light);
+    }
+
+    /* ============================================
+       FOOTER
+       ============================================ */
+    .footer {
+      background: var(--vibe-dark);
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 0.7rem;
+    }
+
+    .footer-links a:hover {
+      color: var(--vibe-primary);
+    }
+
+    /* ============================================
+       TAB CONTENT
+       ============================================ */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================
+       RESPONSIVE BREAKPOINTS
+       ============================================ */
+
+    /* Mobile - Show hamburger */
+    @media (max-width: 767px) {
+      .sidebar {
+        display: none;
+      }
+
+      .hamburger-btn {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 10px;
-        border-top: 1px solid #f0f0f0;
       }
 
-      .event-price {
-        font-weight: 700;
-        color: var(--vibe-primary);
-        font-size: 0.9rem;
-      }
-
-      .btn {
-        padding: 6px 14px;
-        border-radius: 30px;
-        font-weight: 500;
+      .user-info .user-name {
         font-size: 0.75rem;
-        cursor: pointer;
-        transition: all 0.3s;
-        border: none;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
+      }
+
+      .user-info .user-status {
+        font-size: 0.55rem;
+      }
+
+      .user-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 0.65rem;
+      }
+
+      .logout-btn,
+      .manage-events-btn {
+        padding: 4px 10px;
+        font-size: 0.6rem;
+        min-height: 30px;
+      }
+
+      .logout-btn span,
+      .manage-events-btn span {
+        display: none;
+      }
+
+      .header-container {
         gap: 5px;
       }
+    }
 
-      .btn-primary {
-        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
-        color: white;
+    /* Tablet and up - Show sidebar, hide hamburger */
+    @media (min-width: 768px) {
+      .hamburger-btn {
+        display: none;
       }
 
-      .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+      .mobile-sidebar-overlay {
+        display: none !important;
       }
 
-      .btn-outline {
-        background: transparent;
-        border: 2px solid var(--vibe-primary);
+      .mobile-sidebar {
+        display: none !important;
+      }
+
+      .dashboard {
+        grid-template-columns: 240px 1fr;
+        gap: 25px;
+        padding: 25px 0;
+      }
+
+      .sidebar {
+        display: block;
+        position: sticky;
+        top: 85px;
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        height: fit-content;
+      }
+
+      .sidebar .nav-links {
+        list-style: none;
+      }
+
+      .sidebar .nav-links li {
+        margin-bottom: 5px;
+      }
+
+      .sidebar .nav-links a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--vibe-text);
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+        min-height: 40px;
+      }
+
+      .sidebar .nav-links a:hover {
+        background: rgba(255, 107, 53, 0.08);
         color: var(--vibe-primary);
       }
 
-      .btn-outline:hover {
+      .sidebar .nav-links a.active {
         background: var(--vibe-primary);
         color: white;
       }
 
-      /* Tickets Grid */
-      .tickets-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-      }
-
-      .ticket-card {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f0f0f0;
-      }
-
-      .ticket-header {
-        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
-        color: white;
-        padding: 15px;
-      }
-
-      .ticket-event {
-        font-weight: 600;
-        margin-bottom: 3px;
+      .sidebar .nav-icon {
+        width: 20px;
+        text-align: center;
         font-size: 0.9rem;
       }
 
-      .ticket-date {
+      .sidebar .nav-section {
+        margin-bottom: 25px;
+      }
+
+      .sidebar .section-title {
         font-size: 0.7rem;
-        opacity: 0.9;
-      }
-
-      .ticket-body {
-        padding: 15px;
-      }
-
-      .ticket-detail {
-        display: flex;
-        justify-content: space-between;
-        padding: 6px 0;
-        font-size: 0.8rem;
-        border-bottom: 1px solid #f0f0f0;
-      }
-
-      .ticket-detail:last-child {
-        border-bottom: none;
-      }
-
-      .ticket-label {
+        text-transform: uppercase;
+        letter-spacing: 1px;
         color: var(--vibe-text-light);
-      }
-
-      .ticket-value {
-        font-weight: 600;
-        color: var(--vibe-dark);
-      }
-
-      .ticket-qr {
-        text-align: center;
-        padding: 12px;
-        background: var(--vibe-light);
-        margin-top: 10px;
-        border-radius: 12px;
-      }
-
-      .ticket-qr img {
-        width: 90px;
-        height: 90px;
-        border-radius: 10px;
-      }
-
-      .status-badge {
-        display: inline-block;
-        padding: 3px 8px;
-        border-radius: 20px;
-        font-size: 0.65rem;
+        margin-bottom: 10px;
         font-weight: 600;
       }
 
-      .status-active {
-        background: rgba(0, 201, 167, 0.15);
-        color: var(--vibe-secondary);
+      .header-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 15px;
       }
 
-      /* Empty State */
-      .empty-state {
-        text-align: center;
-        padding: 30px 15px;
+      .user-menu {
+        width: auto;
+        border-top: none;
+        padding-top: 0;
+        justify-content: flex-end;
       }
 
-      .empty-icon {
-        font-size: 2.5rem;
-        color: #ddd;
-        margin-bottom: 12px;
+      .user-avatar {
+        width: 42px;
+        height: 42px;
+        font-size: 0.9rem;
       }
 
-      .empty-state h3 {
-        font-size: 1rem;
-        margin-bottom: 5px;
-        color: var(--vibe-dark);
+      .user-name {
+        font-size: 0.9rem;
       }
 
-      .empty-state p {
-        color: var(--vibe-text-light);
+      .user-status {
+        font-size: 0.7rem;
+      }
+
+      .logout-btn,
+      .manage-events-btn {
+        padding: 8px 18px;
         font-size: 0.8rem;
+        min-height: 40px;
       }
 
-      /* Profile Section */
+      .logout-btn span,
+      .manage-events-btn span {
+        display: inline;
+      }
+
+      .events-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+
+      .tickets-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+
+      .dashboard-header {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .welcome-message h1 {
+        font-size: 1.4rem;
+      }
+
+      .welcome-message p {
+        font-size: 0.85rem;
+      }
+
+      .section-header {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .section-header h2 {
+        font-size: 1.1rem;
+      }
+
       .profile-section {
-        display: grid;
         grid-template-columns: 240px 1fr;
         gap: 20px;
       }
 
-      .profile-card {
-        text-align: center;
-        padding: 20px;
-        background: var(--vibe-light);
-        border-radius: 16px;
+      .event-image {
+        height: 150px;
       }
 
-      .profile-avatar {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 12px;
+      .event-title {
+        font-size: 0.95rem;
       }
 
-      .profile-avatar i {
-        font-size: 2.5rem;
-        color: white;
+      .ticket-event {
+        font-size: 0.9rem;
       }
 
-      .profile-name {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 3px;
-      }
-
-      .profile-email {
-        color: var(--vibe-text-light);
+      .date-display {
         font-size: 0.8rem;
-        margin-bottom: 12px;
+        padding: 8px 16px;
+        min-height: 40px;
       }
 
-      .profile-stats {
-        display: flex;
-        justify-content: space-around;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .stat {
-        text-align: center;
-      }
-
-      .stat-number {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--vibe-primary);
-      }
-
-      .stat-label {
-        font-size: 0.65rem;
-        color: var(--vibe-text-light);
-      }
-
-      .profile-form {
-        background: var(--vibe-light);
-        padding: 20px;
-        border-radius: 16px;
-      }
-
-      .form-group {
-        margin-bottom: 12px;
-      }
-
-      .form-label {
-        display: block;
-        font-weight: 500;
+      .btn {
+        padding: 8px 16px;
         font-size: 0.8rem;
-        margin-bottom: 4px;
-        color: var(--vibe-dark);
+        min-height: 40px;
       }
 
-      .form-input {
-        width: 100%;
-        padding: 8px 12px;
-        border: 2px solid #e8e8e8;
-        border-radius: 10px;
-        font-size: 0.85rem;
+      .event-price {
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Desktop */
+    @media (min-width: 1024px) {
+      .events-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
       }
 
-      .form-input:focus {
-        outline: none;
-        border-color: var(--vibe-primary);
+      .tickets-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
       }
 
-      /* Activity Item */
-      .activity-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px;
-        background: var(--vibe-light);
-        border-radius: 12px;
-        margin-bottom: 8px;
+      .event-image {
+        height: 180px;
       }
 
-      .activity-icon {
-        width: 35px;
-        height: 35px;
-        background: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--vibe-primary);
+      .welcome-message h1 {
+        font-size: 1.6rem;
       }
 
-      .activity-content p {
-        margin-bottom: 2px;
-        font-size: 0.8rem;
+      .dashboard-section {
+        padding: 25px;
       }
-
-      .activity-time {
-        font-size: 0.65rem;
-        color: var(--vibe-text-light);
-      }
-
-      /* Footer */
-      .footer {
-        background: var(--vibe-dark);
-        color: white;
-        padding: 25px 0;
-        text-align: center;
-        margin-top: 40px;
-      }
-
-      .footer-links {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        flex-wrap: wrap;
-        margin-top: 10px;
-      }
-
-      .footer-links a {
-        color: rgba(255, 255, 255, 0.7);
-        text-decoration: none;
-        font-size: 0.8rem;
-      }
-
-      .footer-links a:hover {
-        color: var(--vibe-primary);
-      }
-
-      /* Tab Content */
-      .tab-content {
-        display: none;
-      }
-
-      .tab-content.active {
-        display: block;
-        animation: fadeIn 0.3s ease-out;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      /* ============================================
-       RESPONSIVE BREAKPOINTS
-       ============================================ */
-
-      /* Tablet - Show horizontal nav, hide sidebar */
-      @media (max-width: 992px) {
-        .dashboard {
-          grid-template-columns: 1fr;
-          gap: 20px;
-          padding: 20px 0;
-        }
-
-        .sidebar {
-          display: none;
-        }
-
-        .mobile-nav {
-          display: flex;
-        }
-      }
-
-      /* Mobile - Header buttons visible */
-      @media (max-width: 768px) {
-        .header-container {
-          flex-direction: row;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-
-        .user-menu {
-          width: 100%;
-          justify-content: flex-start;
-          gap: 6px;
-          padding-top: 8px;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .user-profile {
-          margin-right: auto;
-        }
-
-        .user-info .user-name {
-          font-size: 0.8rem;
-        }
-
-        .user-info .user-status {
-          font-size: 0.65rem;
-        }
-
-        .user-avatar {
-          width: 32px;
-          height: 32px;
-          font-size: 0.7rem;
-        }
-
-        .logout-btn,
-        .manage-events-btn {
-          padding: 5px 10px;
-          font-size: 0.7rem;
-        }
-
-        .mobile-nav {
-          padding: 6px 10px;
-          gap: 2px;
-        }
-
-        .mobile-nav-item {
-          padding: 5px 10px;
-          font-size: 0.7rem;
-        }
-
-        .mobile-nav-item i {
-          font-size: 0.7rem;
-        }
-
-        .events-grid,
-        .tickets-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .welcome-message h1 {
-          font-size: 1.2rem;
-        }
-
-        .welcome-message p {
-          font-size: 0.8rem;
-        }
-
-        .date-display {
-          font-size: 0.65rem;
-          padding: 4px 10px;
-        }
-
-        .dashboard-section {
-          padding: 15px;
-        }
-
-        .section-header h2 {
-          font-size: 0.95rem;
-        }
-
-        .profile-section {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      /* Small Mobile */
-      @media (max-width: 576px) {
-        .container {
-          padding: 0 12px;
-        }
-
-        .header {
-          padding: 10px 0;
-        }
-
-        .logo-icon {
-          width: 32px;
-          height: 32px;
-        }
-
-        .logo-icon i {
-          font-size: 0.85rem;
-        }
-
-        .logo-text {
-          font-size: 1rem;
-        }
-
-        .user-avatar {
-          width: 28px;
-          height: 28px;
-          font-size: 0.6rem;
-        }
-
-        .logout-btn,
-        .manage-events-btn {
-          padding: 4px 8px;
-          font-size: 0.6rem;
-        }
-
-        .logout-btn span,
-        .manage-events-btn span {
-          display: none;
-        }
-
-        .mobile-nav {
-          padding: 4px 6px;
-        }
-
-        .mobile-nav-item {
-          padding: 4px 8px;
-          font-size: 0.6rem;
-        }
-
-        .mobile-nav-item i {
-          font-size: 0.6rem;
-        }
-
-        .welcome-message h1 {
-          font-size: 1rem;
-        }
-
-        .welcome-message p {
-          font-size: 0.7rem;
-        }
-
-        .date-display {
-          font-size: 0.6rem;
-          padding: 3px 8px;
-        }
-
-        .dashboard-section {
-          padding: 12px;
-          border-radius: 14px;
-        }
-
-        .section-header h2 {
-          font-size: 0.85rem;
-        }
-
-        .view-all {
-          font-size: 0.7rem;
-        }
-
-        .event-card {
-          border-radius: 12px;
-        }
-
-        .event-image {
-          height: 120px;
-        }
-
-        .event-title {
-          font-size: 0.85rem;
-        }
-
-        .event-price {
-          font-size: 0.8rem;
-        }
-
-        .btn {
-          padding: 4px 10px;
-          font-size: 0.65rem;
-        }
-
-        .ticket-card {
-          border-radius: 12px;
-        }
-
-        .ticket-header {
-          padding: 12px;
-        }
-
-        .ticket-event {
-          font-size: 0.8rem;
-        }
-
-        .ticket-body {
-          padding: 12px;
-        }
-
-        .ticket-detail {
-          font-size: 0.7rem;
-          padding: 4px 0;
-        }
-
-        .ticket-qr img {
-          width: 70px;
-          height: 70px;
-        }
-
-        .profile-avatar {
-          width: 65px;
-          height: 65px;
-        }
-
-        .profile-avatar i {
-          font-size: 2rem;
-        }
-
-        .profile-name {
-          font-size: 1rem;
-        }
-
-        .form-input {
-          padding: 6px 10px;
-          font-size: 0.8rem;
-        }
-
-        .footer p {
-          font-size: 0.7rem;
-        }
-
-        .footer-links a {
-          font-size: 0.65rem;
-        }
-      }
-
-      /* Extra Small */
-      @media (max-width: 400px) {
-        .logout-btn,
-        .manage-events-btn {
-          padding: 3px 6px;
-          font-size: 0.55rem;
-        }
-
-        .user-info .user-name {
-          font-size: 0.7rem;
-        }
-
-        .user-info .user-status {
-          font-size: 0.55rem;
-        }
-
-        .mobile-nav-item {
-          padding: 3px 6px;
-          font-size: 0.55rem;
-        }
-
-        .mobile-nav-item i {
-          font-size: 0.55rem;
-        }
-
-        .event-title {
-          font-size: 0.75rem;
-        }
-
-        .event-location {
-          font-size: 0.65rem;
-        }
-
-        .section-header h2 {
-          font-size: 0.75rem;
-        }
-
-        .stat-number {
-          font-size: 0.9rem;
-        }
-      }
-
-      /* Landscape phones */
-      @media (max-width: 768px) and (orientation: landscape) {
-        .user-menu {
-          flex-direction: row;
-          flex-wrap: wrap;
-        }
-
-        .user-profile {
-          width: auto;
-        }
-
-        .logout-btn,
-        .manage-events-btn {
-          width: auto;
-        }
-
-        .mobile-nav {
-          flex-wrap: nowrap;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <!-- Django Messages -->
-    {% if messages %} {% for message in messages %}
-    <div
-      class="alert alert-warning alert-dismissible fade show m-3"
-      role="alert"
-    >
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Django Messages -->
+  {% if messages %} {% for message in messages %}
+  <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %} {% endif %}
+
+  <!-- Mobile Sidebar Overlay -->
+  <div class="mobile-sidebar-overlay" id="mobileOverlay"></div>
+
+  <!-- Mobile Sidebar - Like ChatGPT/DeepSeek -->
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <div class="mobile-sidebar-header">
+      <span class="logo-text">VibePass</span>
+      <button class="mobile-sidebar-close" id="closeSidebar">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    {% endfor %} {% endif %}
+    <div class="nav-section">
+      <h3 class="section-title">Menu</h3>
+      <ul class="nav-links">
+        <li><a href="#" class="nav-link active" data-tab="overview"><i class="fas fa-home nav-icon"></i> Overview</a></li>
+        <li><a href="#" class="nav-link" data-tab="upcoming"><i class="fas fa-calendar-alt nav-icon"></i> Upcoming Events</a></li>
+        <li><a href="#" class="nav-link" data-tab="tickets"><i class="fas fa-ticket-alt nav-icon"></i> My Tickets</a></li>
+        <li><a href="#" class="nav-link" data-tab="past"><i class="fas fa-history nav-icon"></i> Past Events</a></li>
+        <li><a href="#" class="nav-link" data-tab="profile"><i class="fas fa-user nav-icon"></i> My Profile</a></li>
+      </ul>
+    </div>
+  </div>
 
-    <!-- Header -->
-    <header class="header">
-      <div class="container header-container">
-        <a href="{% url 'home' %}" class="logo">
-          <div class="logo-icon">
-            <i class="fas fa-ticket-alt"></i>
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-container">
+      <a href="{% url 'home' %}" class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-ticket-alt"></i>
+        </div>
+        <span class="logo-text">VibePass</span>
+      </a>
+
+      <div class="user-menu">
+        <div class="user-profile">
+          <div class="user-avatar"><i class="fas fa-user"></i></div>
+          <div class="user-info">
+            <div class="user-name">{{ user.username }}</div>
+            <div class="user-status">
+              {% if user.is_organiser %}Organiser{% else %}Finder{% endif %}
+            </div>
           </div>
-          <span class="logo-text">VibePass</span>
+        </div>
+        <a href="{% url 'make_organiser' %}" class="manage-events-btn">
+          <i class="fas fa-calendar-alt"></i> <span>Manage</span>
         </a>
-
-        <div class="user-menu">
-          <div class="user-profile">
-            <div class="user-avatar"><i class="fas fa-user"></i></div>
-            <div class="user-info">
-              <div class="user-name">{{ user.username }}</div>
-              <div class="user-status">
-                {% if user.is_organiser %}Organiser{% else %}Finder{% endif %}
-              </div>
-            </div>
-          </div>
-          <a href="{% url 'make_organiser' %}" class="manage-events-btn">
-            <i class="fas fa-calendar-alt"></i> <span>Manage Events</span>
-          </a>
-          <a href="{% url 'logout' %}" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-          </a>
-        </div>
-      </div>
-    </header>
-
-    <!-- Dashboard -->
-    <div class="container">
-      <div class="dashboard">
-        <!-- Sidebar - Desktop Only -->
-        <aside class="sidebar">
-          <div class="nav-section">
-            <h3 class="section-title">Menu</h3>
-            <ul class="nav-links">
-              <li>
-                <a href="#" class="nav-link active" data-tab="overview"
-                  ><i class="fas fa-home nav-icon"></i> Overview</a
-                >
-              </li>
-              <li>
-                <a href="#" class="nav-link" data-tab="upcoming"
-                  ><i class="fas fa-calendar-alt nav-icon"></i> Upcoming
-                  Events</a
-                >
-              </li>
-              <li>
-                <a href="#" class="nav-link" data-tab="tickets"
-                  ><i class="fas fa-ticket-alt nav-icon"></i> My Tickets</a
-                >
-              </li>
-              <li>
-                <a href="#" class="nav-link" data-tab="past"
-                  ><i class="fas fa-history nav-icon"></i> Past Events</a
-                >
-              </li>
-              <li>
-                <a href="#" class="nav-link" data-tab="profile"
-                  ><i class="fas fa-user nav-icon"></i> My Profile</a
-                >
-              </li>
-            </ul>
-          </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-          <!-- Dashboard Header -->
-          <div class="dashboard-header">
-            <div class="welcome-message">
-              <h1>Welcome back, {{ user.username }}! 👋</h1>
-              <p>Here's what's happening with your VibePass events</p>
-            </div>
-            <div class="date-display">
-              <i class="fas fa-calendar-day"></i>
-              <span id="currentDate">Loading...</span>
-            </div>
-          </div>
-
-          <!-- Mobile Navigation - Horizontal Tabs -->
-          <div class="mobile-nav" id="mobileNav">
-            <button class="mobile-nav-item active" data-tab="overview">
-              <i class="fas fa-home"></i> Overview
-            </button>
-            <button class="mobile-nav-item" data-tab="upcoming">
-              <i class="fas fa-calendar-alt"></i> Upcoming
-            </button>
-            <button class="mobile-nav-item" data-tab="tickets">
-              <i class="fas fa-ticket-alt"></i> Tickets
-            </button>
-            <button class="mobile-nav-item" data-tab="past">
-              <i class="fas fa-history"></i> Past
-            </button>
-            <button class="mobile-nav-item" data-tab="profile">
-              <i class="fas fa-user"></i> Profile
-            </button>
-          </div>
-
-          <!-- Overview Tab -->
-          <div class="dashboard-section tab-content active" id="overview">
-            <div class="section-header">
-              <h2><i class="fas fa-fire"></i> Upcoming Events</h2>
-              <a href="{% url 'list_event' %}" class="view-all"
-                >View All <i class="fas fa-arrow-right"></i
-              ></a>
-            </div>
-
-            <div class="events-grid">
-              {% for event in events|slice:":3" %}
-              <div class="event-card">
-                <div class="event-image">
-                  {% if event.Event_flyer %}
-                  <img
-                    src="{{ event.Event_flyer.url }}"
-                    alt="{{ event.Event_title }}"
-                  />
-                  {% else %}
-                  <div
-                    style="
-                      background: linear-gradient(
-                        135deg,
-                        var(--vibe-primary),
-                        #ff8c42
-                      );
-                      height: 100%;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      color: white;
-                    "
-                  >
-                    <i class="fas fa-calendar-alt fa-2x"></i>
-                  </div>
-                  {% endif %}
-                  <div class="event-category">
-                    {{ event.Event_category|truncatechars:15 }}
-                  </div>
-                  <div class="event-date">{{ event.Event_date }}</div>
-                </div>
-                <div class="event-content">
-                  <h3 class="event-title">
-                    {{ event.Event_title|truncatechars:30 }}
-                  </h3>
-                  <div class="event-location">
-                    <i class="fas fa-map-marker-alt"></i> {{ event.Event_location|truncatechars:25 }}
-                  </div>
-                  {% if event.Event_date >= today %}
-                   <span class="event-status status-upcoming">Upcoming</span>
-                  {% else %}
-                   <span class="event-status status-ended">Ended</span>
-                  {% endif %}
-                  <div class="event-footer">
-                    <div class="event-price">{{ event.price_summary }}</div>
-                    <a
-                      href="{% url 'event_details' event.slug %}"
-                      class="btn btn-primary"
-                      >View Details</a
-                    >
-                  </div>
-                </div>
-              </div>
-              {% empty %}
-              <div class="empty-state">
-                <div class="empty-icon">
-                  <i class="fas fa-calendar-times"></i>
-                </div>
-                <h3>No Upcoming Events</h3>
-                <p>Check back later for new events!</p>
-              </div>
-              {% endfor %}
-            </div>
-
-            <!-- Recent Activity -->
-            <div style="margin-top: 25px">
-              <div class="section-header">
-                <h2><i class="fas fa-history"></i> Recent Activity</h2>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon">
-                  <i class="fas fa-ticket-alt"></i>
-                </div>
-                <div class="activity-content">
-                  <p>
-                    You purchased a ticket for
-                    <strong>Spring Bash: Neon Night</strong>
-                  </p>
-                  <span class="activity-time">2 days ago</span>
-                </div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon">
-                  <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="activity-content">
-                  <p>
-                    You registered for
-                    <strong>Campus Unplugged: Acoustic Night</strong>
-                  </p>
-                  <span class="activity-time">4 days ago</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Upcoming Events Tab -->
-          <div class="dashboard-section tab-content" id="upcoming">
-            <div class="section-header">
-              <h2><i class="fas fa-calendar-alt"></i> All Upcoming Events</h2>
-            </div>
-            <div class="events-grid">
-              {% for event in events %}
-              <div class="event-card">
-                <div class="event-image">
-                  {% if event.Event_flyer %}
-                  <img
-                    src="{{ event.Event_flyer.url }}"
-                    alt="{{ event.Event_title }}"
-                  />
-                  {% else %}
-                  <div
-                    style="
-                      background: linear-gradient(
-                        135deg,
-                        var(--vibe-primary),
-                        #ff8c42
-                      );
-                      height: 100%;
-                    "
-                  ></div>
-                  {% endif %}
-                  <div class="event-category">
-                    {{ event.Event_category|truncatechars:15 }}
-                  </div>
-                  <div class="event-date">{{ event.Event_date }}</div>
-                </div>
-                <div class="event-content">
-                  <h3 class="event-title">{{ event.Event_title }}</h3>
-                  <div class="event-location">
-                    <i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}
-                  </div>
-                  {% if event.Event_date >= today %}
-                   <span class="event-status status-upcoming">Upcoming</span>
-                  {% else %}
-                   <span class="event-status status-ended">Ended</span>
-                  {% endif %}
-                  <div class="event-footer">
-                    <div class="event-price">{{ event.price_summary }}</div>
-                    <a
-                      href="{% url 'event_details' event.slug %}"
-                      class="btn btn-primary"
-                      >View Details</a
-                    >
-                  </div>
-                </div>
-              </div>
-              {% empty %}
-              <div class="empty-state">
-                <div class="empty-icon">
-                  <i class="fas fa-calendar-times"></i>
-                </div>
-                <h3>No Upcoming Events</h3>
-                <p>Check back later for new events!</p>
-              </div>
-              {% endfor %}
-            </div>
-          </div>
-
-          <!-- My Tickets Tab -->
-          <div class="dashboard-section tab-content" id="tickets">
-            <div class="section-header">
-              <h2><i class="fas fa-ticket-alt"></i> My Tickets</h2>
-              <span
-                class="btn-outline"
-                style="padding: 3px 10px; font-size: 0.7rem"
-                >Total: {{ tickets|length }}</span
-              >
-            </div>
-
-            {% if tickets %}
-            <div class="tickets-grid">
-              {% for ticket in tickets %}
-              <div class="ticket-card">
-                <div class="ticket-header">
-                  <div class="ticket-event">{{ ticket.event.Event_title }}</div>
-                  <div class="ticket-date">
-                    <i class="far fa-calendar-alt"></i> {{ ticket.event.Event_date }}
-                  </div>
-                </div>
-                <div class="ticket-body">
-                  <div class="ticket-detail">
-                    <span class="ticket-label">Ticket ID</span>
-                    <span class="ticket-value"
-                      >{{ ticket.ticket_id|truncatechars:12 }}</span
-                    >
-                  </div>
-                  <div class="ticket-detail">
-                    <span class="ticket-label">Location</span>
-                    <span class="ticket-value"
-                      >{{ ticket.event.Event_location|truncatechars:20 }}</span
-                    >
-                  </div>
-                  <div class="ticket-detail">
-                    <span class="ticket-label">Status</span>
-                    <span class="ticket-value"
-                      ><span class="status-badge status-active"
-                        >{{ ticket.get_status_display }}</span
-                      ></span>
-                  </div>
-                   
-                  {% if ticket.event.Event_date >= today %}
-                   <span class="event-status status-upcoming">Upcoming</span>
-                  {% else %}
-                   <span class="event-status status-ended">Ended</span>
-                  {% endif %}
-
-                  <a href="{% url 'users_tickets' ticket.ticket_id %}" class="manage-events-btn">
-                    <i class="fas fa-calendar-alt"></i> <span>Details</span>
-                  </a>
-
-                  {% if ticket.ticket_qr_image %}
-                  <div class="ticket-qr">
-                    <img src="{{ ticket.ticket_qr_image.url }}" alt="QR Code" />
-                    <p
-                      style="
-                        font-size: 0.65rem;
-                        color: var(--vibe-text-light);
-                        margin-top: 6px;
-                      "
-                    >
-                      Scan at entrance
-                    </p>
-                  </div>
-                  {% endif %}
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-            {% else %}
-            <div class="empty-state">
-              <div class="empty-icon"><i class="fas fa-ticket-alt"></i></div>
-              <h3>No Tickets Yet</h3>
-              <p>Book your first ticket to see it here!</p>
-              <a
-                href="{% url 'list_event' %}"
-                class="btn btn-primary"
-                style="margin-top: 12px"
-                >Browse Events</a
-              >
-            </div>
-            {% endif %}
-          </div>
-
-          <!-- Past Events Tab -->
-          <div class="dashboard-section tab-content" id="past">
-            <div class="section-header">
-              <h2><i class="fas fa-history"></i> Past Events</h2>
-            </div>
-            <div class="empty-state">
-              <div class="empty-icon">
-                <i class="fas fa-calendar-check"></i>
-              </div>
-              <h3>No Past Events</h3>
-              <p>Your past events will appear here</p>
-            </div>
-          </div>
-
-          <!-- My Profile Tab -->
-          <div class="dashboard-section tab-content" id="profile">
-            <div class="section-header">
-              <h2><i class="fas fa-user"></i> My Profile</h2>
-            </div>
-
-            <div class="profile-section">
-              <div class="profile-card">
-                <div class="profile-avatar"><i class="fas fa-user"></i></div>
-                <h3 class="profile-name">{{ user.username }}</h3>
-                <p class="profile-email">{{ user.email }}</p>
-                <div class="profile-stats">
-                  <div class="stat">
-                    <div class="stat-number">{{ events|length }}</div>
-                    <div class="stat-label">Events</div>
-                  </div>
-                  <div class="stat">
-                    <div class="stat-number">{{ tickets|length }}</div>
-                    <div class="stat-label">Tickets</div>
-                  </div>
-                </div>
-              </div>
-
-              <form
-                method="POST"
-                action="{% url 'change_details' %}"
-                class="profile-form"
-              >
-                {% csrf_token %}
-                <div class="form-group">
-                  <label class="form-label">Username</label>
-                  <input
-                    type="text"
-                    name="username"
-                    class="form-input"
-                    value="{{ user.username }}"
-                  />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Email Address</label>
-                  <input
-                    type="email"
-                    name="email"
-                    class="form-input"
-                    value="{{ user.email }}"
-                  />
-                </div>
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save"></i> Save Changes
-                </button>
-              </form>
-            </div>
-          </div>
-        </main>
+        <a href="{% url 'logout' %}" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+        </a>
+        <button class="hamburger-btn" id="hamburgerBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
     </div>
+  </header>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="container">
-        <p>&copy; 2026 VibePass. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="{% url 'list_event' %}">Events</a>
-            <a href="{% url 'contact' %}">Contact</a>
-            <a href="{% url 'faqs' %}">FAQs</a>
+  <!-- Dashboard -->
+  <div class="container">
+    <div class="dashboard">
+      <!-- Sidebar - Desktop Only -->
+      <aside class="sidebar">
+        <div class="nav-section">
+          <h3 class="section-title">Menu</h3>
+          <ul class="nav-links">
+            <li><a href="#" class="nav-link active" data-tab="overview"><i class="fas fa-home nav-icon"></i> Overview</a></li>
+            <li><a href="#" class="nav-link" data-tab="upcoming"><i class="fas fa-calendar-alt nav-icon"></i> Upcoming Events</a></li>
+            <li><a href="#" class="nav-link" data-tab="tickets"><i class="fas fa-ticket-alt nav-icon"></i> My Tickets</a></li>
+            <li><a href="#" class="nav-link" data-tab="past"><i class="fas fa-history nav-icon"></i> Past Events</a></li>
+            <li><a href="#" class="nav-link" data-tab="profile"><i class="fas fa-user nav-icon"></i> My Profile</a></li>
+          </ul>
         </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+          <div class="welcome-message">
+            <h1>Welcome back, {{ user.username }}! 👋</h1>
+            <p>Here's what's happening with your VibePass events</p>
+          </div>
+          <div class="date-display">
+            <i class="fas fa-calendar-day"></i>
+            <span id="currentDate">Loading...</span>
+          </div>
+        </div>
+
+        <!-- Overview Tab -->
+        <div class="dashboard-section tab-content active" id="overview">
+          <div class="section-header">
+            <h2><i class="fas fa-fire"></i> Upcoming Events</h2>
+            <a href="{% url 'list_event' %}" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+          </div>
+
+          <div class="events-grid">
+            {% for event in events|slice:":3" %}
+            <div class="event-card">
+              <div class="event-image">
+                {% if event.Event_flyer %}
+                <img src="{{ event.Event_flyer.url }}" alt="{{ event.Event_title }}" />
+                {% else %}
+                <div style="background: linear-gradient(135deg, var(--vibe-primary), #FF8C42); height: 100%; display: flex; align-items: center; justify-content: center; color: white;">
+                  <i class="fas fa-calendar-alt fa-2x"></i>
+                </div>
+                {% endif %}
+                <div class="event-category">{{ event.Event_category|truncatechars:15 }}</div>
+                <div class="event-date">{{ event.Event_date }}</div>
+              </div>
+              <div class="event-content">
+                <h3 class="event-title">{{ event.Event_title|truncatechars:30 }}</h3>
+                <div class="event-location">
+                  <i class="fas fa-map-marker-alt"></i> {{ event.Event_location|truncatechars:25 }}
+                </div>
+                {% if event.Event_date >= today %}
+                <span class="event-status status-upcoming">Upcoming</span>
+                {% else %}
+                <span class="event-status status-ended">Ended</span>
+                {% endif %}
+                <div class="event-footer">
+                  <div class="event-price">{{ event.price_summary }}</div>
+                  <a href="{% url 'event_details' event.slug %}" class="btn btn-primary">View Details</a>
+                </div>
+              </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-calendar-times"></i></div>
+              <h3>No Upcoming Events</h3>
+              <p>Check back later for new events!</p>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Recent Activity -->
+          <div style="margin-top: 20px;">
+            <div class="section-header">
+              <h2><i class="fas fa-history"></i> Recent Activity</h2>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon"><i class="fas fa-ticket-alt"></i></div>
+              <div class="activity-content">
+                <p>You purchased a ticket for <strong>Spring Bash: Neon Night</strong></p>
+                <span class="activity-time">2 days ago</span>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon"><i class="fas fa-check-circle"></i></div>
+              <div class="activity-content">
+                <p>You registered for <strong>Campus Unplugged: Acoustic Night</strong></p>
+                <span class="activity-time">4 days ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Events Tab -->
+        <div class="dashboard-section tab-content" id="upcoming">
+          <div class="section-header">
+            <h2><i class="fas fa-calendar-alt"></i> All Upcoming Events</h2>
+          </div>
+          <div class="events-grid">
+            {% for event in events %}
+            <div class="event-card">
+              <div class="event-image">
+                {% if event.Event_flyer %}
+                <img src="{{ event.Event_flyer.url }}" alt="{{ event.Event_title }}" />
+                {% else %}
+                <div style="background: linear-gradient(135deg, var(--vibe-primary), #FF8C42); height: 100%;"></div>
+                {% endif %}
+                <div class="event-category">{{ event.Event_category|truncatechars:15 }}</div>
+                <div class="event-date">{{ event.Event_date }}</div>
+              </div>
+              <div class="event-content">
+                <h3 class="event-title">{{ event.Event_title }}</h3>
+                <div class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}</div>
+                {% if event.Event_date >= today %}
+                <span class="event-status status-upcoming">Upcoming</span>
+                {% else %}
+                <span class="event-status status-ended">Ended</span>
+                {% endif %}
+                <div class="event-footer">
+                  <div class="event-price">{{ event.price_summary }}</div>
+                  <a href="{% url 'event_details' event.slug %}" class="btn btn-primary">View Details</a>
+                </div>
+              </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-calendar-times"></i></div>
+              <h3>No Upcoming Events</h3>
+              <p>Check back later for new events!</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- My Tickets Tab -->
+        <div class="dashboard-section tab-content" id="tickets">
+          <div class="section-header">
+            <h2><i class="fas fa-ticket-alt"></i> My Tickets</h2>
+            <span class="btn-outline" style="padding: 3px 10px; font-size: 0.65rem;">Total: {{ tickets|length }}</span>
+          </div>
+
+          {% if tickets %}
+          <div class="tickets-grid">
+            {% for ticket in tickets %}
+            <div class="ticket-card">
+              <div class="ticket-header">
+                <div class="ticket-event">{{ ticket.event.Event_title }}</div>
+                <div class="ticket-date"><i class="far fa-calendar-alt"></i> {{ ticket.event.Event_date }}</div>
+              </div>
+              <div class="ticket-body">
+                <div class="ticket-detail">
+                  <span class="ticket-label">Ticket ID</span>
+                  <span class="ticket-value">{{ ticket.ticket_id|truncatechars:12 }}</span>
+                </div>
+                <div class="ticket-detail">
+                  <span class="ticket-label">Location</span>
+                  <span class="ticket-value">{{ ticket.event.Event_location|truncatechars:20 }}</span>
+                </div>
+                <div class="ticket-detail">
+                  <span class="ticket-label">Status</span>
+                  <span class="ticket-value"><span class="status-badge status-active">{{ ticket.get_status_display }}</span></span>
+                </div>
+                <div style="margin-top: 8px;">
+                  <a href="{% url 'users_tickets' ticket.ticket_id %}" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-eye"></i> View Details
+                  </a>
+                </div>
+                {% if ticket.ticket_qr_image %}
+                <div class="ticket-qr">
+                  <img src="{{ ticket.ticket_qr_image.url }}" alt="QR Code" />
+                  <p style="font-size: 0.6rem; color: var(--vibe-text-light); margin-top: 4px;">Scan at entrance</p>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-ticket-alt"></i></div>
+            <h3>No Tickets Yet</h3>
+            <p>Book your first ticket to see it here!</p>
+            <a href="{% url 'list_event' %}" class="btn btn-primary" style="margin-top: 10px;">Browse Events</a>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Past Events Tab -->
+        <div class="dashboard-section tab-content" id="past">
+          <div class="section-header">
+            <h2><i class="fas fa-history"></i> Past Events</h2>
+          </div>
+          <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-calendar-check"></i></div>
+            <h3>No Past Events</h3>
+            <p>Your past events will appear here</p>
+          </div>
+        </div>
+
+        <!-- My Profile Tab -->
+        <div class="dashboard-section tab-content" id="profile">
+          <div class="section-header">
+            <h2><i class="fas fa-user"></i> My Profile</h2>
+          </div>
+
+          <div class="profile-section">
+            <div class="profile-card">
+              <div class="profile-avatar"><i class="fas fa-user"></i></div>
+              <h3 class="profile-name">{{ user.username }}</h3>
+              <p class="profile-email">{{ user.email }}</p>
+              <div class="profile-stats">
+                <div class="stat">
+                  <div class="stat-number">{{ events|length }}</div>
+                  <div class="stat-label">Events</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-number">{{ tickets|length }}</div>
+                  <div class="stat-label">Tickets</div>
+                </div>
+              </div>
+            </div>
+
+            <form method="POST" action="{% url 'change_details' %}" class="profile-form">
+              {% csrf_token %}
+              <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-input" value="{{ user.username }}" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" name="email" class="form-input" value="{{ user.email }}" />
+              </div>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 VibePass. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="{% url 'list_event' %}">Events</a>
+        <a href="{% url 'contact' %}">Contact</a>
+        <a href="{% url 'faqs' %}">FAQs</a>
       </div>
-    </footer>
+    </div>
+  </footer>
 
-    <script>
-      // Set current date
-      const currentDate = new Date();
-      const options = {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      };
-      document.getElementById("currentDate").textContent =
-        currentDate.toLocaleDateString("en-US", options);
+  <script>
+    // Set current date
+    const currentDate = new Date();
+    const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+    document.getElementById("currentDate").textContent = currentDate.toLocaleDateString("en-US", options);
 
-      // Get all tab triggers (both sidebar links and mobile nav items)
-      const desktopNavLinks = document.querySelectorAll(".nav-link");
-      const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
-      const tabContents = document.querySelectorAll(".tab-content");
+    // ============================================
+    // HAMBURGER MENU TOGGLE - Like ChatGPT/DeepSeek
+    // ============================================
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+    const closeSidebar = document.getElementById('closeSidebar');
 
-      // Function to switch tabs
-      function switchTab(tabId, clickedElement) {
-        // Remove active class from all desktop nav links
-        desktopNavLinks.forEach((link) => link.classList.remove("active"));
-        // Remove active class from all mobile nav items
-        mobileNavItems.forEach((item) => item.classList.remove("active"));
+    function openSidebar() {
+      mobileSidebar.classList.add('active');
+      mobileOverlay.classList.add('active');
+      hamburgerBtn.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
 
-        // Hide all tab contents
-        tabContents.forEach((tab) => tab.classList.remove("active"));
+    function closeSidebarFunc() {
+      mobileSidebar.classList.remove('active');
+      mobileOverlay.classList.remove('active');
+      hamburgerBtn.classList.remove('active');
+      document.body.style.overflow = '';
+    }
 
-        // Show selected tab content
-        const selectedTab = document.getElementById(tabId);
-        if (selectedTab) {
-          selectedTab.classList.add("active");
-        }
+    // Toggle sidebar on hamburger click
+    hamburgerBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (mobileSidebar.classList.contains('active')) {
+        closeSidebarFunc();
+      } else {
+        openSidebar();
+      }
+    });
 
-        // Add active class to clicked element
-        if (clickedElement) {
-          clickedElement.classList.add("active");
-        }
+    // Close on close button
+    closeSidebar.addEventListener('click', closeSidebarFunc);
+
+    // Close on overlay click
+    mobileOverlay.addEventListener('click', closeSidebarFunc);
+
+    // Close sidebar when clicking a link (mobile)
+    document.querySelectorAll('.mobile-sidebar .nav-link').forEach(link => {
+      link.addEventListener('click', function() {
+        closeSidebarFunc();
+      });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && mobileSidebar.classList.contains('active')) {
+        closeSidebarFunc();
+      }
+    });
+
+    // ============================================
+    // TAB NAVIGATION
+    // ============================================
+    const desktopNavLinks = document.querySelectorAll('.sidebar .nav-link');
+    const mobileNavLinks = document.querySelectorAll('.mobile-sidebar .nav-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    function switchTab(tabId, clickedElement) {
+      // Remove active from all desktop links
+      desktopNavLinks.forEach(link => link.classList.remove('active'));
+      // Remove active from all mobile links
+      mobileNavLinks.forEach(link => link.classList.remove('active'));
+
+      // Hide all tab contents
+      tabContents.forEach(tab => tab.classList.remove('active'));
+
+      // Show selected tab
+      const selectedTab = document.getElementById(tabId);
+      if (selectedTab) {
+        selectedTab.classList.add('active');
       }
 
-      // Desktop navigation click handler
-      desktopNavLinks.forEach((link) => {
-        link.addEventListener("click", function (e) {
-          e.preventDefault();
-          const tabId = this.getAttribute("data-tab");
-          switchTab(tabId, this);
-        });
-      });
+      // Add active to clicked element
+      if (clickedElement) {
+        clickedElement.classList.add('active');
+      }
 
-      // Mobile navigation click handler
-      mobileNavItems.forEach((item) => {
-        item.addEventListener("click", function (e) {
-          const tabId = this.getAttribute("data-tab");
-          switchTab(tabId, this);
-        });
+      // Close mobile sidebar on tab switch (mobile)
+      if (window.innerWidth <= 767 && mobileSidebar.classList.contains('active')) {
+        closeSidebarFunc();
+      }
+    }
+
+    // Desktop nav click handler
+    desktopNavLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tabId = this.getAttribute('data-tab');
+        switchTab(tabId, this);
       });
-    </script>
-  </body>
+    });
+
+    // Mobile nav click handler
+    mobileNavLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tabId = this.getAttribute('data-tab');
+        switchTab(tabId, this);
+      });
+    });
+  </script>
+</body>
+
 </html>

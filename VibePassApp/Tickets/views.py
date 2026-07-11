@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db import transaction, DatabaseError
 from django.utils import timezone
-from Events.models import Event, TicketType
+from Events.models import Event, TicketType, EventScanners
 from django.db.models import F
 from .models import Ticket
 import logging
@@ -211,23 +211,33 @@ def validate_ticket(request):
     if not ticket_id:
         logger.warning("Ticket ID is missing in request")
         return JsonResponse({'status': 'Error', 'message': 'Ticket ID is required'}, status=400)
+    
+    try:
+        ticket = Ticket.objects.select_related('event', 'user').get(ticket_id=ticket_id)
+    except Ticket.DoesNotExist:
+        logger.info(f"Ticket not found: {ticket_id}")
+        return JsonResponse({'status': 'Error', 'message': 'Ticket does not exist'}, status=404)
+    
+    event = ticket.event # gets the event associated with the ticket
+    is_organiser = (event.organizer == request.user) # check if the user is the organizer of the event
+    is_authorized_scanner = EventScanners.objects.filter(event=event, scanner=request.user).exists() # check if the user is an authorized scanner for the event
+    
+    if not (is_organiser or is_authorized_scanner):
+        logger.warning(f"Unauthorized scan attempt by user {request.user.id} for ticket {ticket_id}")
+        return JsonResponse({'status': 'Error', 'message': 'You are not authorized to scan tickets for this event'}, status=403)
+
     # Use transaction to ensure atomicity of validation process
     with transaction.atomic():
-        try:
-            ticket = Ticket.objects.select_for_update().get(ticket_id=ticket_id)
-        except Ticket.DoesNotExist:
-            logger.info(f"Ticket not found: {ticket_id}")
-            return JsonResponse({'status': 'Error', 'message': 'Ticket does not exist'}, status=404)
-        
-        if ticket.status == 'cancelled':
+        locked_ticket = Ticket.objects.select_for_update().get(ticket_id=ticket_id)
+        if locked_ticket.status == 'cancelled':
             logger.info(f"Attempt to validate cancelled ticket: {ticket_id}")
             return JsonResponse({'status': 'Error', 'message': 'This ticket has been cancelled'}, status=400)
-        elif ticket.is_scanned:
+        elif locked_ticket.is_scanned:
             logger.info(f"Attempt to re-validate already scanned ticket: {ticket_id}")
             return JsonResponse({'status': 'Error', 'message': 'This ticket has already been scanned'}, status=400)
         
         # Mark ticket as scanned
-        ticket.mark_as_scanned()
+        locked_ticket.mark_as_scanned()
         logger.info(f"Ticket validated and marked as scanned: {ticket_id}")
         return JsonResponse({'status': 'Success', 'message': 'Ticket validated successfully'}, status=200)
     

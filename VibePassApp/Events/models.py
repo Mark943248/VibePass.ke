@@ -125,4 +125,20 @@ class TicketType(models.Model):
 
     def __str__(self):
         return f"{self.event.Event_title} - {self.name}"
+    
+    
+    
+class EventScanners(models.Model):
+    """
+    Model to represent users who are authorized to scan tickets for a specific event.
+    """
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='scanners')
+    user = models.ForeignKey('Users.User', on_delete=models.CASCADE, related_name='scanned_events')
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('event', 'user')  # Prevent duplicate scanner entries for the same event
+
+    def __str__(self):
+        return f"{self.user.username} - {self.event.Event_title}"
   
