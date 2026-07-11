@@ -7,4 +7,5 @@ urlpatterns = [
     path('about/', views.AboutPage, name='about'),
     path('faqs/', views.faqsPage, name='faqs'),
     path('add_scanner/', views.add_scanner, name='add_scanner'),
+    path('remove_scanner/<int:scanner_id>/', views.remove_scanner, name='remove_scanner'),
 ]

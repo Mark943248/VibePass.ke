@@ -1,7 +1,14 @@
-from django.shortcuts import render
-from Events.models import Event
+from urllib import request
+from django.views.decorators.http import require_POST
+from django.shortcuts import render, redirect
+from Events.models import Event, EventScanner
+from Users.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
+from django.contrib import messages
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -32,10 +39,69 @@ def faqsPage(request):
 @login_required
 @user_passes_test(lambda u: u.is_Event_Organizer(), login_url='login')
 def add_scanner(request):
-    if request.method == 'POST':
-        username = request.POST.get('username') # usename
-        event = request.POST.get('event') # event
-        users_events = Event.objects.filter(organiser=request.user) # gets users events
+    # These load on both GET and POST requests safely
+    users_events = Event.objects.filter(Event_organiser=request.user) 
+    organisers_scanners = EventScanner.objects.filter(added_by=request.user).select_related('event', 'user')
 
+    if request.method == 'POST':
+        username = request.POST.get('username') 
+        event_slug = request.POST.get('event_slug') 
+    
+        # ALL database operations must be indented INSIDE the POST block
+        try:
+            event = Event.objects.get(slug=event_slug, organiser=request.user)
+            scanner_user = User.objects.get(username=username)
+
+            if EventScanner.objects.filter(event=event, user=scanner_user).exists():
+                messages.error(request, f"{scanner_user.username} is already a scanner for {event.Event_title}.")
+                return redirect('add_scanner')
+            else:
+                # Include added_by=request.user to track accountability!
+                EventScanner.objects.create(
+                    event=event, 
+                    user=scanner_user, 
+                    added_by=request.user
+                )
+                logger.info(f"User {scanner_user.scanner_id} added as scanner for event {event.id} by {request.user.id}")
+                messages.success(request, f"{scanner_user.username} has been added as a scanner for {event.Event_title}.")
+                return redirect('add_scanner')
+
+        except Event.DoesNotExist:
+            logger.error(f"Event with slug {event_slug} not found or unauthorized access attempt by {request.user.username}")
+            messages.error(request, "Event not found or you do not have permission to add scanners for this event.")
+            return redirect('add_scanner') 
+
+        except User.DoesNotExist:
+            logger.error(f"User with username {username} not found when trying to add scanner for event {event_slug}")
+            messages.error(request, "User not found. Please check the username and try again.")
+            return redirect('add_scanner') # Added redirect here to catch user lookup failures cleanly
+
+    # This handles the normal GET request rendering smoothly
+    context = {
+        'users_events': users_events,
+        'organisers_scanners': organisers_scanners,                  
+    }
+   
+    return render(request, 'pages/add_scanners.html', context=context)
+
+# remove scanner view
+@login_required
+@user_passes_test(lambda u: u.is_Event_Organizer(), login_url='login')
+@require_POST  
+def remove_scanner(request, scanner_id):
+    try:
+        scanner = EventScanner.objects.select_related('user', 'event').get(scanner_id=scanner_id, added_by=request.user)
+
+        username = scanner.user.username
+        event_title = scanner.event.Event_title
+
+        scanner.delete()
+
+        logger.info(f"Scanner {username} removed from event {event_title} by {request.user.username}")
+        messages.success(request, f"{username} has been removed as a scanner for {event_title}.")
         
-    return render(request, 'pages/add_scanners.html')
+    except EventScanner.DoesNotExist:
+        logger.error(f"Attempt to remove non-existent or unauthorized scanner with ID {scanner_id} by {request.user.username}")
+        messages.error(request, "Scanner not found or you do not have permission to remove this scanner.")
+    
+    return redirect('add_scanner')

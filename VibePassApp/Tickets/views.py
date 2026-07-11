@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db import transaction, DatabaseError
 from django.utils import timezone
-from Events.models import Event, TicketType, EventScanners
+from Events.models import Event, TicketType, EventScanner
 from django.db.models import F
 from .models import Ticket
 import logging
@@ -220,7 +220,7 @@ def validate_ticket(request):
     
     event = ticket.event # gets the event associated with the ticket
     is_organiser = (event.organizer == request.user) # check if the user is the organizer of the event
-    is_authorized_scanner = EventScanners.objects.filter(event=event, scanner=request.user).exists() # check if the user is an authorized scanner for the event
+    is_authorized_scanner = EventScanner.objects.filter(event=event, user=request.user).exists() # check if the user is an authorized scanner for the event
     
     if not (is_organiser or is_authorized_scanner):
         logger.warning(f"Unauthorized scan attempt by user {request.user.id} for ticket {ticket_id}")

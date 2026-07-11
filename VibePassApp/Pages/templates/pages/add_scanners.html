@@ -412,8 +412,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Footer */
@@ -580,7 +587,8 @@
               <label class="form-label required">Username</label>
               <div class="input-with-icon">
                 <i class="fas fa-user"></i>
-                <input type="text" id="username" name="username" class="form-input" placeholder="Enter the username of the scanner" required />
+                <input type="text" id="username" name="username" class="form-input"
+                  placeholder="Enter the username of the scanner" required />
               </div>
               <div class="form-help">
                 <i class="fas fa-info-circle"></i> The user must have an existing VibePass account
@@ -595,8 +603,9 @@
                 <i class="fas fa-calendar-alt"></i>
                 <select id="eventSelect" name="event_slug" class="form-select" required>
                   <option value="">Select an event</option>
-                  {% for event in events %}
-                  <option value="{{ event.slug }}">{{ event.Event_title }} - {{ event.Event_date|date:"M d, Y" }}</option>
+                  {% for event in users_events %}
+                  <option value="{{ event.slug }}">{{ event.Event_title }} - {{ event.Event_date|date:"M d, Y" }}
+                  </option>
                   {% endfor %}
                 </select>
               </div>
@@ -614,11 +623,26 @@
             </h3>
 
             <div class="scanners-list" id="scannersList">
-              <!-- Scanners will be displayed here dynamically -->
+              {% for scanner in organisers_scanners %}
+              <div class="scanner-info">
+                <div class="scanner-avatar"><i class="fas fa-user"></i></div>
+                <div>
+                  <div class="scanner-name">{{ scanner.username }}</div>
+                  <div class="scanner-event"><i class="fas fa-calendar-alt"></i> {{ scanner.event.Event_title }}</div>
+                </div>
+              </div>
+              <form method="POST" action="{% url 'remove_scanner' scanner.scanner_id %}" onsubmit="confirmDelete(event, '{{ scanner.username }}')">
+                {% csrf_token %}
+                <button type="button" class="remove-scanner"  title="Remove scanner">
+                  <i class="fas fa-times-circle"></i>
+                </button>
+              </form>
+              {% empty %}
               <div class="empty-scanners">
                 <i class="fas fa-qrcode"></i>
                 <p>No scanners assigned yet. Add a scanner to get started.</p>
               </div>
+              {% endfor %}
             </div>
           </div>
 
@@ -662,14 +686,12 @@
     const form = document.getElementById('addScannerForm');
     const successMessage = document.getElementById('successMessage');
     const successText = document.getElementById('successText');
-    const scannersList = document.getElementById('scannersList');
-
     // ============================================
     // REAL-TIME VALIDATION
     // ============================================
 
     // Username validation
-    usernameInput.addEventListener('blur', function() {
+    usernameInput.addEventListener('blur', function () {
       const errorElement = document.getElementById('usernameError');
       const value = this.value.trim();
       if (value && value.length >= 3) {
@@ -682,7 +704,7 @@
       }
     });
 
-    usernameInput.addEventListener('input', function() {
+    usernameInput.addEventListener('input', function () {
       if (this.classList.contains('error')) {
         const errorElement = document.getElementById('usernameError');
         if (this.value.trim() && this.value.trim().length >= 3) {
@@ -693,7 +715,7 @@
     });
 
     // Event validation
-    eventSelect.addEventListener('change', function() {
+    eventSelect.addEventListener('change', function () {
       const errorElement = document.getElementById('eventError');
       if (this.value) {
         this.classList.remove('error');
@@ -705,7 +727,7 @@
     // FORM SUBMISSION
     // ============================================
 
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
 
       // Validate form
@@ -741,138 +763,14 @@
       // Disable button and show loading state
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Scanner...';
-
-      // Simulate API call
-      setTimeout(function() {
-        // Get the selected event name
-        const selectedOption = eventSelect.options[eventSelect.selectedIndex];
-        const eventName = selectedOption ? selectedOption.text : 'Event';
-
-        // Add scanner to the list
-        addScannerToList(usernameInput.value.trim(), eventName);
-
-        // Show success message
-        successText.textContent = `Scanner "${usernameInput.value.trim()}" added successfully to "${eventName}"!`;
-        successMessage.style.display = 'block';
-
-        // Reset form
-        usernameInput.value = '';
-        eventSelect.value = '';
-        usernameInput.classList.remove('error');
-        eventSelect.classList.remove('error');
-
-        // Hide success message after 5 seconds
-        setTimeout(function() {
-          successMessage.style.display = 'none';
-        }, 5000);
-
-        // Reset button
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Scanner';
-
-        // Remove empty state if exists
-        const emptyState = scannersList.querySelector('.empty-scanners');
-        if (emptyState) {
-          emptyState.remove();
-        }
-
-        // Scroll to success message
-        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 1500);
     });
 
-    // ============================================
-    // ADD SCANNER TO LIST
-    // ============================================
-
-    function addScannerToList(username, eventName) {
-      // Remove empty state if it exists
-      const emptyState = scannersList.querySelector('.empty-scanners');
-      if (emptyState) {
-        emptyState.remove();
-      }
-
-      const scannerItem = document.createElement('div');
-      scannerItem.className = 'scanner-item';
-      scannerItem.style.animation = 'fadeIn 0.3s ease-out';
-
-      const initials = username
-        .split(' ')
-        .map(word => word[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-
-      scannerItem.innerHTML = `
-        <div class="scanner-info">
-          <div class="scanner-avatar">${initials}</div>
-          <div>
-            <div class="scanner-name">${username}</div>
-            <div class="scanner-event"><i class="fas fa-calendar-alt"></i> ${eventName}</div>
-          </div>
-        </div>
-        <button type="button" class="remove-scanner" onclick="removeScanner(this)" title="Remove scanner">
-          <i class="fas fa-times-circle"></i>
-        </button>
-      `;
-
-      scannersList.appendChild(scannerItem);
-    }
-
-    // ============================================
-    // REMOVE SCANNER
-    // ============================================
-
-    function removeScanner(button) {
-      if (confirm('Are you sure you want to remove this scanner?')) {
-        const item = button.closest('.scanner-item');
-        item.style.opacity = '0';
-        item.style.transition = 'opacity 0.3s';
-
-        setTimeout(function() {
-          item.remove();
-
-          // Show empty state if no scanners left
-          if (scannersList.children.length === 0) {
-            scannersList.innerHTML = `
-              <div class="empty-scanners">
-                <i class="fas fa-qrcode"></i>
-                <p>No scanners assigned yet. Add a scanner to get started.</p>
-              </div>
-            `;
-          }
-        }, 300);
-      }
-    }
-
-    // ============================================
-    // SAMPLE SCANNERS DATA (for demo)
-    // ============================================
-
-    // Pre-populate with some sample scanners for demo
-    document.addEventListener('DOMContentLoaded', function() {
-      const sampleScanners = [
-        { username: 'John Scanner', event: 'Spring Bash: Neon Night' },
-        { username: 'Jane Validator', event: 'Campus Unplugged' }
-      ];
-
-      // Remove empty state
-      const emptyState = scannersList.querySelector('.empty-scanners');
-      if (emptyState) {
-        emptyState.remove();
-      }
-
-      // Add sample scanners
-      sampleScanners.forEach(scanner => {
-        addScannerToList(scanner.username, scanner.event);
-      });
-    });
 
     // ============================================
     // HANDLE ENTER KEY
     // ============================================
 
-    usernameInput.addEventListener('keypress', function(e) {
+    usernameInput.addEventListener('keypress', function (e) {
       if (e.key === 'Enter') {
         e.preventDefault();
         if (this.value.trim() && eventSelect.value) {
@@ -888,6 +786,20 @@
         }
       }
     });
+
+    // ============================================
+    // CONFIRM DELETE SCANNER
+    // ============================================
+    function confirmDelete(event, staffName) {
+        event.preventDefault(); 
+      
+        const userConfirmed = confirm(`Are you sure you want to remove ${staffName} from this event?`);
+  
+        if (userConfirmed) {
+            event.target.closest('form').submit();
+        }
+    }
+
   </script>
 </body>
 

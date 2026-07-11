@@ -3,7 +3,7 @@ from django.db.models import Sum, Min
 from cloudinary.models import CloudinaryField
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
-
+import uuid
 # limits image size to 2MB
 def validate_image_size(file):
     # Limit to 2MB (2 * 1024 * 1024 bytes)
@@ -128,12 +128,20 @@ class TicketType(models.Model):
     
     
     
-class EventScanners(models.Model):
+class EventScanner(models.Model):
     """
     Model to represent users who are authorized to scan tickets for a specific event.
     """
+    scanner_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='scanners')
     user = models.ForeignKey('Users.User', on_delete=models.CASCADE, related_name='scanned_events')
+    # Track exactly who granted this permission
+    added_by = models.ForeignKey(
+        'Users.User', 
+        on_delete=models.SET_NULL, # If the manager leaves, we don't want to delete the scanner history
+        null=True,                 # Temporarily allow null for existing records in your database
+        related_name='added_scanners'
+    )
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
