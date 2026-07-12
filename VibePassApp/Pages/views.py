@@ -49,8 +49,20 @@ def add_scanner(request):
     
         # ALL database operations must be indented INSIDE the POST block
         try:
-            event = Event.objects.get(slug=event_slug, organiser=request.user)
+            event = Event.objects.get(slug=event_slug, Event_organiser=request.user)
             scanner_user = User.objects.get(username=username)
+
+            today = timezone.now().date()
+
+            if event.Event_date < today:
+                logger.warning(f"Attempt to add scanner to past event '{event.Event_title}' by {request.user.username}")
+                messages.error(request, f"Cannot add scanner. The event '{event.Event_title}' has already ended.")
+                return redirect('add_scanner')
+            
+            if not event.Event_is_active:
+                logger.warning(f"Attempt to add scanner to inactive event '{event.Event_title}' by {request.user.username}")
+                messages.error(request, f"Cannot add scanner. The event '{event.Event_title}' is currently inactive.")
+                return redirect('add_scanner')
 
             if EventScanner.objects.filter(event=event, user=scanner_user).exists():
                 messages.error(request, f"{scanner_user.username} is already a scanner for {event.Event_title}.")
@@ -62,7 +74,7 @@ def add_scanner(request):
                     user=scanner_user, 
                     added_by=request.user
                 )
-                logger.info(f"User {scanner_user.scanner_id} added as scanner for event {event.id} by {request.user.id}")
+                logger.info(f"User {scanner_user.id} added as scanner for event {event.id} by {request.user.id}")
                 messages.success(request, f"{scanner_user.username} has been added as a scanner for {event.Event_title}.")
                 return redirect('add_scanner')
 

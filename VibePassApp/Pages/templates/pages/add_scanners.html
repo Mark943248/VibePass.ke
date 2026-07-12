@@ -258,6 +258,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex: 1;
     }
 
     .scanner-item .scanner-avatar {
@@ -284,17 +285,25 @@
       color: var(--vibe-text-light);
     }
 
+    .scanner-item .scanner-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
     .scanner-item .remove-scanner {
       color: var(--vibe-danger);
       cursor: pointer;
       background: none;
       border: none;
-      font-size: 1rem;
+      font-size: 1.1rem;
       transition: all 0.3s;
-      padding: 5px;
+      padding: 5px 8px;
+      border-radius: 6px;
     }
 
     .scanner-item .remove-scanner:hover {
+      background: rgba(255, 71, 87, 0.1);
       transform: scale(1.1);
     }
 
@@ -624,19 +633,23 @@
 
             <div class="scanners-list" id="scannersList">
               {% for scanner in organisers_scanners %}
-              <div class="scanner-info">
-                <div class="scanner-avatar"><i class="fas fa-user"></i></div>
-                <div>
-                  <div class="scanner-name">{{ scanner.username }}</div>
-                  <div class="scanner-event"><i class="fas fa-calendar-alt"></i> {{ scanner.event.Event_title }}</div>
+              <div class="scanner-item">
+                <div class="scanner-info">
+                  <div class="scanner-avatar"><i class="fas fa-user"></i></div>
+                  <div>
+                    <div class="scanner-name">{{ scanner.user }}</div>
+                    <div class="scanner-event"><i class="fas fa-calendar-alt"></i> {{ scanner.event.Event_title }}</div>
+                  </div>
+                </div>
+                <div class="scanner-actions">
+                  <form method="POST" action="{% url 'remove_scanner' scanner.scanner_id %}" onsubmit="return confirmDelete(event, '{{ scanner.username }}')">
+                    {% csrf_token %}
+                    <button type="submit" class="remove-scanner" title="Remove scanner">
+                      <i class="fas fa-times-circle"></i>
+                    </button>
+                  </form>
                 </div>
               </div>
-              <form method="POST" action="{% url 'remove_scanner' scanner.scanner_id %}" onsubmit="confirmDelete(event, '{{ scanner.username }}')">
-                {% csrf_token %}
-                <button type="button" class="remove-scanner"  title="Remove scanner">
-                  <i class="fas fa-times-circle"></i>
-                </button>
-              </form>
               {% empty %}
               <div class="empty-scanners">
                 <i class="fas fa-qrcode"></i>
@@ -654,7 +667,7 @@
 
           <!-- Form Actions -->
           <div class="form-actions">
-            <a href="{% url 'organizers_dashboard' %}" type="button" class="btn btn-secondary">
+            <a href="{% url 'organizers_dashboard' %}" class="btn btn-secondary">
               <i class="fas fa-times"></i> Cancel
             </a>
             <button type="submit" class="btn btn-primary" id="submitBtn">
@@ -686,6 +699,7 @@
     const form = document.getElementById('addScannerForm');
     const successMessage = document.getElementById('successMessage');
     const successText = document.getElementById('successText');
+
     // ============================================
     // REAL-TIME VALIDATION
     // ============================================
@@ -763,8 +777,10 @@
       // Disable button and show loading state
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Scanner...';
-    });
 
+      // Submit the form
+      form.submit();
+    });
 
     // ============================================
     // HANDLE ENTER KEY
@@ -791,15 +807,31 @@
     // CONFIRM DELETE SCANNER
     // ============================================
     function confirmDelete(event, staffName) {
-        event.preventDefault(); 
-      
-        const userConfirmed = confirm(`Are you sure you want to remove ${staffName} from this event?`);
-  
-        if (userConfirmed) {
-            event.target.closest('form').submit();
-        }
+      event.preventDefault();
+
+      const userConfirmed = confirm(`Are you sure you want to remove ${staffName} from this event?`);
+
+      if (userConfirmed) {
+        event.target.submit();
+        return true;
+      }
+      return false;
     }
 
+    // ============================================
+    // SUCCESS MESSAGE AUTO-HIDE
+    // ============================================
+   /* {% if messages %} */
+   /* {% for message in messages %} */
+    if ("{{ message.tags }}" === "success") {
+      successText.textContent = "{{ message }}";
+      successMessage.style.display = 'block';
+      setTimeout(function() {
+        successMessage.style.display = 'none';
+      }, 5000);
+    }
+    /* {% endfor %} */
+   /* {% endif %} */
   </script>
 </body>
 

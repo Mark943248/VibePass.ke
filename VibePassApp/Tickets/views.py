@@ -219,7 +219,7 @@ def validate_ticket(request):
         return JsonResponse({'status': 'Error', 'message': 'Ticket does not exist'}, status=404)
     
     event = ticket.event # gets the event associated with the ticket
-    is_organiser = (event.organizer == request.user) # check if the user is the organizer of the event
+    is_organiser = (event.Event_organiser == request.user) # check if the user is the organizer of the event
     is_authorized_scanner = EventScanner.objects.filter(event=event, user=request.user).exists() # check if the user is an authorized scanner for the event
     
     if not (is_organiser or is_authorized_scanner):
