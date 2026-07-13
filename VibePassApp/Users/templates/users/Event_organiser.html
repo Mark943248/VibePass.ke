@@ -51,7 +51,7 @@
     }
 
     /* ============================================
-       HEADER
+        HEADER
        ============================================ */
     .header {
       background: rgba(26, 26, 46, 0.95);
@@ -183,7 +183,7 @@
     }
 
     /* ============================================
-       MOBILE SIDEBAR
+        MOBILE SIDEBAR
        ============================================ */
     .mobile-sidebar-overlay {
       display: none;
@@ -370,7 +370,7 @@
     }
 
     /* ============================================
-       DASHBOARD LAYOUT
+        DASHBOARD LAYOUT
        ============================================ */
     .dashboard {
       display: grid;
@@ -468,12 +468,14 @@
     }
 
     /* ============================================
-       MAIN CONTENT
+        MAIN CONTENT
        ============================================ */
     .main-content {
       display: flex;
       flex-direction: column;
       gap: 20px;
+      width: 100%;
+      min-width: 0;
     }
 
     .dashboard-header {
@@ -481,7 +483,7 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 15px;
     }
 
     .welcome-message h1 {
@@ -511,7 +513,7 @@
     }
 
     /* ============================================
-       STATS CARDS
+        STATS CARDS
        ============================================ */
     .stats-grid {
       display: grid;
@@ -539,6 +541,7 @@
       justify-content: center;
       color: var(--vibe-primary);
       font-size: 1.3rem;
+      flex-shrink: 0;
     }
 
     .stat-info h3 {
@@ -546,6 +549,7 @@
       font-weight: 700;
       color: var(--vibe-dark);
       line-height: 1.2;
+      word-break: break-all;
     }
 
     .stat-info p {
@@ -554,13 +558,14 @@
     }
 
     /* ============================================
-       DASHBOARD SECTIONS
+        DASHBOARD SECTIONS
        ============================================ */
     .dashboard-section {
       background: white;
       border-radius: 16px;
       padding: 20px;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      width: 100%;
     }
 
     .section-header {
@@ -594,11 +599,13 @@
     }
 
     /* ============================================
-       EVENTS TABLE
+        EVENTS TABLE
        ============================================ */
     .table-wrapper {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
+      width: 100%;
+      border-radius: 8px;
     }
 
     .table-wrapper::-webkit-scrollbar {
@@ -623,7 +630,7 @@
 
     .events-table th {
       text-align: left;
-      padding: 10px 12px;
+      padding: 12px;
       border-bottom: 2px solid #f0f0f0;
       color: var(--vibe-text-light);
       font-weight: 600;
@@ -631,7 +638,7 @@
     }
 
     .events-table td {
-      padding: 12px 12px;
+      padding: 14px 12px;
       border-bottom: 1px solid #f0f0f0;
       font-size: 0.85rem;
       vertical-align: middle;
@@ -645,6 +652,7 @@
       font-weight: 600;
       color: var(--vibe-dark);
       font-size: 0.85rem;
+      word-break: break-word;
     }
 
     .event-venue {
@@ -652,6 +660,7 @@
       color: var(--vibe-text-light);
       display: block;
       margin-top: 2px;
+      word-break: break-word;
     }
 
     .event-status {
@@ -695,6 +704,7 @@
       gap: 4px;
       min-height: 30px;
       font-weight: 500;
+      white-space: nowrap;
     }
 
     .btn-small.btn-primary {
@@ -728,7 +738,7 @@
     }
 
     /* ============================================
-       TICKET MANAGEMENT - One Column
+        TICKET MANAGEMENT - One Column
        ============================================ */
     .ticket-mgmt-grid {
       display: grid;
@@ -755,10 +765,12 @@
       justify-content: center;
       color: var(--vibe-primary);
       font-size: 1.4rem;
+      flex-shrink: 0;
     }
 
     .ticket-mgmt-info {
       flex: 1;
+      min-width: 0;
     }
 
     .ticket-mgmt-info h3 {
@@ -774,11 +786,11 @@
     }
 
     /* ============================================
-       TAB NAVIGATION
+        TAB NAVIGATION
        ============================================ */
     .tab-navigation {
       display: flex;
-      gap: 4px;
+      gap: 6px;
       margin-bottom: 15px;
       flex-wrap: wrap;
     }
@@ -806,7 +818,7 @@
     }
 
     /* ============================================
-       EMPTY STATE
+        EMPTY STATE
        ============================================ */
     .empty-state {
       text-align: center;
@@ -831,7 +843,7 @@
     }
 
     /* ============================================
-       FOOTER
+        FOOTER
        ============================================ */
     .footer {
       background: var(--vibe-dark);
@@ -860,7 +872,7 @@
     }
 
     /* ============================================
-       TAB CONTENT
+        TAB CONTENT
        ============================================ */
     .tab-content {
       display: none;
@@ -877,10 +889,10 @@
     }
 
     /* ============================================
-       RESPONSIVE BREAKPOINTS
+        RESPONSIVE BREAKPOINTS
        ============================================ */
 
-    /* Tablet */
+    /* Tablet Screen Optimizations */
     @media (max-width: 992px) {
       .dashboard {
         grid-template-columns: 1fr;
@@ -898,7 +910,7 @@
 
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 15px;
       }
 
       .events-table {
@@ -915,270 +927,188 @@
       }
     }
 
-    /* Mobile - ONE COLUMN for everything */
+    /* Smart Mobile Responsive Code Fixes (No Layout Clipping) */
     @media (max-width: 768px) {
       .header-container {
-        gap: 5px;
+        gap: 10px;
       }
 
-      .organizer-info .organizer-name {
-        display: none;
-      }
-
+      .organizer-info .organizer-name,
       .organizer-info .organizer-badge {
         display: none;
       }
 
       .organizer-avatar {
-        width: 30px;
-        height: 30px;
-        font-size: 0.7rem;
+        width: 34px;
+        height: 34px;
+        font-size: 0.85rem;
       }
 
-      /* Stats Cards - 1 Column on Mobile */
-      .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
       }
 
-      .stat-card {
-        padding: 14px;
-      }
-
-      .stat-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1.1rem;
-      }
-
-      .stat-info h3 {
-        font-size: 1.1rem;
-      }
-
-      .stat-info p {
-        font-size: 0.7rem;
-      }
-
+      /* Fixed typography scale constraints to handle dynamic user input data */
       .welcome-message h1 {
-        font-size: 1.1rem;
+        font-size: 1.25rem;
       }
 
       .welcome-message p {
-        font-size: 0.7rem;
+        font-size: 0.85rem;
       }
 
       .date-display {
-        font-size: 0.6rem;
-        padding: 4px 10px;
-        min-height: 30px;
+        font-size: 0.75rem;
+        padding: 6px 12px;
+      }
+
+      /* Stack stats blocks cleanly inside mobile viewpoint boundaries */
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .stat-card {
+        padding: 16px;
+      }
+
+      .stat-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.25rem;
+      }
+
+      .stat-info h3 {
+        font-size: 1.2rem;
       }
 
       .dashboard-section {
-        padding: 12px;
+        padding: 16px;
         border-radius: 14px;
       }
 
       .section-header h2 {
-        font-size: 0.9rem;
-      }
-
-      .view-all {
-        font-size: 0.7rem;
-        min-height: 30px;
-        padding: 2px 8px;
-      }
-
-      /* Table - Scrollable */
-      .events-table {
-        min-width: 500px;
-      }
-
-      .events-table th {
-        font-size: 0.65rem;
-        padding: 6px 8px;
-      }
-
-      .events-table td {
-        font-size: 0.7rem;
-        padding: 8px 6px;
-      }
-
-      .event-title {
-        font-size: 0.7rem;
-      }
-
-      .event-venue {
-        font-size: 0.6rem;
-      }
-
-      .btn-small {
-        padding: 3px 6px;
-        font-size: 0.6rem;
-        min-height: 26px;
-      }
-
-      .tab-btn {
-        font-size: 0.65rem;
-        padding: 4px 10px;
-        min-height: 30px;
-      }
-
-      /* Ticket Management - 1 Column */
-      .ticket-mgmt-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-
-      .ticket-mgmt-card {
-        padding: 14px;
-      }
-
-      .ticket-mgmt-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1.1rem;
-      }
-
-      .ticket-mgmt-info h3 {
         font-size: 1rem;
       }
 
-      .ticket-mgmt-info p {
+      .view-all {
+        font-size: 0.8rem;
+      }
+
+      /* Prevent horizontal scrolling glitches in containers */
+      .events-table {
+        min-width: 600px; 
+      }
+
+      .events-table th {
+        font-size: 0.75rem;
+        padding: 10px;
+      }
+
+      .events-table td {
+        font-size: 0.8rem;
+        padding: 12px 10px;
+      }
+
+      .event-title {
+        font-size: 0.8rem;
+      }
+
+      .event-venue {
         font-size: 0.7rem;
+      }
+
+      .btn-small {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        min-height: 32px;
+      }
+
+      .tab-btn {
+        font-size: 0.75rem;
+        padding: 6px 14px;
+        min-height: 34px;
+      }
+
+      .ticket-mgmt-card {
+        padding: 16px;
+      }
+
+      .ticket-mgmt-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+      }
+
+      .ticket-mgmt-info h3 {
+        font-size: 1.05rem;
       }
     }
 
-    /* Small Mobile */
+    /* Small Screen Smartphone Refinements (Down to 320px) */
     @media (max-width: 480px) {
       .container {
-        padding: 0 10px;
+        padding: 0 12px;
       }
 
-      .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 8px;
-      }
-
-      .stat-card {
-        padding: 10px;
-      }
-
-      .stat-icon {
-        width: 34px;
-        height: 34px;
-        font-size: 0.9rem;
-      }
-
-      .stat-info h3 {
-        font-size: 0.95rem;
-      }
-
-      .stat-info p {
-        font-size: 0.6rem;
+      .dashboard-header {
+        gap: 10px;
       }
 
       .welcome-message h1 {
-        font-size: 0.95rem;
+        font-size: 1.15rem;
       }
 
-      .date-display {
-        font-size: 0.55rem;
-        padding: 4px 8px;
-        min-height: 26px;
+      .welcome-message p {
+        font-size: 0.8rem;
       }
 
       .dashboard-section {
-        padding: 10px;
-        border-radius: 12px;
-      }
-
-      .section-header h2 {
-        font-size: 0.8rem;
+        padding: 12px;
       }
 
       .section-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 6px;
+        gap: 8px;
       }
 
-      .events-table {
-        min-width: 400px;
+      .section-header h2 {
+        font-size: 0.95rem;
       }
 
-      .events-table th,
-      .events-table td {
-        padding: 4px 6px;
-        font-size: 0.6rem;
+      .view-all {
+        padding: 0;
+        min-height: auto;
       }
 
-      .event-title {
-        font-size: 0.6rem;
+      .tab-navigation {
+        gap: 4px;
       }
 
-      .event-venue {
-        font-size: 0.55rem;
+      .tab-btn {
+        flex: 1 1 auto;
+        text-align: center;
+        font-size: 0.7rem;
+        padding: 6px 10px;
       }
 
+      /* Clean stacked blocks for responsive inline action arrays */
       .event-actions {
         flex-direction: column;
-        gap: 3px;
+        gap: 6px;
+        width: 100%;
       }
 
       .btn-small {
         width: 100%;
         justify-content: center;
-        font-size: 0.55rem;
-        min-height: 24px;
-      }
-
-      .tab-navigation {
-        flex-direction: column;
-        gap: 2px;
-      }
-
-      .tab-btn {
-        width: 100%;
-        text-align: center;
-        font-size: 0.6rem;
-        min-height: 28px;
-      }
-
-      .ticket-mgmt-grid {
-        grid-template-columns: 1fr;
-        gap: 8px;
-      }
-
-      .ticket-mgmt-card {
-        flex-direction: column;
-        text-align: center;
-        padding: 12px;
-      }
-
-      .ticket-mgmt-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 1rem;
-      }
-
-      .ticket-mgmt-info h3 {
-        font-size: 0.9rem;
-      }
-
-      .ticket-mgmt-info p {
-        font-size: 0.65rem;
-      }
-
-      .footer-links {
-        gap: 12px;
-      }
-
-      .footer-links a {
-        font-size: 0.65rem;
       }
     }
 
-    /* Desktop */
+    /* Desktop Viewport Validations */
     @media (min-width: 769px) {
       .hamburger-btn {
         display: none;

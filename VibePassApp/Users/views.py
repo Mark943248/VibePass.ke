@@ -13,6 +13,7 @@ from .models import User
 
 # view for user registration
 def RegisterView(request):
+    """ Handle user registration by creating a new user account and assigning them to the appropriate group."""
     if request.method == 'POST':
         username = request.POST['username']
         email = request.POST['email']
@@ -44,6 +45,7 @@ def RegisterView(request):
    
 # view for user login
 def LoginView(request):
+    """ Handle user login by authenticating credentials and redirecting to the appropriate dashboard."""
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -59,6 +61,9 @@ def LoginView(request):
 # make user an event organiser
 @login_required
 def make_event_organiser(request):
+    """ Make the logged-in user an event organiser and add them to the 'Event Organizers' group.
+    This view updates the user's role to an event organiser and adds them to the appropriate group.
+    """
     user = request.user
     user.is_organiser = True
     user.save()
@@ -70,6 +75,7 @@ def make_event_organiser(request):
 
 # view for user logout
 def LogoutView(request):
+    """ Log out the user and redirect to the login page with a success message. """
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('login')
@@ -78,6 +84,7 @@ def LogoutView(request):
 # 1. Event Finders Dashboard
 @login_required
 def EventFindersDashboard(request):
+    """ Render the Event Finders dashboard with relevant events and tickets. """
     user = request.user
     events = Event.objects.order_by('-Event_created_at')[:4]
     tickets = Ticket.objects.filter(user=user).order_by('-created_at')
@@ -95,6 +102,9 @@ def EventFindersDashboard(request):
 @login_required
 @user_passes_test(lambda u: u.is_Event_Organizer(), login_url='login')
 def EventOrganizersDashboard(request):
+    """ Render the Event Organizers dashboard with relevant statistics and event information.
+    This view retrieves all events organized by the logged-in user, calculates revenue, ticket sales,
+    """
     user = request.user
     
     # Get all events organized by the user
@@ -135,6 +145,9 @@ def EventOrganizersDashboard(request):
 # change users details
 @login_required
 def ChangeUsersDetails(request):
+    """ Update the logged-in user's username and email address.
+    This view handles POST requests to update the user's profile information. It checks for empty fields,
+    validates the uniqueness of the username, and saves the changes to the database."""
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')

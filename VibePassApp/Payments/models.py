@@ -4,6 +4,7 @@ from Users.models import User
 import uuid
 # Create your models here.
 class Payment(models.Model):
+    """ Model to represent a payment made by a user for an event, including details such as amount, status, and related M-Pesa information. """
     payment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # relationships
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
@@ -26,6 +27,7 @@ class Payment(models.Model):
 
 # Withdrawal model for organizer payouts
 class Withdrawal(models.Model):
+    """ Model to represent a withdrawal request made by an event organizer, including details such as amount, status, and related M-Pesa information. """
     WITHDRAWAL_STATUS = [
         ('pending', 'Pending'),
         ('processing', 'Processing'),

@@ -13,12 +13,19 @@ from Crypto.Cipher import PKCS1_v1_5
 
 # generate timestamp for mpesa
 def generate_timestamp():
+    """Generate a timestamp in the format YYYYMMDDHHMMSS for M-Pesa transactions. """
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     return timestamp
 
 
 # generate access token for mpesa
 def generate_access_token():
+    """
+    Generate an access token for M-Pesa API authentication using consumer key and secret.
+    This function retrieves the consumer key and secret from environment variables, 
+    makes a request to the M-Pesa OAuth endpoint, and returns the access token if successful. 
+    Raises an exception if the token generation fails.
+    """
     consumer_key = os.getenv('MPESA_CONSUMER_KEY')
     consumer_secret = os.getenv('MPESA_CONSUMER_SECRET')
     if not consumer_key or not consumer_secret:
@@ -33,6 +40,7 @@ def generate_access_token():
     
 # format phone number to international format for MPESA
 def format_phone_number(phone_number):
+    """Format a phone number to the international format required by M-Pesa API."""
     # Remove any non-digit characters
     cleaned = ''.join(filter(str.isdigit, phone_number))
     if cleaned.startswith('0'):
@@ -46,6 +54,7 @@ def format_phone_number(phone_number):
     
 # mpesa stk_push request (C2B - Customer to Business)
 def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
+   """Initiate an M-Pesa STK Push request for a customer to pay for an event ticket."""
    # Format phone number to international format
    formatted_phone = format_phone_number(phone_number)
    access_token = generate_access_token()
@@ -83,6 +92,8 @@ def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
 
 # mpesa security credential generation
 def generate_mpesa_security_credential():
+    """ Generate the M-Pesa security credential by encrypting the initiator password using the public key from the certificate.
+    This function reads the public key from the specified certificate file, encrypts the initiator password, and returns the base64-encoded security credential."""
     initiator_password = os.getenv('MPESA_INITIATOR_PASSWORD')
     cert_path = os.path.join(settings.BASE_DIR, 'Certs', 'SandboxCertificate.cer')
     with open(cert_path, "rb") as f:
@@ -96,6 +107,8 @@ def generate_mpesa_security_credential():
 
 # make mpesa b2c request
 def initiate_b2c_request(amount, phone_number):
+    """ Initiate a Business to Customer (B2C) payment request to M-Pesa.
+    This function generates an access token, prepares the request data, and sends a POST request to the M-Pesa B2C API endpoint. It returns the JSON response from the API."""
     access_token = generate_access_token()
     api_url = "https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest"
     headers = {"Authorization": f"Bearer {access_token}"}

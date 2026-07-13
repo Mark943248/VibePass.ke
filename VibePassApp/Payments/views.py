@@ -20,6 +20,11 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 @login_required
 def initiate_payment(request, slug):
+   """
+   Initiates the payment process for a specific event.
+   Retrieves the checkout data from the session, validates the event and user input,
+   and initiates the M-PESA STK push for payment.
+   """
    try:
      checkout_data=request.session.get('checkout_data')
      print(f"Checkoutdat: {checkout_data}")
@@ -142,6 +147,11 @@ def check_payment_status(request, payment_id):
 # mpesa callback view
 @csrf_exempt
 def mpesa_callback(request):
+    """
+    Handle the M-PESA STK push callback.
+    This view processes the callback from M-PESA after a payment attempt.
+    It updates the payment status in the database and sends real-time updates via WebSocket.
+    """
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -198,6 +208,11 @@ def mpesa_callback(request):
 @login_required
 @user_passes_test(lambda u: u.is_organiser, login_url='login')
 def request_withdrawal(request):
+    """
+    Handles withdrawal requests for event organizers.
+    Validates the organizer's available balance and M-PESA number, creates a withdrawal record,
+    and initiates a B2C payment request to M-PESA.
+    """
     try:
         user = request.user
         events = Event.objects.filter(Event_organiser=user)
@@ -275,6 +290,11 @@ def request_withdrawal(request):
 
 @csrf_exempt
 def mpesa_b2c_callback(request):
+    """
+    Handle the M-PESA B2C callback.
+    This view processes the callback from M-PESA after a B2C withdrawal attempt.
+    It updates the withdrawal status in the database based on the result of the transaction.
+    """
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -322,6 +342,9 @@ def mpesa_b2c_callback(request):
 
 @csrf_exempt
 def mpesa_timeout_handler(request):
+    """ Handle the M-PESA B2C timeout callback.
+    This view processes the timeout callback from M-PESA for B2C transactions.
+    It updates the withdrawal status in the database to 'failed' due to timeout."""
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -354,6 +377,9 @@ def mpesa_timeout_handler(request):
 
 # render checkout page
 def checkout(request, slug):
+    """ Render the checkout page for a specific event.
+    Retrieves the event and checkout data from the session, and displays the checkout page with the event details and selected items. 
+    """
     event = get_object_or_404(Event, slug=slug)
     print(f"Event slug: {event.slug}")
     checkout_data = request.session.get('checkout_data')

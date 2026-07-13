@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 # homepage
 def HomePage(request):
+    """ Render the homepage with the 3 most recent events and the current date. """
     # Get the 3 most recent events
     recent_events = Event.objects.order_by('-Event_created_at')[:3]
     date_today = timezone.now().date()
@@ -25,20 +26,25 @@ def HomePage(request):
 
 # contact page
 def ContactPage(request):
+    """ Render the contact page. """
     return render(request, 'pages/contacts.html')
 
 # about page
 def AboutPage(request):
+    """ Render the about page. """
     return render(request, 'pages/about.html')
 
 # FAQS page
 def faqsPage(request):
+    """ Render the FAQs page. """
     return render(request, 'pages/faqs.html')
 
 # add scanner page
 @login_required
 @user_passes_test(lambda u: u.is_Event_Organizer(), login_url='login')
 def add_scanner(request):
+    """ Render the add scanner page for event organizers to manage their event scanners.
+    This view handles both GET and POST requests. On GET, it displays the user's events and existing scanners. On POST, it processes the addition of a new scanner to an event."""
     # These load on both GET and POST requests safely
     users_events = Event.objects.filter(Event_organiser=request.user) 
     organisers_scanners = EventScanner.objects.filter(added_by=request.user).select_related('event', 'user')
@@ -101,6 +107,11 @@ def add_scanner(request):
 @user_passes_test(lambda u: u.is_Event_Organizer(), login_url='login')
 @require_POST  
 def remove_scanner(request, scanner_id):
+    """ Remove a scanner from an event. 
+    This view handles POST requests to delete a scanner entry. 
+    It checks if the scanner exists and is associated with the logged-in user before deletion. 
+    Appropriate success or error messages are displayed based on the outcome.
+    """
     try:
         scanner = EventScanner.objects.select_related('user', 'event').get(scanner_id=scanner_id, added_by=request.user)
 

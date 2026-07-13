@@ -195,12 +195,14 @@ def render_users_tickets(request, ticket_id):
 @login_required
 @user_passes_test(lambda u: u.is_Event_Organizer(), login_url='login')
 def scanner_page(request):
+    """ Render the ticket scanner page for event organizers and authorized scanners."""
     return render(request, 'tickets/tickets_scanner.html')
 
 # validate ticket (mark as scanned)
 @login_required
 @require_POST
 def validate_ticket(request):
+    """Validate a ticket by its ID and mark it as scanned."""
     try:
         body = json.loads(request.body)
         ticket_id = body.get('ticket_id')

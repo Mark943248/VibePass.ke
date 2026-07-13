@@ -13,6 +13,7 @@ TICKET_STATUS = [
 ]
 
 class Ticket(models.Model):
+    """ Model to represent a ticket purchased by a user for an event, including its status and related payment information. """
     ticket_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     ticket_qr_image = CloudinaryField('ticket_qr_image', blank=True, null=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='tickets')
@@ -47,7 +48,7 @@ class Ticket(models.Model):
         self.save()
         return True, "Ticket marked as scanned successfully."
     
-    def get_status_display(self):
+    def get_status_display(self): 
         return self.status
 
     def __str__(self):

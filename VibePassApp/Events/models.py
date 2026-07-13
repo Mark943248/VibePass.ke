@@ -15,6 +15,7 @@ def validate_image_size(file):
 
 # Event model
 class Event(models.Model):
+    """ Model to represent an event with its details, ticketing information, and status. """
 
     EVENT_CATEGORIES = [
         ('live music', 'Live Music'),

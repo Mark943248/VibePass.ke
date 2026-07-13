@@ -177,6 +177,7 @@ def CreateEvent(request, slug=None):
 
 # list events view
 def ListEvent(request):
+    """List all events with pagination, ordered by creation date descending."""
     Events = Event.objects.all().order_by('-Event_created_at')
     paginator = Paginator(Events, 6)  # Show 10 events per page
     page_number = request.GET.get('page')
@@ -190,6 +191,9 @@ def ListEvent(request):
 
 # search events view
 def SearchEvent(request):
+    """ Search for events based on query parameters in the GET request.
+    The search is performed on event title, category, details, and location.
+    """
     query = request.GET.get('q')
     if query:
         Events = Event.objects.filter(
@@ -206,6 +210,7 @@ def SearchEvent(request):
 
 # filter product by category
 def Filter_by_category(request, category):
+    """ Filter events by category and paginate the results."""
     Events = Event.objects.filter(Event_category=category).order_by('-Event_created_at')
     if not Events:
         messages.error(request, f'No Events found under this {category}') 
@@ -216,6 +221,7 @@ def Filter_by_category(request, category):
 
 # Event details
 def EventDetails(request, slug):
+    """ Display the details of a specific event, including its active ticket types."""
     event = get_object_or_404(Event, slug=slug)
     ticket_types = event.ticket_types.filter(is_active=True)
 
@@ -279,6 +285,7 @@ def EventDetails(request, slug):
 @login_required
 @user_passes_test(lambda u: u.is_organiser, login_url='login', redirect_field_name=None)
 def delete_event_view(request, slug):
+    """Delete an event if the user is the organiser and the request method is POST."""
     event = get_object_or_404(Event, slug=slug)
     # validate if user is the organiser
     if not event.Event_organiser == request.user:
