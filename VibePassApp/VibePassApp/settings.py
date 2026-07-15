@@ -14,6 +14,7 @@ from datetime import timedelta
 from pathlib import Path
 import os
 import cloudinary
+import sys
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -249,3 +250,5 @@ TWO_FACTOR_TOTP_DIGITS = 6 #N.O of TOTP digits
 
 TWO_FACTOR_LOGIN_TIMEOUT = 200 #Time in seconds before the 2FA login session expires
 
+if 'test' in sys.argv:
+    AXES_ENABLED = False  # Disable Axes during testing to avoid lockouts

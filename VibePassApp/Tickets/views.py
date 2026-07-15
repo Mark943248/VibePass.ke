@@ -16,6 +16,35 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def _get_checkout_items(checkout_data):
+    """Return checkout items from the session when they are present and valid."""
+    if not isinstance(checkout_data, dict):
+        return []
+
+    items = checkout_data.get('items') or []
+    if not isinstance(items, list):
+        return []
+
+    valid_items = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        ticket_type_id = item.get('id')
+        quantity = item.get('quantity', 1)
+        if ticket_type_id is None:
+            continue
+        try:
+            quantity = int(quantity)
+        except (TypeError, ValueError):
+            continue
+        if quantity <= 0:
+            continue
+        valid_items.append({'id': ticket_type_id, 'quantity': quantity})
+
+    return valid_items
+
+
 # generate qr code view
 def generate_qr_code(ticket):
     """Generate and upload QR code image for ticket"""
@@ -51,56 +80,74 @@ def book_free_ticket(request, slug):
     """Book a free ticket for an event"""
     event = get_object_or_404(Event, slug=slug)
     checkout_data = request.session.get('checkout_data')
-    
+
     # Check if event is free
     if not event.Event_is_free:
-        print("This is not a free event")
+        logger.info(f"Attempt to book free ticket for non-free event: {event.slug}")
+        messages.error(request, 'This event is not free. Please select a paid ticket.')
         return redirect('event_details', slug=slug)
-    
+
     # Check if event is still active
     if not event.Event_is_active:
+        logger.info(f"Attempt to book ticket for inactive event: {event.slug}")
         messages.error(request, 'This event is no longer active.')
         return redirect('event_details', slug=slug)
-    
-    
+
+    items = _get_checkout_items(checkout_data)
+    if not items:
+        logger.warning(f"No valid ticket selection found in session for user {request.user.id} and event {event.slug}")
+        messages.error(request, 'No valid ticket selection was found. Please choose a ticket first.')
+        return redirect('event_details', slug=slug)
+
     with transaction.atomic():
         try:
-          for item in checkout_data['items']:
-            ticket_type = TicketType.objects.select_for_update(nowait=True).get(id=item['id'])
-            # Check if tickets are available
-            if not ticket_type.has_available():
-              messages.error(request, 'Sorry, all tickets for this event have been sold out.')
-              return redirect('event_details', slug=slug)
-            
-            quantity = item['quantity']
+            created_ticket = None
+            for item in items:
+                ticket_type_id = item.get('id')
+                if not ticket_type_id:
+                    continue
 
-            for _ in range(quantity):
-                # Create ticket directly (no payment needed)
-                ticket = Ticket.objects.create(
-                   event=event,
-                   ticket_type=ticket_type,
-                   user=request.user,
-                   payment=None,
-                   status='active'
-                )
-                logger.info(f"Ticket generated {ticket}")
+                ticket_type = TicketType.objects.select_for_update(nowait=True).get(id=ticket_type_id, event=event)
+                if not ticket_type.has_available():
+                    logger.warning(f"Attempt to book ticket for event with no available tickets: {event.slug}")
+                    messages.error(request, 'Sorry, all tickets for this event have been sold out.')
+                    return redirect('event_details', slug=slug)
 
-                  # Generate QR code immediately
-                if generate_qr_code(ticket):
-                   messages.success(request, 'Ticket booked successfully!')
-                   return redirect('finders_dashboard')
-                else:
-                   messages.warning(request, 'Ticket created, but QR code generation failed.')
-                   return redirect('finders_dashboard')
-    
-            ticket_type.sold_count = F('sold_count') + quantity
-            ticket_type.save()
-            logger.info(f"Updated stock for TicketType ID {item['id']}: +{quantity} sold.")
-            logger.info(f"Total sold count is: {ticket_type.sold_count}")
+                quantity = int(item.get('quantity', 1) or 1)
+                if quantity <= 0:
+                    continue
+
+                for _ in range(quantity):
+                    ticket = Ticket.objects.create(
+                        event=event,
+                        ticket_type=ticket_type,
+                        user=request.user,
+                        payment=None,
+                        status='active'
+                    )
+                    logger.info(f"Ticket generated {ticket}")
+                    created_ticket = ticket
+
+                    if generate_qr_code(ticket):
+                        logger.info(f"QR code generated for free ticket {ticket.ticket_id}")
+                    else:
+                        logger.warning(f"QR code generation failed for free ticket {ticket.ticket_id}")
+
+                ticket_type.sold_count = F('sold_count') + quantity
+                ticket_type.save()
+                logger.info(f"Updated stock for TicketType ID {ticket_type_id}: +{quantity} sold.")
+                logger.info(f"Total sold count is: {ticket_type.sold_count}")
+
+            if created_ticket is not None:
+                messages.success(request, 'Ticket booked successfully!')
+                return redirect('finders_dashboard')
+
+            messages.warning(request, 'No tickets were created.')
+            return redirect('event_details', slug=slug)
         except DatabaseError as e:
             messages.warning(request, "The system is currently busy, please try again later!")
             logger.warning(f"Error has occured: {e}")
-            redirect('event_details', slug=event.slug)
+            return redirect('event_details', slug=event.slug)
     
 # create ticket view
 def create_ticket(request=None, payment_id=None):
@@ -120,48 +167,57 @@ def create_ticket(request=None, payment_id=None):
     try:
         with transaction.atomic():
             try:
-              checkout_data = payment.checkout_data_snapshot
-              for item in checkout_data['items']:
-                ticket_type = TicketType.objects.select_for_update(nowait=True).get(id=item['id'])
-                quantity = int(item['quantity'])
+                checkout_data = payment.checkout_data_snapshot or {}
+                items = _get_checkout_items(checkout_data)
+                if not items:
+                    logger.warning(f"No valid checkout items found for payment {payment_id}")
+                    return None
 
-              # GUARD: Only process if the user actually requested 1 or more of this ticket type
-              if quantity > 0:
-                for _ in range(quantity):
-                   ticket = Ticket.objects.create(
-                      payment=payment,
-                      ticket_type=ticket_type,
-                      event=payment.event,
-                      user=payment.user,
-                      status='active'
-                    )
-                   logger.info(f"Ticket generated {ticket}")
+                for item in items:
+                    ticket_type_id = item.get('id')
+                    if not ticket_type_id:
+                        continue
 
-                   # Generate QR code for the ticket
-                   if generate_qr_code(ticket):
-                      logger.info(f"Ticket {ticket.ticket_id} created and QR code generated for payment {payment_id}")
-                   else:
-                      logger.error(f"Ticket {ticket.ticket_id} created but QR code generation failed")
-        
-                   created_tickets.append(ticket)
+                    ticket_type = TicketType.objects.select_for_update(nowait=True).get(id=ticket_type_id, event=payment.event)
+                    quantity = int(item.get('quantity', 1) or 1)
 
-                ticket_type.sold_count = F('sold_count') + quantity
-                ticket_type.save()
-                logger.info(f"Updated stock for TicketType ID {item['id']}: +{quantity} sold.")
+                    # GUARD: Only process if the user actually requested 1 or more of this ticket type
+                    if quantity > 0:
+                        for _ in range(quantity):
+                            ticket = Ticket.objects.create(
+                                payment=payment,
+                                ticket_type=ticket_type,
+                                event=payment.event,
+                                user=payment.user,
+                                status='active'
+                            )
+                            logger.info(f"Ticket generated {ticket}")
 
-              # Refresh stock objects if you need to accurately log values after using F() expressions
-              if created_tickets:
-                ticket_type.refresh_from_db()
-                logger.info(f"Total sold count is now: {ticket_type.sold_count}")
+                            # Generate QR code for the ticket
+                            if generate_qr_code(ticket):
+                                logger.info(f"Ticket {ticket.ticket_id} created and QR code generated for payment {payment_id}")
+                            else:
+                                logger.error(f"Ticket {ticket.ticket_id} created but QR code generation failed")
+
+                            created_tickets.append(ticket)
+
+                        ticket_type.sold_count = F('sold_count') + quantity
+                        ticket_type.save()
+                        logger.info(f"Updated stock for TicketType ID {ticket_type_id}: +{quantity} sold.")
+
+                # Refresh stock objects if you need to accurately log values after using F() expressions
+                if created_tickets:
+                    ticket_type.refresh_from_db()
+                    logger.info(f"Total sold count is now: {ticket_type.sold_count}")
 
             except DatabaseError as e:
                 messages.warning(request, "The system is currently busy, please again try later!")
                 logger.warning(f"Error has occurred: {e}")
                 return redirect('checkout', slug=payment.event.slug)
-               
-        if request is not None:
-            return redirect('users_tickets', ticket_id=ticket.ticket_id)
-        return ticket
+
+        if request is not None and created_tickets:
+            return redirect('users_tickets', ticket_id=created_tickets[-1].ticket_id)
+        return created_tickets[-1] if created_tickets else None
     
     except Exception as e:
         logger.error(f"Error creating ticket for payment {payment_id}: {str(e)}")

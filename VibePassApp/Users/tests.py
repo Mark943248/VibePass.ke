@@ -107,8 +107,8 @@ class UserViewsTest(TestCase):
     def test_event_organizers_dashboard_unauthorized(self):
         self.client.login(username='testuser', password='testpass123')
         response = self.client.get(reverse('organizers_dashboard'))
-        # Should redirect to login since user is not organizer
-        self.assertRedirects(response, reverse('login'))
+        # Pass target_status_code=302 to handle the appended next parameter smoothly
+        self.assertRedirects(response, f"{reverse('login')}?next={reverse('organizers_dashboard')}")
 
     def test_event_organizers_dashboard_authorized(self):
         self.user.is_organiser = True
