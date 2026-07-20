@@ -27,9 +27,9 @@ load_dotenv()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY=os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG =os.getenv('DEBUG')
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.ngrok.io', '.ngrok-free.dev']
+ALLOWED_HOSTS =os.getenv('ALLOWED_HOSTS').split(',')
 
 
 # Application definition
@@ -177,11 +177,13 @@ ASGI_APPLICATION = 'VibePassApp.asgi.application'
 
 # Channel layers for WebSockets
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],  # Matches the 'redis' service name in docker-compose
+        },
     },
 }
-
 
 
 AUTHENTICATION_BACKENDS = (
@@ -252,3 +254,6 @@ TWO_FACTOR_LOGIN_TIMEOUT = 200 #Time in seconds before the 2FA login session exp
 
 if 'test' in sys.argv:
     AXES_ENABLED = False  # Disable Axes during testing to avoid lockouts
+
+CELERY_BROKER_URL=os.getenv('CELERY_BROKER_URL') # Celery Broker URL
+CELERY_RESULT_BACKEND=os.getenv('CELERY_BROKER_URL')

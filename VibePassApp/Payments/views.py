@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .signals import payment_successful
+from .tasks import process_mpesa_stk_callbacks, process_mpesa_b2c_callbacks
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from Events.models import Event, TicketType
@@ -150,7 +150,7 @@ def mpesa_callback(request):
     """
     Handle the M-PESA STK push callback.
     This view processes the callback from M-PESA after a payment attempt.
-    It updates the payment status in the database and sends real-time updates via WebSocket.
+    then calls the celery worker to handle the updates of the payment status in the database and sends real-time updates via WebSocket.
     """
     if request.method == 'POST':
         try:
@@ -158,48 +158,9 @@ def mpesa_callback(request):
             stk_json_path = os.path.join(settings.BASE_DIR, 'mpesa_logs', 'stk_callback.json')
             with open(stk_json_path, 'w') as f:
                 json.dump(data, f, indent=4)
-            mpesa_info = data.get('Body', {}).get('stkCallback', {})
-            checkout_request_id = mpesa_info.get('CheckoutRequestID')
-            result_code = mpesa_info.get('ResultCode')
-            result_desc = mpesa_info.get('ResultDesc', 'Unknown error')
-            
-            if not checkout_request_id:
-                print('Error: No CheckoutRequestID in callback')
-                return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
-            
-            try:
-                payment = Payment.objects.get(checkout_request_id=checkout_request_id)
-                
-                if result_code == 0:
-                    # Payment successful
-                    payment.payment_status = 'Completed'
-                    items = mpesa_info.get('CallbackMetadata', {}).get('item', [])
-                    for item in items:
-                        if item.get('Name') == "MpesaReceiptNumber":
-                            payment.mpesa_receipt_number = item.get('Value')
-                    payment.save()
-                    print(f'Payment successful payment_id : {payment.payment_id}')
-                    payment_successful.send(sender=Payment, payment=payment)  # send signal when payment is successful
-                    send_payment_status_update(payment)  # send WebSocket update
-                else:
-                    # Payment failed or cancelled 
-                    payment.payment_status = 'Failed'
-                    payment.save()
-                    print(f'Payment failed for payment ID {payment.payment_id} (Result Code: {result_code}): {result_desc}')
-                    send_payment_status_update(payment)  # send WebSocket update
-            
-            except Payment.DoesNotExist:
-                print(f'Payment record not found for the given checkout request ID: {checkout_request_id}')
-            
-            # Always return success to M-PESA to acknowledge receipt
-            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
-        
+            process_mpesa_stk_callbacks.delay(data)
         except json.JSONDecodeError as e:
-            print(f'Error decoding JSON callback: {str(e)}')
-            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
-        except Exception as e:
-            print(f'Error processing MPESA callback: {str(e)}')
-            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+            logger.error(f'Error decoding JSON callback: {str(e)}')   
     
     return JsonResponse({"Error": "Invalid request method"}, status=400)
 
@@ -293,7 +254,7 @@ def mpesa_b2c_callback(request):
     """
     Handle the M-PESA B2C callback.
     This view processes the callback from M-PESA after a B2C withdrawal attempt.
-    It updates the withdrawal status in the database based on the result of the transaction.
+    calls the celery worket to update the withdrawal status in the database based on the result of the transaction.
     """
     if request.method == 'POST':
         try:
@@ -302,43 +263,15 @@ def mpesa_b2c_callback(request):
             print(f'Error decoding B2C callback JSON: {e}')
             return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
 
-        originator_conversation_id = data.get("Result", {}).get("OriginatorConversationID", "unknown")
         b2c_callback_json_path = os.path.join(settings.BASE_DIR, 'mpesa_logs', 'b2c_callback.json')
         with open(b2c_callback_json_path, 'w') as f:
             json.dump(data, f, indent=4)
-        print(f'MPESA B2C Callback received: {data}')
-        mpesa_details = data.get("Result", {})
-        Result_code = mpesa_details.get("ResultCode")
-        originator_conversation_id = mpesa_details.get("OriginatorConversationID")
-        transaction_id = mpesa_details.get("TransactionID")
-        Result_desc = mpesa_details.get("ResultDesc")
-        try:
-            withdrawal = Withdrawal.objects.get(originator_conversation_id=originator_conversation_id)
-            if not withdrawal:
-                print(f'Transaction does not exist: {originator_conversation_id}')
-            else:
-                if Result_code == 0:
-                    withdrawal.status = 'completed'
-                    withdrawal.mpesa_receipt_number = transaction_id
-                    withdrawal.save()
-                    print(f'Withdrawal completed successfully: {withdrawal.withdrawal_id}')
-                    user_account_balance = withdrawal.organiser.account_balance
-                    print(f"Users account balance before deduction: {user_account_balance}")
-                    withdrawal.organiser.account_balance = user_account_balance - withdrawal.amount
-                    withdrawal.organiser.save()
-                    print(f"Users account balance after deduction: {withdrawal.organiser.account_balance}")
-                else:
-                    withdrawal.status = 'failed'
-                    withdrawal.reason = Result_desc
-                    withdrawal.save()
-                    print(f'Withdrawal failed: {withdrawal.withdrawal_id} - Reason: {Result_desc}')
+        logger.success(f'MPESA B2C Callback received: {data}')
 
-        except Exception as e:
-            print(f'Error processing B2C callback for {originator_conversation_id}: {e}')
-        
-        return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
-    
+        process_mpesa_b2c_callbacks.delay(data)
+
     return JsonResponse({"Error": "Invalid request method"}, status=400)
+
 
 @csrf_exempt
 def mpesa_timeout_handler(request):

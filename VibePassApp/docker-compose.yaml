@@ -1,0 +1,75 @@
+services:
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+
+  db:
+    image: postgres:17
+    container_name: VibePass_DB
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: VibePass_web
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app/VibePassApp
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+  
+  ngrok:
+    image: ngrok/ngrok:latest
+    command: 
+       - "http"
+       - "web:8000"
+    ports: 
+    - "4040:4040"
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    depends_on:
+      - web
+      
+
+  celery:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A celery worker --loglevel=info
+    volumes:
+      - .:/app/VibePassApp
+    env_file:
+      - .env
+    container_name: celery
+    depends_on:
+      - db
+      - redis
+      - web
+
+volumes:
+   postgres_data:      
