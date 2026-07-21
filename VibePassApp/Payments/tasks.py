@@ -8,7 +8,7 @@ from .consumers import send_payment_status_update
 logger = logging.getLogger(__name__)
 
 
-@shared_task
+@shared_task()
 def process_mpesa_stk_callbacks(data):
     """
     This view processes M-Pesa STK callbacks via a Celery worker.
@@ -21,33 +21,49 @@ def process_mpesa_stk_callbacks(data):
 
     if not checkout_request_id:
         logger.error("No checkout_request_id in callback")
-        return  JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
-    
+        return None
+
     try:
         payment = Payment.objects.get(checkout_request_id=checkout_request_id)
-                
-        if result_code == 0:
-            # Payment successful
-            payment.payment_status = 'Completed'
-            items = mpesa_info.get('CallbackMetadata', {}).get('item', [])
-            for item in items:
-                if item.get('Name') == "MpesaReceiptNumber":
-                    payment.mpesa_receipt_number = item.get('Value')
-                    payment.save()
-                    logger.success(f"Payment succesful for payment_id: {payment.payment_id}")
-                    payment_successful.send(sender=Payment, payment=payment)  # send signal when payment is successful
-                    send_payment_status_update(payment)  # send WebSocket update
-                else:
-                    # Payment failed or cancelled 
-                    payment.payment_status = 'Failed'
-                    payment.save()
-                    logger.info(f'Payment failed for payment ID {payment.payment_id} (Result Code: {result_code}): {result_desc}')
-                    send_payment_status_update(payment)  # send WebSocket update
-            
     except Payment.DoesNotExist:
-       logger.info(f"Payment not found with checkout_request_id: {checkout_request_id}")
-        
-@shared_task
+        logger.error(f"Payment not found with checkout_request_id: {checkout_request_id}")
+        return None
+
+    try:
+        result_code = int(result_code)
+    except (TypeError, ValueError):
+        logger.warning(
+            f"Unexpected ResultCode type for payment {payment.payment_id}: {result_code}"
+        )
+        result_code = -1
+
+    if result_code == 0:
+        payment.payment_status = 'Completed'
+        items = mpesa_info.get('CallbackMetadata', {}).get('Item', [])
+        receipt_number = None
+        for item in items:
+            if item.get('Name') == 'MpesaReceiptNumber':
+                receipt_number = item.get('Value')
+                break
+
+        if receipt_number:
+            payment.mpesa_receipt_number = receipt_number
+        payment.save()
+        logger.info(f"Payment successful for payment_id: {payment.payment_id}")
+        payment_successful.send(sender=Payment, payment=payment)
+        send_payment_status_update(payment)
+    else:
+        payment.payment_status = 'Failed'
+        payment.save()
+        logger.info(
+            f'Payment failed for payment ID {payment.payment_id} (Result Code: {result_code}): {result_desc}'
+        )
+        send_payment_status_update(payment)
+
+
+
+
+@shared_task()
 def process_mpesa_b2c_callbacks(data):
     """
     Processes M-Pesa B2C (Business to Customer) withdrawal callback payloads 
@@ -68,7 +84,7 @@ def process_mpesa_b2c_callbacks(data):
             withdrawal.status = 'completed'
             withdrawal.mpesa_receipt_number = transaction_id
             withdrawal.save()
-            logger.success(f'Withdrawal completed successfully: {withdrawal.withdrawal_id}')
+            logger.info(f'Withdrawal completed successfully: {withdrawal.withdrawal_id}')
             user_account_balance = withdrawal.organiser.account_balance
             logger.info(f"Users account balance before deduction: {user_account_balance}")
             withdrawal.organiser.account_balance = user_account_balance - withdrawal.amount

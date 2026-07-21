@@ -60,7 +60,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: celery -A celery worker --loglevel=info
+    command: celery -A VibePassApp worker --loglevel=info
     volumes:
       - .:/app/VibePassApp
     env_file:

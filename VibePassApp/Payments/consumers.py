@@ -99,6 +99,11 @@ def send_payment_status_update(payment):
         room_group_name,
         {
             'type': 'payment_status_update',
-            'payment': payment,
+            'payment': {
+                'payment_status': payment.payment_status,
+                'payment_id': str(payment.payment_id),
+                'amount': str(payment.amount),
+                'receipt_number': payment.mpesa_receipt_number or '',
+            },
         }
     )

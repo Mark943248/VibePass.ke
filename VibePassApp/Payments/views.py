@@ -10,7 +10,6 @@ from django.db import transaction
 from django.conf import settings
 from .utils import mpesa_stk_push, format_phone_number, initiate_b2c_request
 from .models import Payment, Withdrawal
-from .consumers import send_payment_status_update
 import json
 import os
 import logging
@@ -110,40 +109,6 @@ def initiate_payment(request, slug):
    return render(request, 'payments/checkout.html', {'event': event})
 
 
-# Check payment status endpoint
-@login_required
-def check_payment_status(request, payment_id):
-    """
-    Check the current status of a payment
-    Returns JSON with status and message
-    """
-    try:
-        payment = Payment.objects.get(payment_id=payment_id, user=request.user)
-        
-        status = payment.payment_status
-        message = ""
-        
-        if status == 'Completed':
-            message = "Payment successful. Your ticket is being generated."
-        elif status == 'Failed':
-            message = "Payment failed. Please try again."
-        elif status == 'Pending':
-            message = "Payment is being processed..."
-        
-        return JsonResponse({
-            'status': status,
-            'message': message,
-            'payment_id': str(payment.payment_id),
-            'amount': str(payment.amount),
-            'receipt_number': payment.mpesa_receipt_number or ''
-        })
-    except Payment.DoesNotExist:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Payment not found'
-        }, status=404)
-
-
 # mpesa callback view
 @csrf_exempt
 def mpesa_callback(request):
@@ -161,7 +126,9 @@ def mpesa_callback(request):
             process_mpesa_stk_callbacks.delay(data)
         except json.JSONDecodeError as e:
             logger.error(f'Error decoding JSON callback: {str(e)}')   
-    
+        # Respond with a success acknowledgement expected by M-PESA
+        return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
     return JsonResponse({"Error": "Invalid request method"}, status=400)
 
 
@@ -224,7 +191,7 @@ def request_withdrawal(request):
                 withdrawal.originator_conversation_id = response.get('OriginatorConversationID')
                 withdrawal.mpesa_conversation_id = response.get('ConversationID')
                 withdrawal.save()
-                messages.success(request, f'Withdrawal of KES {total_revenue} initiated successfully!')
+                messages.success(request, f'Withdrawal of KES {total_revenue} initiated successfully, please wait for a moment to receive you amount')
                 print(f'B2C withdrawal initiated successfully for {user.username}: Withdrawal ID {withdrawal.withdrawal_id}')
             else:
                 withdrawal.status = 'failed'
@@ -266,9 +233,11 @@ def mpesa_b2c_callback(request):
         b2c_callback_json_path = os.path.join(settings.BASE_DIR, 'mpesa_logs', 'b2c_callback.json')
         with open(b2c_callback_json_path, 'w') as f:
             json.dump(data, f, indent=4)
-        logger.success(f'MPESA B2C Callback received: {data}')
+        logger.info(f'MPESA B2C Callback received: {data}')
 
         process_mpesa_b2c_callbacks.delay(data)
+        # Acknowledge receipt to M-PESA
+        return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
 
     return JsonResponse({"Error": "Invalid request method"}, status=400)
 
