@@ -3,9 +3,10 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 from Events.models import Event
-from .models import Payment, Withdrawal
+from .models import Payment, Withdrawal, calculate_user_account_balance
 from datetime import date, time
 import uuid
+from decimal import Decimal
 
 User = get_user_model()
 
@@ -64,20 +65,76 @@ class WithdrawalModelTest(TestCase):
             is_organiser=True
         )
         self.withdrawal = Withdrawal.objects.create(
-            organizer=self.organizer,
+            organiser=self.organizer,
             amount=500.00,
             mpesa_number='254712345678',
             status='pending'
         )
 
     def test_withdrawal_creation(self):
-        self.assertEqual(self.withdrawal.organizer, self.organizer)
+        self.assertEqual(self.withdrawal.organiser, self.organizer)
         self.assertEqual(self.withdrawal.amount, 500.00)
         self.assertEqual(self.withdrawal.status, 'pending')
 
     def test_withdrawal_str(self):
         expected = f"Withdrawal {self.withdrawal.withdrawal_id} - Organizer: {self.organizer.username} - Amount: {self.withdrawal.amount} - Status: {self.withdrawal.status}"
         self.assertEqual(str(self.withdrawal), expected)
+
+
+class AccountBalanceCalculationTest(TestCase):
+    def test_calculate_user_account_balance_uses_completed_payments_and_withdrawals(self):
+        organizer = User.objects.create_user(
+            username='balanceorganizer',
+            email='balance@example.com',
+            password='testpass123',
+            is_organiser=True
+        )
+        event = Event.objects.create(
+            Event_organiser=organizer,
+            Event_title='Balance Test Event',
+            Event_flyer='test.jpg',
+            Event_category='test',
+            Event_details='Details',
+            Event_location='Location',
+            Event_date=date.today(),
+            Event_time=time(18, 0),
+            Event_ticket_price=100.00,
+            Event_is_free=False,
+            Event_total_tickets=10,
+            Event_mpesa_number='254712345678'
+        )
+
+        Payment.objects.create(
+            user=organizer,
+            event=event,
+            amount=Decimal('100.00'),
+            mpesa_number='254712345678',
+            payment_status='Completed'
+        )
+        Payment.objects.create(
+            user=organizer,
+            event=event,
+            amount=Decimal('50.00'),
+            mpesa_number='254712345678',
+            payment_status='Pending'
+        )
+        Withdrawal.objects.create(
+            organiser=organizer,
+            amount=Decimal('25.00'),
+            mpesa_number='254712345678',
+            status='completed'
+        )
+        Withdrawal.objects.create(
+            organiser=organizer,
+            amount=Decimal('20.00'),
+            mpesa_number='254712345678',
+            status='pending'
+        )
+
+        balance = calculate_user_account_balance(organizer)
+
+        self.assertEqual(balance, Decimal('75.00'))
+        self.assertEqual(organizer.account_balance, Decimal('75.00'))
 
 
 class PaymentViewsTest(TestCase):

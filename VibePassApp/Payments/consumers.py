@@ -54,11 +54,11 @@ class PaymentStatusConsumer(AsyncWebsocketConsumer):
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'type': 'status_update',
-            'status': payment.payment_status,
-            'message': self.get_status_message(payment.payment_status),
-            'payment_id': str(payment.payment_id),
-            'amount': str(payment.amount),
-            'receipt_number': payment.mpesa_receipt_number or ''
+            'status': payment['payment_status'],
+            'message': self.get_status_message(payment['payment_status']),
+            'payment_id': str(payment['payment_id']),
+            'amount': str(payment['amount']),
+            'receipt_number': payment['receipt_number'] or ''
         }))
 
     @database_sync_to_async
@@ -105,5 +105,54 @@ def send_payment_status_update(payment):
                 'amount': str(payment.amount),
                 'receipt_number': payment.mpesa_receipt_number or '',
             },
+        }
+    )
+
+class OrganizerDashboardConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope["user"]
+
+        # Ensure user is authenticated
+        if self.user.is_anonymous:
+            await self.close()
+            return
+
+        # Unique group room for this specific organizer
+        self.room_group_name = f"organizer_{self.user.id}"
+
+        # Join the group
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        if hasattr(self, "room_group_name"):
+            await self.channel_layer.group_discard(
+                self.room_group_name,
+                self.channel_name
+            )
+
+    # Event handler for "type": "balance_update"
+    async def balance_update(self, event):
+        # Push payload data to client JS
+        await self.send(text_data=json.dumps(event["data"]))
+
+def update_dashboard_balance_after_withdraw(withdrawal):
+    """
+    Utility function to send balance updates via WebSocket
+    """
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"organizer_{withdrawal.organiser.id}",
+        {
+            "type": "balance_update",  # Maps to balance_update() in Consumer
+            "data": {
+                "action": "WITHDRAWAL_SUCCESS",
+                "amount_withdrawn": str(withdrawal.amount),
+                "new_balance": str(withdrawal.organiser.account_balance),
+                "message": f"Successfully withdrew Ksh {withdrawal.amount}"
+            }
         }
     )

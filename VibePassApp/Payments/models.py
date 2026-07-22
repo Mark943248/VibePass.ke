@@ -1,7 +1,29 @@
 from django.db import models
+from django.db.models import Sum
+from decimal import Decimal
 from Events.models import Event
 from Users.models import User
 import uuid
+
+
+def calculate_user_account_balance(user):
+    """Calculate the organizer's current withdrawable balance from completed payments minus completed withdrawals."""
+    total_revenue = Payment.objects.filter(
+        event__Event_organiser=user,
+        payment_status='Completed'
+    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+
+    total_withdrawn = Withdrawal.objects.filter(
+        organiser=user,
+        status='completed'
+    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+
+    balance = total_revenue - total_withdrawn
+    user.account_balance = balance
+    user.save(update_fields=['account_balance'])
+    return balance
+
+
 # Create your models here.
 class Payment(models.Model):
     """ Model to represent a payment made by a user for an event, including details such as amount, status, and related M-Pesa information. """

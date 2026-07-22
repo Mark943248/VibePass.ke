@@ -1271,7 +1271,7 @@
           <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-wallet"></i></div>
             <div class="stat-info">
-              <h3>KES {{ user.account_balance }}</h3>
+              <h3 id="wallet-balance">KES {{ user.account_balance }}</h3>
               <p>Available Balance</p>
             </div>
           </div>
@@ -1583,33 +1583,123 @@
     // ============================================
     // DELETE EVENT
     // ============================================
-    document.querySelectorAll('.delete-event-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+         }
+      }
+     return cookieValue;
+   }
+
+   document.querySelectorAll('.delete-event-btn').forEach(btn => {
+     btn.addEventListener('click', function(e) {
         e.preventDefault();
         const deleteUrl = this.getAttribute('data-url');
         const eventSlug = this.getAttribute('data-slug');
 
         if (confirm('Are you sure you want to permanently delete this event?')) {
-          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+            // Get the CSRF token from the browser cookie instead of an input field
+            const csrfToken = getCookie('csrftoken');
 
-          fetch(deleteUrl, {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': csrfToken,
-              'X-Requested-With': 'XMLHttpRequest'
+            if (!csrfToken) {
+                alert('CSRF token missing. Please refresh the page.');
+                return;
             }
-          })
-          .then(response => {
-            if (response.ok) {
-              alert('Event deleted successfully!');
-              window.location.reload();
-            } else {
-              alert('Something went wrong. Could not delete event.');
-            }
-          })
-          .catch(error => console.error('Error:', error));
+
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Event deleted successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Something went wrong. Could not delete event.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
         }
-      });
+     });
+   });
+    // ============================================
+    // UPDATE BALANCE VIA WEBSOCKETS
+    // ============================================
+    let dashboardSocket = null;
+    let dashboardReconnectTimer = null;
+    let dashboardReconnectAttempts = 0;
+
+    function connectDashboardSocket() {
+        if (dashboardSocket && (dashboardSocket.readyState === WebSocket.OPEN || dashboardSocket.readyState === WebSocket.CONNECTING)) {
+            return;
+        }
+
+        if (dashboardReconnectTimer) {
+            clearTimeout(dashboardReconnectTimer);
+        }
+
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        dashboardSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/organizer/dashboard/`);
+
+        dashboardSocket.onopen = function() {
+            dashboardReconnectAttempts = 0;
+            console.log("Organizer dashboard socket connected.");
+        };
+
+        dashboardSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log("WebSocket event received:");
+
+            if (data.action === "WITHDRAWAL_SUCCESS") {
+                // 1. Update the balance text directly
+                const balanceElement = document.getElementById("wallet-balance");
+                if (balanceElement) {
+                    balanceElement.innerText = `KES ${data.new_balance}`;
+                }
+
+                // 2. Show a dynamic alert notification
+                const alertBox = document.getElementById("alert-box");
+                if (alertBox) {
+                    alertBox.innerHTML = `
+                        <div class="alert alert-success">
+                            ${data.message}. New balance: KES ${data.new_balance}
+                        </div>
+                    `;
+                }
+            }
+        };
+
+        dashboardSocket.onerror = function(error) {
+            console.error("Organizer dashboard socket error:", error);
+        };
+
+        dashboardSocket.onclose = function(e) {
+            console.warn("Organizer dashboard socket closed:", e.code, e.reason);
+
+            if (dashboardReconnectAttempts < 5) {
+                dashboardReconnectAttempts += 1;
+                const delay = Math.min(1000 * dashboardReconnectAttempts, 5000);
+                dashboardReconnectTimer = setTimeout(connectDashboardSocket, delay);
+            }
+        };
+    }
+
+    document.addEventListener("DOMContentLoaded", connectDashboardSocket);
+
+    window.addEventListener("beforeunload", function() {
+        if (dashboardSocket) {
+            dashboardSocket.close();
+        }
     });
   </script>
 </body>

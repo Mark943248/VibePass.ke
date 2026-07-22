@@ -811,7 +811,7 @@
             <button type="button" class="btn btn-secondary" id="previewBtn">
               <i class="fas fa-eye"></i> Preview Event
             </button>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary" id="submitEvent">
               <i class="fas fa-rocket"></i> {% if is_edit %}Update Event{% else %}Publish Event{% endif %}
             </button>
           </div>
@@ -1153,17 +1153,11 @@
       }
     }
 
-    // prevent multiple payments
-    function disableButton() {
-      // checks if button is disabled, if so, prevent further action
-      if (payNowBtn.disabled) {
-        return false;
-      }
-      payNowBtn.disabled = true;
-      payNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-      payNowBtn.style.opacity = '0.7';
-      payNowBtn.style.cursor = 'not-allowed';
-    }
+    document.getElementById('createEventForm').addEventListener('submit', (e) => {
+        const btn = document.getElementById('submitEvent');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...'
+    })
 
 
 

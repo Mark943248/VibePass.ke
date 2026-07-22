@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from Payments.models import Withdrawal
+from Payments.models import Withdrawal, calculate_user_account_balance
 from Events.models import Event
 from Tickets.models import Ticket
 from django.db.models import Sum
@@ -121,10 +121,8 @@ def EventOrganizersDashboard(request):
         total_revenue += event_revenue
         total_tickets_sold += event.get_sold_tickets()
         total_attendees += event.tickets.filter(status__in=['active', 'scanned']).count()
-    latest_withdrawal = Withdrawal.objects.filter(organiser=user).order_by('-created_at').first()
-    user.account_balance = total_revenue - (latest_withdrawal.amount if latest_withdrawal and latest_withdrawal.status == 'completed' else 0)
-    print(f"User account balance: {user.account_balance}")
-    user.save()
+    balance = calculate_user_account_balance(user)
+    print(f"User account balance: {balance}")
     
     # Get total number of active events (events in the future)
     active_events = events.filter(Event_is_active=True).count()

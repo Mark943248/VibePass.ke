@@ -180,6 +180,13 @@
       opacity: 0.8;
     }
 
+    /* Header action buttons - hidden on mobile, shown on desktop */
+    .header-actions {
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
     .logout-btn,
     .manage-events-btn {
       padding: 6px 12px;
@@ -331,6 +338,24 @@
       width: 22px;
       text-align: center;
       font-size: 1rem;
+    }
+
+    /* Mobile sidebar action buttons (Manage & Logout) */
+    .mobile-action-links {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .mobile-action-links .manage-events-btn,
+    .mobile-action-links .logout-btn {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+      font-size: 0.85rem;
+      border-radius: 12px;
+      margin-bottom: 8px;
     }
 
     /* ============================================
@@ -860,15 +885,21 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* ============================================
        RESPONSIVE BREAKPOINTS
        ============================================ */
 
-    /* Mobile - Show hamburger */
+    /* Mobile - Show hamburger, hide header actions */
     @media (max-width: 767px) {
       .sidebar {
         display: none;
@@ -876,6 +907,10 @@
 
       .hamburger-btn {
         display: flex;
+      }
+
+      .header-actions {
+        display: none !important;
       }
 
       .user-info .user-name {
@@ -892,24 +927,12 @@
         font-size: 0.65rem;
       }
 
-      .logout-btn,
-      .manage-events-btn {
-        padding: 4px 10px;
-        font-size: 0.6rem;
-        min-height: 30px;
-      }
-
-      .logout-btn span,
-      .manage-events-btn span {
-        display: none;
-      }
-
       .header-container {
         gap: 5px;
       }
     }
 
-    /* Tablet and up - Show sidebar, hide hamburger */
+    /* Tablet and up - Show sidebar, hide hamburger, show header actions */
     @media (min-width: 768px) {
       .hamburger-btn {
         display: none;
@@ -921,6 +944,10 @@
 
       .mobile-sidebar {
         display: none !important;
+      }
+
+      .header-actions {
+        display: flex !important;
       }
 
       .dashboard {
@@ -1135,7 +1162,7 @@
   <!-- Mobile Sidebar Overlay -->
   <div class="mobile-sidebar-overlay" id="mobileOverlay"></div>
 
-  <!-- Mobile Sidebar - Like ChatGPT/DeepSeek -->
+  <!-- Mobile Sidebar -->
   <div class="mobile-sidebar" id="mobileSidebar">
     <div class="mobile-sidebar-header">
       <span class="logo-text">VibePass</span>
@@ -1152,6 +1179,15 @@
         <li><a href="#" class="nav-link" data-tab="past"><i class="fas fa-history nav-icon"></i> Past Events</a></li>
         <li><a href="#" class="nav-link" data-tab="profile"><i class="fas fa-user nav-icon"></i> My Profile</a></li>
       </ul>
+      <!-- Mobile action buttons (Manage & Logout) -->
+      <div class="mobile-action-links">
+        <a href="{% url 'make_organiser' %}" class="manage-events-btn" style="color: var(--vibe-primary); border-color: var(--vibe-primary);">
+          <i class="fas fa-calendar-alt"></i> Manage Events
+        </a>
+        <a href="{% url 'logout' %}" class="logout-btn" style="color: var(--vibe-danger); border-color: var(--vibe-danger);">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
     </div>
   </div>
 
@@ -1175,12 +1211,17 @@
             </div>
           </div>
         </div>
-        <a href="{% url 'make_organiser' %}" class="manage-events-btn">
-          <i class="fas fa-calendar-alt"></i> <span>Manage</span>
-        </a>
-        <a href="{% url 'logout' %}" class="logout-btn">
-          <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-        </a>
+
+        <!-- Header actions: visible only on desktop/tablet -->
+        <div class="header-actions">
+          <a href="{% url 'make_organiser' %}" class="manage-events-btn">
+            <i class="fas fa-calendar-alt"></i> <span>Manage</span>
+          </a>
+          <a href="{% url 'logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+          </a>
+        </div>
+
         <button class="hamburger-btn" id="hamburgerBtn">
           <span></span>
           <span></span>

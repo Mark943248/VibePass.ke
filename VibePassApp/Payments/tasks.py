@@ -1,9 +1,9 @@
 import logging
 from celery import shared_task
 from .signals import payment_successful
-from .models import Payment, Withdrawal
+from .models import Payment, Withdrawal, calculate_user_account_balance
 from django.http import JsonResponse
-from .consumers import send_payment_status_update
+from .consumers import send_payment_status_update, update_dashboard_balance_after_withdraw
 
 logger = logging.getLogger(__name__)
 
@@ -85,11 +85,9 @@ def process_mpesa_b2c_callbacks(data):
             withdrawal.mpesa_receipt_number = transaction_id
             withdrawal.save()
             logger.info(f'Withdrawal completed successfully: {withdrawal.withdrawal_id}')
-            user_account_balance = withdrawal.organiser.account_balance
-            logger.info(f"Users account balance before deduction: {user_account_balance}")
-            withdrawal.organiser.account_balance = user_account_balance - withdrawal.amount
-            withdrawal.organiser.save()
-            logger.info(f"Users account balance after deduction: {withdrawal.organiser.account_balance}")
+            new_balance = calculate_user_account_balance(withdrawal.organiser)
+            update_dashboard_balance_after_withdraw(withdrawal)
+            logger.info(f"Users account balance after deduction: {new_balance}")
         else:
             withdrawal.status = 'failed'
             withdrawal.reason = Result_desc
