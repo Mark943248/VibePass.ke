@@ -544,7 +544,7 @@
             >
               <i class="fas fa-arrow-left"></i> Back to Event
             </a>
-            <a href="#" class="btn btn-primary" id="viewTicketsBtn">
+            <a href="{% url 'finders_dashboard' %}#tickets" class="btn btn-primary" id="viewTicketsBtn">
               <i class="fas fa-ticket-alt"></i> View Tickets
             </a>
           </div>
@@ -706,7 +706,7 @@
       if (viewTicketsBtn) {
         viewTicketsBtn.addEventListener("click", function (e) {
           e.preventDefault();
-          window.location.href = "/user-dashboard/";
+          window.location.href = "/{% url 'finders_dashboard' %}/#tickets";
         });
       }
 

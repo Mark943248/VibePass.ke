@@ -85,7 +85,11 @@ The app is organized into Django apps:
 
 1. Open the project folder:
    - `cd VibePassApp`
+   - NOTE: `Ensure that Docker is installed and also WSL or use Hyper v if you prefer`
+   - RUN: `docker compose up --build` to set up the container
 2. Create and activate a virtual environment.
+   - RUN: `python -m venv venv` to create a virtual enviroment
+   - RUN: `venv\Scripts\activate` to activate the virtual enviroment
 3. Install dependencies:
    - `pip install -r requirements.txt`
 4. Create a `.env` file with the required environment variables such as:
@@ -98,7 +102,13 @@ The app is organized into Django apps:
    - `python manage.py migrate`
 6. Create a superuser if needed:
    - `python manage.py createsuperuser`
-7. Start the development server:
+7. Activate Django otp for the admin page
+   - Visit this url: `https://127.0.0.1:8000/account/two-factor/setup/`
+   - Fill in your details `Username` and `Password`
+   - click activate 
+   - Scan the QR Code using your authenticator app to receive the code
+   - Generate the Backup codes and save them somewhere safe 
+8. Start the development server:
    - `python manage.py runserver`
 
 ## 7. Installing the project from GitHub on a new machine
@@ -112,8 +122,8 @@ Install the following on your machine:
 - Python 3.10+ or the version supported by the project
 - pip
 - Git
-- A local database server if you are not using the default development setup
-
+- Docker
+- WSL (Windows Subsytem for Linux)
 ### 7.2 Clone the repository
 
 ```bash
@@ -177,7 +187,17 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 7.8 Start the app
+### 7.8 Activate django otp for admin page 
+ ``` Follow this procedure
+  - Visit this url: `https://127.0.0.1:8000/account/two-factor/setup/`
+  - Fill in your details `Username` and `Password`
+  - click activate 
+  - Scan the QR Code using your authenticator app to receive the code
+  - Generate the Backup codes and save them somewhere safe 
+ ```
+
+
+### 7.9 Start the app
 
 ```bash
 python manage.py runserver
