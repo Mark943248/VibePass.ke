@@ -220,6 +220,7 @@ def Filter_by_category(request, category):
     return render(request, 'events/list_event.html', {'page_obj':page_obj})
 
 # Event details
+@login_required
 def EventDetails(request, slug):
     """ Display the details of a specific event, including its active ticket types."""
     event = get_object_or_404(Event, slug=slug)

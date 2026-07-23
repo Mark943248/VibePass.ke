@@ -149,14 +149,12 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg,
-          var(--vibe-primary),
-          var(--vibe-gradient-end));
-      border: none;
+      background: transparent;
+      border: 2px solid var(--vibe-danger);
+      color: var(--vibe-danger);
       padding: 8px 24px;
       border-radius: 30px;
       font-weight: 600;
-      color: white;
       cursor: pointer;
       transition: all 0.3s;
       text-decoration: none;
@@ -166,6 +164,8 @@
     .btn-primary:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+      background: var(--vibe-danger);
+      color: white;
     }
 
     .mobile-menu-btn {
