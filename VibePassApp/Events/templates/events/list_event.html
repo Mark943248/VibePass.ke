@@ -1027,9 +1027,11 @@
               {% else %}
               <div class="event-price">{{ Event.price_summary }}</div>
               {% endif %}
+              {% if Event.Event_date >= today or Event.Event_is_active %}
               <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a class="btn-small" href="{% url 'event_details' Event.slug %}">Get Tickets</a>
               </div>
+              {% endif %}
             </div>
           </div>
         </div>

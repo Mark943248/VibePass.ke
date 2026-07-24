@@ -1295,7 +1295,9 @@
                 {% endif %}
                 <div class="event-footer">
                   <div class="event-price">{{ event.price_summary }}</div>
-                  <a href="{% url 'event_details' event.slug %}" class="btn btn-primary">View Details</a>
+                  {% if event.Event_date >= today or event.Event_is_active %}
+                    <a href="{% url 'event_details' event.slug %}" class="btn btn-primary">View Details</a>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -1357,7 +1359,9 @@
                 {% endif %}
                 <div class="event-footer">
                   <div class="event-price">{{ event.price_summary }}</div>
-                  <a href="{% url 'event_details' event.slug %}" class="btn btn-primary">View Details</a>
+                  {% if event.Event_date >= today or event.Event_is_active %}
+                   <a href="{% url 'event_details' event.slug %}" class="btn btn-primary">View Details</a>
+                  {% endif %}
                 </div>
               </div>
             </div>

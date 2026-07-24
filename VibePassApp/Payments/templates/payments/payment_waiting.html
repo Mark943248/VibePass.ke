@@ -706,7 +706,7 @@
       if (viewTicketsBtn) {
         viewTicketsBtn.addEventListener("click", function (e) {
           e.preventDefault();
-          window.location.href = "/{% url 'finders_dashboard' %}/#tickets";
+          window.location.href = "{% url 'finders_dashboard' %}#tickets";
         });
       }
 

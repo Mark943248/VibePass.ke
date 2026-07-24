@@ -52,6 +52,19 @@ def format_phone_number(phone_number):
     else:
         return cleaned
     
+# calculates 10% for the platform
+def calculate_net_earnings(amount):
+    """Calculates the net amount remaining after deducting a platform fee."""
+
+    if amount < 0:
+        raise ValueError("Amount can't be 0!")
+
+    fee_amount = (10.0 / 100) * amount
+    net_amount = amount - fee_amount
+
+    return round(net_amount, 2)
+
+    
 # mpesa stk_push request (C2B - Customer to Business)
 def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
    """Initiate an M-Pesa STK Push request for a customer to pay for an event ticket."""
@@ -121,7 +134,7 @@ def initiate_b2c_request(amount, phone_number):
         "InitiatorName": os.getenv('MPESA_INITIATOR_NAME'),
         "SecurityCredential": generate_mpesa_security_credential(),
         "CommandID": "BusinessPayment",
-        "Amount": int(amount),
+        "Amount": calculate_net_earnings(int(amount)),
         "PartyA": os.getenv('MPESA_B2C_SHORT_CODE'),
         "PartyB": phone_number,
         "Remarks": "remarked",

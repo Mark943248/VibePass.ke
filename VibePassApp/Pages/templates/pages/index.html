@@ -121,7 +121,7 @@
       color: var(--vibe-primary);
     }
 
-    .nav-links.active {
+    .nav-links a.active {
       color: var(--vibe-primary);
     }
 
@@ -1104,8 +1104,10 @@
                 href="{% url 'event_details' recent_event.slug %}">Register</a>
               {% else %}
               <div class="event-price">{{ recent_event.price_summary }}</div>
-              <a style="text-decoration: none;" class="btn-small" href="{% url 'event_details' recent_event.slug %}">Get
-                Tickets</a>
+               {% if recent_event.Event_date >= today or recent_event.Event_is_active %}
+               <a style="text-decoration: none;" class="btn-small" href="{% url 'event_details' recent_event.slug %}">Get
+                 Tickets</a>
+               {% endif %}
               {% endif %}
             </div>
           </div>
