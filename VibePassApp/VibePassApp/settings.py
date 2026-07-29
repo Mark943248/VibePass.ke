@@ -61,6 +61,8 @@ INSTALLED_APPS = [
 
     'axes',
 
+    'admin_honeypot',
+
     'django_otp',
     'django_otp.plugins.otp_totp',
     'django_otp.plugins.otp_static',
@@ -112,6 +114,8 @@ DATABASES = {
         "PASSWORD": os.getenv('DATABASE_PASSWORD'),
         "HOST": os.getenv('DATABASE_HOST'),
         "PORT": os.getenv('DATABASE_PORT'),
+        "CONN_MAX_AGE": 600,  # Persistent DB connections
+        "CONN_HEALTH_CHECKS": True,  # Auto-reconnect if DB connection drops
     }
 }
 
@@ -272,3 +276,57 @@ if 'test' in sys.argv:
 
 CELERY_BROKER_URL=os.getenv('CELERY_BROKER_URL') # Celery Broker URL
 CELERY_RESULT_BACKEND=os.getenv('CELERY_BROKER_URL')
+
+# deployment security settings
+CSRF_COOKIE_SECURE = True # The cookie is marked as “secure”, which the cookie is only sent with an HTTPS connection.
+
+SESSION_COOKIE_SECURE = True # To avoid transmitting the session cookie over HTTP accidentally.
+
+SECURE_SSL_REDIRECT = True # Redirect HTTP traffic to HTTPS
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') # Tells django to trust a specific header from the reverse proxy to determine if an incoming request is secure (HTTPS).
+
+SECURE_BROWSER_XSS_FILTER = True # Forces older web browsers to activate their built-in Cross-Site Scripting (XSS) filters.
+
+SECURE_CONTENT_TYPE_NOSNIFF = True #  Prevents attackers from uploading a malicious script disguised as an image or text file.
+
+# LOGGING CONFIGURATION
+LOGGING = {  # Capturing backend errors to standard output when DEBUG = False
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] {levelname} [{name}:{lineno}] {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",  # Captures INFO, WARNING, ERROR, CRITICAL
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
+
+ADMIN_HONEYPOT_EMAIL_ADMINS = False # Turn off automatic email notifications from  django-admin-honeypot

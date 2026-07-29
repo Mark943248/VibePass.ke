@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
 from django.contrib import admin
 from django.urls import path, include
 from django_otp.admin import OTPAdminSite
@@ -21,9 +22,13 @@ from two_factor.urls import urlpatterns as tf_urls
 
 admin.site.__class__ = OTPAdminSite
 
+ADMIN_URL=os.getenv('ADMIN_URL')
+DECOY_ADMIN=os.getenv('DECOY_ADMIN')
+
 urlpatterns = [
     path('', include(tf_urls)),
-    path('admin/', admin.site.urls),
+    path(DECOY_ADMIN, include('admin_honeypot.urls', namespace='admin_honeypot')),
+    path(ADMIN_URL, admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('', include('Pages.urls')),
     path('users/', include('Users.urls')),
