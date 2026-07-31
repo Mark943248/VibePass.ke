@@ -330,3 +330,17 @@ LOGGING = {  # Capturing backend errors to standard output when DEBUG = False
 }
 
 ADMIN_HONEYPOT_EMAIL_ADMINS = False # Turn off automatic email notifications from  django-admin-honeypot
+
+# Email Backend Configuration for Gmail SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+
+# Authentication credentials
+EMAIL_HOST_PASSWORD=os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER=os.getenv('EMAIL_HOST_USER')
+
+# default email
+DEFAULT_FROM_EMAIL=os.getenv('DEFAULT_EMAIL')
+

@@ -167,6 +167,18 @@ class TicketViewsTest(TestCase):
             2,
         )
 
+    def test_book_free_ticket_shows_email_notification_message(self):
+        self.client.login(username='testuser', password='testpass123')
+        self.client.session['checkout_data'] = {
+            'items': [{'id': self.free_ticket_type.id, 'quantity': 1}],
+            'grand_total': 0.0,
+        }
+        self.client.session.save()
+
+        response = self.client.get(reverse('book_free_ticket', args=[self.free_event.slug]), follow=True)
+
+        self.assertContains(response, 'A copy of your ticket has been sent to your email.')
+
     def test_create_ticket_function(self):
         from .views import create_ticket
 

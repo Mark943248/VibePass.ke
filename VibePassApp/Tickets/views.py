@@ -4,6 +4,7 @@ from io import BytesIO
 import cloudinary.uploader
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from .tasks import send_ticket_qr_code_to_user_task
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib import messages
@@ -102,6 +103,7 @@ def book_free_ticket(request, slug):
     with transaction.atomic():
         try:
             created_ticket = None
+            ticket_email_queued = False
             for item in items:
                 ticket_type_id = item.get('id')
                 if not ticket_type_id:
@@ -130,6 +132,8 @@ def book_free_ticket(request, slug):
 
                     if generate_qr_code(ticket):
                         logger.info(f"QR code generated for free ticket {ticket.ticket_id}")
+                        send_ticket_qr_code_to_user_task.delay(ticket)
+                        ticket_email_queued = True
                     else:
                         logger.warning(f"QR code generation failed for free ticket {ticket.ticket_id}")
 
@@ -139,7 +143,10 @@ def book_free_ticket(request, slug):
                 logger.info(f"Total sold count is: {ticket_type.sold_count}")
 
             if created_ticket is not None:
-                messages.success(request, 'Ticket booked successfully!')
+                if ticket_email_queued:
+                    messages.success(request, 'Ticket booked successfully! A copy of your ticket has been sent to your email.')
+                else:
+                    messages.success(request, 'Ticket booked successfully!')
                 return redirect('finders_dashboard')
 
             messages.warning(request, 'No tickets were created.')
@@ -196,6 +203,13 @@ def create_ticket(request=None, payment_id=None):
                             # Generate QR code for the ticket
                             if generate_qr_code(ticket):
                                 logger.info(f"Ticket {ticket.ticket_id} created and QR code generated for payment {payment_id}")
+                                send_ticket_qr_code_to_user_task.delay(ticket)
+                                if request is not None:
+                                    messages.success(request, 'Ticket purchased! A copy of your ticket has been sent to your email.')
+                                return JsonResponse({
+                                    'status': 'success',
+                                    'message': 'Ticket purchased! A copy of your ticket has been sent to your email.'
+                                })
                             else:
                                 logger.error(f"Ticket {ticket.ticket_id} created but QR code generation failed")
 
