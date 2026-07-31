@@ -203,18 +203,12 @@ def create_ticket(request=None, payment_id=None):
                             # Generate QR code for the ticket
                             if generate_qr_code(ticket):
                                 logger.info(f"Ticket {ticket.ticket_id} created and QR code generated for payment {payment_id}")
-                                send_ticket_qr_code_to_user_task.delay(ticket)
-                                if request is not None:
-                                    messages.success(request, 'Ticket purchased! A copy of your ticket has been sent to your email.')
-                                return JsonResponse({
-                                    'status': 'success',
-                                    'message': 'Ticket purchased! A copy of your ticket has been sent to your email.'
-                                })
+                                send_ticket_qr_code_to_user_task.delay(ticket.ticket_id)
+                                created_tickets.append(ticket)
                             else:
                                 logger.error(f"Ticket {ticket.ticket_id} created but QR code generation failed")
 
-                            created_tickets.append(ticket)
-
+                            
                         ticket_type.sold_count = F('sold_count') + quantity
                         ticket_type.save()
                         logger.info(f"Updated stock for TicketType ID {ticket_type_id}: +{quantity} sold.")
@@ -223,6 +217,10 @@ def create_ticket(request=None, payment_id=None):
                 if created_tickets:
                     ticket_type.refresh_from_db()
                     logger.info(f"Total sold count is now: {ticket_type.sold_count}")
+                    return JsonResponse({
+                      'status': 'success',
+                      'message': 'Ticket purchased! A copy of your ticket has been sent to your email.'
+                    })
 
             except DatabaseError as e:
                 messages.warning(request, "The system is currently busy, please again try later!")

@@ -1,17 +1,20 @@
 import logging
 import urllib.request
+import cloudinary.utils
 from celery import shared_task
+from django.shortcuts import get_object_or_404
+from .models import Ticket
 from django.core.mail import EmailMultiAlternatives
 
 logger = logging.getLogger(__name__)
 
 @shared_task(max_retries=3, default_retry_delay=60)
-def send_ticket_qr_code_to_user_task(ticket):
+def send_ticket_qr_code_to_user_task(ticket_id):
     """
     Fetches the QR code image from Cloudinary via URL, 
     attaches it to the email, and sends it asynchronously to the ticket buyer.
     """
-
+    ticket = get_object_or_404(Ticket, ticket_id=ticket_id)
     subject = f"Event Ticket For {ticket.event.Event_title}"
     recipient_list = [ticket.user.email]
     from_email = None
@@ -26,14 +29,23 @@ def send_ticket_qr_code_to_user_task(ticket):
     )
 
     msg = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
+    public_id = ticket.ticket_qr_image
+    logger.info(f"Public_id is {public_id}")
+    if public_id:
+        image_url, _ = cloudinary.utils.cloudinary_url(
+            public_id,
+            secure=True,
+            format="png"  # force format extension if needed
+        )
 
-    cloudinary_url = ticket.ticket_qr_image
+    logger.info(f"Image url is: {image_url}")
 
-    if cloudinary_url:
+
+    if image_url:
         try:
             # Download the raw image bytes from Cloudinary in memory
             req = urllib.request.Request(
-                cloudinary_url, 
+                image_url, 
                 headers={'User-Agent': 'Mozilla/5.0'}  # Avoid potential CDN blocks
             )
             with urllib.request.urlopen(req) as response:
