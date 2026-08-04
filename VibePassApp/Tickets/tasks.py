@@ -32,7 +32,7 @@ def send_ticket_qr_code_to_user_task(ticket_id):
     public_id = ticket.ticket_qr_image
     logger.info(f"Public_id is {public_id}")
     if public_id:
-        image_url, _ = cloudinary.utils.cloudinary_url(
+        image_url = cloudinary.utils.cloudinary_url(
             public_id,
             secure=True,
             format="png"  # force format extension if needed

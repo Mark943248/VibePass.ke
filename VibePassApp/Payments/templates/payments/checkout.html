@@ -1086,10 +1086,11 @@
             }
         });
 
-        document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+        document.getElementById('checkoutForm').addEventListener('submit', () => {
             const btn = document.getElementById('payNowBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...'
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+            }
         })
 
         

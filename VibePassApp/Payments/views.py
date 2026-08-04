@@ -24,14 +24,20 @@ def initiate_payment(request, slug):
    Retrieves the checkout data from the session, validates the event and user input,
    and initiates the M-PESA STK push for payment.
    """
+   checkout_data = request.session.get('checkout_data') or {}
    try:
-     checkout_data=request.session.get('checkout_data')
      print(f"Checkoutdat: {checkout_data}")
      event = get_object_or_404(Event, slug=slug)
-     amount = checkout_data['grand_total']
-     checkout_items = checkout_data['items']
+     amount = checkout_data.get('grand_total', 0)
+     checkout_items = checkout_data.get('items', [])
    except Exception as e:
      print(f"Error occured: {e}")
+     messages.error(request, 'Unable to load checkout details. Please try again.')
+     return redirect('event_details', slug=slug)
+
+   if not checkout_items:
+     messages.error(request, 'Your cart is empty. Please select tickets before continuing.')
+     return redirect('event_details', slug=slug)
    
    if request.method == 'POST':
         phone_number = request.POST.get('phone_number', '').strip()
@@ -96,6 +102,7 @@ def initiate_payment(request, slug):
                 payment.checkout_request_id = response.get('CheckoutRequestID')
                 payment.save()
                 print(f'MPESA STK Push initiated successfully for payment ID {payment.payment_id}')
+                logger.info('Rendering payment waiting page for payment %s', payment.payment_id)
                 return render(request, 'payments/payment_waiting.html', {'event': event, 'payment': payment})
             else:
                 payment.payment_status = 'Failed'
