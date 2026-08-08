@@ -1,5 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .tasks import process_mpesa_stk_callbacks, process_mpesa_b2c_callbacks
+from .tasks import (
+    process_mpesa_stk_callbacks,
+    process_mpesa_b2c_callbacks,
+    initiate_mpesa_stk_push_task,
+)
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from Events.models import Event, TicketType
@@ -8,7 +12,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
 from django.conf import settings
-from .utils import mpesa_stk_push, format_phone_number, initiate_b2c_request
+from .utils import format_phone_number, initiate_b2c_request
 from .models import Payment, Withdrawal
 import json
 import os
@@ -93,23 +97,14 @@ def initiate_payment(request, slug):
           
         # initiate mpesa stk push
           try:
-            response = mpesa_stk_push(formatted_phone, amount, event.Event_title, payment.payment_id)
-            stk_json_path = os.path.join(settings.BASE_DIR, 'mpesa_logs', 'stk.json')
-            with open(stk_json_path, 'w') as f:
-                json.dump(response, f, indent=4)
-            # handle the response from mpesa
-            if response.get('ResponseCode') == '0':
-                payment.checkout_request_id = response.get('CheckoutRequestID')
-                payment.save()
-                print(f'MPESA STK Push initiated successfully for payment ID {payment.payment_id}')
-                logger.info('Rendering payment waiting page for payment %s', payment.payment_id)
-                return render(request, 'payments/payment_waiting.html', {'event': event, 'payment': payment})
-            else:
-                payment.payment_status = 'Failed'
-                payment.save()
-                error_msg = response.get('ResultDesc', 'Payment initiation failed. Please try again.')
-                print(f'MPESA STK Push failed for payment ID {payment.payment_id}: {error_msg} {response}')
-                return redirect('event_details', slug=event.slug)
+            data = {
+                "formatted_phone": formatted_phone,
+                "amount": amount,
+                "Event_id": event.id,
+                "Payment_id": payment.payment_id
+            }
+            initiate_mpesa_stk_push_task.delay(data)
+            return redirect('payment_waiting', payment_id=payment.payment_id) 
           except Exception as e:
             print(f'Error initiating payment: {str(e)}')
             return redirect('event_details', slug=event.slug)
@@ -306,5 +301,16 @@ def checkout(request, slug):
 
 
     return render(request, 'payments/checkout.html', context)
+
+
+def payment_waiting(request, payment_id):
+    """ Render the payment waiting page for a specific payment.
+    This view retrieves the payment record based on the provided payment ID and displays the waiting page while the payment is being processed.
+    """
+    payment = get_object_or_404(Payment, payment_id=payment_id)
+    context = {
+        'payment': payment
+    }
+    return render(request, 'payments/payment_waiting.html', context)
 
 

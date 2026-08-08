@@ -2,13 +2,19 @@ import base64
 import json
 import os
 import requests
+import logging
 import uuid
 from datetime import datetime
 from pathlib import Path
 from decouple import config
+from .models import Payment, Withdrawal
+from django.db.models import Sum
+from decimal import Decimal
 from django.conf import settings
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
+
+logger = logging.getLogger(__name__)
 
 
 # generate timestamp for mpesa
@@ -51,7 +57,24 @@ def format_phone_number(phone_number):
         return cleaned[1:]
     else:
         return cleaned
-    
+
+def calculate_user_account_balance(user):
+    """Calculate the organizer's current withdrawable balance from completed payments minus completed withdrawals."""
+    total_revenue = Payment.objects.filter(
+        event__Event_organiser=user,
+        payment_status='Completed'
+    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+
+    total_withdrawn = Withdrawal.objects.filter(
+        organiser=user,
+        status='completed'
+    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+
+    balance = total_revenue - total_withdrawn
+    user.account_balance = balance
+    user.save(update_fields=['account_balance'])
+    return balance
+
 # calculates 10% for the platform
 def calculate_net_earnings(amount):
     """Calculates the net amount remaining after deducting a platform fee."""
@@ -65,43 +88,6 @@ def calculate_net_earnings(amount):
     return round(net_amount, 2)
 
     
-# mpesa stk_push request (C2B - Customer to Business)
-def mpesa_stk_push(phone_number, amount, Event_title, payment_id):
-   """Initiate an M-Pesa STK Push request for a customer to pay for an event ticket."""
-   # Format phone number to international format
-   formatted_phone = format_phone_number(phone_number)
-   access_token = generate_access_token()
-   if not access_token:
-         raise Exception('Failed to obtain access token')
-   timestamp = generate_timestamp()
-   short_code = os.getenv('MPESA_SHORT_CODE')
-   passkey = os.getenv('MPESA_PASSKEY')
-   data_to_encode = f"{short_code}{passkey}{timestamp}"
-   # password for mpesa is a base64 encoded string of the short code, passkey and timestamp
-   online_password = base64.b64encode(data_to_encode.encode()).decode()
-   callback_base = config('MPESA_CALLBACK_URL')
-   callback_url = callback_base.rstrip('/')
-   if not callback_url.endswith('/payments/mpesa_callback'):
-       callback_url = f"{callback_url}/payments/mpesa_callback"
-
-   payload = {
-       "BusinessShortCode": short_code,
-       "Password": online_password,
-       "Timestamp": timestamp,
-       "TransactionType": "CustomerPayBillOnline",
-       "Amount": int(amount),
-       "PartyA": formatted_phone,
-       "PartyB": short_code,
-       "PhoneNumber": formatted_phone,
-       "CallBackURL": callback_url,
-       "AccountReference": f"Purchase of {Event_title} ticket - {payment_id}",
-       "TransactionDesc": "Event Ticket Purchase"
-   }
-   headers = {"Authorization": f"Bearer {access_token}"}
-   stk_push_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
-   response = requests.post(stk_push_url, json=payload, headers=headers)
-    
-   return response.json()
 
 # mpesa security credential generation
 def generate_mpesa_security_credential():
@@ -142,6 +128,9 @@ def initiate_b2c_request(amount, phone_number):
         "ResultURL": result_url,
         "Occassion": "VibePass Organizer Withdrawal"
     }
+    try: 
+       response = requests.post(api_url, json=request_data, headers=headers, timeout=10)
+    except TimeoutError:
+       logger.warning("Timeout error in b2c callback")
 
-    response = requests.post(api_url, json=request_data, headers=headers)
     return response.json()

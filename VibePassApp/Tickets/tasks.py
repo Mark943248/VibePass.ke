@@ -29,18 +29,9 @@ def send_ticket_qr_code_to_user_task(ticket_id):
     )
 
     msg = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
-    public_id = ticket.ticket_qr_image
-    logger.info(f"Public_id is {public_id}")
-    if public_id:
-        image_url = cloudinary.utils.cloudinary_url(
-            public_id,
-            secure=True,
-            format="png"  # force format extension if needed
-        )
 
-    logger.info(f"Image url is: {image_url}")
-
-
+    image_url = ticket.ticket_qr_image.url
+    
     if image_url:
         try:
             # Download the raw image bytes from Cloudinary in memory

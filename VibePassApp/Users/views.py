@@ -3,7 +3,8 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from Payments.models import Withdrawal, calculate_user_account_balance
+from Payments.models import Withdrawal
+from Payments.utils import calculate_user_account_balance
 from Events.models import Event
 from Tickets.models import Ticket
 from django.db.models import Sum
@@ -143,9 +144,11 @@ def EventOrganizersDashboard(request):
 # change users details
 @login_required
 def ChangeUsersDetails(request):
-    """ Update the logged-in user's username and email address.
+    """ 
+    Update the logged-in user's username and email address.
     This view handles POST requests to update the user's profile information. It checks for empty fields,
-    validates the uniqueness of the username, and saves the changes to the database."""
+    validates the uniqueness of the username, and saves the changes to the database.
+    """
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -167,6 +170,5 @@ def ChangeUsersDetails(request):
                 messages.error(request, f'An error occurred while updating your profile')
                 print(f'Error updating user profile: {e}')
     return redirect('finders_dashboard')
-
     
 
