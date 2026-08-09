@@ -64,13 +64,14 @@ def CreateEvent(request, slug=None):
         capacity = data.getlist('ticket_capacity[]')
         description = data.getlist('ticket_description[]')
         ticket_ids = data.getlist('ticket_id[]')
+        group_size = data.getlist('ticket_group_size[]')
 
         print(f"{ticket_ids}")
         print(f"{name}")
         print(f"{price}")
         print(f"{capacity}")
         print(f"{description}")
-        
+        print(f"{group_size}")
 
 
         try:
@@ -104,6 +105,7 @@ def CreateEvent(request, slug=None):
                     price_val = price[idx] if idx < len(price) else "0"
                     capacity_val = capacity[idx] if idx < len(capacity) else 0
                     desc_val = description[idx] if idx < len(description) else ""
+                    group_size_val = group_size[idx] if idx < len(group_size) else 0
                     ticket_id = ticket_ids[idx] if idx < len(ticket_ids) and ticket_ids[idx] else None
                     
                     # Clean price value
@@ -120,6 +122,7 @@ def CreateEvent(request, slug=None):
                             ticket_type.price = clean_price 
                             ticket_type.capacity = capacity_val
                             ticket_type.description = desc_val
+                            ticket_type.group_size = group_size_val
                             ticket_type.save()
                             print("Ticket types updated succesfully")
                             updated_ticket_ids.add(int(ticket_id))
@@ -132,7 +135,8 @@ def CreateEvent(request, slug=None):
                                 name=name_val,
                                 price=clean_price,
                                 capacity=capacity_val,
-                                description=desc_val
+                                description=desc_val,
+                                group_size=group_size_val
                             )
                             updated_ticket_ids.add(new_ticket.id)
                     else:
@@ -142,7 +146,8 @@ def CreateEvent(request, slug=None):
                             name=name_val,
                             price=clean_price,
                             capacity=capacity_val,
-                            description=desc_val
+                            description=desc_val,
+                            group_size=group_size_val
                         )
                         print(f"New ticket: {new_ticket}")
                         updated_ticket_ids.add(new_ticket.id)

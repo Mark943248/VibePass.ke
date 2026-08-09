@@ -71,6 +71,74 @@ def initiate_mpesa_stk_push_task(data):
       logger.error("Error sending mpesa stk push", exc_info=exc)
 
 
+@shared_task(
+        bind=True,
+        autoretry_for=(requests.exceptions.RequestException, requests.exceptions.Timeout),
+        retry_backoff=5,
+        max_retries=3,
+)
+def check_payment_status_task(self, payment_id):
+    try:
+        payment = Payment.objects.get(payment_id=payment_id)
+    except Payment.DoesNotExist:
+        logger.error(f"Payment not found with payment_id: {payment_id}")
+        return None
+
+    if payment.payment_status != 'Pending':
+        logger.info(f"Payment status for payment_id {payment_id} is already {payment.payment_status}. No action needed.")
+        return None
+
+    timestamp = generate_timestamp()
+    short_code = os.getenv('MPESA_SHORT_CODE')
+    passkey = os.getenv('MPESA_PASSKEY')
+    password = base64.b64encode(f"{short_code}{passkey}{timestamp}".encode()).decode()
+    access_token = generate_access_token()
+
+    payload = {
+        "BusinessShortCode": short_code,
+        "Password": password,
+        "Timestamp": timestamp,
+        "CheckoutRequestID": payment.checkout_request_id
+    }
+
+    url = 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query'
+
+    try:
+        response = requests.post(
+            url,
+            json=payload,
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=(5, 40)  # (connect timeout, read timeout)
+        )
+        response.raise_for_status()
+        data = response.json()
+        result_code = data.get('ResultCode')
+        if int(result_code) == 0:
+            payment.payment_status = 'Completed'
+            items = data.get('CallbackMetadata', {}).get('Item', [])
+            receipt_number = None
+            for item in items:
+                if item.get('Name') == 'MpesaReceiptNumber':
+                    receipt_number = item.get('Value')
+                    break
+            if receipt_number:
+                payment.mpesa_receipt_number = receipt_number
+            payment.save()
+            logger.info(f"Payment successful for payment_id: {payment.payment_id}")
+            payment_successful.send(sender=Payment, payment=payment)
+            send_payment_status_update(payment)
+        else:
+            payment.payment_status = 'Failed'
+            payment.save()
+            logger.info(
+                f'Payment failed for payment ID {payment.payment_id} (Result Code: {result_code}): {data.get("ResultDesc", "Unknown error")}'
+            )
+            send_payment_status_update(payment)
+    except requests.exceptions.Timeout as exc:
+        logger.warning("Timeout error from mpesa stk query!", exc_info=exc)
+
+
+
 @shared_task()
 def process_mpesa_stk_callbacks(data):
     """

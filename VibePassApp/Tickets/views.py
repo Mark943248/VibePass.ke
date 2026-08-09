@@ -2,6 +2,9 @@ import qrcode
 import json
 from io import BytesIO
 import cloudinary.uploader
+from qrcode.image.styledpil import StyledPilImage
+from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
+from qrcode.image.styles.colormasks import RadialGradiantColorMask
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .tasks import send_ticket_qr_code_to_user_task
@@ -50,11 +53,24 @@ def _get_checkout_items(checkout_data):
 def generate_qr_code(ticket):
     """Generate and upload QR code image for ticket"""
     try:
-        qr = qrcode.QRCode(version=1, box_size=10, border=4)
+        qr = qrcode.QRCode(
+            version=1, 
+            error_correction=qrcode.constants.ERROR_CORRECT_H, 
+            box_size=10, 
+            border=4
+        )
         qr.add_data(f"TICKET-ID: {ticket.ticket_id}")
         qr.make(fit=True)
         
-        img = qr.make_image(fill_color="black", back_color="white")
+        img = qr.make_image(
+            image_factory=StyledPilImage,
+            module_drawer=RoundedModuleDrawer(),
+            color_mask=RadialGradiantColorMask(
+                back_color=(255, 255, 255),
+                center_color=(255, 107, 53),   
+                edge_color=(0, 201, 167)
+            )
+        )
         buffer = BytesIO()
         img.save(buffer, format="PNG")
         buffer.seek(0)
@@ -119,7 +135,7 @@ def book_free_ticket(request, slug):
                 if quantity <= 0:
                     continue
 
-                for _ in range(quantity):
+                for _ in range(ticket_type.group_size * quantity):
                     ticket = Ticket.objects.create(
                         event=event,
                         ticket_type=ticket_type,
@@ -190,7 +206,7 @@ def create_ticket(request=None, payment_id=None):
 
                     # GUARD: Only process if the user actually requested 1 or more of this ticket type
                     if quantity > 0:
-                        for _ in range(quantity):
+                        for _ in range(ticket_type.group_size * quantity):
                             ticket = Ticket.objects.create(
                                 payment=payment,
                                 ticket_type=ticket_type,
@@ -203,7 +219,6 @@ def create_ticket(request=None, payment_id=None):
                             # Generate QR code for the ticket
                             if generate_qr_code(ticket):
                                 logger.info(f"Ticket {ticket.ticket_id} created and QR code generated for payment {payment_id}")
-                                send_ticket_qr_code_to_user_task.delay(ticket.ticket_id)
                                 created_tickets.append(ticket)
                             else:
                                 logger.error(f"Ticket {ticket.ticket_id} created but QR code generation failed")
@@ -216,6 +231,10 @@ def create_ticket(request=None, payment_id=None):
                 # Refresh stock objects if you need to accurately log values after using F() expressions
                 if created_tickets:
                     ticket_type.refresh_from_db()
+                    for ticket in created_tickets:
+                        transaction.on_commit(
+                            lambda tid = ticket.ticket_id: send_ticket_qr_code_to_user_task.delay(tid)
+                        )
                     logger.info(f"Total sold count is now: {ticket_type.sold_count}")
                     return JsonResponse({
                       'status': 'success',

@@ -792,7 +792,8 @@
               <div style="display: none;" data-ticket-id="{{ ticket_type.id }}"
                 data-ticket-name="{{ ticket_type.name }}" data-ticket-price="{{ ticket_type.price }}"
                 data-ticket-capacity="{{ ticket_type.capacity }}"
-                data-ticket-description="{{ ticket_type.description }}">
+                data-ticket-description="{{ ticket_type.description }}"
+                data-ticket-group-size="{{ ticket_type.group_size }}">
               </div>
               {% endfor %}
 
@@ -948,7 +949,11 @@
               <input type="number" name="ticket_capacity[]" class="ticket-capacity-input" placeholder="Number of tickets" min="1" value="${ticketData ? ticketData.capacity : 100}" required>
             </div>
             <div class="ticket-field">
-              <label>Description (Optional)</label>
+              <label>Group Size (Optional) </label>
+              <input type="number" name="ticket_group_size[]" class="ticket-group-size-input" placeholder="Number of tickets per group" min="1" value="${ticketData ? ticketData.group_size : 1}">
+            </div>
+            <div class="ticket-field">
+              <label>Description </label>
               <textarea name="ticket_description[]" class="ticket-desc-input" rows="2" placeholder="e.g., Includes free drink, early entry, etc.">${ticketData ? ticketData.description : ''}</textarea>
             </div>
           </div>
@@ -1135,6 +1140,7 @@
             price: parseFloat(ticketElement.dataset.ticketPrice) || 0,
             capacity: parseInt(ticketElement.dataset.ticketCapacity) || 100,
             description: ticketElement.dataset.ticketDescription || "",
+            group_size: parseInt(ticketElement.dataset.ticketGroupSize) || 1,
           };
           console.log(`id: ${ticketData.id} - name: ${ticketData.name}`)
           const newTicket = createTicketElement(index + 1, ticketData);
@@ -1148,6 +1154,7 @@
           price: freeCheckbox.checked ? 0 : 500,
           capacity: 100,
           description: "Standard entry ticket",
+          group_size: 1
         });
         ticketsContainer.appendChild(defaultTicket);
       }

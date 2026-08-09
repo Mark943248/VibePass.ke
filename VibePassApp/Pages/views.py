@@ -32,7 +32,11 @@ def ContactPage(request):
 # about page
 def AboutPage(request):
     """ Render the about page. """
-    return render(request, 'pages/about.html')
+    user = request.user if request.user.is_authenticated else None
+    context = {
+        'user': user
+    }
+    return render(request, 'pages/about.html', context)
 
 # FAQS page
 def faqsPage(request):

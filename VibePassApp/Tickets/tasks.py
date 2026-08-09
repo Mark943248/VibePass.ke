@@ -2,7 +2,6 @@ import logging
 import urllib.request
 import cloudinary.utils
 from celery import shared_task
-from django.shortcuts import get_object_or_404
 from .models import Ticket
 from django.core.mail import EmailMultiAlternatives
 
@@ -14,7 +13,7 @@ def send_ticket_qr_code_to_user_task(ticket_id):
     Fetches the QR code image from Cloudinary via URL, 
     attaches it to the email, and sends it asynchronously to the ticket buyer.
     """
-    ticket = get_object_or_404(Ticket, ticket_id=ticket_id)
+    ticket = Ticket.objects.select_related('user', 'event').get(ticket_id=ticket_id)
     subject = f"Event Ticket For {ticket.event.Event_title}"
     recipient_list = [ticket.user.email]
     from_email = None

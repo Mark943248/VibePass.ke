@@ -587,38 +587,40 @@
         const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
         const wsUrl = `${protocol}//${window.location.host}/ws/payments/${paymentId}/`;
 
-        websocket = new WebSocket(wsUrl);
+        setTimeout(() => {
+           websocket = new WebSocket(wsUrl);
 
-        websocket.onopen = function (event) {
-          console.log("WebSocket connected");
-          reconnectAttempts = 0;
-        };
+           websocket.onopen = function (event) {
+             console.log("WebSocket connected");
+             reconnectAttempts = 0;
+          };
 
-        websocket.onmessage = function (event) {
-          const data = JSON.parse(event.data);
-          console.log("WebSocket message received:", data);
+          websocket.onmessage = function (event) {
+             const data = JSON.parse(event.data);
+             console.log("WebSocket message received:", data);
 
-          if (data.type === "status_update") {
-            updatePaymentStatus(data);
-          }
-        };
+             if (data.type === "status_update") {
+               updatePaymentStatus(data);
+             }
+          };
 
-        websocket.onclose = function (event) {
-          console.log("WebSocket disconnected");
-          if (!finalStatusShown && reconnectAttempts < maxReconnectAttempts) {
-            reconnectAttempts++;
-            console.log(
-              `Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})...`,
-            );
-            setTimeout(connectWebSocket, 2000);
-          }
-        };
+          websocket.onclose = function (event) {
+             console.log("WebSocket disconnected");
+             if (!finalStatusShown && reconnectAttempts < maxReconnectAttempts) {
+               reconnectAttempts++;
+               console.log(
+                 `Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})...`,
+               );
+               setTimeout(connectWebSocket, 2000);
+             }
+          };
 
-        websocket.onerror = function (error) {
-          console.error("WebSocket error:", error);
-        };
+          websocket.onerror = function (error) {
+             console.error("WebSocket error:", error);
+          };
+        }, 1000); // Delay connection by 1 second to avoid rapid reconnects
+
       }
-
       // Function to update payment status
       function updatePaymentStatus(data) {
         const messageElement = document.getElementById("paymentMessage");

@@ -3,6 +3,7 @@ from .tasks import (
     process_mpesa_stk_callbacks,
     process_mpesa_b2c_callbacks,
     initiate_mpesa_stk_push_task,
+    check_payment_status_task,
 )
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
@@ -104,6 +105,7 @@ def initiate_payment(request, slug):
                 "Payment_id": payment.payment_id
             }
             initiate_mpesa_stk_push_task.delay(data)
+            check_payment_status_task.apply_async((payment.payment_id,), countdown=50)  # Check after 50 seconds
             return redirect('payment_waiting', payment_id=payment.payment_id) 
           except Exception as e:
             print(f'Error initiating payment: {str(e)}')

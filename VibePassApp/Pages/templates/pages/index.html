@@ -178,26 +178,55 @@
       padding: 5px;
     }
 
-    /* Hero Section */
+    /* ============================================
+       HERO SECTION - WITH BACKGROUND IMAGE
+       ============================================ */
     .hero {
-      padding: clamp(40px, 8vw, 80px) 0;
-      background: linear-gradient(135deg, var(--vibe-dark) 0%, #2D2D3A 100%);
+      padding: clamp(60px, 10vw, 120px) 0;
       position: relative;
       overflow: hidden;
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
     }
 
-    .hero::before {
+    /* Background Image with Overlay */
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHBhcnR5fGVufDB8fDB8fHww');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .hero-bg::before {
       content: '';
       position: absolute;
       top: 0;
-      right: 0;
-      width: 50%;
+      left: 0;
+      width: 100%;
       height: 100%;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="%23FF6B3520" d="M100 0L120 40L160 50L130 80L140 120L100 100L60 120L70 80L40 50L80 40L100 0Z"/></svg>') repeat;
-      opacity: 0.1;
+      background: linear-gradient(135deg, rgba(26, 26, 46, 0.92) 0%, rgba(255, 107, 53, 0.75) 100%);
+    }
+
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="150" cy="50" r="80" fill="%23FF6B3520"/><circle cx="50" cy="150" r="100" fill="%23FF8C4220"/><circle cx="180" cy="180" r="60" fill="%23FF6B3520"/></svg>') repeat;
+      opacity: 0.4;
     }
 
     .hero-container {
+      position: relative;
+      z-index: 2;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 50px;
@@ -205,105 +234,157 @@
     }
 
     .hero-content h1 {
-      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-size: clamp(2.5rem, 7vw, 4.5rem);
       font-weight: 800;
-      line-height: 1.2;
+      line-height: 1.1;
       margin-bottom: 20px;
-      background: linear-gradient(135deg, #FFFFFF, var(--vibe-primary));
+      color: white;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-content h1 span {
+      background: linear-gradient(135deg, var(--vibe-accent), var(--vibe-primary));
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
     }
 
     .hero-content p {
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
-      color: rgba(255, 255, 255, 0.8);
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      color: rgba(255, 255, 255, 0.9);
       margin-bottom: 30px;
-      max-width: 500px;
+      max-width: 550px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .hero-buttons .btn-primary {
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
+      padding: 16px 36px;
+      font-size: 1.1rem;
+      box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
+    }
+
+    .hero-buttons .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(255, 107, 53, 0.5);
+    }
+
+    .hero-buttons .btn-outline-light {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 16px 36px;
+      font-size: 1.1rem;
+    }
+
+    .hero-buttons .btn-outline-light:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px);
     }
 
     .hero-stats {
       display: flex;
-      gap: 30px;
-      margin-top: 30px;
+      gap: 40px;
+      margin-top: 40px;
       flex-wrap: wrap;
     }
 
     .stat-item {
-      text-align: center;
+      text-align: left;
     }
 
     .stat-number {
-      font-size: 1.8rem;
+      font-size: 2.2rem;
       font-weight: 800;
-      color: var(--vibe-primary);
+      color: var(--vibe-accent);
+      display: block;
     }
 
     .stat-label {
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.8);
     }
 
     .hero-image {
-      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .hero-image img {
       width: 100%;
-      max-width: 400px;
+      max-width: 450px;
       border-radius: 30px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-      margin: 0 auto;
-      display: block;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Floating Elements */
     .floating-card {
       position: absolute;
-      background: white;
-      padding: 10px 18px;
-      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 12px 22px;
+      border-radius: 50px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      gap: 12px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
       animation: float 3s ease-in-out infinite;
     }
 
     .floating-1 {
-      top: 20%;
-      left: -20px;
+      top: 30%;
+      right: 30px;
     }
 
     .floating-2 {
-      bottom: 20%;
-      right: -20px;
+      bottom: 25%;
+      left: 50%;
       animation-delay: 1.5s;
     }
 
-    @keyframes float {
+    .floating-card i {
+      font-size: 1.4rem;
+      color: var(--vibe-primary);
+    }
 
+    .floating-card span {
+      font-weight: 600;
+      color: var(--vibe-dark);
+      font-size: 0.9rem;
+    }
+
+    @keyframes float {
       0%,
       100% {
-        transform: translateY(0);
+        transform: translateY(0) rotate(0deg);
       }
-
       50% {
-        transform: translateY(-10px);
+        transform: translateY(-15px) rotate(2deg);
       }
     }
 
-    /* Purpose Section */
+    /* ============================================
+       PURPOSE SECTION
+       ============================================ */
     .purpose {
-      padding: clamp(50px, 8vw, 80px) 0;
+      padding: clamp(60px, 8vw, 100px) 0;
       text-align: center;
+      background: white;
     }
 
     .section-badge {
       display: inline-block;
       background: rgba(255, 107, 53, 0.1);
       color: var(--vibe-primary);
-      padding: 6px 16px;
+      padding: 8px 20px;
       border-radius: 30px;
       font-size: 0.85rem;
       font-weight: 600;
@@ -311,7 +392,7 @@
     }
 
     .section-title {
-      font-size: clamp(1.8rem, 5vw, 2.5rem);
+      font-size: clamp(2rem, 5vw, 2.8rem);
       font-weight: 700;
       color: var(--vibe-dark);
       margin-bottom: 20px;
@@ -332,49 +413,53 @@
     }
 
     .feature-card {
-      background: white;
+      background: var(--vibe-light);
       padding: 40px 25px;
       border-radius: 20px;
       text-align: center;
       transition: all 0.3s;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 107, 53, 0.05);
     }
 
     .feature-card:hover {
       transform: translateY(-10px);
-      box-shadow: 0 15px 35px rgba(255, 107, 53, 0.15);
+      box-shadow: 0 20px 40px rgba(255, 107, 53, 0.12);
+      border-color: var(--vibe-primary);
     }
 
     .feature-icon {
-      width: 70px;
-      height: 70px;
+      width: 80px;
+      height: 80px;
       background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
-      border-radius: 20px;
+      border-radius: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 20px;
+      margin: 0 auto 25px;
     }
 
     .feature-icon i {
-      font-size: 2rem;
+      font-size: 2.2rem;
       color: white;
     }
 
     .feature-card h3 {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       margin-bottom: 15px;
       color: var(--vibe-dark);
     }
 
     .feature-card p {
       color: var(--vibe-text-light);
-      line-height: 1.6;
+      line-height: 1.7;
+      font-size: 0.95rem;
     }
 
-    /* Events Section */
+    /* ============================================
+       EVENTS SECTION
+       ============================================ */
     .events-section {
-      padding: clamp(40px, 6vw, 60px) 0;
+      padding: clamp(60px, 8vw, 80px) 0;
       background: var(--vibe-light);
     }
 
@@ -394,6 +479,11 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 1rem;
+    }
+
+    .view-all:hover {
+      gap: 12px;
     }
 
     .events-grid {
@@ -406,17 +496,17 @@
       background: white;
       border-radius: 20px;
       overflow: hidden;
-      transition: all 0.3s;
+      transition: all 0.4s;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
     }
 
     .event-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(255, 107, 53, 0.15);
+      transform: translateY(-10px);
+      box-shadow: 0 25px 50px rgba(255, 107, 53, 0.15);
     }
 
     .event-image {
-      height: 200px;
+      height: 220px;
       position: relative;
       overflow: hidden;
     }
@@ -425,11 +515,11 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.5s;
+      transition: transform 0.6s;
     }
 
     .event-card:hover .event-image img {
-      transform: scale(1.05);
+      transform: scale(1.08);
     }
 
     .event-category {
@@ -438,8 +528,8 @@
       left: 15px;
       background: var(--vibe-primary);
       color: white;
-      padding: 5px 15px;
-      border-radius: 20px;
+      padding: 6px 16px;
+      border-radius: 30px;
       font-size: 0.75rem;
       font-weight: 600;
     }
@@ -457,11 +547,6 @@
       color: var(--vibe-secondary);
     }
 
-    .status-draft {
-      background: rgba(255, 193, 7, 0.1);
-      color: var(--vibe-warning);
-    }
-
     .status-ended {
       background: rgba(255, 71, 87, 0.1);
       color: var(--vibe-danger);
@@ -471,16 +556,17 @@
       position: absolute;
       bottom: 15px;
       right: 15px;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
       color: white;
-      padding: 5px 12px;
-      border-radius: 10px;
+      padding: 6px 14px;
+      border-radius: 12px;
       font-size: 0.8rem;
       font-weight: 600;
     }
 
     .event-content {
-      padding: 20px;
+      padding: 24px;
     }
 
     .event-title {
@@ -506,6 +592,8 @@
       margin-top: 15px;
       padding-top: 15px;
       border-top: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .event-price {
@@ -517,19 +605,18 @@
     .free-badge {
       background: var(--vibe-success);
       color: white;
-      padding: 4px 12px;
+      padding: 4px 14px;
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: 600;
-      width: 20%;
     }
 
     .btn-small {
       background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
       color: white;
       border: none;
-      padding: 8px 20px;
-      border-radius: 25px;
+      padding: 8px 22px;
+      border-radius: 30px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s;
@@ -539,11 +626,24 @@
     }
 
     .btn-small:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
     }
 
-    /* Logout btn */
+    .btn-small.outline {
+      background: transparent;
+      border: 2px solid var(--vibe-primary);
+      color: var(--vibe-primary);
+    }
+
+    .btn-small.outline:hover {
+      background: var(--vibe-primary);
+      color: white;
+    }
+
+    /* ============================================
+       LOGOUT BUTTON
+       ============================================ */
     .logout-btn {
       background: transparent;
       border: 2px solid var(--vibe-danger);
@@ -565,35 +665,38 @@
       color: white;
     }
 
-    /* Newsletter Section */
+    /* ============================================
+       NEWSLETTER SECTION
+       ============================================ */
     .newsletter {
       background: linear-gradient(135deg, var(--vibe-dark), #2D2D3A);
-      padding: 60px 0;
+      padding: 70px 0;
       text-align: center;
     }
 
     .newsletter-content h2 {
       color: white;
-      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
       margin-bottom: 15px;
     }
 
     .newsletter-content p {
       color: rgba(255, 255, 255, 0.7);
       margin-bottom: 30px;
+      font-size: 1.05rem;
     }
 
     .newsletter-form {
       display: flex;
       gap: 15px;
-      max-width: 500px;
+      max-width: 550px;
       margin: 0 auto;
       flex-wrap: wrap;
     }
 
     .newsletter-form input {
       flex: 1;
-      padding: 14px 20px;
+      padding: 16px 24px;
       border: none;
       border-radius: 50px;
       font-size: 1rem;
@@ -603,18 +706,27 @@
     .newsletter-form button {
       background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
       border: none;
-      padding: 14px 30px;
+      padding: 16px 36px;
       border-radius: 50px;
       font-weight: 600;
       color: white;
       cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1rem;
     }
 
-    /* Footer */
+    .newsletter-form button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+    }
+
+    /* ============================================
+       FOOTER
+       ============================================ */
     .footer {
       background-color: var(--vibe-dark);
       color: white;
-      padding: 50px 0 30px;
+      padding: 60px 0 30px;
     }
 
     .footer-grid {
@@ -627,11 +739,13 @@
     .footer-col h3 {
       font-size: 1.1rem;
       margin-bottom: 20px;
+      color: white;
     }
 
     .footer-col p {
       opacity: 0.7;
       line-height: 1.8;
+      color: rgba(255, 255, 255, 0.8);
     }
 
     .social-links {
@@ -641,8 +755,8 @@
     }
 
     .social-links a {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.1);
       display: flex;
@@ -655,7 +769,7 @@
 
     .social-links a:hover {
       background: var(--vibe-primary);
-      transform: translateY(-3px);
+      transform: translateY(-4px);
     }
 
     .footer-links {
@@ -682,9 +796,12 @@
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       opacity: 0.7;
       font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.8);
     }
 
-    /* Floating Action Buttons - Fixed Layout */
+    /* ============================================
+       FLOATING ACTION BUTTONS
+       ============================================ */
     .floating-buttons-container {
       position: fixed;
       bottom: 30px;
@@ -702,25 +819,25 @@
     }
 
     .float-btn {
-      width: 55px;
-      height: 55px;
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: all 0.3s;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
       position: relative;
       text-decoration: none;
     }
 
     .float-btn:hover {
-      transform: scale(1.1);
+      transform: scale(1.12);
     }
 
     .float-btn i {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       color: white;
     }
 
@@ -742,10 +859,10 @@
 
     .tooltip-left {
       position: absolute;
-      left: 70px;
+      left: 75px;
       background: var(--vibe-dark);
       color: white;
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 20px;
       font-size: 0.8rem;
       white-space: nowrap;
@@ -756,10 +873,10 @@
 
     .tooltip-right {
       position: absolute;
-      right: 70px;
+      right: 75px;
       background: var(--vibe-dark);
       color: white;
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 20px;
       font-size: 0.8rem;
       white-space: nowrap;
@@ -771,16 +888,18 @@
     .float-btn:hover .tooltip-left {
       opacity: 1;
       visibility: visible;
-      left: 65px;
+      left: 70px;
     }
 
     .float-btn:hover .tooltip-right {
       opacity: 1;
       visibility: visible;
-      right: 65px;
+      right: 70px;
     }
 
-    /* Responsive Styles */
+    /* ============================================
+       RESPONSIVE STYLES
+       ============================================ */
     @media (max-width: 992px) {
       .hero-container {
         grid-template-columns: 1fr;
@@ -792,12 +911,28 @@
         margin-right: auto;
       }
 
+      .hero-buttons {
+        justify-content: center;
+      }
+
       .hero-stats {
         justify-content: center;
       }
 
+      .stat-item {
+        text-align: center;
+      }
+
       .floating-card {
         display: none;
+      }
+
+      .hero-image {
+        margin-top: 30px;
+      }
+
+      .hero-image img {
+        max-width: 350px;
       }
     }
 
@@ -872,6 +1007,19 @@
       .tooltip-right {
         display: none;
       }
+
+      .hero {
+        min-height: 70vh;
+        padding: 60px 0;
+      }
+
+      .hero-content h1 {
+        font-size: 2.2rem;
+      }
+
+      .hero-image img {
+        max-width: 280px;
+      }
     }
 
     @media (max-width: 576px) {
@@ -882,7 +1030,7 @@
 
       .event-footer {
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
         align-items: stretch;
       }
 
@@ -928,12 +1076,39 @@
       }
 
       .float-btn {
-        width: 42px;
-        height: 42px;
+        width: 44px;
+        height: 44px;
       }
 
       .float-btn i {
         font-size: 1rem;
+      }
+
+      .hero-content h1 {
+        font-size: 1.8rem;
+      }
+
+      .hero-image img {
+        max-width: 220px;
+      }
+
+      .hero-stats {
+        gap: 20px;
+      }
+
+      .stat-number {
+        font-size: 1.5rem;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+      }
+
+      .hero-buttons .btn-primary,
+      .hero-buttons .btn-outline-light {
+        padding: 12px 24px;
+        font-size: 0.9rem;
+        width: 100%;
       }
     }
 
@@ -943,7 +1118,6 @@
         opacity: 0;
         transform: translateY(30px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
@@ -1001,20 +1175,21 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
+  <!-- Hero Section with Background Image -->
   <section class="hero">
+    <div class="hero-bg"></div>
     <div class="container hero-container">
       <div class="hero-content">
-        <h1>Discover Your Next<br />Campus Adventure 🎉</h1>
-        <p>VibePass connects students with the best parties, concerts, workshops, and social events on campus. Never
-          miss out on the fun again!</p>
-        <a class="btn-primary" style="padding: 14px 32px; font-size: 1rem;" href="{% url 'list_event' %}">
-          Explore Events <i class="fas fa-arrow-right"></i>
-        </a>
+        <h1>Discover Your Next <br><span>Campus Adventure</span> 🎉</h1>
+        <p>VibePass connects students with the best parties, concerts, workshops, and social events on campus. Never miss out on the fun again!</p>
+        <div class="hero-buttons">
+          <a class="btn-primary" href="{% url 'list_event' %}">
+            Explore Events <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
       </div>
       <div class="hero-image">
-        <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          alt="Students enjoying event" />
+        <img src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?q=80&w=500" alt="Students enjoying event" />
         <div class="floating-card floating-1">
           <i class="fas fa-music" style="color: var(--vibe-primary);"></i>
           <span>Live Music Tonight!</span>
@@ -1032,29 +1207,25 @@
     <div class="container">
       <span class="section-badge">Why Choose VibePass</span>
       <h2 class="section-title">Your Ultimate Campus Event Platform</h2>
-      <p class="section-subtitle">We're on a mission to transform how students discover and experience campus life. From
-        exclusive parties to academic workshops, we've got your social calendar covered.</p>
+      <p class="section-subtitle">We're on a mission to transform how students discover and experience campus life. From exclusive parties to academic workshops, we've got your social calendar covered.</p>
 
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon"><i class="fas fa-calendar-check"></i></div>
           <h3>Curated Events</h3>
-          <p>Handpicked events specifically for you. We filter out the noise so you find exactly what you're
-            looking for.</p>
+          <p>Handpicked events specifically for you. We filter out the noise so you find exactly what you're looking for.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon"><i class="fas fa-tags"></i></div>
           <h3>Exclusive Deals</h3>
-          <p>Get discounts, early-bird offers, and group rates for the hottest events in town. Save money while
-            having fun.</p>
+          <p>Get discounts, early-bird offers, and group rates for the hottest events in town. Save money while having fun.</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon"><i class="fas fa-users"></i></div>
           <h3>Community Driven</h3>
-          <p>Connect with people, join groups with similar interests, and build your social network through
-            shared experiences.</p>
+          <p>Connect with people, join groups with similar interests, and build your social network through shared experiences.</p>
         </div>
 
         <div class="feature-card">
@@ -1100,14 +1271,12 @@
             <div class="event-footer">
               {% if recent_event.Event_is_free %}
               <div class="free-badge">FREE</div>
-              <a style="text-decoration: none;" class="btn-small"
-                href="{% url 'event_details' recent_event.slug %}">Register</a>
+              <a style="text-decoration: none;" class="btn-small" href="{% url 'event_details' recent_event.slug %}">Register</a>
               {% else %}
               <div class="event-price">{{ recent_event.price_summary }}</div>
-               {% if recent_event.Event_date >= today or recent_event.Event_is_active %}
-               <a style="text-decoration: none;" class="btn-small" href="{% url 'event_details' recent_event.slug %}">Get
-                 Tickets</a>
-               {% endif %}
+              {% if recent_event.Event_date >= today or recent_event.Event_is_active %}
+              <a style="text-decoration: none;" class="btn-small" href="{% url 'event_details' recent_event.slug %}">Get Tickets</a>
+              {% endif %}
               {% endif %}
             </div>
           </div>
@@ -1142,8 +1311,7 @@
             </div>
             <span style="font-size: 1.3rem; font-weight: 700;">VibePass</span>
           </div>
-          <p>Connecting people with unforgettable experiences. Find the best events, parties, and gatherings in
-            your area.</p>
+          <p>Connecting people with unforgettable experiences. Find the best events, parties, and gatherings in your area.</p>
           <div class="social-links">
             <a href="https://wa.me/254799302544" target="_blank"><i class="fab fa-whatsapp"></i></a>
             <a href="https://instagram.com/vibepass" target="_blank"><i class="fab fa-instagram"></i></a>
@@ -1176,11 +1344,10 @@
     </div>
   </footer>
 
-  <!-- Floating Action Buttons - Fixed Layout -->
+  <!-- Floating Action Buttons -->
   <div class="floating-buttons-container">
     <div class="float-btn-wrapper">
-      <a style="text-decoration: none;" href="https://wa.me/254799302544" target="_blank"
-        class="float-btn btn-whatsapp">
+      <a style="text-decoration: none;" href="https://wa.me/254799302544" target="_blank" class="float-btn btn-whatsapp">
         <i class="fab fa-whatsapp"></i>
         <span class="tooltip-left">Chat on WhatsApp</span>
       </a>
@@ -1209,7 +1376,7 @@
 
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function (e) {
+      anchor.addEventListener("click", function(e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute("href"));
         if (target) {
@@ -1224,7 +1391,7 @@
     });
 
     // Newsletter subscription
-    document.querySelector(".newsletter-form button").addEventListener("click", function () {
+    document.querySelector(".newsletter-form button").addEventListener("click", function() {
       const email = document.querySelector(".newsletter-form input").value;
       if (email) {
         alert(`Thanks for subscribing! We'll send updates to ${email}`);
@@ -1241,6 +1408,15 @@
         header.style.background = "rgba(26, 26, 46, 0.98)";
       } else {
         header.style.background = "rgba(26, 26, 46, 0.95)";
+      }
+    });
+
+    // Parallax effect on hero background
+    window.addEventListener("scroll", () => {
+      const heroBg = document.querySelector(".hero-bg");
+      const scrolled = window.pageYOffset;
+      if (heroBg) {
+        heroBg.style.transform = `translateY(${scrolled * 0.4}px)`;
       }
     });
   </script>

@@ -102,6 +102,7 @@ class TicketType(models.Model):
     name = models.CharField(max_length=100)  # e.g., "Early Bird", "VIP", "Regular"
     description = models.TextField(blank=True, null=True)  # Additional description for the ticket type
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    group_size = models.PositiveIntegerField(default=1)  # Number of tickets that can be purchased together
     capacity = models.PositiveIntegerField()  # Maximum number of tickets available for this type
     sold_count = models.PositiveIntegerField(default=0)  # Number of tickets sold
     is_active = models.BooleanField(default=True)
