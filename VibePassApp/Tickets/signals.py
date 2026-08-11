@@ -16,6 +16,8 @@ def create_ticket_on_payment_success(sender, payment, **kwargs):
             logger.info(f"Ticket created successfully for payment {payment.payment_id}")
         else:
             logger.error(f"Failed to create ticket for payment {payment.payment_id}")
-        
+
     except Exception as e:
-        logger.error(f"Error in create_ticket_on_payment_success signal: {str(e)}", exc_info=True)
+        logger.error(
+            f"Error in create_ticket_on_payment_success signal: {str(e)}", exc_info=True
+        )

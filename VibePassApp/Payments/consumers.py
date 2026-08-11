@@ -9,11 +9,11 @@ from asgiref.sync import async_to_sync
 
 class PaymentStatusConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.payment_id = self.scope['url_route']['kwargs']['payment_id']
-        self.room_group_name = f'payment_{self.payment_id}'
+        self.payment_id = self.scope["url_route"]["kwargs"]["payment_id"]
+        self.room_group_name = f"payment_{self.payment_id}"
 
         # Check if user is authenticated
-        user = self.scope.get('user', AnonymousUser())
+        user = self.scope.get("user", AnonymousUser())
         if user.is_anonymous:
             await self.close()
             return
@@ -25,10 +25,7 @@ class PaymentStatusConsumer(AsyncWebsocketConsumer):
             return
 
         # Join room group
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
         await self.accept()
 
@@ -37,10 +34,7 @@ class PaymentStatusConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave room group
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     # Receive message from WebSocket
     async def receive(self, text_data):
@@ -49,17 +43,21 @@ class PaymentStatusConsumer(AsyncWebsocketConsumer):
 
     # Receive message from room group
     async def payment_status_update(self, event):
-        payment = event['payment']
+        payment = event["payment"]
 
         # Send message to WebSocket
-        await self.send(text_data=json.dumps({
-            'type': 'status_update',
-            'status': payment['payment_status'],
-            'message': self.get_status_message(payment['payment_status']),
-            'payment_id': str(payment['payment_id']),
-            'amount': str(payment['amount']),
-            'receipt_number': payment['receipt_number'] or ''
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "status_update",
+                    "status": payment["payment_status"],
+                    "message": self.get_status_message(payment["payment_status"]),
+                    "payment_id": str(payment["payment_id"]),
+                    "amount": str(payment["amount"]),
+                    "receipt_number": payment["receipt_number"] or "",
+                }
+            )
+        )
 
     @database_sync_to_async
     def get_payment(self, user):
@@ -69,21 +67,25 @@ class PaymentStatusConsumer(AsyncWebsocketConsumer):
             return None
 
     async def send_status_update(self, payment):
-        await self.send(text_data=json.dumps({
-            'type': 'status_update',
-            'status': payment.payment_status,
-            'message': self.get_status_message(payment.payment_status),
-            'payment_id': str(payment.payment_id),
-            'amount': str(payment.amount),
-            'receipt_number': payment.mpesa_receipt_number or ''
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "status_update",
+                    "status": payment.payment_status,
+                    "message": self.get_status_message(payment.payment_status),
+                    "payment_id": str(payment.payment_id),
+                    "amount": str(payment.amount),
+                    "receipt_number": payment.mpesa_receipt_number or "",
+                }
+            )
+        )
 
     def get_status_message(self, status):
-        if status == 'Completed':
+        if status == "Completed":
             return "Payment successful. Your ticket is being generated."
-        elif status == 'Failed':
+        elif status == "Failed":
             return "Payment failed. Please try again."
-        elif status == 'Pending':
+        elif status == "Pending":
             return "Payment is being processed..."
         return ""
 
@@ -93,20 +95,21 @@ def send_payment_status_update(payment):
     Utility function to send payment status updates via WebSocket
     """
     channel_layer = get_channel_layer()
-    room_group_name = f'payment_{payment.payment_id}'
+    room_group_name = f"payment_{payment.payment_id}"
 
     async_to_sync(channel_layer.group_send)(
         room_group_name,
         {
-            'type': 'payment_status_update',
-            'payment': {
-                'payment_status': payment.payment_status,
-                'payment_id': str(payment.payment_id),
-                'amount': str(payment.amount),
-                'receipt_number': payment.mpesa_receipt_number or '',
+            "type": "payment_status_update",
+            "payment": {
+                "payment_status": payment.payment_status,
+                "payment_id": str(payment.payment_id),
+                "amount": str(payment.amount),
+                "receipt_number": payment.mpesa_receipt_number or "",
             },
-        }
+        },
     )
+
 
 class OrganizerDashboardConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -121,23 +124,20 @@ class OrganizerDashboardConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f"organizer_{self.user.id}"
 
         # Join the group
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
     async def disconnect(self, close_code):
         if hasattr(self, "room_group_name"):
             await self.channel_layer.group_discard(
-                self.room_group_name,
-                self.channel_name
+                self.room_group_name, self.channel_name
             )
 
     # Event handler for "type": "balance_update"
     async def balance_update(self, event):
         # Push payload data to client JS
         await self.send(text_data=json.dumps(event["data"]))
+
 
 def update_dashboard_balance_after_withdraw(withdrawal):
     """
@@ -152,7 +152,7 @@ def update_dashboard_balance_after_withdraw(withdrawal):
                 "action": "WITHDRAWAL_SUCCESS",
                 "amount_withdrawn": str(withdrawal.amount),
                 "new_balance": str(withdrawal.organiser.account_balance),
-                "message": f"Successfully withdrew Ksh {withdrawal.amount}"
-            }
-        }
+                "message": f"Successfully withdrew Ksh {withdrawal.amount}",
+            },
+        },
     )

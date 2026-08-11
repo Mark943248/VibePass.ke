@@ -7,13 +7,14 @@ from django.core.mail import EmailMultiAlternatives
 
 logger = logging.getLogger(__name__)
 
+
 @shared_task(max_retries=3, default_retry_delay=60)
 def send_ticket_qr_code_to_user_task(ticket_id):
     """
-    Fetches the QR code image from Cloudinary via URL, 
+    Fetches the QR code image from Cloudinary via URL,
     attaches it to the email, and sends it asynchronously to the ticket buyer.
     """
-    ticket = Ticket.objects.select_related('user', 'event').get(ticket_id=ticket_id)
+    ticket = Ticket.objects.select_related("user", "event").get(ticket_id=ticket_id)
     subject = f"Event Ticket For {ticket.event.Event_title}"
     recipient_list = [ticket.user.email]
     from_email = None
@@ -30,13 +31,13 @@ def send_ticket_qr_code_to_user_task(ticket_id):
     msg = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
 
     image_url = ticket.ticket_qr_image.url
-    
+
     if image_url:
         try:
             # Download the raw image bytes from Cloudinary in memory
             req = urllib.request.Request(
-                image_url, 
-                headers={'User-Agent': 'Mozilla/5.0'}  # Avoid potential CDN blocks
+                image_url,
+                headers={"User-Agent": "Mozilla/5.0"},  # Avoid potential CDN blocks
             )
             with urllib.request.urlopen(req) as response:
                 image_bytes = response.read()
@@ -49,7 +50,6 @@ def send_ticket_qr_code_to_user_task(ticket_id):
             # Log issue or retry if Cloudinary fails to respond
             logger.error(f"Failed to download QR code from Cloudinary: {e}")
 
-
     try:
         msg.send(fail_silently=False)
         logger.info(f"Successfully sent ticket with QR code to {ticket.user.email}")
@@ -57,4 +57,3 @@ def send_ticket_qr_code_to_user_task(ticket_id):
     except Exception as exc:
         logger.error(f"Failed to send email to user {exc}")
         return False
-

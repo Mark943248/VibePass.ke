@@ -25,82 +25,78 @@ load_dotenv()
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY=os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG =os.getenv('DEBUG')
+DEBUG = os.getenv("DEBUG")
 
-ALLOWED_HOSTS =os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,0.0.0.0,.ngrok-free.dev,.ngrok-free.app').split(',')
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS", "127.0.0.1,localhost,0.0.0.0,.ngrok-free.dev,.ngrok-free.app"
+).split(",")
 
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'daphne',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',
-    
-    'Users',
-    'Events',
-    'Tickets',
-    'Payments',
-    'Pages',
-
-    'cloudinary_storage',
-    'cloudinary',
-    'django_ngrok',
-    'channels',
-
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-
-    'axes',
-
-    'admin_honeypot',
-
-    'django_otp',
-    'django_otp.plugins.otp_totp',
-    'django_otp.plugins.otp_static',
-    'two_factor',
-    'two_factor.plugins.phonenumber',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "daphne",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "Users",
+    "Events",
+    "Tickets",
+    "Payments",
+    "Pages",
+    "cloudinary_storage",
+    "cloudinary",
+    "django_ngrok",
+    "channels",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "axes",
+    "admin_honeypot",
+    "django_otp",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_static",
+    "two_factor",
+    "two_factor.plugins.phonenumber",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django_otp.middleware.OTPMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
-    'axes.middleware.AxesMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_otp.middleware.OTPMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
+    "axes.middleware.AxesMiddleware",
 ]
 
-ROOT_URLCONF = 'VibePassApp.urls'
+ROOT_URLCONF = "VibePassApp.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'VibePassApp.wsgi.application'
+WSGI_APPLICATION = "VibePassApp.wsgi.application"
 
 
 # Database
@@ -108,12 +104,12 @@ WSGI_APPLICATION = 'VibePassApp.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": os.getenv('DATABASE_ENGINE'),
-        "NAME": os.getenv('DATABASE_NAME'),
-        "USER": os.getenv('DATABASE_USER'),
-        "PASSWORD": os.getenv('DATABASE_PASSWORD'),
-        "HOST": os.getenv('DATABASE_HOST'),
-        "PORT": os.getenv('DATABASE_PORT'),
+        "ENGINE": os.getenv("DATABASE_ENGINE"),
+        "NAME": os.getenv("DATABASE_NAME"),
+        "USER": os.getenv("DATABASE_USER"),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
+        "HOST": os.getenv("DATABASE_HOST"),
+        "PORT": os.getenv("DATABASE_PORT"),
         "CONN_MAX_AGE": 600,  # Persistent DB connections
         "CONN_HEALTH_CHECKS": True,  # Auto-reconnect if DB connection drops
     }
@@ -121,7 +117,7 @@ DATABASES = {
 
 
 # specify custom user model
-AUTH_USER_MODEL = 'Users.User'
+AUTH_USER_MODEL = "Users.User"
 
 
 # Password validation
@@ -129,16 +125,16 @@ AUTH_USER_MODEL = 'Users.User'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -146,9 +142,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -157,8 +153,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
-STATIC_URL = 'static/'
-MEDIA_URL = '/media/'  # or any prefix you choose
+STATIC_URL = "static/"
+MEDIA_URL = "/media/"  # or any prefix you choose
 
 
 STORAGES = {
@@ -171,13 +167,13 @@ STORAGES = {
 }
 
 cloudinary.config(
-    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
-    api_key=os.getenv('CLOUDINARY_API_KEY'),
-    api_secret=os.getenv('CLOUDINARY_API_SECRET')
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
 )
 
 # Channels configuration
-ASGI_APPLICATION = 'VibePassApp.asgi.application'
+ASGI_APPLICATION = "VibePassApp.asgi.application"
 
 # Channel layers for WebSockets
 # VibePassApp/settings.py
@@ -207,44 +203,41 @@ CHANNEL_LAYERS = {
 
 AUTHENTICATION_BACKENDS = (
     # Axes backend for handling login attempts and lockouts
-    'axes.backends.AxesStandaloneBackend',
-
+    "axes.backends.AxesStandaloneBackend",
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",
-
     # `allauth` specific authentication methods, such as login by e-mail
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
 
-SOCIALACCOUNT_PROVIDERS = \
-    { 'google':
-        { 
-          'APP': {
-            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
-            'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
-            'key': ''
-          },
-          'SCOPE': ['profile', 'email'],
-          'AUTH_PARAMS': { 'access_type': 'online' },
-          'METHOD': 'oauth2',
-        }
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+            "key": "",
+        },
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+        "METHOD": "oauth2",
     }
+}
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
-ACCOUNT_SIGNUP_METHODS = {'email*', 'username'}
+ACCOUNT_SIGNUP_METHODS = {"email*", "username"}
 ACCOUNT_UNIQUE_EMAIL = True
 
 SITE_ID = 1
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://gawk-quack-uniformed.ngrok-free.dev',
+    "https://gawk-quack-uniformed.ngrok-free.dev",
 ]
 
 # Django Axes configuration settings
-AXES_FAILURE_LIMIT = 3   # attempts user can try
+AXES_FAILURE_LIMIT = 3  # attempts user can try
 
 AXES_COOLOFF_TIME = timedelta(minutes=15)  # how long before reset
 
@@ -252,43 +245,49 @@ AXES_LOCKOUT_PARAMETERS = [
     ["username", "ip_address", "user_agent"],  # Locks device based on this
 ]
 
-AXES_RESET_ON_SUCCESS = True # Resets the failed login attempts after a successful login
+AXES_RESET_ON_SUCCESS = (
+    True  # Resets the failed login attempts after a successful login
+)
 
-AXES_VERBOSE = True # Enables verbose logging for Axes, providing detailed information about lockouts and failed login attempts
-
+AXES_VERBOSE = True  # Enables verbose logging for Axes, providing detailed information about lockouts and failed login attempts
 
 
 # Django-OTP and Two-Factor Authentication settings
-TWO_FACTOR_PATCH_ADMIN = False  #Intercepts the admin login view and adds 2FA to it
+TWO_FACTOR_PATCH_ADMIN = False  # Intercepts the admin login view and adds 2FA to it
 
-LOGIN_URL = 'login' #Redirects to login page
+LOGIN_URL = "login"  # Redirects to login page
 
-LOGIN_REDIRECT_URL = 'finders_dashboard' #Redirects the user to the finders dashboard after successful login
+LOGIN_REDIRECT_URL = "finders_dashboard"  # Redirects the user to the finders dashboard after successful login
 
-LOGOUT_REDIRECT_URL = '/' #Redirects the user to the home page after admin logout
+LOGOUT_REDIRECT_URL = "/"  # Redirects the user to the home page after admin logout
 
-TWO_FACTOR_TOTP_DIGITS = 6 #N.O of TOTP digits
+TWO_FACTOR_TOTP_DIGITS = 6  # N.O of TOTP digits
 
-TWO_FACTOR_LOGIN_TIMEOUT = 200 #Time in seconds before the 2FA login session expires
+TWO_FACTOR_LOGIN_TIMEOUT = 200  # Time in seconds before the 2FA login session expires
 
-if 'test' in sys.argv:
+if "test" in sys.argv:
     AXES_ENABLED = False  # Disable Axes during testing to avoid lockouts
 
-CELERY_BROKER_URL=os.getenv('CELERY_BROKER_URL') # Celery Broker URL
-CELERY_RESULT_BACKEND=os.getenv('CELERY_BROKER_URL')
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")  # Celery Broker URL
+CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER_URL")
 
 # deployment security settings
-CSRF_COOKIE_SECURE = True # The cookie is marked as “secure”, which the cookie is only sent with an HTTPS connection.
+CSRF_COOKIE_SECURE = True  # The cookie is marked as “secure”, which the cookie is only sent with an HTTPS connection.
 
-SESSION_COOKIE_SECURE = True # To avoid transmitting the session cookie over HTTP accidentally.
+SESSION_COOKIE_SECURE = (
+    True  # To avoid transmitting the session cookie over HTTP accidentally.
+)
 
-SECURE_SSL_REDIRECT = True # Redirect HTTP traffic to HTTPS
+SECURE_SSL_REDIRECT = True  # Redirect HTTP traffic to HTTPS
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') # Tells django to trust a specific header from the reverse proxy to determine if an incoming request is secure (HTTPS).
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    "https",
+)  # Tells django to trust a specific header from the reverse proxy to determine if an incoming request is secure (HTTPS).
 
-SECURE_BROWSER_XSS_FILTER = True # Forces older web browsers to activate their built-in Cross-Site Scripting (XSS) filters.
+SECURE_BROWSER_XSS_FILTER = True  # Forces older web browsers to activate their built-in Cross-Site Scripting (XSS) filters.
 
-SECURE_CONTENT_TYPE_NOSNIFF = True #  Prevents attackers from uploading a malicious script disguised as an image or text file.
+SECURE_CONTENT_TYPE_NOSNIFF = True  #  Prevents attackers from uploading a malicious script disguised as an image or text file.
 
 # LOGGING CONFIGURATION
 LOGGING = {  # Capturing backend errors to standard output when DEBUG = False
@@ -329,18 +328,19 @@ LOGGING = {  # Capturing backend errors to standard output when DEBUG = False
     },
 }
 
-ADMIN_HONEYPOT_EMAIL_ADMINS = False # Turn off automatic email notifications from  django-admin-honeypot
+ADMIN_HONEYPOT_EMAIL_ADMINS = (
+    False  # Turn off automatic email notifications from  django-admin-honeypot
+)
 
 # Email Backend Configuration for Gmail SMTP
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 
 # Authentication credentials
-EMAIL_HOST_PASSWORD=os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_HOST_USER=os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 
 # default email
-DEFAULT_FROM_EMAIL=os.getenv('DEFAULT_EMAIL')
-
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_EMAIL")

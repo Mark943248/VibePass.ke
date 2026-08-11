@@ -9,9 +9,10 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/asgi/
 
 import os
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VibePassApp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VibePassApp.settings")
 
 import django
+
 django.setup()
 
 
@@ -22,13 +23,11 @@ from channels.auth import AuthMiddlewareStack
 import Payments.routing
 
 # enables django to handle both HTTP and WEBSOCKETS
-application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
-            URLRouter(
-               Payments.routing.websocket_urlpatterns
-            )
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        "websocket": AllowedHostsOriginValidator(
+            AuthMiddlewareStack(URLRouter(Payments.routing.websocket_urlpatterns)),
         ),
-    )
-})
+    }
+)

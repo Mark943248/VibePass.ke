@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
+
 import os
 import sys
 import dotenv
 
+
 def main():
     dotenv.load_dotenv()  # This loads the variables from .env
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_project.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_project.settings")
     # ... rest of the default code
+
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VibePassApp.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VibePassApp.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -23,5 +26,5 @@ def main():
     execute_from_command_line(sys.argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
