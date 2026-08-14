@@ -1,4 +1,5 @@
 import os
+import uuid
 import json
 import base64
 import logging
@@ -14,6 +15,8 @@ from .utils import (
     generate_access_token,
     generate_timestamp,
     calculate_user_account_balance,
+    calculate_net_earnings,
+    generate_mpesa_security_credential,
 )
 from .consumers import (
     send_payment_status_update,
@@ -207,6 +210,74 @@ def process_mpesa_stk_callbacks(data):
             f"Payment failed for payment ID {payment.payment_id} (Result Code: {result_code}): {result_desc}"
         )
         send_payment_status_update(payment)
+
+
+@shared_task()
+def initiate_b2c_request_task(data):
+    """Initiate a Business to Customer (B2C) payment request to M-Pesa.
+    This function generates an access token, prepares the request data, and sends a POST request to the M-Pesa B2C API endpoint. It returns the JSON response from the API.
+    """
+    access_token = generate_access_token()
+    api_url = "https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    callback_base = config("MPESA_CALLBACK_URL").rstrip("/")
+    result_url = f"{callback_base}/payments/mpesa_b2c_callback"
+    timeout_url = f"{callback_base}/payments/mpesa_b2c_timeout"
+
+    request_data = {
+        "OriginatorConversationID": str(uuid.uuid4()),
+        "InitiatorName": os.getenv("MPESA_INITIATOR_NAME"),
+        "SecurityCredential": generate_mpesa_security_credential(),
+        "CommandID": "BusinessPayment",
+        "Amount": calculate_net_earnings(int(data["amount"])),
+        "PartyA": os.getenv("MPESA_B2C_SHORT_CODE"),
+        "PartyB": data["phone_number"],
+        "Remarks": "remarked",
+        "QueueTimeOutURL": timeout_url,
+        "ResultURL": result_url,
+        "Occassion": "VibePass Organizer Withdrawal",
+    }
+    try:
+        response = requests.post(
+            api_url, json=request_data, headers=headers, timeout=(5, 30)
+        )
+        response.raise_for_status()
+        b2c_response = response.json()
+        withdrawal_id = data["withdrawal_id"]
+
+        withdrawal = Withdrawal.objects.get(withdrawal_id=withdrawal_id)
+
+        b2c_json_path = os.path.join(settings.BASE_DIR, "mpesa_logs", "b2c.json")
+        with open(b2c_json_path, "w") as f:
+            json.dump(b2c_response, f, indent=4)
+
+        # Handle M-Pesa B2C response
+        if b2c_response.get("ResponseCode") == "0":
+            withdrawal.status = "processing"
+            withdrawal.originator_conversation_id = b2c_response.get(
+                "OriginatorConversationID"
+            )
+            withdrawal.mpesa_conversation_id = b2c_response.get("ConversationID")
+            withdrawal.save()
+            logger.info(
+                f"Withdrawal Request for {withdrawal.withdrawal_id} is successful"
+            )
+        else:
+            withdrawal.status = "failed"
+            withdrawal.reason = b2c_response.get(
+                "ResponseDescription", "B2C request failed"
+            )
+            withdrawal.save()
+            error_msg = b2c_response.get(
+                "ResponseDescription",
+                "Withdrawal initiation failed. Please try again.",
+            )
+            logger.error(f"B2C request failed: {error_msg}")
+
+    except requests.exceptions.Timeout as exc:
+        logger.warning(f"Timeout error in b2c callback: {exc}")
+    except requests.exceptions.RequestException as exc:
+        logger.warning(f"Error in b2c request: {exc}")
 
 
 @shared_task()

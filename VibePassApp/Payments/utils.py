@@ -108,38 +108,3 @@ def generate_mpesa_security_credential():
         "Generated MPESA Security Credential:", security_credential
     )  # Debugging statement
     return security_credential
-
-
-# make mpesa b2c request
-def initiate_b2c_request(amount, phone_number):
-    """Initiate a Business to Customer (B2C) payment request to M-Pesa.
-    This function generates an access token, prepares the request data, and sends a POST request to the M-Pesa B2C API endpoint. It returns the JSON response from the API.
-    """
-    access_token = generate_access_token()
-    api_url = "https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest"
-    headers = {"Authorization": f"Bearer {access_token}"}
-    callback_base = config("MPESA_CALLBACK_URL").rstrip("/")
-    result_url = f"{callback_base}/payments/mpesa_b2c_callback"
-    timeout_url = f"{callback_base}/payments/mpesa_b2c_timeout"
-
-    request_data = {
-        "OriginatorConversationID": str(uuid.uuid4()),
-        "InitiatorName": os.getenv("MPESA_INITIATOR_NAME"),
-        "SecurityCredential": generate_mpesa_security_credential(),
-        "CommandID": "BusinessPayment",
-        "Amount": calculate_net_earnings(int(amount)),
-        "PartyA": os.getenv("MPESA_B2C_SHORT_CODE"),
-        "PartyB": phone_number,
-        "Remarks": "remarked",
-        "QueueTimeOutURL": timeout_url,
-        "ResultURL": result_url,
-        "Occassion": "VibePass Organizer Withdrawal",
-    }
-    try:
-        response = requests.post(
-            api_url, json=request_data, headers=headers, timeout=10
-        )
-    except TimeoutError:
-        logger.warning("Timeout error in b2c callback")
-
-    return response.json()

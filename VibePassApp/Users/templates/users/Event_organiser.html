@@ -1,1707 +1,1894 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes"
+    />
+    <title>VibePass - Organizer Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+      /* New Brand Colors - Vibrant Orange & Teal */
+      :root {
+        --vibe-primary: #ff6b35;
+        --vibe-primary-dark: #e85d2c;
+        --vibe-secondary: #00c9a7;
+        --vibe-secondary-dark: #00b092;
+        --vibe-dark: #1a1a2e;
+        --vibe-light: #fff9f5;
+        --vibe-accent: #ffe66d;
+        --vibe-text: #2d2d3a;
+        --vibe-text-light: #6b6b7a;
+        --vibe-card-bg: #ffffff;
+        --vibe-card-shadow: rgba(255, 107, 53, 0.08);
+        --vibe-success: #00c9a7;
+        --vibe-warning: #ffc107;
+        --vibe-danger: #ff4757;
+        --vibe-info: #2196f3;
+      }
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
-  <title>VibePass - Organizer Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  <style>
-    /* New Brand Colors - Vibrant Orange & Teal */
-    :root {
-      --vibe-primary: #FF6B35;
-      --vibe-primary-dark: #E85D2C;
-      --vibe-secondary: #00C9A7;
-      --vibe-secondary-dark: #00B092;
-      --vibe-dark: #1A1A2E;
-      --vibe-light: #FFF9F5;
-      --vibe-accent: #FFE66D;
-      --vibe-text: #2D2D3A;
-      --vibe-text-light: #6B6B7A;
-      --vibe-card-bg: #FFFFFF;
-      --vibe-card-shadow: rgba(255, 107, 53, 0.08);
-      --vibe-success: #00C9A7;
-      --vibe-warning: #FFC107;
-      --vibe-danger: #FF4757;
-      --vibe-info: #2196F3;
-    }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+      body {
+        background: linear-gradient(135deg, var(--vibe-light) 0%, #fff5ef 100%);
+        color: var(--vibe-text);
+        line-height: 1.6;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
 
-    body {
-      background: linear-gradient(135deg, var(--vibe-light) 0%, #FFF5EF 100%);
-      color: var(--vibe-text);
-      line-height: 1.6;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 15px;
+      }
 
-    .container {
-      width: 100%;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 15px;
-    }
-
-    /* ============================================
+      /* ============================================
         HEADER
        ============================================ */
-    .header {
-      background: rgba(26, 26, 46, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 12px 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .header-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      flex-shrink: 0;
-    }
-
-    .logo-icon {
-      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .logo-icon i {
-      font-size: 0.9rem;
-      color: white;
-    }
-
-    .logo-text {
-      font-size: 1.1rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .organizer-menu {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .organizer-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: white;
-    }
-
-    .organizer-avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 600;
-      font-size: 0.8rem;
-      border: 2px solid var(--vibe-secondary);
-    }
-
-    .organizer-name {
-      font-weight: 600;
-      font-size: 0.85rem;
-    }
-
-    .organizer-badge {
-      background: var(--vibe-secondary);
-      color: var(--vibe-dark);
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 0.6rem;
-      font-weight: 600;
-    }
-
-    .hamburger-btn {
-      display: none;
-      flex-direction: column;
-      gap: 4px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 8px;
-      z-index: 101;
-      transition: all 0.3s;
-      border-radius: 8px;
-    }
-
-    .hamburger-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .hamburger-btn span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: white;
-      border-radius: 2px;
-      transition: all 0.3s;
-    }
-
-    .hamburger-btn.active span:nth-child(1) {
-      transform: rotate(45deg) translate(3px, 3px);
-    }
-
-    .hamburger-btn.active span:nth-child(2) {
-      opacity: 0;
-    }
-
-    .hamburger-btn.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(3px, -3px);
-    }
-
-    /* ============================================
-        MOBILE SIDEBAR
-       ============================================ */
-    .mobile-sidebar-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 99;
-    }
-
-    .mobile-sidebar-overlay.active {
-      display: block;
-    }
-
-    .mobile-sidebar {
-      position: fixed;
-      top: 0;
-      left: -320px;
-      width: 320px;
-      height: 100%;
-      background: white;
-      z-index: 100;
-      transition: left 0.35s cubic-bezier(0.2, 0.9, 0.4, 1);
-      box-shadow: 2px 0 30px rgba(0, 0, 0, 0.15);
-      padding: 20px 0;
-      overflow-y: auto;
-    }
-
-    .mobile-sidebar.active {
-      left: 0;
-    }
-
-    .mobile-sidebar-header {
-      padding: 0 20px 20px;
-      border-bottom: 1px solid #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .mobile-sidebar-header .logo-text {
-      font-size: 1.2rem;
-    }
-
-    .mobile-sidebar-close {
-      background: none;
-      border: none;
-      font-size: 1.3rem;
-      color: var(--vibe-text);
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 8px;
-      transition: background 0.3s;
-    }
-
-    .mobile-sidebar-close:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
-
-    .mobile-sidebar .nav-section {
-      padding: 15px 20px 0;
-    }
-
-    .mobile-sidebar .section-title {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--vibe-text-light);
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-
-    .mobile-sidebar .nav-links {
-      list-style: none;
-    }
-
-    .mobile-sidebar .nav-links li {
-      margin-bottom: 4px;
-    }
-
-    .mobile-sidebar .nav-links a {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      text-decoration: none;
-      color: var(--vibe-text);
-      font-weight: 500;
-      font-size: 0.9rem;
-      transition: all 0.3s;
-      min-height: 44px;
-    }
-
-    .mobile-sidebar .nav-links a:hover {
-      background: rgba(255, 107, 53, 0.08);
-      color: var(--vibe-primary);
-    }
-
-    .mobile-sidebar .nav-links a.active {
-      background: var(--vibe-primary);
-      color: white;
-    }
-
-    .mobile-sidebar .nav-icon {
-      width: 22px;
-      text-align: center;
-      font-size: 1rem;
-    }
-
-    .sidebar-actions {
-      padding: 15px 20px;
-      border-top: 1px solid #f0f0f0;
-      margin-top: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .sidebar-action-btn {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.85rem;
-      transition: all 0.3s;
-      min-height: 44px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .sidebar-action-btn i {
-      width: 22px;
-      text-align: center;
-      font-size: 1rem;
-    }
-
-    .sidebar-action-btn.create {
-      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
-      color: white;
-    }
-
-    .sidebar-action-btn.create:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
-    }
-
-    .sidebar-action-btn.tickets {
-      background: transparent;
-      color: var(--vibe-primary);
-      border: 2px solid var(--vibe-primary);
-    }
-
-    .sidebar-action-btn.tickets:hover {
-      background: var(--vibe-primary);
-      color: white;
-    }
-
-    .sidebar-action-btn.withdraw {
-      background: transparent;
-      color: var(--vibe-secondary);
-      border: 2px solid var(--vibe-secondary);
-    }
-
-    .sidebar-action-btn.withdraw:hover {
-      background: var(--vibe-secondary);
-      color: var(--vibe-dark);
-    }
-
-    .sidebar-action-btn.scan {
-      background: transparent;
-      color: var(--vibe-text);
-      border: 2px solid #E8E8E8;
-    }
-
-    .sidebar-action-btn.scan:hover {
-      border-color: var(--vibe-primary);
-      color: var(--vibe-primary);
-    }
-
-    /* ============================================
-        DASHBOARD LAYOUT
-       ============================================ */
-    .dashboard {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 25px;
-      padding: 25px 0;
-      min-height: calc(100vh - 80px);
-    }
-
-    /* Sidebar - Desktop */
-    .sidebar {
-      background: white;
-      border-radius: 20px;
-      padding: 25px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-      height: fit-content;
-      position: sticky;
-      top: 85px;
-    }
-
-    .nav-section {
-      margin-bottom: 20px;
-    }
-
-    .section-title {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--vibe-text-light);
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-
-    .nav-links {
-      list-style: none;
-    }
-
-    .nav-links li {
-      margin-bottom: 5px;
-    }
-
-    .nav-links a {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      text-decoration: none;
-      color: var(--vibe-text);
-      font-weight: 500;
-      font-size: 0.85rem;
-      transition: all 0.3s;
-      min-height: 40px;
-    }
-
-    .nav-links a:hover {
-      background: rgba(255, 107, 53, 0.08);
-      color: var(--vibe-primary);
-    }
-
-    .nav-links a.active {
-      background: var(--vibe-primary);
-      color: white;
-    }
-
-    .nav-icon {
-      width: 20px;
-      text-align: center;
-      font-size: 0.9rem;
-    }
-
-    .badge {
-      background: var(--vibe-secondary);
-      color: var(--vibe-dark);
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 0.65rem;
-      font-weight: 600;
-      margin-left: auto;
-    }
-
-    .sidebar-actions-desktop {
-      border-top: 1px solid #f0f0f0;
-      padding-top: 15px;
-      margin-top: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .sidebar-actions-desktop .sidebar-action-btn {
-      padding: 10px 14px;
-      font-size: 0.85rem;
-      min-height: 40px;
-    }
-
-    /* ============================================
-        MAIN CONTENT
-       ============================================ */
-    .main-content {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      width: 100%;
-      min-width: 0;
-    }
-
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .welcome-message h1 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--vibe-dark);
-      margin-bottom: 2px;
-    }
-
-    .welcome-message p {
-      color: var(--vibe-text-light);
-      font-size: 0.85rem;
-    }
-
-    .date-display {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      background: white;
-      border-radius: 30px;
-      font-weight: 500;
-      font-size: 0.75rem;
-      color: var(--vibe-primary);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      min-height: 36px;
-    }
-
-    /* ============================================
-        STATS CARDS
-       ============================================ */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-    }
-
-    .stat-card {
-      background: white;
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .stat-icon {
-      width: 44px;
-      height: 44px;
-      background: rgba(255, 107, 53, 0.1);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--vibe-primary);
-      font-size: 1.3rem;
-      flex-shrink: 0;
-    }
-
-    .stat-info h3 {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--vibe-dark);
-      line-height: 1.2;
-      word-break: break-all;
-    }
-
-    .stat-info p {
-      font-size: 0.75rem;
-      color: var(--vibe-text-light);
-    }
-
-    /* ============================================
-        DASHBOARD SECTIONS
-       ============================================ */
-    .dashboard-section {
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-      width: 100%;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .section-header h2 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--vibe-dark);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .view-all {
-      color: var(--vibe-primary);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      min-height: 36px;
-      padding: 4px 10px;
-    }
-
-    /* ============================================
-        EVENTS TABLE
-       ============================================ */
-    .table-wrapper {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      width: 100%;
-      border-radius: 8px;
-    }
-
-    .table-wrapper::-webkit-scrollbar {
-      height: 6px;
-    }
-
-    .table-wrapper::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 10px;
-    }
-
-    .table-wrapper::-webkit-scrollbar-thumb {
-      background: var(--vibe-primary);
-      border-radius: 10px;
-    }
-
-    .events-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 650px;
-    }
-
-    .events-table th {
-      text-align: left;
-      padding: 12px;
-      border-bottom: 2px solid #f0f0f0;
-      color: var(--vibe-text-light);
-      font-weight: 600;
-      font-size: 0.8rem;
-    }
-
-    .events-table td {
-      padding: 14px 12px;
-      border-bottom: 1px solid #f0f0f0;
-      font-size: 0.85rem;
-      vertical-align: middle;
-    }
-
-    .event-row:hover {
-      background: rgba(255, 107, 53, 0.02);
-    }
-
-    .event-title {
-      font-weight: 600;
-      color: var(--vibe-dark);
-      font-size: 0.85rem;
-      word-break: break-word;
-    }
-
-    .event-venue {
-      font-size: 0.7rem;
-      color: var(--vibe-text-light);
-      display: block;
-      margin-top: 2px;
-      word-break: break-word;
-    }
-
-    .event-status {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
-
-    .status-upcoming {
-      background: rgba(0, 201, 167, 0.1);
-      color: var(--vibe-secondary);
-    }
-
-    .status-ended {
-      background: rgba(255, 71, 87, 0.1);
-      color: var(--vibe-danger);
-    }
-
-    .status-draft {
-      background: rgba(255, 193, 7, 0.1);
-      color: var(--vibe-warning);
-    }
-
-    .event-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .btn-small {
-      padding: 5px 10px;
-      font-size: 0.7rem;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      min-height: 30px;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .btn-small.btn-primary {
-      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
-      color: white;
-    }
-
-    .btn-small.btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
-    }
-
-    .btn-small.btn-secondary {
-      background: transparent;
-      border: 1px solid var(--vibe-primary);
-      color: var(--vibe-primary);
-    }
-
-    .btn-small.btn-secondary:hover {
-      background: rgba(255, 107, 53, 0.1);
-    }
-
-    .btn-small.btn-danger {
-      background: transparent;
-      border: 1px solid var(--vibe-danger);
-      color: var(--vibe-danger);
-    }
-
-    .btn-small.btn-danger:hover {
-      background: rgba(255, 71, 87, 0.1);
-    }
-
-    /* ============================================
-        TICKET MANAGEMENT - One Column
-       ============================================ */
-    .ticket-mgmt-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 15px;
-    }
-
-    .ticket-mgmt-card {
-      background: var(--vibe-light);
-      border-radius: 12px;
-      padding: 18px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .ticket-mgmt-icon {
-      width: 48px;
-      height: 48px;
-      background: white;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--vibe-primary);
-      font-size: 1.4rem;
-      flex-shrink: 0;
-    }
-
-    .ticket-mgmt-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .ticket-mgmt-info h3 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--vibe-dark);
-      line-height: 1.2;
-    }
-
-    .ticket-mgmt-info p {
-      font-size: 0.8rem;
-      color: var(--vibe-text-light);
-    }
-
-    /* ============================================
-        TAB NAVIGATION
-       ============================================ */
-    .tab-navigation {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn {
-      padding: 6px 14px;
-      background: none;
-      border: none;
-      font-weight: 500;
-      color: var(--vibe-text-light);
-      cursor: pointer;
-      border-radius: 30px;
-      transition: all 0.3s;
-      font-size: 0.8rem;
-      min-height: 36px;
-    }
-
-    .tab-btn:hover {
-      color: var(--vibe-primary);
-    }
-
-    .tab-btn.active {
-      background: var(--vibe-primary);
-      color: white;
-    }
-
-    /* ============================================
-        EMPTY STATE
-       ============================================ */
-    .empty-state {
-      text-align: center;
-      padding: 30px 15px;
-    }
-
-    .empty-icon {
-      font-size: 2.2rem;
-      color: #ddd;
-      margin-bottom: 10px;
-    }
-
-    .empty-state h3 {
-      font-size: 0.95rem;
-      margin-bottom: 4px;
-      color: var(--vibe-dark);
-    }
-
-    .empty-state p {
-      color: var(--vibe-text-light);
-      font-size: 0.75rem;
-    }
-
-    /* ============================================
-        FOOTER
-       ============================================ */
-    .footer {
-      background: var(--vibe-dark);
-      color: white;
-      padding: 20px 0;
-      text-align: center;
-      margin-top: 30px;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .footer-links a {
-      color: rgba(255, 255, 255, 0.7);
-      text-decoration: none;
-      font-size: 0.8rem;
-    }
-
-    .footer-links a:hover {
-      color: var(--vibe-primary);
-    }
-
-    /* ============================================
-        TAB CONTENT
-       ============================================ */
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ============================================
-        RESPONSIVE BREAKPOINTS
-       ============================================ */
-
-    /* Tablet Screen Optimizations */
-    @media (max-width: 992px) {
-      .dashboard {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 20px 0;
+      .header {
+        background: rgba(26, 26, 46, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 12px 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
 
-      .sidebar {
-        display: none;
-      }
-
-      .hamburger-btn {
-        display: flex;
-      }
-
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-      }
-
-      .events-table {
-        min-width: 600px;
-      }
-
-      .organizer-name {
-        font-size: 0.75rem;
-      }
-
-      .organizer-badge {
-        font-size: 0.55rem;
-        padding: 1px 6px;
-      }
-    }
-
-    /* Smart Mobile Responsive Code Fixes (No Layout Clipping) */
-    @media (max-width: 768px) {
       .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         gap: 10px;
       }
 
-      .organizer-info .organizer-name,
-      .organizer-info .organizer-badge {
-        display: none;
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        flex-shrink: 0;
+      }
+
+      .logo-icon {
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .logo-icon i {
+        font-size: 0.9rem;
+        color: white;
+      }
+
+      .logo-text {
+        font-size: 1.1rem;
+        font-weight: 800;
+        background: linear-gradient(
+          135deg,
+          var(--vibe-primary),
+          var(--vibe-secondary)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .organizer-menu {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .organizer-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: white;
       }
 
       .organizer-avatar {
         width: 34px;
         height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.8rem;
+        border: 2px solid var(--vibe-secondary);
+      }
+
+      .organizer-name {
+        font-weight: 600;
         font-size: 0.85rem;
       }
 
-      .dashboard-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
+      .organizer-badge {
+        background: var(--vibe-secondary);
+        color: var(--vibe-dark);
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 600;
       }
 
-      /* Fixed typography scale constraints to handle dynamic user input data */
+      .hamburger-btn {
+        display: none;
+        flex-direction: column;
+        gap: 4px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        z-index: 101;
+        transition: all 0.3s;
+        border-radius: 8px;
+      }
+
+      .hamburger-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .hamburger-btn span {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background: white;
+        border-radius: 2px;
+        transition: all 0.3s;
+      }
+
+      .hamburger-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(3px, 3px);
+      }
+
+      .hamburger-btn.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .hamburger-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(3px, -3px);
+      }
+
+      /* ============================================
+        MOBILE SIDEBAR
+       ============================================ */
+      .mobile-sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 99;
+      }
+
+      .mobile-sidebar-overlay.active {
+        display: block;
+      }
+
+      .mobile-sidebar {
+        position: fixed;
+        top: 0;
+        left: -320px;
+        width: 320px;
+        height: 100%;
+        background: white;
+        z-index: 100;
+        transition: left 0.35s cubic-bezier(0.2, 0.9, 0.4, 1);
+        box-shadow: 2px 0 30px rgba(0, 0, 0, 0.15);
+        padding: 20px 0;
+        overflow-y: auto;
+      }
+
+      .mobile-sidebar.active {
+        left: 0;
+      }
+
+      .mobile-sidebar-header {
+        padding: 0 20px 20px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .mobile-sidebar-header .logo-text {
+        font-size: 1.2rem;
+      }
+
+      .mobile-sidebar-close {
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        color: var(--vibe-text);
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: background 0.3s;
+      }
+
+      .mobile-sidebar-close:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+
+      .mobile-sidebar .nav-section {
+        padding: 15px 20px 0;
+      }
+
+      .mobile-sidebar .section-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--vibe-text-light);
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .mobile-sidebar .nav-links {
+        list-style: none;
+      }
+
+      .mobile-sidebar .nav-links li {
+        margin-bottom: 4px;
+      }
+
+      .mobile-sidebar .nav-links a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--vibe-text);
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        min-height: 44px;
+      }
+
+      .mobile-sidebar .nav-links a:hover {
+        background: rgba(255, 107, 53, 0.08);
+        color: var(--vibe-primary);
+      }
+
+      .mobile-sidebar .nav-links a.active {
+        background: var(--vibe-primary);
+        color: white;
+      }
+
+      .mobile-sidebar .nav-icon {
+        width: 22px;
+        text-align: center;
+        font-size: 1rem;
+      }
+
+      .sidebar-actions {
+        padding: 15px 20px;
+        border-top: 1px solid #f0f0f0;
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .sidebar-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+        min-height: 44px;
+        border: none;
+        cursor: pointer;
+      }
+
+      .sidebar-action-btn i {
+        width: 22px;
+        text-align: center;
+        font-size: 1rem;
+      }
+
+      .sidebar-action-btn.create {
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        color: white;
+      }
+
+      .sidebar-action-btn.create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+      }
+
+      .sidebar-action-btn.tickets {
+        background: transparent;
+        color: var(--vibe-primary);
+        border: 2px solid var(--vibe-primary);
+      }
+
+      .sidebar-action-btn.tickets:hover {
+        background: var(--vibe-primary);
+        color: white;
+      }
+
+      .sidebar-action-btn.withdraw {
+        background: transparent;
+        color: var(--vibe-secondary);
+        border: 2px solid var(--vibe-secondary);
+      }
+
+      .sidebar-action-btn.withdraw:hover {
+        background: var(--vibe-secondary);
+        color: var(--vibe-dark);
+      }
+
+      .sidebar-action-btn.scan {
+        background: transparent;
+        color: var(--vibe-text);
+        border: 2px solid #e8e8e8;
+      }
+
+      .sidebar-action-btn.scan:hover {
+        border-color: var(--vibe-primary);
+        color: var(--vibe-primary);
+      }
+
+      /* ============================================
+        DASHBOARD LAYOUT
+       ============================================ */
+      .dashboard {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 25px;
+        padding: 25px 0;
+        min-height: calc(100vh - 80px);
+      }
+
+      /* Sidebar - Desktop */
+      .sidebar {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        height: fit-content;
+        position: sticky;
+        top: 85px;
+      }
+
+      .nav-section {
+        margin-bottom: 20px;
+      }
+
+      .section-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--vibe-text-light);
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .nav-links {
+        list-style: none;
+      }
+
+      .nav-links li {
+        margin-bottom: 5px;
+      }
+
+      .nav-links a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--vibe-text);
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+        min-height: 40px;
+      }
+
+      .nav-links a:hover {
+        background: rgba(255, 107, 53, 0.08);
+        color: var(--vibe-primary);
+      }
+
+      .nav-links a.active {
+        background: var(--vibe-primary);
+        color: white;
+      }
+
+      .nav-icon {
+        width: 20px;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+
+      .badge {
+        background: var(--vibe-secondary);
+        color: var(--vibe-dark);
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        margin-left: auto;
+      }
+
+      .sidebar-actions-desktop {
+        border-top: 1px solid #f0f0f0;
+        padding-top: 15px;
+        margin-top: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .sidebar-actions-desktop .sidebar-action-btn {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        min-height: 40px;
+      }
+
+      /* ============================================
+        MAIN CONTENT
+       ============================================ */
+      .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
       .welcome-message h1 {
-        font-size: 1.25rem;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--vibe-dark);
+        margin-bottom: 2px;
       }
 
       .welcome-message p {
+        color: var(--vibe-text-light);
         font-size: 0.85rem;
       }
 
       .date-display {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        background: white;
+        border-radius: 30px;
+        font-weight: 500;
         font-size: 0.75rem;
-        padding: 6px 12px;
+        color: var(--vibe-primary);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        min-height: 36px;
       }
 
-      /* Stack stats blocks cleanly inside mobile viewpoint boundaries */
+      /* ============================================
+        STATS CARDS
+       ============================================ */
       .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
       }
 
       .stat-card {
-        padding: 16px;
+        background: white;
+        border-radius: 14px;
+        padding: 18px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 14px;
       }
 
       .stat-icon {
         width: 44px;
         height: 44px;
-        font-size: 1.25rem;
+        background: rgba(255, 107, 53, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--vibe-primary);
+        font-size: 1.3rem;
+        flex-shrink: 0;
       }
 
       .stat-info h3 {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--vibe-dark);
+        line-height: 1.2;
+        word-break: break-all;
       }
 
+      .stat-info p {
+        font-size: 0.75rem;
+        color: var(--vibe-text-light);
+      }
+
+      /* ============================================
+        DASHBOARD SECTIONS
+       ============================================ */
       .dashboard-section {
-        padding: 16px;
-        border-radius: 14px;
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        width: 100%;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
       }
 
       .section-header h2 {
-        font-size: 1rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--vibe-dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
       .view-all {
+        color: var(--vibe-primary);
+        text-decoration: none;
+        font-weight: 500;
         font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 36px;
+        padding: 4px 10px;
       }
 
-      /* Prevent horizontal scrolling glitches in containers */
+      /* ============================================
+        EVENTS TABLE
+       ============================================ */
+      .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        border-radius: 8px;
+      }
+
+      .table-wrapper::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .table-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+
+      .table-wrapper::-webkit-scrollbar-thumb {
+        background: var(--vibe-primary);
+        border-radius: 10px;
+      }
+
       .events-table {
-        min-width: 600px; 
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 650px;
       }
 
       .events-table th {
-        font-size: 0.75rem;
-        padding: 10px;
+        text-align: left;
+        padding: 12px;
+        border-bottom: 2px solid #f0f0f0;
+        color: var(--vibe-text-light);
+        font-weight: 600;
+        font-size: 0.8rem;
       }
 
       .events-table td {
-        font-size: 0.8rem;
-        padding: 12px 10px;
+        padding: 14px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.85rem;
+        vertical-align: middle;
+      }
+
+      .event-row:hover {
+        background: rgba(255, 107, 53, 0.02);
       }
 
       .event-title {
-        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--vibe-dark);
+        font-size: 0.85rem;
+        word-break: break-word;
       }
 
       .event-venue {
         font-size: 0.7rem;
+        color: var(--vibe-text-light);
+        display: block;
+        margin-top: 2px;
+        word-break: break-word;
+      }
+
+      .event-status {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+      }
+
+      .status-upcoming {
+        background: rgba(0, 201, 167, 0.1);
+        color: var(--vibe-secondary);
+      }
+
+      .status-ended {
+        background: rgba(255, 71, 87, 0.1);
+        color: var(--vibe-danger);
+      }
+
+      .status-draft {
+        background: rgba(255, 193, 7, 0.1);
+        color: var(--vibe-warning);
+      }
+
+      .event-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
       }
 
       .btn-small {
-        padding: 6px 12px;
-        font-size: 0.75rem;
-        min-height: 32px;
+        padding: 5px 10px;
+        font-size: 0.7rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 30px;
+        font-weight: 500;
+        white-space: nowrap;
       }
 
-      .tab-btn {
-        font-size: 0.75rem;
-        padding: 6px 14px;
-        min-height: 34px;
+      .btn-small.btn-primary {
+        background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+        color: white;
+      }
+
+      .btn-small.btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+      }
+
+      .btn-small.btn-secondary {
+        background: transparent;
+        border: 1px solid var(--vibe-primary);
+        color: var(--vibe-primary);
+      }
+
+      .btn-small.btn-secondary:hover {
+        background: rgba(255, 107, 53, 0.1);
+      }
+
+      .btn-small.btn-danger {
+        background: transparent;
+        border: 1px solid var(--vibe-danger);
+        color: var(--vibe-danger);
+      }
+
+      .btn-small.btn-danger:hover {
+        background: rgba(255, 71, 87, 0.1);
+      }
+
+      /* ============================================
+        TICKET MANAGEMENT - One Column
+       ============================================ */
+      .ticket-mgmt-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
       }
 
       .ticket-mgmt-card {
-        padding: 16px;
+        background: var(--vibe-light);
+        border-radius: 12px;
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
       }
 
       .ticket-mgmt-icon {
-        width: 44px;
-        height: 44px;
-        font-size: 1.2rem;
+        width: 48px;
+        height: 48px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--vibe-primary);
+        font-size: 1.4rem;
+        flex-shrink: 0;
+      }
+
+      .ticket-mgmt-info {
+        flex: 1;
+        min-width: 0;
       }
 
       .ticket-mgmt-info h3 {
-        font-size: 1.05rem;
-      }
-    }
-
-    /* Small Screen Smartphone Refinements (Down to 320px) */
-    @media (max-width: 480px) {
-      .container {
-        padding: 0 12px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--vibe-dark);
+        line-height: 1.2;
       }
 
-      .dashboard-header {
-        gap: 10px;
-      }
-
-      .welcome-message h1 {
-        font-size: 1.15rem;
-      }
-
-      .welcome-message p {
+      .ticket-mgmt-info p {
         font-size: 0.8rem;
+        color: var(--vibe-text-light);
       }
 
-      .dashboard-section {
-        padding: 12px;
-      }
-
-      .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-
-      .section-header h2 {
-        font-size: 0.95rem;
-      }
-
-      .view-all {
-        padding: 0;
-        min-height: auto;
-      }
-
+      /* ============================================
+        TAB NAVIGATION
+       ============================================ */
       .tab-navigation {
-        gap: 4px;
+        display: flex;
+        gap: 6px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
       }
 
       .tab-btn {
-        flex: 1 1 auto;
+        padding: 6px 14px;
+        background: none;
+        border: none;
+        font-weight: 500;
+        color: var(--vibe-text-light);
+        cursor: pointer;
+        border-radius: 30px;
+        transition: all 0.3s;
+        font-size: 0.8rem;
+        min-height: 36px;
+      }
+
+      .tab-btn:hover {
+        color: var(--vibe-primary);
+      }
+
+      .tab-btn.active {
+        background: var(--vibe-primary);
+        color: white;
+      }
+
+      /* ============================================
+        EMPTY STATE
+       ============================================ */
+      .empty-state {
         text-align: center;
-        font-size: 0.7rem;
-        padding: 6px 10px;
+        padding: 30px 15px;
       }
 
-      /* Clean stacked blocks for responsive inline action arrays */
-      .event-actions {
-        flex-direction: column;
-        gap: 6px;
-        width: 100%;
+      .empty-icon {
+        font-size: 2.2rem;
+        color: #ddd;
+        margin-bottom: 10px;
       }
 
-      .btn-small {
-        width: 100%;
+      .empty-state h3 {
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+        color: var(--vibe-dark);
+      }
+
+      .empty-state p {
+        color: var(--vibe-text-light);
+        font-size: 0.75rem;
+      }
+
+      /* ============================================
+        FOOTER
+       ============================================ */
+      .footer {
+        background: var(--vibe-dark);
+        color: white;
+        padding: 20px 0;
+        text-align: center;
+        margin-top: 30px;
+      }
+
+      .footer-links {
+        display: flex;
         justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 8px;
       }
-    }
 
-    /* Desktop Viewport Validations */
-    @media (min-width: 769px) {
-      .hamburger-btn {
+      .footer-links a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 0.8rem;
+      }
+
+      .footer-links a:hover {
+        color: var(--vibe-primary);
+      }
+
+      /* ============================================
+        TAB CONTENT
+       ============================================ */
+      .tab-content {
         display: none;
       }
 
-      .mobile-sidebar-overlay {
-        display: none !important;
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease-out;
       }
 
-      .mobile-sidebar {
-        display: none !important;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 20px;
-      }
-
-      .welcome-message h1 {
-        font-size: 1.6rem;
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
-      .dashboard-section {
-        padding: 25px;
+      /* ============================================
+        RESPONSIVE BREAKPOINTS
+       ============================================ */
+
+      /* Tablet Screen Optimizations */
+      @media (max-width: 992px) {
+        .dashboard {
+          grid-template-columns: 1fr;
+          gap: 20px;
+          padding: 20px 0;
+        }
+
+        .sidebar {
+          display: none;
+        }
+
+        .hamburger-btn {
+          display: flex;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 15px;
+        }
+
+        .events-table {
+          min-width: 600px;
+        }
+
+        .organizer-name {
+          font-size: 0.75rem;
+        }
+
+        .organizer-badge {
+          font-size: 0.55rem;
+          padding: 1px 6px;
+        }
       }
-    }
-  </style>
-</head>
 
-<body>
-  <!-- Django Messages -->
-  {% if messages %}
-  {% for message in messages %}
-  <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  {% endfor %}
-  {% endif %}
+      /* Smart Mobile Responsive Code Fixes (No Layout Clipping) */
+      @media (max-width: 768px) {
+        .header-container {
+          gap: 10px;
+        }
 
-  <!-- Mobile Sidebar Overlay -->
-  <div class="mobile-sidebar-overlay" id="mobileOverlay"></div>
+        .organizer-info .organizer-name,
+        .organizer-info .organizer-badge {
+          display: none;
+        }
 
-  <!-- Mobile Sidebar -->
-  <div class="mobile-sidebar" id="mobileSidebar">
-    <div class="mobile-sidebar-header">
-      <span class="logo-text">VibePass</span>
-      <button class="mobile-sidebar-close" id="closeSidebar">
-        <i class="fas fa-times"></i>
-      </button>
+        .organizer-avatar {
+          width: 34px;
+          height: 34px;
+          font-size: 0.85rem;
+        }
+
+        .dashboard-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        /* Fixed typography scale constraints to handle dynamic user input data */
+        .welcome-message h1 {
+          font-size: 1.25rem;
+        }
+
+        .welcome-message p {
+          font-size: 0.85rem;
+        }
+
+        .date-display {
+          font-size: 0.75rem;
+          padding: 6px 12px;
+        }
+
+        /* Stack stats blocks cleanly inside mobile viewpoint boundaries */
+        .stats-grid {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .stat-card {
+          padding: 16px;
+        }
+
+        .stat-icon {
+          width: 44px;
+          height: 44px;
+          font-size: 1.25rem;
+        }
+
+        .stat-info h3 {
+          font-size: 1.2rem;
+        }
+
+        .dashboard-section {
+          padding: 16px;
+          border-radius: 14px;
+        }
+
+        .section-header h2 {
+          font-size: 1rem;
+        }
+
+        .view-all {
+          font-size: 0.8rem;
+        }
+
+        /* Prevent horizontal scrolling glitches in containers */
+        .events-table {
+          min-width: 600px;
+        }
+
+        .events-table th {
+          font-size: 0.75rem;
+          padding: 10px;
+        }
+
+        .events-table td {
+          font-size: 0.8rem;
+          padding: 12px 10px;
+        }
+
+        .event-title {
+          font-size: 0.8rem;
+        }
+
+        .event-venue {
+          font-size: 0.7rem;
+        }
+
+        .btn-small {
+          padding: 6px 12px;
+          font-size: 0.75rem;
+          min-height: 32px;
+        }
+
+        .tab-btn {
+          font-size: 0.75rem;
+          padding: 6px 14px;
+          min-height: 34px;
+        }
+
+        .ticket-mgmt-card {
+          padding: 16px;
+        }
+
+        .ticket-mgmt-icon {
+          width: 44px;
+          height: 44px;
+          font-size: 1.2rem;
+        }
+
+        .ticket-mgmt-info h3 {
+          font-size: 1.05rem;
+        }
+      }
+
+      /* Small Screen Smartphone Refinements (Down to 320px) */
+      @media (max-width: 480px) {
+        .container {
+          padding: 0 12px;
+        }
+
+        .dashboard-header {
+          gap: 10px;
+        }
+
+        .welcome-message h1 {
+          font-size: 1.15rem;
+        }
+
+        .welcome-message p {
+          font-size: 0.8rem;
+        }
+
+        .dashboard-section {
+          padding: 12px;
+        }
+
+        .section-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .section-header h2 {
+          font-size: 0.95rem;
+        }
+
+        .view-all {
+          padding: 0;
+          min-height: auto;
+        }
+
+        .tab-navigation {
+          gap: 4px;
+        }
+
+        .tab-btn {
+          flex: 1 1 auto;
+          text-align: center;
+          font-size: 0.7rem;
+          padding: 6px 10px;
+        }
+
+        /* Clean stacked blocks for responsive inline action arrays */
+        .event-actions {
+          flex-direction: column;
+          gap: 6px;
+          width: 100%;
+        }
+
+        .btn-small {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+      /* Desktop Viewport Validations */
+      @media (min-width: 769px) {
+        .hamburger-btn {
+          display: none;
+        }
+
+        .mobile-sidebar-overlay {
+          display: none !important;
+        }
+
+        .mobile-sidebar {
+          display: none !important;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .stats-grid {
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+        }
+
+        .welcome-message h1 {
+          font-size: 1.6rem;
+        }
+
+        .dashboard-section {
+          padding: 25px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Django Messages -->
+    {% if messages %} {% for message in messages %}
+    <div
+      class="alert alert-warning alert-dismissible fade show m-3"
+      role="alert"
+    >
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    <div class="nav-section">
-      <h3 class="section-title">Menu</h3>
-      <ul class="nav-links">
-        <li><a href="#" class="nav-link active" data-tab="overview"><i class="fas fa-chart-line nav-icon"></i> Overview</a></li>
-        <li><a href="#" class="nav-link" data-tab="events"><i class="fas fa-calendar-alt nav-icon"></i> My Events <span class="badge">{{ total_events }}</span></a></li>
-        <li><a href="#" class="nav-link" data-tab="tickets"><i class="fas fa-ticket-alt nav-icon"></i> Tickets <span class="badge">{{ total_tickets_sold }}</span></a></li>
-        <li><a href="#" class="nav-link" data-tab="analytics"><i class="fas fa-chart-bar nav-icon"></i> Analytics</a></li>
-      </ul>
-    </div>
-    <div class="sidebar-actions">
-      <a href="{% url 'create_event' %}" class="sidebar-action-btn create">
-        <i class="fas fa-plus-circle"></i> Create Event
-      </a>
-      <a href="{% url 'finders_dashboard' %}" class="sidebar-action-btn tickets">
-        <i class="fas fa-ticket-alt"></i> My Tickets
-      </a>
-      <a href="{% url 'request_withdrawal' %}" class="sidebar-action-btn withdraw">
-        <i class="fas fa-wallet"></i> Withdraw
-      </a>
-      <a href="{% url 'add_scanner' %}" class="sidebar-action-btn withdraw">
-        <i class="fas fa-user-plus"></i> Add Scanners
-      </a>
-      <a href="{% url 'scanner' %}" class="sidebar-action-btn scan">
-        <i class="fas fa-qrcode"></i> Scan Tickets
-      </a>
-    </div>
-  </div>
+    {% endfor %} {% endif %}
 
-  <!-- Header -->
-  <header class="header">
-    <div class="container header-container">
-      <a href="{% url 'home' %}" class="logo">
-        <div class="logo-icon">
-          <i class="fas fa-ticket-alt"></i>
-        </div>
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay" id="mobileOverlay"></div>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar" id="mobileSidebar">
+      <div class="mobile-sidebar-header">
         <span class="logo-text">VibePass</span>
-      </a>
-
-      <div class="organizer-menu">
-        <div class="organizer-info">
-          <div class="organizer-avatar"><i class="fas fa-user"></i></div>
-          <div>
-            <div class="organizer-name">{{ user.username }}</div>
-            {% if user.is_organiser %}
-            <div class="organizer-badge">Organizer</div>
-            {% endif %}
-          </div>
-        </div>
-        <button class="hamburger-btn" id="hamburgerBtn">
-          <span></span>
-          <span></span>
-          <span></span>
+        <button class="mobile-sidebar-close" id="closeSidebar">
+          <i class="fas fa-times"></i>
         </button>
       </div>
+      <div class="nav-section">
+        <h3 class="section-title">Menu</h3>
+        <ul class="nav-links">
+          <li>
+            <a href="#" class="nav-link active" data-tab="overview"
+              ><i class="fas fa-chart-line nav-icon"></i> Overview</a
+            >
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-tab="events"
+              ><i class="fas fa-calendar-alt nav-icon"></i> My Events
+              <span class="badge">{{ total_events }}</span></a
+            >
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-tab="tickets"
+              ><i class="fas fa-ticket-alt nav-icon"></i> Tickets
+              <span class="badge">{{ total_tickets_sold }}</span></a
+            >
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-tab="analytics"
+              ><i class="fas fa-chart-bar nav-icon"></i> Analytics</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-actions">
+        <a href="{% url 'create_event' %}" class="sidebar-action-btn create">
+          <i class="fas fa-plus-circle"></i> Create Event
+        </a>
+        <a
+          href="{% url 'finders_dashboard' %}"
+          class="sidebar-action-btn tickets"
+        >
+          <i class="fas fa-ticket-alt"></i> My Tickets
+        </a>
+        <a
+          href="{% url 'request_withdrawal' %}"
+          class="sidebar-action-btn withdraw"
+        >
+          <i class="fas fa-wallet"></i> Withdraw
+        </a>
+        <a href="{% url 'add_scanner' %}" class="sidebar-action-btn withdraw">
+          <i class="fas fa-user-plus"></i> Add Scanners
+        </a>
+        <a href="{% url 'scanner' %}" class="sidebar-action-btn scan">
+          <i class="fas fa-qrcode"></i> Scan Tickets
+        </a>
+      </div>
     </div>
-  </header>
 
-  <!-- Dashboard -->
-  <div class="container">
-    <div class="dashboard">
-      <!-- Sidebar - Desktop -->
-      <aside class="sidebar" id="sidebar">
-        <div class="nav-section">
-          <h3 class="section-title">Menu</h3>
-          <ul class="nav-links">
-            <li><a href="#" class="nav-link active" data-tab="overview"><i class="fas fa-chart-line nav-icon"></i> Overview</a></li>
-            <li><a href="#" class="nav-link" data-tab="events"><i class="fas fa-calendar-alt nav-icon"></i> My Events <span class="badge">{{ total_events }}</span></a></li>
-            <li><a href="#" class="nav-link" data-tab="tickets"><i class="fas fa-ticket-alt nav-icon"></i> Tickets <span class="badge">{{ total_tickets_sold }}</span></a></li>
-            <li><a href="#" class="nav-link" data-tab="analytics"><i class="fas fa-chart-bar nav-icon"></i> Analytics</a></li>
-          </ul>
-        </div>
-        <div class="sidebar-actions-desktop">
-          <a href="{% url 'create_event' %}" class="sidebar-action-btn create">
-            <i class="fas fa-plus-circle"></i> Create Event
-          </a>
-          <a href="{% url 'finders_dashboard' %}" class="sidebar-action-btn tickets">
-            <i class="fas fa-ticket-alt"></i> My Tickets
-          </a>
-          <a href="{% url 'request_withdrawal' %}" class="sidebar-action-btn withdraw">
-            <i class="fas fa-wallet"></i> Withdraw
-          </a>
-          <a href="{% url 'add_scanner' %}" class="sidebar-action-btn withdraw">
-           <i class="fas fa-user-plus"></i> Add Scanners
-          </a>
-          <a href="{% url 'scanner' %}" class="sidebar-action-btn scan">
-            <i class="fas fa-qrcode"></i> Scan Tickets
-          </a>
-        </div>
-      </aside>
-
-      <!-- Main Content -->
-      <main class="main-content">
-        <!-- Dashboard Header -->
-        <div class="dashboard-header">
-          <div class="welcome-message">
-            <h1>Welcome back, {{ user.username }}! 👋</h1>
-            <p>Manage your events, track ticket sales, and grow your audience</p>
+    <!-- Header -->
+    <header class="header">
+      <div class="container header-container">
+        <a href="{% url 'home' %}" class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-ticket-alt"></i>
           </div>
-          <div class="date-display">
-            <i class="fas fa-calendar-day"></i>
-            <span id="currentDate">Loading...</span>
-          </div>
-        </div>
+          <span class="logo-text">VibePass</span>
+        </a>
 
-        <!-- Stats Cards - 4 columns on desktop, 1 on mobile -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-wallet"></i></div>
-            <div class="stat-info">
-              <h3 id="wallet-balance">KES {{ user.account_balance }}</h3>
-              <p>Available Balance</p>
+        <div class="organizer-menu">
+          <div class="organizer-info">
+            <div class="organizer-avatar"><i class="fas fa-user"></i></div>
+            <div>
+              <div class="organizer-name">{{ user.username }}</div>
+              {% if user.is_organiser %}
+              <div class="organizer-badge">Organizer</div>
+              {% endif %}
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
-            <div class="stat-info">
-              <h3>{{ total_tickets_sold }}</h3>
-              <p>Tickets Sold</p>
+          <button class="hamburger-btn" id="hamburgerBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard -->
+    <div class="container">
+      <div class="dashboard">
+        <!-- Sidebar - Desktop -->
+        <aside class="sidebar" id="sidebar">
+          <div class="nav-section">
+            <h3 class="section-title">Menu</h3>
+            <ul class="nav-links">
+              <li>
+                <a href="#" class="nav-link active" data-tab="overview"
+                  ><i class="fas fa-chart-line nav-icon"></i> Overview</a
+                >
+              </li>
+              <li>
+                <a href="#" class="nav-link" data-tab="events"
+                  ><i class="fas fa-calendar-alt nav-icon"></i> My Events
+                  <span class="badge">{{ total_events }}</span></a
+                >
+              </li>
+              <li>
+                <a href="#" class="nav-link" data-tab="tickets"
+                  ><i class="fas fa-ticket-alt nav-icon"></i> Tickets
+                  <span class="badge">{{ total_tickets_sold }}</span></a
+                >
+              </li>
+              <li>
+                <a href="#" class="nav-link" data-tab="analytics"
+                  ><i class="fas fa-chart-bar nav-icon"></i> Analytics</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="sidebar-actions-desktop">
+            <a
+              href="{% url 'create_event' %}"
+              class="sidebar-action-btn create"
+            >
+              <i class="fas fa-plus-circle"></i> Create Event
+            </a>
+            <a
+              href="{% url 'finders_dashboard' %}"
+              class="sidebar-action-btn tickets"
+            >
+              <i class="fas fa-ticket-alt"></i> My Tickets
+            </a>
+            <a
+              href="{% url 'request_withdrawal' %}"
+              class="sidebar-action-btn withdraw"
+            >
+              <i class="fas fa-wallet"></i> Withdraw
+            </a>
+            <a
+              href="{% url 'add_scanner' %}"
+              class="sidebar-action-btn withdraw"
+            >
+              <i class="fas fa-user-plus"></i> Add Scanners
+            </a>
+            <a href="{% url 'scanner' %}" class="sidebar-action-btn scan">
+              <i class="fas fa-qrcode"></i> Scan Tickets
+            </a>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+          <!-- Dashboard Header -->
+          <div class="dashboard-header">
+            <div class="welcome-message">
+              <h1>Welcome back, {{ user.username }}! 👋</h1>
+              <p>
+                Manage your events, track ticket sales, and grow your audience
+              </p>
+            </div>
+            <div class="date-display">
+              <i class="fas fa-calendar-day"></i>
+              <span id="currentDate">Loading...</span>
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-            <div class="stat-info">
-              <h3>{{ total_events }}</h3>
-              <p>Total Events</p>
+
+          <!-- Stats Cards - 4 columns on desktop, 1 on mobile -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+              <div class="stat-info">
+                <h3 id="wallet-balance">KES {{ user.account_balance }}</h3>
+                <p>Available Balance</p>
+              </div>
             </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-users"></i></div>
-            <div class="stat-info">
-              <h3>{{ total_attendees }}</h3>
-              <p>Total Attendees</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Overview Tab -->
-        <div class="dashboard-section tab-content active" id="overview">
-          <div class="section-header">
-            <h2><i class="fas fa-fire"></i> Recent Events</h2>
-            <a href="#" class="view-all" data-tab="events">View All <i class="fas fa-arrow-right"></i></a>
-          </div>
-
-          <div class="table-wrapper">
-            <table class="events-table">
-              <thead>
-                <tr>
-                  <th>Event</th>
-                  <th>Date</th>
-                  <th>Tickets</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% if events %}
-                {% for event in events|slice:":3" %}
-                <tr class="event-row">
-                  <td>
-                    <div class="event-title">{{ event.Event_title }}</div>
-                    <div class="event-venue"><i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}</div>
-                  </td>
-                  <td>{{ event.Event_date|date:"M d, Y" }}<br><small>{{ event.Event_time|time:"g:i A" }}</small></td>
-                  <td>{{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}</td>
-                  <td>{% if event.Event_date >= today %}<span class="event-status status-upcoming">Upcoming</span>{% else %}<span class="event-status status-ended">Ended</span>{% endif %}</td>
-                  <td class="event-actions">
-                    <a href="{% url 'edit_event' event.slug %}" class="btn-small btn-primary"><i class="fas fa-edit"></i></a>
-                    <button class="btn-small btn-secondary delete-event-btn" data-url="{% url 'delete_event' event.slug %}" data-slug="{{ event.slug }}"><i class="fas fa-trash"></i></button>
-                  </td>
-                </tr>
-                {% endfor %}
-                {% else %}
-                <tr>
-                  <td colspan="5" class="empty-state">
-                    <div class="empty-icon"><i class="fas fa-inbox"></i></div>
-                    <h3>No events yet</h3>
-                    <p><a href="{% url 'create_event' %}" style="color: var(--vibe-primary);">Create your first event</a></p>
-                  </td>
-                </tr>
-                {% endif %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- My Events Tab -->
-        <div class="dashboard-section tab-content" id="events">
-          <div class="tab-navigation">
-            <button class="tab-btn active" data-filter="all">All</button>
-            <button class="tab-btn" data-filter="upcoming">Upcoming</button>
-            <button class="tab-btn" data-filter="past">Past</button>
-          </div>
-          <div class="section-header">
-            <h2><i class="fas fa-calendar-alt"></i> My Events</h2>
-            <a href="{% url 'create_event' %}" class="btn-small btn-primary"><i class="fas fa-plus"></i> Create</a>
-          </div>
-          <div class="table-wrapper">
-            <table class="events-table">
-              <thead>
-                <tr>
-                  <th>Event</th>
-                  <th>Date</th>
-                  <th>Tickets</th>
-                  <th>Revenue</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% if events %}
-                {% for event in events %}
-                <tr class="event-row">
-                  <td>
-                    <div class="event-title">{{ event.Event_title }}</div>
-                    <div class="event-venue"><i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}</div>
-                  </td>
-                  <td>{{ event.Event_date|date:"M d, Y" }}</td>
-                  <td>{{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}</td>
-                  <td>KES {{ event.revenue }}</td>
-                  <td>{% if event.Event_date >= today %}<span class="event-status status-upcoming">Upcoming</span>{% else %}<span class="event-status status-ended">Ended</span>{% endif %}</td>
-                  <td class="event-actions">
-                    <a href="{% url 'edit_event' event.slug %}" class="btn-small btn-primary"><i class="fas fa-edit"></i></a>
-                    <button class="btn-small btn-secondary delete-event-btn" data-url="{% url 'delete_event' event.slug %}" data-slug="{{ event.slug }}"><i class="fas fa-trash"></i></button>
-                  </td>
-                </tr>
-                {% endfor %}
-                {% else %}
-                <tr>
-                  <td colspan="6" class="empty-state">
-                    <div class="empty-icon"><i class="fas fa-inbox"></i></div>
-                    <h3>No events yet</h3>
-                    <p><a href="{% url 'create_event' %}" style="color: var(--vibe-primary);">Create your first event</a></p>
-                  </td>
-                </tr>
-                {% endif %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Tickets Tab - One Column -->
-        <div class="dashboard-section tab-content" id="tickets">
-          <div class="section-header">
-            <h2><i class="fas fa-ticket-alt"></i> Ticket Management</h2>
-            <span style="background: var(--vibe-primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem;">Total: {{ total_tickets_sold }}</span>
-          </div>
-          <div class="ticket-mgmt-grid">
-            <div class="ticket-mgmt-card">
-              <div class="ticket-mgmt-icon"><i class="fas fa-ticket-alt"></i></div>
-              <div class="ticket-mgmt-info">
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
+              <div class="stat-info">
                 <h3>{{ total_tickets_sold }}</h3>
                 <p>Tickets Sold</p>
               </div>
             </div>
-            <div class="ticket-mgmt-card">
-              <div class="ticket-mgmt-icon"><i class="fas fa-users"></i></div>
-              <div class="ticket-mgmt-info">
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+              <div class="stat-info">
+                <h3>{{ total_events }}</h3>
+                <p>Total Events</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-users"></i></div>
+              <div class="stat-info">
                 <h3>{{ total_attendees }}</h3>
-                <p>Attendees</p>
-              </div>
-            </div>
-            <div class="ticket-mgmt-card">
-              <div class="ticket-mgmt-icon"><i class="fas fa-wallet"></i></div>
-              <div class="ticket-mgmt-info">
-                <h3>KES {{ user.account_balance }}</h3>
-                <p>Revenue</p>
+                <p>Total Attendees</p>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Analytics Tab -->
-        <div class="dashboard-section tab-content" id="analytics">
-          <div class="section-header">
-            <h2><i class="fas fa-chart-bar"></i> Event Analytics</h2>
-            <select class="form-select" style="width: auto; padding: 3px 8px; font-size: 0.7rem;">
-              <option>Last 30 days</option>
-              <option>Last 90 days</option>
-            </select>
-          </div>
-          <div class="empty-state">
-            <div class="empty-icon"><i class="fas fa-chart-line"></i></div>
-            <h3>Analytics Coming Soon</h3>
-            <p>Detailed analytics will appear here as your events grow</p>
-          </div>
-        </div>
-      </main>
-    </div>
-  </div>
+          <!-- Overview Tab -->
+          <div class="dashboard-section tab-content active" id="overview">
+            <div class="section-header">
+              <h2><i class="fas fa-fire"></i> Recent Events</h2>
+              <a href="#" class="view-all" data-tab="events"
+                >View All <i class="fas fa-arrow-right"></i
+              ></a>
+            </div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <p>&copy; 2024 VibePass. All rights reserved.</p>
-      <div class="footer-links">
-        <a href="{% url 'list_event' %}">Events</a>
-        <a href="{% url 'contact' %}">Contact</a>
-        <a href="{% url 'faqs' %}">FAQs</a>
+            <div class="table-wrapper">
+              <table class="events-table">
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Tickets</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if events %} {% for event in events|slice:":3" %}
+                  <tr class="event-row">
+                    <td>
+                      <div class="event-title">{{ event.Event_title }}</div>
+                      <div class="event-venue">
+                        <i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}
+                      </div>
+                    </td>
+                    <td>
+                      {{ event.Event_date|date:"M d, Y" }}<br /><small
+                        >{{ event.Event_time|time:"g:i A" }}</small
+                      >
+                    </td>
+                    <td>
+                      {{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}
+                    </td>
+                    <td>
+                      {% if event.Event_date >= today %}<span
+                        class="event-status status-upcoming"
+                        >Upcoming</span
+                      >{% else %}<span class="event-status status-ended"
+                        >Ended</span
+                      >{% endif %}
+                    </td>
+                    <td class="event-actions">
+                      <a
+                        href="{% url 'edit_event' event.slug %}"
+                        class="btn-small btn-primary"
+                        ><i class="fas fa-edit"></i
+                      ></a>
+                      <button
+                        class="btn-small btn-secondary delete-event-btn"
+                        data-url="{% url 'delete_event' event.slug %}"
+                        data-slug="{{ event.slug }}"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %} {% else %}
+                  <tr>
+                    <td colspan="5" class="empty-state">
+                      <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+                      <h3>No events yet</h3>
+                      <p>
+                        <a
+                          href="{% url 'create_event' %}"
+                          style="color: var(--vibe-primary)"
+                          >Create your first event</a
+                        >
+                      </p>
+                    </td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- My Events Tab -->
+          <div class="dashboard-section tab-content" id="events">
+            <div class="tab-navigation">
+              <button class="tab-btn active" data-filter="all">All</button>
+              <button class="tab-btn" data-filter="upcoming">Upcoming</button>
+              <button class="tab-btn" data-filter="past">Past</button>
+            </div>
+            <div class="section-header">
+              <h2><i class="fas fa-calendar-alt"></i> My Events</h2>
+              <a href="{% url 'create_event' %}" class="btn-small btn-primary"
+                ><i class="fas fa-plus"></i> Create</a
+              >
+            </div>
+            <div class="table-wrapper">
+              <table class="events-table">
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Tickets</th>
+                    <th>Revenue</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if events %} {% for event in events %}
+                  <tr class="event-row">
+                    <td>
+                      <div class="event-title">{{ event.Event_title }}</div>
+                      <div class="event-venue">
+                        <i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}
+                      </div>
+                    </td>
+                    <td>{{ event.Event_date|date:"M d, Y" }}</td>
+                    <td>
+                      {{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}
+                    </td>
+                    <td>KES {{ event.revenue }}</td>
+                    <td>
+                      {% if event.Event_date >= today %}<span
+                        class="event-status status-upcoming"
+                        >Upcoming</span
+                      >{% else %}<span class="event-status status-ended"
+                        >Ended</span
+                      >{% endif %}
+                    </td>
+                    <td class="event-actions">
+                      <a
+                        href="{% url 'edit_event' event.slug %}"
+                        class="btn-small btn-primary"
+                        ><i class="fas fa-edit"></i
+                      ></a>
+                      <button
+                        class="btn-small btn-secondary delete-event-btn"
+                        data-url="{% url 'delete_event' event.slug %}"
+                        data-slug="{{ event.slug }}"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %} {% else %}
+                  <tr>
+                    <td colspan="6" class="empty-state">
+                      <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+                      <h3>No events yet</h3>
+                      <p>
+                        <a
+                          href="{% url 'create_event' %}"
+                          style="color: var(--vibe-primary)"
+                          >Create your first event</a
+                        >
+                      </p>
+                    </td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tickets Tab - One Column -->
+          <div class="dashboard-section tab-content" id="tickets">
+            <div class="section-header">
+              <h2><i class="fas fa-ticket-alt"></i> Ticket Management</h2>
+              <span
+                style="
+                  background: var(--vibe-primary);
+                  color: white;
+                  padding: 4px 12px;
+                  border-radius: 20px;
+                  font-size: 0.7rem;
+                "
+                >Total: {{ total_tickets_sold }}</span
+              >
+            </div>
+            <div class="ticket-mgmt-grid">
+              <div class="ticket-mgmt-card">
+                <div class="ticket-mgmt-icon">
+                  <i class="fas fa-ticket-alt"></i>
+                </div>
+                <div class="ticket-mgmt-info">
+                  <h3>{{ total_tickets_sold }}</h3>
+                  <p>Tickets Sold</p>
+                </div>
+              </div>
+              <div class="ticket-mgmt-card">
+                <div class="ticket-mgmt-icon"><i class="fas fa-users"></i></div>
+                <div class="ticket-mgmt-info">
+                  <h3>{{ total_attendees }}</h3>
+                  <p>Attendees</p>
+                </div>
+              </div>
+              <div class="ticket-mgmt-card">
+                <div class="ticket-mgmt-icon">
+                  <i class="fas fa-wallet"></i>
+                </div>
+                <div class="ticket-mgmt-info">
+                  <h3>KES {{ user.account_balance }}</h3>
+                  <p>Revenue</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics Tab -->
+          <div class="dashboard-section tab-content" id="analytics">
+            <div class="section-header">
+              <h2><i class="fas fa-chart-bar"></i> Event Analytics</h2>
+              <select
+                class="form-select"
+                style="width: auto; padding: 3px 8px; font-size: 0.7rem"
+              >
+                <option>Last 30 days</option>
+                <option>Last 90 days</option>
+              </select>
+            </div>
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-chart-line"></i></div>
+              <h3>Analytics Coming Soon</h3>
+              <p>Detailed analytics will appear here as your events grow</p>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
-  </footer>
 
-  <script>
-    // Set current date
-    const currentDate = new Date();
-    document.getElementById("currentDate").textContent = currentDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2026 VibePass. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="{% url 'list_event' %}">Events</a>
+          <a href="{% url 'contact' %}">Contact</a>
+          <a href="{% url 'faqs' %}">FAQs</a>
+        </div>
+      </div>
+    </footer>
 
-    // ============================================
-    // HAMBURGER MENU TOGGLE
-    // ============================================
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const mobileSidebar = document.getElementById('mobileSidebar');
-    const mobileOverlay = document.getElementById('mobileOverlay');
-    const closeSidebar = document.getElementById('closeSidebar');
+    <script>
+      // Set current date
+      const currentDate = new Date();
+      document.getElementById("currentDate").textContent =
+        currentDate.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
 
-    function openSidebar() {
-      mobileSidebar.classList.add('active');
-      mobileOverlay.classList.add('active');
-      hamburgerBtn.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
+      // ============================================
+      // HAMBURGER MENU TOGGLE
+      // ============================================
+      const hamburgerBtn = document.getElementById("hamburgerBtn");
+      const mobileSidebar = document.getElementById("mobileSidebar");
+      const mobileOverlay = document.getElementById("mobileOverlay");
+      const closeSidebar = document.getElementById("closeSidebar");
 
-    function closeSidebarFunc() {
-      mobileSidebar.classList.remove('active');
-      mobileOverlay.classList.remove('active');
-      hamburgerBtn.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    hamburgerBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      if (mobileSidebar.classList.contains('active')) {
-        closeSidebarFunc();
-      } else {
-        openSidebar();
-      }
-    });
-
-    closeSidebar.addEventListener('click', closeSidebarFunc);
-    mobileOverlay.addEventListener('click', closeSidebarFunc);
-
-    document.querySelectorAll('.mobile-sidebar .nav-link').forEach(link => {
-      link.addEventListener('click', function() {
-        closeSidebarFunc();
-      });
-    });
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && mobileSidebar.classList.contains('active')) {
-        closeSidebarFunc();
-      }
-    });
-
-    // ============================================
-    // TAB NAVIGATION
-    // ============================================
-    const desktopNavLinks = document.querySelectorAll('.sidebar .nav-link');
-    const mobileNavLinks = document.querySelectorAll('.mobile-sidebar .nav-link');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    function switchTab(tabId, clickedElement) {
-      desktopNavLinks.forEach(link => link.classList.remove('active'));
-      mobileNavLinks.forEach(link => link.classList.remove('active'));
-      tabContents.forEach(tab => tab.classList.remove('active'));
-
-      const selectedTab = document.getElementById(tabId);
-      if (selectedTab) {
-        selectedTab.classList.add('active');
+      function openSidebar() {
+        mobileSidebar.classList.add("active");
+        mobileOverlay.classList.add("active");
+        hamburgerBtn.classList.add("active");
+        document.body.style.overflow = "hidden";
       }
 
-      if (clickedElement) {
-        clickedElement.classList.add('active');
+      function closeSidebarFunc() {
+        mobileSidebar.classList.remove("active");
+        mobileOverlay.classList.remove("active");
+        hamburgerBtn.classList.remove("active");
+        document.body.style.overflow = "";
       }
 
-      if (window.innerWidth <= 767 && mobileSidebar.classList.contains('active')) {
-        closeSidebarFunc();
+      hamburgerBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (mobileSidebar.classList.contains("active")) {
+          closeSidebarFunc();
+        } else {
+          openSidebar();
+        }
+      });
+
+      closeSidebar.addEventListener("click", closeSidebarFunc);
+      mobileOverlay.addEventListener("click", closeSidebarFunc);
+
+      document.querySelectorAll(".mobile-sidebar .nav-link").forEach((link) => {
+        link.addEventListener("click", function () {
+          closeSidebarFunc();
+        });
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && mobileSidebar.classList.contains("active")) {
+          closeSidebarFunc();
+        }
+      });
+
+      // ============================================
+      // TAB NAVIGATION
+      // ============================================
+      const desktopNavLinks = document.querySelectorAll(".sidebar .nav-link");
+      const mobileNavLinks = document.querySelectorAll(
+        ".mobile-sidebar .nav-link",
+      );
+      const tabContents = document.querySelectorAll(".tab-content");
+
+      function switchTab(tabId, clickedElement) {
+        desktopNavLinks.forEach((link) => link.classList.remove("active"));
+        mobileNavLinks.forEach((link) => link.classList.remove("active"));
+        tabContents.forEach((tab) => tab.classList.remove("active"));
+
+        const selectedTab = document.getElementById(tabId);
+        if (selectedTab) {
+          selectedTab.classList.add("active");
+        }
+
+        if (clickedElement) {
+          clickedElement.classList.add("active");
+        }
+
+        if (
+          window.innerWidth <= 767 &&
+          mobileSidebar.classList.contains("active")
+        ) {
+          closeSidebarFunc();
+        }
       }
-    }
 
-    desktopNavLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const tabId = this.getAttribute('data-tab');
-        switchTab(tabId, this);
+      desktopNavLinks.forEach((link) => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const tabId = this.getAttribute("data-tab");
+          switchTab(tabId, this);
+        });
       });
-    });
 
-    mobileNavLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const tabId = this.getAttribute('data-tab');
-        switchTab(tabId, this);
+      mobileNavLinks.forEach((link) => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const tabId = this.getAttribute("data-tab");
+          switchTab(tabId, this);
+        });
       });
-    });
 
-    // ============================================
-    // TAB FILTERS
-    // ============================================
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', function() {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+      // ============================================
+      // TAB FILTERS
+      // ============================================
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", function () {
+          tabBtns.forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+        });
       });
-    });
 
-    // ============================================
-    // VIEW ALL LINKS
-    // ============================================
-    document.querySelectorAll('.view-all').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetTab = this.getAttribute('data-tab');
-        const targetLink = document.querySelector(`.nav-link[data-tab="${targetTab}"]`);
-        if (targetLink) targetLink.click();
+      // ============================================
+      // VIEW ALL LINKS
+      // ============================================
+      document.querySelectorAll(".view-all").forEach((link) => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const targetTab = this.getAttribute("data-tab");
+          const targetLink = document.querySelector(
+            `.nav-link[data-tab="${targetTab}"]`,
+          );
+          if (targetLink) targetLink.click();
+        });
       });
-    });
 
-    // ============================================
-    // DELETE EVENT
-    // ============================================
-    function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
+      // ============================================
+      // DELETE EVENT
+      // ============================================
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1),
+              );
+              break;
             }
-         }
+          }
+        }
+        return cookieValue;
       }
-     return cookieValue;
-   }
 
-   document.querySelectorAll('.delete-event-btn').forEach(btn => {
-     btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const deleteUrl = this.getAttribute('data-url');
-        const eventSlug = this.getAttribute('data-slug');
+      document.querySelectorAll(".delete-event-btn").forEach((btn) => {
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          const deleteUrl = this.getAttribute("data-url");
+          const eventSlug = this.getAttribute("data-slug");
 
-        if (confirm('Are you sure you want to permanently delete this event?')) {
+          if (
+            confirm("Are you sure you want to permanently delete this event?")
+          ) {
             // Get the CSRF token from the browser cookie instead of an input field
-            const csrfToken = getCookie('csrftoken');
+            const csrfToken = getCookie("csrftoken");
 
             if (!csrfToken) {
-                alert('CSRF token missing. Please refresh the page.');
-                return;
+              alert("CSRF token missing. Please refresh the page.");
+              return;
             }
 
             fetch(deleteUrl, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+              method: "POST",
+              headers: {
+                "X-CSRFToken": csrfToken,
+                "X-Requested-With": "XMLHttpRequest",
+              },
             })
-            .then(response => {
+              .then((response) => {
                 if (response.ok) {
-                    alert('Event deleted successfully!');
-                    window.location.reload();
+                  alert("Event deleted successfully!");
+                  window.location.reload();
                 } else {
-                    alert('Something went wrong. Could not delete event.');
+                  alert("Something went wrong. Could not delete event.");
                 }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-     });
-   });
-    // ============================================
-    // UPDATE BALANCE VIA WEBSOCKETS
-    // ============================================
-    let dashboardSocket = null;
-    let dashboardReconnectTimer = null;
-    let dashboardReconnectAttempts = 0;
+              })
+              .catch((error) => console.error("Error:", error));
+          }
+        });
+      });
+      // ============================================
+      // UPDATE BALANCE VIA WEBSOCKETS
+      // ============================================
+      let dashboardSocket = null;
+      let dashboardReconnectTimer = null;
+      let dashboardReconnectAttempts = 0;
 
-    function connectDashboardSocket() {
-        if (dashboardSocket && (dashboardSocket.readyState === WebSocket.OPEN || dashboardSocket.readyState === WebSocket.CONNECTING)) {
-            return;
+      function connectDashboardSocket() {
+        if (
+          dashboardSocket &&
+          (dashboardSocket.readyState === WebSocket.OPEN ||
+            dashboardSocket.readyState === WebSocket.CONNECTING)
+        ) {
+          return;
         }
 
         if (dashboardReconnectTimer) {
-            clearTimeout(dashboardReconnectTimer);
+          clearTimeout(dashboardReconnectTimer);
         }
 
         const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-        dashboardSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/organizer/dashboard/`);
+        setTimeout(() => {
+          dashboardSocket = new WebSocket(
+            `${wsScheme}://${window.location.host}/ws/organizer/dashboard/`,
+          );
 
-        dashboardSocket.onopen = function() {
+          dashboardSocket.onopen = function () {
             dashboardReconnectAttempts = 0;
             console.log("Organizer dashboard socket connected.");
-        };
+          };
 
-        dashboardSocket.onmessage = function(e) {
+          dashboardSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
             console.log("WebSocket event received:");
 
             if (data.action === "WITHDRAWAL_SUCCESS") {
-                // 1. Update the balance text directly
-                const balanceElement = document.getElementById("wallet-balance");
-                if (balanceElement) {
-                    balanceElement.innerText = `KES ${data.new_balance}`;
-                }
+              // 1. Update the balance text directly
+              const balanceElement = document.getElementById("wallet-balance");
+              if (balanceElement) {
+                balanceElement.innerText = `KES ${data.new_balance}`;
+              }
 
-                // 2. Show a dynamic alert notification
-                const alertBox = document.getElementById("alert-box");
-                if (alertBox) {
-                    alertBox.innerHTML = `
+              // 2. Show a dynamic alert notification
+              const alertBox = document.getElementById("alert-box");
+              if (alertBox) {
+                alertBox.innerHTML = `
                         <div class="alert alert-success">
                             ${data.message}. New balance: KES ${data.new_balance}
                         </div>
                     `;
-                }
+              }
             }
-        };
+          };
 
-        dashboardSocket.onerror = function(error) {
+          dashboardSocket.onerror = function (error) {
             console.error("Organizer dashboard socket error:", error);
-        };
+          };
 
-        dashboardSocket.onclose = function(e) {
-            console.warn("Organizer dashboard socket closed:", e.code, e.reason);
+          dashboardSocket.onclose = function (e) {
+            console.warn(
+              "Organizer dashboard socket closed:",
+              e.code,
+              e.reason,
+            );
 
             if (dashboardReconnectAttempts < 5) {
-                dashboardReconnectAttempts += 1;
-                const delay = Math.min(1000 * dashboardReconnectAttempts, 5000);
-                dashboardReconnectTimer = setTimeout(connectDashboardSocket, delay);
+              dashboardReconnectAttempts += 1;
+              const delay = Math.min(1000 * dashboardReconnectAttempts, 5000);
+              dashboardReconnectTimer = setTimeout(
+                connectDashboardSocket,
+                delay,
+              );
             }
-        };
-    }
+          };
+        }, 1000);
+      }
 
-    document.addEventListener("DOMContentLoaded", connectDashboardSocket);
+      document.addEventListener("DOMContentLoaded", connectDashboardSocket);
 
-    window.addEventListener("beforeunload", function() {
+      document.querySelectorAll('.sidebar-action-btn.withdraw').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...'
+        })
+      })
+
+      window.addEventListener("beforeunload", function () {
         if (dashboardSocket) {
-            dashboardSocket.close();
+          dashboardSocket.close();
         }
-    });
-  </script>
-</body>
-
+      });
+    </script>
+  </body>
 </html>

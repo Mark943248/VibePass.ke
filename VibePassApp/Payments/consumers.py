@@ -122,6 +122,7 @@ class OrganizerDashboardConsumer(AsyncWebsocketConsumer):
 
         # Unique group room for this specific organizer
         self.room_group_name = f"organizer_{self.user.id}"
+        print(f"Group name: {self.room_group_name}")
 
         # Join the group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -144,8 +145,10 @@ def update_dashboard_balance_after_withdraw(withdrawal):
     Utility function to send balance updates via WebSocket
     """
     channel_layer = get_channel_layer()
+    room_group_name = f"organizer_{withdrawal.organiser.id}"
+    print(f"Group name: {room_group_name}")
     async_to_sync(channel_layer.group_send)(
-        f"organizer_{withdrawal.organiser.id}",
+        room_group_name,
         {
             "type": "balance_update",  # Maps to balance_update() in Consumer
             "data": {

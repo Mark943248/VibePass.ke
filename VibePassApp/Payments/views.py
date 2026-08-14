@@ -4,6 +4,7 @@ from .tasks import (
     process_mpesa_b2c_callbacks,
     initiate_mpesa_stk_push_task,
     check_payment_status_task,
+    initiate_b2c_request_task,
 )
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
@@ -13,7 +14,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
 from django.conf import settings
-from .utils import format_phone_number, initiate_b2c_request
+from .utils import format_phone_number
 from .models import Payment, Withdrawal
 import json
 import os
@@ -190,63 +191,23 @@ def request_withdrawal(request):
 
         # Format phone number
         formatted_mpesa_number = format_phone_number(mpesa_number)
-
-        # Create withdrawal record
-        withdrawal = Withdrawal.objects.create(
-            organiser=request.user,
-            amount=total_revenue,
-            mpesa_number=formatted_mpesa_number,
-            status="pending",
-        )
-
-        # Initiate B2C payment
-        try:
-            response = initiate_b2c_request(
+        with transaction.atomic():
+            # Create withdrawal record
+            withdrawal = Withdrawal.objects.create(
+                organiser=request.user,
                 amount=total_revenue,
-                phone_number=formatted_mpesa_number,
+                mpesa_number=formatted_mpesa_number,
+                status="pending",
             )
 
-            b2c_json_path = os.path.join(settings.BASE_DIR, "mpesa_logs", "b2c.json")
-            with open(b2c_json_path, "w") as f:
-                json.dump(response, f, indent=4)
-
-            # Handle M-Pesa B2C response
-            if response.get("ResponseCode") == "0":
-                withdrawal.status = "processing"
-                withdrawal.originator_conversation_id = response.get(
-                    "OriginatorConversationID"
-                )
-                withdrawal.mpesa_conversation_id = response.get("ConversationID")
-                withdrawal.save()
-                messages.success(
-                    request,
-                    f"Withdrawal of KES {total_revenue} initiated successfully, please wait for a moment to receive you amount",
-                )
-                print(
-                    f"B2C withdrawal initiated successfully for {user.username}: Withdrawal ID {withdrawal.withdrawal_id}"
-                )
-            else:
-                withdrawal.status = "failed"
-                withdrawal.reason = response.get(
-                    "ResponseDescription", "B2C request failed"
-                )
-                withdrawal.save()
-                error_msg = response.get(
-                    "ResponseDescription",
-                    "Withdrawal initiation failed. Please try again.",
-                )
-                messages.error(request, error_msg)
-                print(f"B2C withdrawal failed for {user.username}: {error_msg}")
-
-        except Exception as e:
-            withdrawal.status = "failed"
-            withdrawal.reason = str(e)
-            withdrawal.save()
-            error_msg = str(e)
-            messages.error(request, "Error initiating withdrawal. Please try again.")
-            print(f"Error initiating B2C withdrawal for {user.username}: {error_msg}")
-
-        return redirect("organizers_dashboard")
+            # Initiate B2C payment
+            data = {
+                "amount": total_revenue,
+                "phone_number": formatted_mpesa_number,
+                "withdrawal_id": withdrawal.withdrawal_id,
+            }
+            transaction.on_commit(lambda dt=data: initiate_b2c_request_task.delay(dt))
+            return redirect("organizers_dashboard")
 
     except Exception as e:
         messages.error(request, "An unexpected error occurred. Please try again.")
