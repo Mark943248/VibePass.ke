@@ -14,6 +14,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
 from django.conf import settings
+from django_ratelimit.decorators import ratelimit
 from .utils import format_phone_number
 from .models import Payment, Withdrawal
 import json
@@ -25,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 @login_required
+@ratelimit(key='post:phone_number', rate='3/5m', block=True)
 def initiate_payment(request, slug):
     """
     Initiates the payment process for a specific event.
@@ -33,7 +35,7 @@ def initiate_payment(request, slug):
     """
     checkout_data = request.session.get("checkout_data") or {}
     try:
-        print(f"Checkoutdat: {checkout_data}")
+        print(f"Checkoutdata: {checkout_data}")
         event = get_object_or_404(Event, slug=slug)
         amount = checkout_data.get("grand_total", 0)
         checkout_items = checkout_data.get("items", [])
@@ -290,7 +292,8 @@ def mpesa_timeout_handler(request):
 
 # render checkout page
 def checkout(request, slug):
-    """Render the checkout page for a specific event.
+    """
+    Render the checkout page for a specific event.
     Retrieves the event and checkout data from the session, and displays the checkout page with the event details and selected items.
     """
     event = get_object_or_404(Event, slug=slug)
@@ -314,7 +317,8 @@ def checkout(request, slug):
 
 
 def payment_waiting(request, payment_id):
-    """Render the payment waiting page for a specific payment.
+    """
+    Render the payment waiting page for a specific payment.
     This view retrieves the payment record based on the provided payment ID and displays the waiting page while the payment is being processed.
     """
     payment = get_object_or_404(Payment, payment_id=payment_id)
