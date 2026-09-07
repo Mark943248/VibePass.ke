@@ -334,7 +334,7 @@ LOGGING = {  # Capturing backend errors to standard output when DEBUG = False
 }
 
 ADMIN_HONEYPOT_EMAIL_ADMINS = (
-    False  # Turn off automatic email notifications from  django-admin-honeypot
+    True  # Automatic email notifications from  django-admin-honeypot
 )
 
 # Email Backend Configuration for Gmail SMTP

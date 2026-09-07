@@ -26,7 +26,12 @@ from .consumers import (
 logger = logging.getLogger(__name__)
 
 
-@shared_task()
+@shared_task(
+    bind=True, 
+    max_retries=3,
+    autoretry_for=(requests.exceptions.RequestException, requests.exceptions.Timeout),
+    default_retry_delay=10
+)
 def initiate_mpesa_stk_push_task(data):
     """Perform an M-Pesa STK Push request and return a JSON-serializable response."""
     event = Event.objects.get(id=data["Event_id"])
@@ -63,7 +68,10 @@ def initiate_mpesa_stk_push_task(data):
 
     try:
         response = requests.post(
-            stk_push_url, json=payload, headers=headers, timeout=10
+            stk_push_url, 
+            json=payload, 
+            headers=headers, 
+            timeout=(15, 30)
         )
         response.raise_for_status()
         stk_json_path = os.path.join(settings.BASE_DIR, "mpesa_logs", "stk.json")
@@ -212,7 +220,12 @@ def process_mpesa_stk_callbacks(data):
         send_payment_status_update(payment)
 
 
-@shared_task()
+@shared_task(
+    bind=True, 
+    max_retries=3, 
+    autoretry_for=(requests.exceptions.RequestException, requests.exceptions.Timeout), 
+    default_retry_delay=10
+)
 def initiate_b2c_request_task(data):
     """Initiate a Business to Customer (B2C) payment request to M-Pesa.
     This function generates an access token, prepares the request data, and sends a POST request to the M-Pesa B2C API endpoint. It returns the JSON response from the API.
@@ -239,7 +252,7 @@ def initiate_b2c_request_task(data):
     }
     try:
         response = requests.post(
-            api_url, json=request_data, headers=headers, timeout=(5, 30)
+            api_url, json=request_data, headers=headers, timeout=(15, 30)
         )
         response.raise_for_status()
         b2c_response = response.json()

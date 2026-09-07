@@ -66,13 +66,6 @@ def CreateEvent(request, slug=None):
         ticket_ids = data.getlist("ticket_id[]")
         group_size = data.getlist("ticket_group_size[]")
 
-        print(f"{ticket_ids}")
-        print(f"{name}")
-        print(f"{price}")
-        print(f"{capacity}")
-        print(f"{description}")
-        print(f"{group_size}")
-
         try:
             with transaction.atomic():
                 if not is_free:

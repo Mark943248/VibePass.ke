@@ -42,14 +42,14 @@ The app is organized into Django apps:
 ### B. User browses and buys tickets
 1. A user opens an event details page.
 2. They choose ticket quantities from the available ticket types.
-3. The selected cart is stored in the session as checkout data.
+3. The selected cart is kept in the browser and submitted as checkout data.
 4. The user proceeds to checkout.
 
 ### C. Paid ticket flow
 1. The checkout view validates the request and the event state.
 2. A Payment record is created.
-3. M-Pesa STK push is initiated.
-4. The M-Pesa callback updates the payment status.
+3. Celery sends the M-Pesa STK push through Redis.
+4. The public M-Pesa callback updates the payment status through a Celery task.
 5. A payment success signal triggers automatic ticket creation.
 6. QR codes are generated and uploaded via Cloudinary.
 
@@ -70,6 +70,12 @@ The app is organized into Django apps:
 3. A B2C payment request is initiated.
 4. The callback updates the withdrawal status.
 
+### G. Organizer edits an event
+1. The organizer opens Edit from the organizer dashboard or their event listing.
+2. The form loads the existing event and ticket types.
+3. The organizer can update event details, change existing ticket types, add types, or remove types.
+4. The view verifies ownership before saving the changes.
+
 ## 5. Key files to understand first
 
 - [VibePassApp/manage.py](VibePassApp/manage.py): Django entry point.
@@ -82,6 +88,27 @@ The app is organized into Django apps:
 - [VibePassApp/Payments/consumers.py](VibePassApp/Payments/consumers.py): WebSocket consumer for live payment updates.
 
 ## 6. Local setup
+
+Docker Compose is the recommended path because it starts PostgreSQL, Redis, the Django web process, Celery, and ngrok together.
+
+```bash
+cd VibePassApp
+docker compose up --build
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py createsuperuser
+```
+
+The web app is available at `http://127.0.0.1:8000/`. M-Pesa callbacks require a public HTTPS URL; set `MPESA_CALLBACK_URL` to the tunnel base URL so the app can receive the STK, B2C result, and B2C timeout callbacks.
+
+For a Python-only workflow, create a virtual environment, install `requirements.txt`, and run PostgreSQL, Redis, and a Celery worker separately. A standalone Django process does not process asynchronous M-Pesa tasks.
+
+### Environment variables
+
+Keep `.env` out of version control and use placeholders in documentation. Configure `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `ADMIN_URL`, `DECOY_ADMIN`, database settings, Cloudinary credentials, Google OAuth credentials, `CELERY_BROKER_URL`, M-Pesa STK/B2C credentials, and `NGROK_AUTHTOKEN` when using Compose.
+
+Never commit API keys, passwords, OAuth secrets, M-Pesa credentials, backup codes, or certificate private keys. Rotate any credential that has been exposed.
+
+### Legacy Python setup
 
 1. Open the project folder:
    - `cd VibePassApp`
@@ -103,7 +130,7 @@ The app is organized into Django apps:
 6. Create a superuser if needed:
    - `python manage.py createsuperuser`
 7. Activate Django otp for the admin page
-   - Visit this url: `https://127.0.0.1:8000/account/two-factor/setup/`
+   - Visit this URL: `http://127.0.0.1:8000/account/two-factor/setup/`
    - Fill in your details `Username` and `Password`
    - click activate 
    - Scan the QR Code using your authenticator app to receive the code
@@ -189,7 +216,7 @@ python manage.py createsuperuser
 
 ### 7.8 Activate django otp for admin page 
  ``` Follow this procedure
-  - Visit this url: `https://127.0.0.1:8000/account/two-factor/setup/`
+   - Visit this URL: `http://127.0.0.1:8000/account/two-factor/setup/`
   - Fill in your details `Username` and `Password`
   - click activate 
   - Scan the QR Code using your authenticator app to receive the code

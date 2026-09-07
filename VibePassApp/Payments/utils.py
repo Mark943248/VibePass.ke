@@ -104,7 +104,4 @@ def generate_mpesa_security_credential():
     cipher = PKCS1_v1_5.new(public_key)
     encrypted_password = cipher.encrypt(initiator_password.encode())
     security_credential = base64.b64encode(encrypted_password).decode()
-    print(
-        "Generated MPESA Security Credential:", security_credential
-    )  # Debugging statement
     return security_credential
