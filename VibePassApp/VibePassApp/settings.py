@@ -15,6 +15,7 @@ from pathlib import Path
 import os
 import cloudinary
 import sys
+import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -103,16 +104,13 @@ WSGI_APPLICATION = "VibePassApp.wsgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": os.getenv("DATABASE_ENGINE"),
-        "NAME": os.getenv("DATABASE_NAME"),
-        "USER": os.getenv("DATABASE_USER"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
-        "HOST": os.getenv("DATABASE_HOST"),
-        "PORT": os.getenv("DATABASE_PORT"),
-        "CONN_MAX_AGE": 600,  # Persistent DB connections
-        "CONN_HEALTH_CHECKS": True,  # Auto-reconnect if DB connection drops
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
+        conn_max_age=0,         # Keeps connections open for performance
+        conn_health_checks=True,  # Verifies connection health before running queries
+        ssl_require=True
+    )
+        
 }
 
 
@@ -190,7 +188,7 @@ CHANNEL_LAYERS = {
             # and health checking to avoid spurious TimeoutError exceptions.
             "hosts": [
                 {
-                    "host": "redis",
+                    "host": os.getenv("CELERY_BROKER_URL"),
                     "port": 6379,
                     # Seconds to wait for a socket read before raising TimeoutError
                     "socket_timeout": 60,
