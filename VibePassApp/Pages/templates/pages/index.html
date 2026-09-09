@@ -365,11 +365,15 @@
 
     /* No Results */
     .no-results {
+      grid-column: 1 / -1;
+      width: 100%;
       text-align: center;
       padding: 60px 20px;
       background: white;
       border-radius: 20px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
     }
+
 
     @keyframes float {
       0%,
@@ -1290,14 +1294,14 @@
               {% endif %}
             </div>
           </div>
-          {% empty %}
+        </div>
+        {% empty %}
          <div class="no-results">
           <i class="fas fa-calendar-times" style="font-size: 3rem; color: #ccc; margin-bottom: 20px"></i>
           <h3>No Events Found</h3>
           <p>Try adjusting your search or filter criteria</p>
         </div>
         {% endfor %}
-        </div>
       </div>
     </div>
   </section>
