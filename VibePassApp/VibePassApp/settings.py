@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS", "127.0.0.1,localhost,0.0.0.0,.ngrok-free.dev,.ngrok-free.app"
+    "ALLOWED_HOSTS", "127.0.0.1,localhost,0.0.0.0,.ngrok-free.dev,.ngrok-free.app,.onrender.com"
 ).split(",")
 
 
