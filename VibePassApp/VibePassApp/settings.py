@@ -74,7 +74,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    #"django_otp.middleware.OTPMiddleware",
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
@@ -257,7 +257,7 @@ AXES_VERBOSE = True  # Enables verbose logging for Axes, providing detailed info
 
 
 # Django-OTP and Two-Factor Authentication settings
-#TWO_FACTOR_PATCH_ADMIN = False  # Intercepts the admin login view and adds 2FA to it
+TWO_FACTOR_PATCH_ADMIN = False  # Intercepts the admin login view and adds 2FA to it
 
 LOGIN_URL = "login"  # Redirects to login page
 
@@ -265,9 +265,9 @@ LOGIN_REDIRECT_URL = "finders_dashboard"  # Redirects the user to the finders da
 
 LOGOUT_REDIRECT_URL = "/"  # Redirects the user to the home page after admin logout
 
-#TWO_FACTOR_TOTP_DIGITS = 6  # N.O of TOTP digits
+TWO_FACTOR_TOTP_DIGITS = 6  # N.O of TOTP digits
 
-#TWO_FACTOR_LOGIN_TIMEOUT = 200  # Time in seconds before the 2FA login session expires
+TWO_FACTOR_LOGIN_TIMEOUT = 200  # Time in seconds before the 2FA login session expires
 
 if "test" in sys.argv:
     AXES_ENABLED = False  # Disable Axes during testing to avoid lockouts
