@@ -691,6 +691,8 @@
        EMPTY STATE
        ============================================ */
     .empty-state {
+      grid-column: 1 / -1;
+      width: 100%;
       text-align: center;
       padding: 25px 15px;
     }
@@ -1255,7 +1257,7 @@
         <!-- Dashboard Header -->
         <div class="dashboard-header">
           <div class="welcome-message">
-            <h1>Welcome back, {{ user.username }}! 👋</h1>
+            <h1>Welcome back, {{ user.username }}! </h1>
             <p>Here's what's happening with your VibePass events</p>
           </div>
           <div class="date-display">
@@ -1312,26 +1314,6 @@
             {% endfor %}
           </div>
 
-          <!-- Recent Activity -->
-          <div style="margin-top: 20px;">
-            <div class="section-header">
-              <h2><i class="fas fa-history"></i> Recent Activity</h2>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon"><i class="fas fa-ticket-alt"></i></div>
-              <div class="activity-content">
-                <p>You purchased a ticket for <strong>Spring Bash: Neon Night</strong></p>
-                <span class="activity-time">2 days ago</span>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon"><i class="fas fa-check-circle"></i></div>
-              <div class="activity-content">
-                <p>You registered for <strong>Campus Unplugged: Acoustic Night</strong></p>
-                <span class="activity-time">4 days ago</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Upcoming Events Tab -->
