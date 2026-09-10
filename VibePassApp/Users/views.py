@@ -40,13 +40,6 @@ def RegisterView(request):
                 request,
                 "Account Created Succesfully, Login to verify your credentials!.",
             )
-            # group assignment based on role
-            if user.is_Event_Organizer():
-                group = Group.objects.get(name="Event Organizers")
-            else:
-                group = Group.objects.get(name="Event Finders")
-
-            user.groups.add(group)
             return redirect("login")
     return render(request, "users/register.html")
 
