@@ -12,6 +12,9 @@ class User(AbstractUser):
     account_balance = models.DecimalField(
         max_digits=10, decimal_places=2, default=0.00
     )  # New field for account balance
+    is_verified = models.BooleanField(
+        default=True
+    )  # New field to indicate if the user is verified    
 
     def is_Event_Organizer(self):
         return self.is_organiser
