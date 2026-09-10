@@ -18,10 +18,10 @@ Including another URLconf
 import os
 from django.contrib import admin
 from django.urls import path, include
-from django_otp.admin import OTPAdminSite
+#from django_otp.admin import OTPAdminSite
 from two_factor.urls import urlpatterns as tf_urls
 
-admin.site.__class__ = OTPAdminSite
+#admin.site.__class__ = OTPAdminSite
 
 ADMIN_URL = os.getenv("ADMIN_URL")
 DECOY_ADMIN = os.getenv("DECOY_ADMIN")
