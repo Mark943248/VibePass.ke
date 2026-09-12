@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
     autoretry_for=(requests.exceptions.RequestException, requests.exceptions.Timeout),
     default_retry_delay=10
 )
-def initiate_mpesa_stk_push_task(data):
+def initiate_mpesa_stk_push_task(self, data):
     """Perform an M-Pesa STK Push request and return a JSON-serializable response."""
     event = Event.objects.get(id=data["Event_id"])
     formatted_phone = data["formatted_phone"]
