@@ -226,7 +226,7 @@ def process_mpesa_stk_callbacks(data):
     autoretry_for=(requests.exceptions.RequestException, requests.exceptions.Timeout), 
     default_retry_delay=10
 )
-def initiate_b2c_request_task(data):
+def initiate_b2c_request_task(self, data):
     """Initiate a Business to Customer (B2C) payment request to M-Pesa.
     This function generates an access token, prepares the request data, and sends a POST request to the M-Pesa B2C API endpoint. It returns the JSON response from the API.
     """
