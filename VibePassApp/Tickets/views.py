@@ -127,7 +127,6 @@ def book_free_ticket(request, slug):
     with transaction.atomic():
         try:
             created_ticket = None
-            ticket_email_queued = False
             for item in items:
                 ticket_type_id = item.get("id")
                 if not ticket_type_id:
@@ -164,8 +163,6 @@ def book_free_ticket(request, slug):
                         logger.info(
                             f"QR code generated for free ticket {ticket.ticket_id}"
                         )
-                        send_ticket_qr_code_to_user_task.delay(ticket)
-                        ticket_email_queued = True
                     else:
                         logger.warning(
                             f"QR code generation failed for free ticket {ticket.ticket_id}"
@@ -176,20 +173,28 @@ def book_free_ticket(request, slug):
                 logger.info(
                     f"Updated stock for TicketType ID {ticket_type_id}: +{quantity} sold."
                 )
-                logger.info(f"Total sold count is: {ticket_type.sold_count}")
 
             if created_ticket is not None:
-                if ticket_email_queued:
-                    messages.success(
-                        request,
-                        "Ticket booked successfully! A copy of your ticket has been sent to your email.",
+                 ticket_type.refresh_from_db() # Refresh the ticket_type instance to get the updated sold_count value
+                 for ticket in created_ticket:
+                    transaction.on_commit(
+                        lambda tid=ticket.ticket_id: send_ticket_qr_code_to_user_task.delay(
+                            tid
+                        )
                     )
-                else:
-                    messages.success(request, "Ticket booked successfully!")
-                return redirect("finders_dashboard")
+                    logger.info(f"Total sold count is now: {ticket_type.sold_count}")
+                    messages.success(
+                        request, "Ticket booked successfully! A copy of your ticket has been sent to your email."
+                    )
+                                   
+            else:
+                logger.warning(
+                    f"No tickets were created for user {request.user.id} and event {event.slug}"
+                )
+                messages.warning(request, "Error!, Something went wrong. Please try again.")
+                return redirect("event_details", slug=slug)
+            return redirect("finders_dashboard")
 
-            messages.warning(request, "No tickets were created.")
-            return redirect("event_details", slug=slug)
         except DatabaseError as e:
             messages.warning(
                 request, "The system is currently busy, please try again later!"
