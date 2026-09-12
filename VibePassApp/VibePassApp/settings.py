@@ -185,20 +185,8 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            # Use explicit connection kwargs so redis-py / aioredis get sensible timeouts
-            # and health checking to avoid spurious TimeoutError exceptions.
-            "hosts": [
-                {
-                    "host": os.getenv("CELERY_BROKER_URL"),
-                    "port": 6379,
-                    # Seconds to wait for a socket read before raising TimeoutError
-                    "socket_timeout": 60,
-                    # Seconds to wait for socket connect
-                    "socket_connect_timeout": 10,
-                    # Periodically check connections to ensure liveness
-                    "health_check_interval": 10,
-                }
-            ],
+            # Let channels_redis parse the complete rediss:// URL, including TLS settings.
+            "hosts": os.getenv("CELERY_BROKER_URL"),
             "capacity": 1500,
             "expiry": 10,
         },
