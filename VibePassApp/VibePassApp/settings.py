@@ -166,7 +166,7 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
@@ -190,6 +190,7 @@ CHANNEL_LAYERS = {
             "hosts": [
                 {
                     "host": os.getenv("CELERY_BROKER_URL"),
+                    "ssl_cert_reqs": None, # Disable SSL certificate verification
                     "port": 6379,
                     # Seconds to wait for a socket read before raising TimeoutError
                     "socket_timeout": 60,
