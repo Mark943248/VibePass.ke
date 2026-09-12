@@ -187,10 +187,15 @@ CHANNEL_LAYERS = {
         "CONFIG": {
             # Let channels_redis parse the complete rediss:// URL, including TLS settings.
             "hosts": [
-                os.getenv("CELERY_BROKER_URL"),
+              {
+                  "address": os.getenv("CELERY_BROKER_URL"),
+                  "socket_timeout": 60, # Timeout for socket operations in seconds
+                  "socket_connect_timeout": 20, # Timeout for establishing a connection in seconds
+                  "health_check_interval": 15, # Interval in seconds to perform health checks on the Redis connection
+              }
             ],
-            "capacity": 1500,
-            "expiry": 10,
+            "capacity": 1500, # Maximum number of messages that can be queued for a single channel before new messages are dropped.
+            "expiry": 10, # Time in seconds after which messages in the channel layer will expire if not consumed.
         },
     },
 }
