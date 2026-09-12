@@ -191,5 +191,10 @@ class PaymentViewsTest(TestCase):
     def test_request_withdrawal_view_get(self):
         self.client.login(username="organizer", password="testpass123")
         response = self.client.get(reverse("request_withdrawal"))
-        self.assertEqual(response.status_code, 200)
-        # Assuming it renders a template, check if it doesn't crash
+        self.assertEqual(response.status_code, 405)
+
+    def test_request_withdrawal_requires_post(self):
+        self.client.login(username="organizer", password="testpass123")
+        response = self.client.post(reverse("request_withdrawal"))
+        self.assertRedirects(response, reverse("organizers_dashboard"))
+        self.assertFalse(Withdrawal.objects.filter(organiser=self.organizer).exists())

@@ -365,6 +365,7 @@
         background: transparent;
         color: var(--vibe-secondary);
         border: 2px solid var(--vibe-secondary);
+        width: 100%;
       }
 
       .sidebar-action-btn.withdraw:hover {
@@ -1220,12 +1221,12 @@
         >
           <i class="fas fa-ticket-alt"></i> My Tickets
         </a>
-        <a
-          href="{% url 'request_withdrawal' %}"
-          class="sidebar-action-btn withdraw"
-        >
-          <i class="fas fa-wallet"></i> Withdraw
-        </a>
+        <form method="post" action="{% url 'request_withdrawal' %}" class="withdrawal-form">
+          {% csrf_token %}
+          <button type="submit" class="sidebar-action-btn withdraw">
+            <i class="fas fa-wallet"></i> Withdraw
+          </button>
+        </form>
         <a href="{% url 'add_scanner' %}" class="sidebar-action-btn withdraw">
           <i class="fas fa-user-plus"></i> Add Scanners
         </a>
@@ -1309,12 +1310,12 @@
             >
               <i class="fas fa-ticket-alt"></i> My Tickets
             </a>
-            <a
-              href="{% url 'request_withdrawal' %}"
-              class="sidebar-action-btn withdraw"
-            >
-              <i class="fas fa-wallet"></i> Withdraw
-            </a>
+            <form method="post" action="{% url 'request_withdrawal' %}" class="withdrawal-form">
+              {% csrf_token %}
+              <button type="submit" class="sidebar-action-btn withdraw">
+                <i class="fas fa-wallet"></i> Withdraw
+              </button>
+            </form>
             <a
               href="{% url 'add_scanner' %}"
               class="sidebar-action-btn withdraw"
@@ -1879,8 +1880,9 @@
 
       document.addEventListener("DOMContentLoaded", connectDashboardSocket);
 
-      document.querySelectorAll('.sidebar-action-btn.withdraw').forEach((btn) => {
-        btn.addEventListener('click', () => {
+      document.querySelectorAll("form.withdrawal-form").forEach((form) => {
+        form.addEventListener('submit', () => {
+          const btn = form.querySelector('.sidebar-action-btn.withdraw');
           btn.disabled = true;
           btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...'
         })

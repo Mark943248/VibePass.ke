@@ -735,7 +735,7 @@
             {% endif %}
 
             
-            <button class="book-btn" id="bookBtn" onclick="sendCartToBackend()">
+            <button class="book-btn" id="bookBtn" type="button" onclick="sendCartToBackend()">
               <i class="fas fa-ticket-alt"></i> Get Tickets
             </button>
           </div>
@@ -857,36 +857,63 @@
 
     
 
-    // Handle sending ticketCart to the backend
-    function sendCartToBackend() {
+    // Save the cart, then book free tickets or continue to paid checkout.
+    async function sendCartToBackend() {
+      const btn = document.getElementById('bookBtn');
+      if (!btn || btn.disabled) {
+        return;
+      }
+
+      const originalButtonContent = btn.innerHTML;
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
       const payload = {
         cart: ticketCart 
       };
 
-      // 2. Fire the POST request to your URL
-      fetch("{% url 'event_details' event.slug %}", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Django requires this token for security on all POST requests
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        // Convert the JavaScript object into a JSON string
-        body: JSON.stringify(payload)
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-          /* {% if event.Event_is_free %} */
-            window.location.href = "{% url 'book_free_ticket' event.slug %}";
-           /* {% else %} */
-            window.location.href = "{% url 'checkout' event.slug %}";
-          /* {% endif %} */
-          } else {
-            alert("Error processing cart: " + data.message);
+      try {
+        const cartResponse = await fetch("{% url 'event_details' event.slug %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify(payload)
+        });
+        const cartData = await cartResponse.json();
+
+        if (!cartResponse.ok || !cartData.success) {
+          throw new Error(cartData.message || 'Unable to process your ticket selection.');
+        }
+
+        /* {% if event.Event_is_free %} */
+        btn.innerHTML = '<i class="fas fa-ticket-alt fa-spin"></i> Booking your tickets...';
+        const bookingResponse = await fetch("{% url 'book_free_ticket' event.slug %}", {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
           }
-        })
-        .catch(error => console.error('Network Error:', error));
+        });
+
+        if (!bookingResponse.ok) {
+          throw new Error('Unable to complete your free-ticket booking.');
+        }
+
+        window.location.href = bookingResponse.redirected
+          ? bookingResponse.url
+          : "{% url 'finders_dashboard' %}";
+        /* {% else %} */
+        window.location.href = "{% url 'checkout' event.slug %}";
+        /* {% endif %} */
+      } catch (error) {
+        btn.disabled = false;
+        btn.removeAttribute('aria-busy');
+        btn.innerHTML = originalButtonContent;
+        alert(error.message || 'Network error. Please try again.');
+      }
     }
 
     // Quick helper function to extract Django's CSRF token from the browser cookies

@@ -26,6 +26,16 @@ from .consumers import (
 logger = logging.getLogger(__name__)
 
 
+def mark_withdrawal_failed(withdrawal_id, reason):
+    """Fail an open withdrawal without overwriting a later provider callback."""
+    updated = Withdrawal.objects.filter(
+        withdrawal_id=withdrawal_id,
+        status__in=["pending", "processing"],
+    ).update(status="failed", reason=str(reason)[:1000])
+    if updated:
+        logger.error("Withdrawal %s failed: %s", withdrawal_id, reason)
+
+
 @shared_task(
     bind=True, 
     max_retries=3,
@@ -74,9 +84,6 @@ def initiate_mpesa_stk_push_task(self, data):
             timeout=(15, 30)
         )
         response.raise_for_status()
-        stk_json_path = os.path.join(settings.BASE_DIR, "mpesa_logs", "stk.json")
-        with open(stk_json_path, "w") as f:
-            json.dump(response.json(), f, indent=4)
         payment = Payment.objects.get(payment_id=data["Payment_id"])
         if response.json().get("ResponseCode") == "0":
             payment.checkout_request_id = response.json().get("CheckoutRequestID")
@@ -221,43 +228,48 @@ def process_mpesa_stk_callbacks(data):
 
 
 @shared_task(
-    bind=True, 
-    max_retries=3, 
-    autoretry_for=(requests.exceptions.RequestException, requests.exceptions.Timeout), 
-    default_retry_delay=10
+    bind=True,
+    max_retries=3,
 )
 def initiate_b2c_request_task(self, data):
     """Initiate a Business to Customer (B2C) payment request to M-Pesa.
     This function generates an access token, prepares the request data, and sends a POST request to the M-Pesa B2C API endpoint. It returns the JSON response from the API.
     """
-    access_token = generate_access_token()
-    api_url = "https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest"
-    headers = {"Authorization": f"Bearer {access_token}"}
-    callback_base = config("MPESA_CALLBACK_URL").rstrip("/")
-    result_url = f"{callback_base}/payments/mpesa_b2c_callback"
-    timeout_url = f"{callback_base}/payments/mpesa_b2c_timeout"
-
-    request_data = {
-        "OriginatorConversationID": str(uuid.uuid4()),
-        "InitiatorName": os.getenv("MPESA_INITIATOR_NAME"),
-        "SecurityCredential": generate_mpesa_security_credential(),
-        "CommandID": "BusinessPayment",
-        "Amount": calculate_net_earnings(int(data["amount"])),
-        "PartyA": os.getenv("MPESA_B2C_SHORT_CODE"),
-        "PartyB": data["phone_number"],
-        "Remarks": "remarked",
-        "QueueTimeOutURL": timeout_url,
-        "ResultURL": result_url,
-        "Occassion": "VibePass Organizer Withdrawal",
-    }
+    withdrawal_id = data["withdrawal_id"]
     try:
+        Withdrawal.objects.get(withdrawal_id=withdrawal_id)
+    except Withdrawal.DoesNotExist:
+        logger.error("Withdrawal %s does not exist", withdrawal_id)
+        return None
+
+    try:
+        access_token = generate_access_token()
+        api_url = "https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest"
+        headers = {"Authorization": f"Bearer {access_token}"}
+        callback_base = config("MPESA_CALLBACK_URL").rstrip("/")
+        result_url = f"{callback_base}/payments/mpesa_b2c_callback"
+        timeout_url = f"{callback_base}/payments/mpesa_b2c_timeout"
+        originator_conversation_id = data.setdefault(
+            "originator_conversation_id", str(uuid.uuid4())
+        )
+        request_data = {
+            "OriginatorConversationID": originator_conversation_id,
+            "InitiatorName": os.getenv("MPESA_INITIATOR_NAME"),
+            "SecurityCredential": generate_mpesa_security_credential(),
+            "CommandID": "BusinessPayment",
+            "Amount": calculate_net_earnings(int(data["amount"])),
+            "PartyA": os.getenv("MPESA_B2C_SHORT_CODE"),
+            "PartyB": data["phone_number"],
+            "Remarks": "remarked",
+            "QueueTimeOutURL": timeout_url,
+            "ResultURL": result_url,
+            "Occassion": "VibePass Organizer Withdrawal",
+        }
         response = requests.post(
             api_url, json=request_data, headers=headers, timeout=(15, 30)
         )
         response.raise_for_status()
         b2c_response = response.json()
-        withdrawal_id = data["withdrawal_id"]
-
         withdrawal = Withdrawal.objects.get(withdrawal_id=withdrawal_id)
 
         b2c_json_path = os.path.join(settings.BASE_DIR, "mpesa_logs", "b2c.json")
@@ -265,12 +277,18 @@ def initiate_b2c_request_task(self, data):
             json.dump(b2c_response, f, indent=4)
 
         # Handle M-Pesa B2C response
-        if b2c_response.get("ResponseCode") == "0":
+        if str(b2c_response.get("ResponseCode")) == "0":
+            originator_conversation_id = b2c_response.get("OriginatorConversationID")
+            conversation_id = b2c_response.get("ConversationID")
+            if not originator_conversation_id or not conversation_id:
+                mark_withdrawal_failed(
+                    withdrawal_id,
+                    "B2C response did not include conversation identifiers",
+                )
+                return None
             withdrawal.status = "processing"
-            withdrawal.originator_conversation_id = b2c_response.get(
-                "OriginatorConversationID"
-            )
-            withdrawal.mpesa_conversation_id = b2c_response.get("ConversationID")
+            withdrawal.originator_conversation_id = originator_conversation_id
+            withdrawal.mpesa_conversation_id = conversation_id
             withdrawal.save()
             logger.info(
                 f"Withdrawal Request for {withdrawal.withdrawal_id} is successful"
@@ -287,10 +305,26 @@ def initiate_b2c_request_task(self, data):
             )
             logger.error(f"B2C request failed: {error_msg}")
 
-    except requests.exceptions.Timeout as exc:
-        logger.warning(f"Timeout error in b2c callback: {exc}")
-    except requests.exceptions.RequestException as exc:
-        logger.warning(f"Error in b2c request: {exc}")
+    except (requests.exceptions.Timeout, requests.exceptions.RequestException) as exc:
+        if self.request.retries < self.max_retries:
+            countdown = 10 * (2**self.request.retries)
+            logger.warning(
+                "B2C request attempt %s failed for withdrawal %s; retrying in %s seconds: %s",
+                self.request.retries + 1,
+                withdrawal_id,
+                countdown,
+                exc,
+            )
+            raise self.retry(exc=exc, countdown=countdown)
+        mark_withdrawal_failed(
+            withdrawal_id,
+            f"B2C request failed after {self.max_retries + 1} attempts: {exc}",
+        )
+    except (KeyError, TypeError, ValueError, OSError) as exc:
+        mark_withdrawal_failed(withdrawal_id, f"B2C setup failed: {exc}")
+    except Exception:
+        logger.exception("Unexpected B2C initiation failure for %s", withdrawal_id)
+        mark_withdrawal_failed(withdrawal_id, "Unexpected B2C initiation failure")
 
 
 @shared_task()
@@ -304,19 +338,37 @@ def process_mpesa_b2c_callbacks(data):
         "OriginatorConversationID", "unknown"
     )
     mpesa_details = data.get("Result", {})
-    Result_code = mpesa_details.get("ResultCode")
+    result_code = mpesa_details.get("ResultCode")
     originator_conversation_id = mpesa_details.get("OriginatorConversationID")
     transaction_id = mpesa_details.get("TransactionID")
-    Result_desc = mpesa_details.get("ResultDesc")
+    result_desc = mpesa_details.get("ResultDesc")
+
+    try:
+        result_code = int(result_code)
+    except (TypeError, ValueError):
+        logger.error(
+            "Invalid B2C ResultCode for conversation %s: %r",
+            originator_conversation_id,
+            result_code,
+        )
+        return None
 
     try:
         withdrawal = Withdrawal.objects.get(
             originator_conversation_id=originator_conversation_id
         )
 
-        if Result_code == 0:
+        if withdrawal.status == "completed":
+            logger.info(
+                "Ignoring duplicate completed B2C callback for withdrawal %s",
+                withdrawal.withdrawal_id,
+            )
+            return None
+
+        if result_code == 0:
             withdrawal.status = "completed"
             withdrawal.mpesa_receipt_number = transaction_id
+            withdrawal.Transaction_id = transaction_id
             withdrawal.save()
             logger.info(
                 f"Withdrawal completed successfully: {withdrawal.withdrawal_id}"
@@ -326,10 +378,11 @@ def process_mpesa_b2c_callbacks(data):
             logger.info(f"Users account balance after deduction: {new_balance}")
         else:
             withdrawal.status = "failed"
-            withdrawal.reason = Result_desc
+            withdrawal.reason = result_desc
+            withdrawal.Transaction_id = transaction_id
             withdrawal.save()
             logger.error(
-                f"Withdrawal failed: {withdrawal.withdrawal_id} - Reason: {Result_desc}"
+                f"Withdrawal failed: {withdrawal.withdrawal_id} - Reason: {result_desc}"
             )
 
     except Withdrawal.DoesNotExist:

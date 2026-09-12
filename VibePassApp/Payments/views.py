@@ -8,6 +8,7 @@ from .tasks import (
 )
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from Events.models import Event, TicketType
 from django.http import JsonResponse
 from django.contrib import messages
@@ -145,14 +146,13 @@ def mpesa_callback(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            stk_json_path = os.path.join(
-                settings.BASE_DIR, "mpesa_logs", "stk_callback.json"
-            )
-            with open(stk_json_path, "w") as f:
-                json.dump(data, f, indent=4)
+            logger.info(f"MPESA STK Callback received: {data}")
             process_mpesa_stk_callbacks.delay(data)
         except json.JSONDecodeError as e:
             logger.error(f"Error decoding JSON callback: {str(e)}")
+        except Exception as e:
+            logger.error(f"Unexpected error in callback processing: {str(e)}")
+            return JsonResponse({"ResultCode": 1, "ResultDesc": "Failed"}, status=503)
         # Respond with a success acknowledgement expected by M-PESA
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
 
@@ -162,6 +162,7 @@ def mpesa_callback(request):
 # Withdrawal request view for event organizers
 @login_required
 @user_passes_test(lambda u: u.is_organiser, login_url="login")
+@require_POST
 def request_withdrawal(request):
     """
     Handles withdrawal requests for event organizers.
@@ -169,34 +170,30 @@ def request_withdrawal(request):
     and initiates a B2C payment request to M-PESA.
     """
     try:
-        user = request.user
-        events = Event.objects.filter(Event_organiser=user)
-
-        # Calculate total revenue from all organizer's events
-        total_revenue = user.account_balance
-
-        # Get mpesa number from first event that has one
-        mpesa_number = None
-        for event in events:
-            if event.Event_mpesa_number:
-                mpesa_number = event.Event_mpesa_number
-                break
-
-        print(
-            f"mpesa_number {mpesa_number} - available_balance {total_revenue}"
-        )  # Debugging log
-
-        # Validate inputs
-        if total_revenue <= 0 or not mpesa_number:
-            messages.error(request, "Insufficient funds please try again !.")
-            return redirect("organizers_dashboard")
-
-        # Format phone number
-        formatted_mpesa_number = format_phone_number(mpesa_number)
         with transaction.atomic():
+            user = request.user
+            if Withdrawal.objects.filter(
+                organiser=user, status__in=["pending", "processing"]
+            ).exists():
+                messages.info(request, "A withdrawal is already being processed.")
+                return redirect("organizers_dashboard")
+
+            events = Event.objects.filter(Event_organiser=user)
+            mpesa_number = events.exclude(
+                Event_mpesa_number__isnull=True
+            ).exclude(Event_mpesa_number="").values_list(
+                "Event_mpesa_number", flat=True
+            ).first()
+            total_revenue = user.account_balance
+
+            if total_revenue <= 0 or not mpesa_number:
+                messages.error(request, "Insufficient funds please try again!")
+                return redirect("organizers_dashboard")
+
+            formatted_mpesa_number = format_phone_number(mpesa_number)
             # Create withdrawal record
             withdrawal = Withdrawal.objects.create(
-                organiser=request.user,
+                organiser=user,
                 amount=total_revenue,
                 mpesa_number=formatted_mpesa_number,
                 status="pending",
@@ -231,14 +228,16 @@ def mpesa_b2c_callback(request):
             print(f"Error decoding B2C callback JSON: {e}")
             return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
 
-        b2c_callback_json_path = os.path.join(
-            settings.BASE_DIR, "mpesa_logs", "b2c_callback.json"
-        )
-        with open(b2c_callback_json_path, "w") as f:
-            json.dump(data, f, indent=4)
         logger.info(f"MPESA B2C Callback received: {data}")
 
-        process_mpesa_b2c_callbacks.delay(data)
+        try:
+            process_mpesa_b2c_callbacks.delay(data)
+        except Exception:
+            logger.exception("Unable to queue M-Pesa B2C callback for processing")
+            return JsonResponse(
+                {"ResultCode": 1, "ResultDesc": "Callback processing unavailable"},
+                status=503,
+            )
         # Acknowledge receipt to M-PESA
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
 

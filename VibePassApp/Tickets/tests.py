@@ -136,7 +136,7 @@ class TicketViewsTest(TestCase):
 
     def test_book_free_ticket_not_free(self):
         self.client.login(username="testuser", password="testpass123")
-        response = self.client.get(
+        response = self.client.post(
             reverse("book_free_ticket", args=[self.paid_event.slug])
         )
         self.assertRedirects(
@@ -151,7 +151,7 @@ class TicketViewsTest(TestCase):
         }
         self.client.session.save()
 
-        response = self.client.get(
+        response = self.client.post(
             reverse("book_free_ticket", args=[self.free_event.slug])
         )
 
@@ -175,7 +175,7 @@ class TicketViewsTest(TestCase):
         }
         self.client.session.save()
 
-        response = self.client.get(
+        response = self.client.post(
             reverse("book_free_ticket", args=[self.free_event.slug])
         )
         self.assertEqual(response.status_code, 302)
@@ -193,13 +193,20 @@ class TicketViewsTest(TestCase):
         }
         self.client.session.save()
 
-        response = self.client.get(
+        response = self.client.post(
             reverse("book_free_ticket", args=[self.free_event.slug]), follow=True
         )
 
         self.assertContains(
             response, "A copy of your ticket has been sent to your email."
         )
+
+    def test_book_free_ticket_rejects_get(self):
+        self.client.login(username="testuser", password="testpass123")
+        response = self.client.get(
+            reverse("book_free_ticket", args=[self.free_event.slug])
+        )
+        self.assertEqual(response.status_code, 405)
 
     def test_create_ticket_function(self):
         from .views import create_ticket

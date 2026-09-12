@@ -96,6 +96,7 @@ def generate_qr_code(ticket):
 
 # create free ticket view
 @login_required
+@require_POST
 def book_free_ticket(request, slug):
     """Book a free ticket for an event"""
     event = get_object_or_404(Event, slug=slug)
