@@ -126,7 +126,7 @@ def book_free_ticket(request, slug):
 
     with transaction.atomic():
         try:
-            created_ticket = None
+            created_tickets = []
             for item in items:
                 ticket_type_id = item.get("id")
                 if not ticket_type_id:
@@ -157,7 +157,7 @@ def book_free_ticket(request, slug):
                         status="active",
                     )
                     logger.info(f"Ticket generated {ticket}")
-                    created_ticket = ticket
+                    created_tickets.append(ticket)
 
                     if generate_qr_code(ticket):
                         logger.info(
@@ -174,9 +174,9 @@ def book_free_ticket(request, slug):
                     f"Updated stock for TicketType ID {ticket_type_id}: +{quantity} sold."
                 )
 
-            if created_ticket is not None:
+            if created_tickets:
                  ticket_type.refresh_from_db() # Refresh the ticket_type instance to get the updated sold_count value
-                 for ticket in created_ticket:
+                 for ticket in created_tickets:
                     transaction.on_commit(
                         lambda tid=ticket.ticket_id: send_ticket_qr_code_to_user_task.delay(
                             tid
