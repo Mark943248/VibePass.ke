@@ -186,7 +186,9 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             # Let channels_redis parse the complete rediss:// URL, including TLS settings.
-            "hosts": os.getenv("CELERY_BROKER_URL"),
+            "hosts": [
+                os.getenv("CELERY_BROKER_URL"),
+            ],
             "capacity": 1500,
             "expiry": 10,
         },
