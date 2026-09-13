@@ -178,7 +178,7 @@ def request_withdrawal(request):
             if Withdrawal.objects.filter(
                 organiser=user, status__in=["pending", "processing", "reconciling"]
             ).exists():
-                messages.info(request, "A withdrawal is already being processed.")
+                messages.info(request, "Your withdrawal is being processed, please wait.")
                 return redirect("organizers_dashboard")
 
             events = Event.objects.filter(Event_organiser=user)
