@@ -326,7 +326,7 @@ def checkout(request, slug):
         messages.error(
             request, "You have not selected the amount of tickets you wish to buy!"
         )
-        return redirect("event_details")
+        return redirect("event_details", slug=slug)
 
     context = {
         "event": event,
