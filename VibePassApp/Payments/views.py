@@ -15,6 +15,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
 from django.conf import settings
+from .consumers import send_payment_status_update
 from django_ratelimit.decorators import ratelimit
 from .utils import format_phone_number
 from .models import Payment, Withdrawal
@@ -130,8 +131,10 @@ def initiate_payment(request, slug):
                 )  # Check after 50 seconds
                 return redirect("payment_waiting", payment_id=payment.payment_id)
             except Exception as e:
-                print(f"Error initiating payment: {str(e)}")
-                return redirect("event_details", slug=event.slug)
+                logger.error(f"Error initiating payment: {str(e)}")
+                payment.payment_status = "Failed"
+                payment.save()
+                send_payment_status_update(payment)  # Notify the user of the failed payment
     return render(request, "payments/checkout.html", {"event": event})
 
 
@@ -198,19 +201,33 @@ def request_withdrawal(request):
                 mpesa_number=formatted_mpesa_number,
                 status="pending",
             )
-
+           
             # Initiate B2C payment
             data = {
                 "amount": total_revenue,
                 "phone_number": formatted_mpesa_number,
                 "withdrawal_id": withdrawal.withdrawal_id,
             }
-            transaction.on_commit(lambda dt=data: initiate_b2c_request_task.delay(dt))
+            try:
+                transaction.on_commit(lambda dt=data: initiate_b2c_request_task.delay(dt))
+                messages.success(
+                    request, "Withdrawal request submitted successfully. Please check your M-PESA for the transaction."
+                )
+            except Exception as e:
+                logger.error(f"Error initiating B2C payment: {str(e)}")
+                withdrawal.status = "failed"
+                withdrawal.reason = "Failed to initiate B2C payment"
+                withdrawal.save()
+                messages.error(
+                    request,
+                    "Failed to initiate withdrawal. Please try again later.",
+                )
+                return redirect("organizers_dashboard")
             return redirect("organizers_dashboard")
 
     except Exception as e:
         messages.error(request, "An unexpected error occurred. Please try again.")
-        print(f"Unexpected error in withdrawal request: {str(e)}")
+        logger.error(f"Unexpected error in withdrawal request: {str(e)}")
         return redirect("organizers_dashboard")
 
 
@@ -225,15 +242,18 @@ def mpesa_b2c_callback(request):
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError as e:
-            print(f"Error decoding B2C callback JSON: {e}")
+            logger.error(f"Error decoding B2C callback JSON: {e}")
             return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
 
         logger.info(f"MPESA B2C Callback received: {data}")
 
         try:
             process_mpesa_b2c_callbacks.delay(data)
-        except Exception:
-            logger.exception("Unable to queue M-Pesa B2C callback for processing")
+            messages.success(
+                request, "Withdrawal processed successfully. Please check your M-PESA for the transaction."
+            )
+        except Exception as e:
+            logger.exception(f"Unable to queue M-Pesa B2C callback for processing: {e}")
             return JsonResponse(
                 {"ResultCode": 1, "ResultDesc": "Callback processing unavailable"},
                 status=503,
@@ -253,17 +273,13 @@ def mpesa_timeout_handler(request):
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError as e:
-            print(f"Error decoding B2C timeout JSON: {e}")
+            logger.error(f"Error decoding B2C timeout JSON: {e}")
             return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
 
         originator_conversation_id = data.get("Result", {}).get(
             "OriginatorConversationID", "unknown"
         )
-        b2c_timeout_json_path = os.path.join(
-            settings.BASE_DIR, "mpesa_logs", "b2c_timeout.json"
-        )
-        with open(b2c_timeout_json_path, "w") as f:
-            json.dump(data, f, indent=4)
+        logger.info(f"MPESA B2C Timeout Callback received: {data}")  
         timeout_details = data.get("Result", {})
         transaction_id = timeout_details.get("TransactionID")
         result_desc = timeout_details.get("ResultDesc")
@@ -272,7 +288,7 @@ def mpesa_timeout_handler(request):
                 originator_conversation_id=originator_conversation_id
             )
         except Withdrawal.DoesNotExist:
-            print(
+            logger.info(
                 f"Timeout callback transaction does not exist: {originator_conversation_id}"
             )
         else:
@@ -280,9 +296,14 @@ def mpesa_timeout_handler(request):
             withdrawal.reason = f"Timeout: {result_desc}"
             withdrawal.Transaction_id = transaction_id
             withdrawal.save()
-            print(
+            logger.info(
                 f"Withdrawal timed out: {withdrawal.withdrawal_id} - Reason: {result_desc}"
             )
+            messages.error(
+                request,
+                f"An Error has occurred. Please try again later.",
+            )
+            return redirect("organizers_dashboard")
 
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
 
@@ -296,15 +317,15 @@ def checkout(request, slug):
     Retrieves the event and checkout data from the session, and displays the checkout page with the event details and selected items.
     """
     event = get_object_or_404(Event, slug=slug)
-    print(f"Event slug: {event.slug}")
+    logger.info(f"Event slug: {event.slug}")
     checkout_data = request.session.get("checkout_data")
-    print(f"Check out data: {checkout_data}")
+    logger.info(f"Checkout data: {checkout_data}")
 
     if not checkout_data:
         messages.error(
             request, "You have not selected the amount of tickets you wish to buy!"
         )
-        redirect("event_details")
+        return redirect("event_details")
 
     context = {
         "event": event,

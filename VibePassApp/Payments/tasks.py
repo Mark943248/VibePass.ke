@@ -39,8 +39,6 @@ def mark_withdrawal_failed(withdrawal_id, reason):
 @shared_task(
     bind=True, 
     max_retries=3,
-    autoretry_for=(requests.exceptions.RequestException, requests.exceptions.Timeout),
-    default_retry_delay=10
 )
 def initiate_mpesa_stk_push_task(self, data):
     """Perform an M-Pesa STK Push request and return a JSON-serializable response."""
@@ -94,19 +92,39 @@ def initiate_mpesa_stk_push_task(self, data):
         else:
             payment.payment_status = "Failed"
             payment.save(update_fields=["payment_status"])
+            send_payment_status_update(payment)
             logger.error(
                 f"STK Push failed for payment_id: {payment.payment_id} - Error: {response.json().get('ResultDesc', 'Error in stk push')}"
             )
-    except requests.exceptions.Timeout as exc:
-        logger.warning("Timeout error from mpesa stk!", exc_info=exc)
-    except requests.exceptions.RequestException as exc:
-        logger.error("Error sending mpesa stk push", exc_info=exc)
-
+    except (requests.exceptions.Timeout, requests.exceptions.RequestException) as exc:
+        if self.request.retries < self.max_retries:
+            countdown = 10 * (2**self.request.retries)
+            logger.warning(
+                "STK Push attempt %s failed for payment_id %s; retrying in %s seconds: %s",
+                self.request.retries + 1,
+                data["Payment_id"],
+                countdown,
+                exc,
+            )
+            raise self.retry(exc=exc, countdown=countdown)
+        payment = Payment.objects.get(payment_id=data["Payment_id"])
+        payment.payment_status = "Failed"
+        payment.save(update_fields=["payment_status"])
+        send_payment_status_update(payment)
+        logger.error(
+            f"STK Push failed after {self.max_retries + 1} attempts for payment_id: {payment.payment_id} - Error: {exc}"
+        )
+    except Exception as exc:
+        payment = Payment.objects.get(payment_id=data["Payment_id"])
+        payment.payment_status = "Failed"
+        payment.save(update_fields=["payment_status"])
+        send_payment_status_update(payment)
+        logger.exception(
+            f"Unexpected error during STK Push for payment_id: {payment.payment_id} - Error: {exc}"
+        )
 
 @shared_task(
     bind=True,
-    autoretry_for=(requests.exceptions.RequestException, requests.exceptions.Timeout),
-    retry_backoff=5,
     max_retries=3,
 )
 def check_payment_status_task(self, payment_id):
@@ -168,8 +186,32 @@ def check_payment_status_task(self, payment_id):
                 f'Payment failed for payment ID {payment.payment_id} (Result Code: {result_code}): {data.get("ResultDesc", "Unknown error")}'
             )
             send_payment_status_update(payment)
-    except requests.exceptions.Timeout as exc:
-        logger.warning("Timeout error from mpesa stk query!", exc_info=exc)
+    except (requests.exceptions.Timeout, requests.exceptions.RequestException) as exc:
+        if self.request.retries < self.max_retries:
+            countdown = 10 * (2**self.request.retries)
+            logger.warning(
+                "Payment status check attempt %s failed for payment_id %s; retrying in %s seconds: %s",
+                self.request.retries + 1,
+                payment_id,
+                countdown,
+                exc,
+            )
+            raise self.retry(exc=exc, countdown=countdown)
+        payment = Payment.objects.get(payment_id=payment_id)
+        payment.payment_status = "Failed"
+        payment.save()
+        send_payment_status_update(payment)
+        logger.error(
+            f"Payment status check failed after {self.max_retries + 1} attempts for payment_id: {payment_id} - Error: {exc}"
+        )
+    except Exception as exc:
+        payment = Payment.objects.get(payment_id=payment_id)
+        payment.payment_status = "Failed"
+        payment.save()
+        send_payment_status_update(payment)
+        logger.exception(
+            f"Unexpected error during payment status check for payment_id: {payment_id} - Error: {exc}"
+        )
 
 
 @shared_task()
