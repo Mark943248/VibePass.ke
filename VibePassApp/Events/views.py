@@ -228,7 +228,9 @@ def SearchEvent(request):
         page_number = request.GET.get("page")
         page_obj = paginator.get_page(page_number)
         return render(
-            request, "events/list_event.html", {"page_obj": page_obj, "query": query}
+            request,
+            "events/list_event.html",
+            {"page_obj": page_obj, "query": query, "today": timezone.now().date()},
         )
 
 
@@ -241,7 +243,11 @@ def Filter_by_category(request, category):
     paginator = Paginator(Events, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    return render(request, "events/list_event.html", {"page_obj": page_obj})
+    return render(
+        request,
+        "events/list_event.html",
+        {"page_obj": page_obj, "today": timezone.now().date()},
+    )
 
 
 # Event details

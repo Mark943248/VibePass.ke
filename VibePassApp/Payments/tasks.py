@@ -6,6 +6,7 @@ import logging
 import requests
 from celery import shared_task
 from decouple import config
+from django.db import transaction
 from .signals import payment_successful
 from django.shortcuts import redirect
 from Events.models import Event
@@ -34,6 +35,23 @@ def mark_withdrawal_failed(withdrawal_id, reason):
     ).update(status="failed", reason=str(reason)[:1000])
     if updated:
         logger.error("Withdrawal %s failed: %s", withdrawal_id, reason)
+
+
+@shared_task()
+def check_b2c_callback_task(withdrawal_id):
+    """Move an unresolved B2C withdrawal to reconciliation after the callback grace period."""
+    updated = Withdrawal.objects.filter(
+        withdrawal_id=withdrawal_id,
+        status__in=["pending", "processing"],
+    ).update(
+        status="reconciling",
+        reason="No B2C callback received; transaction requires reconciliation",
+    )
+    if updated:
+        logger.error(
+            "No B2C callback received for withdrawal %s; marked for reconciliation",
+            withdrawal_id,
+        )
 
 
 @shared_task(
@@ -314,9 +332,9 @@ def initiate_b2c_request_task(self, data):
         b2c_response = response.json()
         withdrawal = Withdrawal.objects.get(withdrawal_id=withdrawal_id)
 
-        b2c_json_path = os.path.join(settings.BASE_DIR, "mpesa_logs", "b2c.json")
-        with open(b2c_json_path, "w") as f:
-            json.dump(b2c_response, f, indent=4)
+        logger.info(
+            f"B2C request initiated for withdrawal {withdrawal_id}: {b2c_response}"
+        )
 
         # Handle M-Pesa B2C response
         if str(b2c_response.get("ResponseCode")) == "0":
@@ -332,6 +350,9 @@ def initiate_b2c_request_task(self, data):
             withdrawal.originator_conversation_id = originator_conversation_id
             withdrawal.mpesa_conversation_id = conversation_id
             withdrawal.save()
+            check_b2c_callback_task.apply_async(
+                (withdrawal_id,), countdown=10 * 60
+            )
             logger.info(
                 f"Withdrawal Request for {withdrawal.withdrawal_id} is successful"
             )
@@ -396,36 +417,37 @@ def process_mpesa_b2c_callbacks(data):
         return None
 
     try:
-        withdrawal = Withdrawal.objects.get(
-            originator_conversation_id=originator_conversation_id
-        )
+        with transaction.atomic():
+            withdrawal = Withdrawal.objects.select_for_update().get(
+                originator_conversation_id=originator_conversation_id
+            )
 
-        if withdrawal.status == "completed":
-            logger.info(
-                "Ignoring duplicate completed B2C callback for withdrawal %s",
-                withdrawal.withdrawal_id,
-            )
-            return None
+            if withdrawal.status in ["completed", "failed"]:
+                logger.info(
+                    "Ignoring duplicate terminal B2C callback for withdrawal %s",
+                    withdrawal.withdrawal_id,
+                )
+                return None
 
-        if result_code == 0:
-            withdrawal.status = "completed"
-            withdrawal.mpesa_receipt_number = transaction_id
-            withdrawal.Transaction_id = transaction_id
-            withdrawal.save()
-            logger.info(
-                f"Withdrawal completed successfully: {withdrawal.withdrawal_id}"
-            )
-            new_balance = calculate_user_account_balance(withdrawal.organiser)
-            update_dashboard_balance_after_withdraw(withdrawal)
-            logger.info(f"Users account balance after deduction: {new_balance}")
-        else:
-            withdrawal.status = "failed"
-            withdrawal.reason = result_desc
-            withdrawal.Transaction_id = transaction_id
-            withdrawal.save()
-            logger.error(
-                f"Withdrawal failed: {withdrawal.withdrawal_id} - Reason: {result_desc}"
-            )
+            if result_code == 0:
+                withdrawal.status = "completed"
+                withdrawal.mpesa_receipt_number = transaction_id
+                withdrawal.Transaction_id = transaction_id
+                withdrawal.save()
+                logger.info(
+                    f"Withdrawal completed successfully: {withdrawal.withdrawal_id}"
+                )
+                new_balance = calculate_user_account_balance(withdrawal.organiser)
+                update_dashboard_balance_after_withdraw(withdrawal)
+                logger.info(f"Users account balance after deduction: {new_balance}")
+            else:
+                withdrawal.status = "failed"
+                withdrawal.reason = result_desc
+                withdrawal.Transaction_id = transaction_id
+                withdrawal.save()
+                logger.error(
+                    f"Withdrawal failed: {withdrawal.withdrawal_id} - Reason: {result_desc}"
+                )
 
     except Withdrawal.DoesNotExist:
         logger.error(f"Transaction does not exist: {originator_conversation_id}")

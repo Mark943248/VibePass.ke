@@ -133,10 +133,13 @@ def book_free_ticket(request, slug):
                 if not ticket_type_id:
                     continue
 
+                quantity = int(item.get("quantity", 1) or 1)
+
                 ticket_type = TicketType.objects.select_for_update(nowait=True).get(
                     id=ticket_type_id, event=event
                 )
-                if not ticket_type.has_available():
+
+                if not ticket_type.has_available() or ticket_type.get_available_count() < quantity:
                     logger.warning(
                         f"Attempt to book ticket for event with no available tickets: {event.slug}"
                     )
@@ -145,7 +148,7 @@ def book_free_ticket(request, slug):
                     )
                     return redirect("event_details", slug=slug)
 
-                quantity = int(item.get("quantity", 1) or 1)
+                
                 if quantity <= 0:
                     continue
 
@@ -217,6 +220,12 @@ def create_ticket(request=None, payment_id=None):
 
     if request is not None and payment.user != request.user:
         return redirect("home")
+
+    if Ticket.objects.filter(payment=payment).exists():
+        logger.info(f"Tickets already created for payment {payment_id}")
+        return redirect(
+            "users_tickets", ticket_id=Ticket.objects.filter(payment=payment).last().ticket_id
+        )
 
     created_tickets = []
     try:

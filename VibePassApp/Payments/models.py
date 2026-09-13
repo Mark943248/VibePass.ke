@@ -46,6 +46,7 @@ class Withdrawal(models.Model):
     WITHDRAWAL_STATUS = [
         ("pending", "Pending"),
         ("processing", "Processing"),
+        ("reconciling", "Reconciliation Required"),
         ("completed", "Completed"),
         ("failed", "Failed"),
         ("cancelled", "Cancelled"),

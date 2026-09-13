@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from Events.models import Event
 from .models import Payment, Withdrawal
+from .tasks import check_b2c_callback_task, process_mpesa_b2c_callbacks
 from .utils import calculate_user_account_balance
 from datetime import date, time
 import uuid
@@ -53,6 +54,23 @@ class PaymentModelTest(TestCase):
         expected = f"Payment {self.payment.payment_id} - User: {self.user.username} - Event: {self.event.Event_title} - Amount: {self.payment.amount}"
         self.assertEqual(str(self.payment), expected)
 
+    def test_payment_waiting_requires_payment_owner(self):
+        payment_url = reverse("payment_waiting", args=[self.payment.payment_id])
+
+        response = self.client.get(payment_url)
+        self.assertRedirects(response, f"/users/login/?next={payment_url}")
+
+        self.client.login(username="testuser", password="testpass123")
+        response = self.client.get(payment_url)
+        self.assertEqual(response.status_code, 200)
+
+        other_user = User.objects.create_user(
+            username="otheruser", password="testpass123"
+        )
+        self.client.force_login(other_user)
+        response = self.client.get(payment_url)
+        self.assertEqual(response.status_code, 404)
+
 
 class WithdrawalModelTest(TestCase):
     def setUp(self):
@@ -77,6 +95,36 @@ class WithdrawalModelTest(TestCase):
     def test_withdrawal_str(self):
         expected = f"Withdrawal {self.withdrawal.withdrawal_id} - Organizer: {self.organizer.username} - Amount: {self.withdrawal.amount} - Status: {self.withdrawal.status}"
         self.assertEqual(str(self.withdrawal), expected)
+
+    def test_b2c_callback_watchdog_moves_open_withdrawal_to_reconciliation(self):
+        self.withdrawal.status = "processing"
+        self.withdrawal.save(update_fields=["status"])
+
+        check_b2c_callback_task(str(self.withdrawal.withdrawal_id))
+
+        self.withdrawal.refresh_from_db()
+        self.assertEqual(self.withdrawal.status, "reconciling")
+        self.assertIn("No B2C callback", self.withdrawal.reason)
+
+    def test_b2c_callback_resolves_reconciling_withdrawal(self):
+        self.withdrawal.status = "reconciling"
+        self.withdrawal.originator_conversation_id = "originator-123"
+        self.withdrawal.save(update_fields=["status", "originator_conversation_id"])
+
+        process_mpesa_b2c_callbacks(
+            {
+                "Result": {
+                    "OriginatorConversationID": "originator-123",
+                    "ResultCode": 0,
+                    "TransactionID": "transaction-123",
+                    "ResultDesc": "The service request is processed successfully.",
+                }
+            }
+        )
+
+        self.withdrawal.refresh_from_db()
+        self.assertEqual(self.withdrawal.status, "completed")
+        self.assertEqual(self.withdrawal.Transaction_id, "transaction-123")
 
 
 class AccountBalanceCalculationTest(TestCase):

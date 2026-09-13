@@ -8,6 +8,7 @@ from Payments.utils import calculate_user_account_balance
 from Events.models import Event
 from Tickets.models import Ticket
 from django.db.models import Sum
+from django.views.decorators.http import require_POST
 from django.utils import timezone
 from datetime import date
 from .models import User
@@ -62,6 +63,7 @@ def LoginView(request):
 
 # make user an event organiser
 @login_required
+@require_POST
 def make_event_organiser(request):
     """Make the logged-in user an event organiser and add them to the 'Event Organizers' group.
     This view updates the user's role to an event organiser and adds them to the appropriate group.

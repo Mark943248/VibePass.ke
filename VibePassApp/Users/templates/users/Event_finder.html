@@ -1185,9 +1185,12 @@
       </ul>
       <!-- Mobile action buttons (Manage & Logout) -->
       <div class="mobile-action-links">
-        <a href="{% url 'make_organiser' %}" class="manage-events-btn" style="color: var(--vibe-primary); border-color: var(--vibe-primary);">
-          <i class="fas fa-calendar-alt"></i> Manage Events
-        </a>
+        <form method="post" action="{% url 'make_organiser' %}">
+          {% csrf_token %}
+          <button type="submit" class="manage-events-btn" style="color: var(--vibe-primary); border-color: var(--vibe-primary);">
+            <i class="fas fa-calendar-alt"></i> Manage Events
+          </button>
+        </form>
         <a href="{% url 'logout' %}" class="logout-btn" style="color: var(--vibe-danger); border-color: var(--vibe-danger);">
           <i class="fas fa-sign-out-alt"></i> Logout
         </a>
@@ -1218,9 +1221,12 @@
 
         <!-- Header actions: visible only on desktop/tablet -->
         <div class="header-actions">
-          <a href="{% url 'make_organiser' %}" class="manage-events-btn">
-            <i class="fas fa-calendar-alt"></i> <span>Manage</span>
-          </a>
+          <form method="post" action="{% url 'make_organiser' %}">
+            {% csrf_token %}
+            <button type="submit" class="manage-events-btn">
+              <i class="fas fa-calendar-alt"></i> <span>Manage</span>
+            </button>
+          </form>
           <a href="{% url 'logout' %}" class="logout-btn">
             <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
           </a>

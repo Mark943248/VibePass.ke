@@ -85,7 +85,7 @@ def initiate_payment(request, slug):
                         id=ticket_type_id, event=event
                     )
                     # Ensures user can't buy a ticket if there no tickets
-                    if not ticket_type.has_available:
+                    if not ticket_type.has_available():
                         messages.error(
                             request,
                             f"Sorry there are no more tickets for: {ticket_type.name}",
@@ -176,7 +176,7 @@ def request_withdrawal(request):
         with transaction.atomic():
             user = request.user
             if Withdrawal.objects.filter(
-                organiser=user, status__in=["pending", "processing"]
+                organiser=user, status__in=["pending", "processing", "reconciling"]
             ).exists():
                 messages.info(request, "A withdrawal is already being processed.")
                 return redirect("organizers_dashboard")
@@ -211,7 +211,8 @@ def request_withdrawal(request):
             try:
                 transaction.on_commit(lambda dt=data: initiate_b2c_request_task.delay(dt))
                 messages.success(
-                    request, "Withdrawal request submitted successfully. Please check your M-PESA for the transaction."
+                    request, 
+                    "Withdrawal request submitted successfully. Please wait for your M-PESA message for the transaction confirmation."
                 )
             except Exception as e:
                 logger.error(f"Error initiating B2C payment: {str(e)}")
@@ -292,8 +293,8 @@ def mpesa_timeout_handler(request):
                 f"Timeout callback transaction does not exist: {originator_conversation_id}"
             )
         else:
-            withdrawal.status = "failed"
-            withdrawal.reason = f"Timeout: {result_desc}"
+            withdrawal.status = "reconciling"
+            withdrawal.reason = f"Safaricom timeout; transaction requires reconciliation: {result_desc}"
             withdrawal.Transaction_id = transaction_id
             withdrawal.save()
             logger.info(
@@ -336,11 +337,12 @@ def checkout(request, slug):
     return render(request, "payments/checkout.html", context)
 
 
+@login_required
 def payment_waiting(request, payment_id):
     """
     Render the payment waiting page for a specific payment.
     This view retrieves the payment record based on the provided payment ID and displays the waiting page while the payment is being processed.
     """
-    payment = get_object_or_404(Payment, payment_id=payment_id)
+    payment = get_object_or_404(Payment, payment_id=payment_id, user=request.user)
     context = {"payment": payment}
     return render(request, "payments/payment_waiting.html", context)
