@@ -1248,7 +1248,7 @@
 
         <div class="organizer-menu">
           <div class="organizer-info">
-            <div class="organizer-avatar"><i class="fas fa-user"></i></div>
+            <div class="organizer-avatar">{{ user.username|slice:":1"|upper }}</div>
             <div>
               <div class="organizer-name">{{ user.username }}</div>
               {% if user.is_organiser %}

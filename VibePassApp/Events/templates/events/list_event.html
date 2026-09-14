@@ -81,9 +81,7 @@
     }
 
     .logo-icon {
-      background: linear-gradient(135deg,
-          var(--vibe-primary),
-          var(--vibe-gradient-end));
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
       width: clamp(40px, 8vw, 50px);
       height: clamp(40px, 8vw, 50px);
       border-radius: 14px;
@@ -101,9 +99,7 @@
     .logo-text {
       font-size: clamp(1.3rem, 4vw, 1.8rem);
       font-weight: 800;
-      background: linear-gradient(135deg,
-          var(--vibe-primary),
-          var(--vibe-secondary));
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -170,13 +166,281 @@
       color: white;
     }
 
-    .mobile-menu-btn {
+    /* ============================================
+       HAMBURGER BUTTON
+       ============================================ */
+    .hamburger-btn {
       display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      cursor: pointer;
+      padding: 10px 12px;
+      border-radius: 10px;
+      transition: all 0.3s;
+      z-index: 200;
+    }
+
+    .hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .hamburger-btn span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: white;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .hamburger-btn.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger-btn.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger-btn.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    /* ============================================
+       DEEPSEEK-STYLE POPUP MENU
+       ============================================ */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 150;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .popup-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .popup-menu {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: 300px;
+      max-width: calc(100vw - 40px);
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px) scale(0.95);
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      overflow: hidden;
+    }
+
+    .popup-menu.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .popup-header {
+      background: linear-gradient(135deg, var(--vibe-dark), #2d2d3a);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+
+    .popup-header .popup-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .popup-header .popup-logo-icon {
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .popup-header .popup-logo-icon i {
+      font-size: 0.9rem;
+      color: white;
+    }
+
+    .popup-close {
       background: none;
       border: none;
-      color: white;
-      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.2rem;
       cursor: pointer;
+      padding: 5px;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .popup-close:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* User Info Section */
+    .popup-user-info {
+      padding: 20px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .popup-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .popup-user-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .popup-username {
+      font-weight: 700;
+      color: var(--vibe-dark);
+      font-size: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .popup-user-status {
+      font-size: 0.8rem;
+      color: var(--vibe-text-light);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .popup-user-status .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--vibe-success);
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Popup Navigation */
+    .popup-nav {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .popup-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--vibe-text);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .popup-nav-item:hover {
+      background: rgba(255, 107, 53, 0.08);
+      color: var(--vibe-primary);
+    }
+
+    .popup-nav-item.active {
+      background: rgba(255, 107, 53, 0.1);
+      color: var(--vibe-primary);
+    }
+
+    .popup-nav-item i {
+      width: 22px;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--vibe-primary);
+    }
+
+    .popup-nav-item span {
+      flex: 1;
+    }
+
+    /* Popup Actions */
+    .popup-actions {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .popup-action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .popup-action-btn.primary {
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
+      color: white;
+    }
+
+    .popup-action-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+    }
+
+    .popup-action-btn.danger {
+      background: transparent;
+      border: 2px solid var(--vibe-danger);
+      color: var(--vibe-danger);
+    }
+
+    .popup-action-btn.danger:hover {
+      background: var(--vibe-danger);
+      color: white;
     }
 
     /* Page Header */
@@ -319,7 +583,7 @@
       color: white;
     }
 
-    /* Events Grid - Responsive: 3 columns on desktop, 2 on tablet, 1 on mobile */
+    /* Events Grid */
     .events-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -473,9 +737,7 @@
     }
 
     .btn-small {
-      background: linear-gradient(135deg,
-          var(--vibe-primary),
-          var(--vibe-gradient-end));
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-gradient-end));
       color: white;
       border: none;
       padding: 8px 20px;
@@ -770,27 +1032,14 @@
 
     /* Responsive Navigation */
     @media (max-width: 768px) {
-      .mobile-menu-btn {
-        display: block;
+      /* Show hamburger, hide desktop nav */
+      .hamburger-btn {
+        display: flex;
       }
 
       .nav-links,
       .nav-buttons {
-        display: none;
-      }
-
-      .nav-links.active,
-      .nav-buttons.active {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        order: 3;
-        margin-top: 20px;
-      }
-
-      .nav-links.active {
-        flex-direction: column;
-        align-items: center;
+        display: none !important;
       }
 
       .search-bar {
@@ -855,6 +1104,23 @@
       .tooltip-right {
         display: none;
       }
+
+      /* Popup menu full width on mobile */
+      .popup-menu {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .popup-menu.active {
+        transform: translateY(0) scale(1);
+      }
     }
 
     /* Animations */
@@ -885,6 +1151,85 @@
   </div>
   {% endfor %} {% endif %}
 
+  <!-- Popup Overlay -->
+  <div class="popup-overlay" id="popupOverlay"></div>
+
+  <!-- Popup Menu (DeepSeek Style) -->
+  <div class="popup-menu" id="popupMenu">
+    <div class="popup-header">
+      <div class="popup-logo">
+        <div class="popup-logo-icon">
+          <i class="fas fa-ticket-alt"></i>
+        </div>
+        <span>VibePass</span>
+      </div>
+      <button class="popup-close" id="popupClose">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- User Info -->
+    {% if user.is_authenticated %}
+    <div class="popup-user-info">
+      <div class="popup-avatar">{{ user.username|slice:":1"|upper }}</div>
+      <div class="popup-user-details">
+        <div class="popup-username">{{ user.username }}</div>
+        <div class="popup-user-status">
+          <span class="status-dot"></span>
+          {% if user.is_organiser %}Organizer{% else %}Student{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation Links -->
+    <div class="popup-nav">
+      <a href="{% url 'home' %}" class="popup-nav-item">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+      <a href="{% url 'list_event' %}" class="popup-nav-item active">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Events</span>
+      </a>
+      <a href="{% url 'about' %}" class="popup-nav-item">
+        <i class="fas fa-info-circle"></i>
+        <span>About</span>
+      </a>
+      <a href="{% url 'contact' %}" class="popup-nav-item">
+        <i class="fas fa-envelope"></i>
+        <span>Contact</span>
+      </a>
+      <a href="{% url 'faqs' %}" class="popup-nav-item">
+        <i class="fas fa-question-circle"></i>
+        <span>FAQs</span>
+      </a>
+    </div>
+
+    <!-- Auth Actions -->
+    <div class="popup-actions">
+      {% if user.is_authenticated %}
+      <a href="{% url 'finders_dashboard' %}" class="popup-action-btn primary">
+        <i class="fas fa-user-circle"></i>
+        My Profile
+      </a>
+      <a href="{% url 'logout' %}" class="popup-action-btn danger">
+        <i class="fas fa-sign-out-alt"></i>
+        Log Out
+      </a>
+      {% else %}
+      <a href="{% url 'login' %}" class="popup-action-btn primary">
+        <i class="fas fa-sign-in-alt"></i>
+        Log In
+      </a>
+      <a href="{% url 'register' %}" class="popup-action-btn danger" style="border-color: var(--vibe-primary); color: var(--vibe-primary);">
+        <i class="fas fa-user-plus"></i>
+        Sign Up
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="header">
     <div class="container header-container">
@@ -895,8 +1240,10 @@
         <span class="logo-text">VibePass</span>
       </a>
 
-      <button class="mobile-menu-btn" id="mobileMenuBtn">
-        <i class="fas fa-bars"></i>
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+        <span></span>
+        <span></span>
+        <span></span>
       </button>
 
       <ul class="nav-links" id="navLinks">
@@ -1141,14 +1488,69 @@
   </div>
 
   <script>
-    // DOM Elements
+    // ============================================
+    // POPUP MENU (DeepSeek Style)
+    // ============================================
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const popupMenu = document.getElementById('popupMenu');
+    const popupOverlay = document.getElementById('popupOverlay');
+    const popupClose = document.getElementById('popupClose');
+
+    function openPopup() {
+      popupMenu.classList.add('active');
+      popupOverlay.classList.add('active');
+      hamburgerBtn.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePopup() {
+      popupMenu.classList.remove('active');
+      popupOverlay.classList.remove('active');
+      hamburgerBtn.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Toggle popup on hamburger click
+    hamburgerBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (popupMenu.classList.contains('active')) {
+        closePopup();
+      } else {
+        openPopup();
+      }
+    });
+
+    // Close popup on overlay click
+    popupOverlay.addEventListener('click', closePopup);
+
+    // Close popup on close button click
+    popupClose.addEventListener('click', closePopup);
+
+    // Close popup on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && popupMenu.classList.contains('active')) {
+        closePopup();
+      }
+    });
+
+    // Close popup when clicking a nav link
+    document.querySelectorAll('.popup-nav-item, .popup-action-btn').forEach(item => {
+      item.addEventListener('click', closePopup);
+    });
+
+    // Close popup when window resizes above mobile breakpoint
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 768 && popupMenu.classList.contains('active')) {
+        closePopup();
+      }
+    });
+
+    // ============================================
+    // FILTER TOGGLE
+    // ============================================
     const filterToggleBtn = document.getElementById("filterToggleBtn");
     const categoryFilters = document.getElementById("categoryFilters");
-    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-    const navLinks = document.getElementById("navLinks");
-    const navButtons = document.getElementById("navButtons");
 
-    // Filter toggle
     if (filterToggleBtn) {
       filterToggleBtn.addEventListener("click", () => {
         categoryFilters.classList.toggle("show");
@@ -1156,23 +1558,15 @@
       });
     }
 
-    // Mobile menu toggle
-    if (mobileMenuBtn) {
-      mobileMenuBtn.addEventListener("click", () => {
-        navLinks.classList.toggle("active");
-        navButtons.classList.toggle("active");
-        mobileMenuBtn.innerHTML = navLinks.classList.contains("active")
-          ? '<i class="fas fa-times"></i>'
-          : '<i class="fas fa-bars"></i>';
-      });
-    }
-
-    // Active category highlighting based on current URL
+    // ============================================
+    // ACTIVE CATEGORY HIGHLIGHTING
+    // ============================================
     const currentUrl = window.location.href;
     const categoryBtns = document.querySelectorAll(".category-btn");
 
     categoryBtns.forEach((btn) => {
-      if (currentUrl.includes(btn.getAttribute("href"))) {
+      const href = btn.getAttribute("href");
+      if (href && currentUrl.includes(href) && href !== "{% url 'list_event' %}") {
         categoryBtns.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
       }

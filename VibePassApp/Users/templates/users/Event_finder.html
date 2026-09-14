@@ -1210,7 +1210,7 @@
 
       <div class="user-menu">
         <div class="user-profile">
-          <div class="user-avatar"><i class="fas fa-user"></i></div>
+          <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
           <div class="user-info">
             <div class="user-name">{{ user.username }}</div>
             <div class="user-status">
