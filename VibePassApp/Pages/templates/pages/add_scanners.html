@@ -644,12 +644,9 @@
                   </div>
                 </div>
                 <div class="scanner-actions">
-                  <form method="POST" action="{% url 'remove_scanner' scanner.scanner_id %}" onsubmit="return confirmDelete(event, '{{ scanner.user.username|escapejs }}')">
-                    {% csrf_token %}
-                    <button type="submit" class="remove-scanner" title="Remove scanner">
-                      <i class="fas fa-times-circle"></i>
-                    </button>
-                  </form>
+                  <button type="button" class="remove-scanner" data-scanner-id="{{ scanner.scanner_id }}" data-action="{% url 'remove_scanner' scanner.scanner_id %}" data-name="{{ scanner.user.username|escapejs }}" onclick="confirmDelete(this)" title="Remove scanner">
+                    <i class="fas fa-times-circle"></i>
+                  </button>
                 </div>
               </div>
               {% empty %}
@@ -748,7 +745,7 @@
     // FORM SUBMISSION
     // ============================================
 
-    document.getElementById('submitBtn').addEventListener('submit', function (e) {
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
 
       // Validate form
@@ -813,16 +810,31 @@
     // ============================================
     // CONFIRM DELETE SCANNER
     // ============================================
-    function confirmDelete(event, staffName) {
-      event.preventDefault();
-
+    function confirmDelete(button) {
+      const staffName = button.dataset.name || 'this scanner';
       const userConfirmed = confirm(`Are you sure you want to remove ${staffName} from this event?`);
 
-      if (userConfirmed) {
-        event.target.submit();
-        return true;
+      if (!userConfirmed) {
+        return false;
       }
-      return false;
+
+      const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = button.dataset.action;
+      form.style.display = 'none';
+
+      if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+      }
+
+      document.body.appendChild(form);
+      form.submit();
+      return true;
     }
 
     // ============================================
