@@ -644,7 +644,7 @@
                   </div>
                 </div>
                 <div class="scanner-actions">
-                  <form method="POST" action="{% url 'remove_scanner' scanner.scanner_id %}" onsubmit="return confirmDelete(event, '{{ scanner.username }}')">
+                  <form method="POST" action="{% url 'remove_scanner' scanner.scanner_id %}" onsubmit="return confirmDelete(event, '{{ scanner.user.username|escapejs }}')">
                     {% csrf_token %}
                     <button type="submit" class="remove-scanner" title="Remove scanner">
                       <i class="fas fa-times-circle"></i>
@@ -661,11 +661,16 @@
             </div>
           </div>
 
-          <!-- Success Message -->
-          <div class="success-message" id="successMessage">
-            <i class="fas fa-check-circle"></i>
-            <span id="successText">Scanner added successfully!</span>
+          {% if messages %}
+          <div class="message-stack" aria-live="polite">
+            {% for message in messages %}
+            <div class="success-message{% if message.tags %} {{ message.tags }}{% endif %}" id="successMessage">
+              <i class="fas fa-check-circle"></i>
+              <span id="successText">{{ message }}</span>
+            </div>
+            {% endfor %}
           </div>
+          {% endif %}
 
           <!-- Form Actions -->
           <div class="form-actions">
@@ -743,7 +748,7 @@
     // FORM SUBMISSION
     // ============================================
 
-    form.addEventListener('submit', function (e) {
+    document.getElementById('submitBtn').addEventListener('submit', function (e) {
       e.preventDefault();
 
       // Validate form
@@ -823,17 +828,13 @@
     // ============================================
     // SUCCESS MESSAGE AUTO-HIDE
     // ============================================
-   /* {% if messages %} */
-   /* {% for message in messages %} */
-    if ("{{ message.tags }}" === "success") {
-      successText.textContent = "{{ message }}";
-      successMessage.style.display = 'block';
+    const messageBlocks = document.querySelectorAll('.success-message');
+    messageBlocks.forEach(function(block) {
+      block.style.display = 'block';
       setTimeout(function() {
-        successMessage.style.display = 'none';
+        block.style.display = 'none';
       }, 5000);
-    }
-    /* {% endfor %} */
-   /* {% endif %} */
+    });
   </script>
 </body>
 

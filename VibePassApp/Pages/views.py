@@ -57,13 +57,25 @@ def add_scanner(request):
     ).select_related("event", "user")
 
     if request.method == "POST":
-        username = request.POST.get("username")
-        event_slug = request.POST.get("event_slug")
+        username = (request.POST.get("username") or "").strip()
+        event_slug = (request.POST.get("event_slug") or "").strip()
 
-        # ALL database operations must be indented INSIDE the POST block
+        if not username or not event_slug:
+            messages.error(request, "Please provide both a valid username and an event.")
+            return redirect("add_scanner")
+
         try:
             event = Event.objects.get(slug=event_slug, Event_organiser=request.user)
-            scanner_user = User.objects.get(username=username)
+            scanner_user = User.objects.filter(username__iexact=username).first()
+
+            if scanner_user is None:
+                logger.error(
+                    f"User with username {username} not found when trying to add scanner for event {event_slug}"
+                )
+                messages.error(
+                    request, "User not found. Please check the username and try again."
+                )
+                return redirect("add_scanner")
 
             today = timezone.now().date()
 
