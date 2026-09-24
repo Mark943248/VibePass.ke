@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Sum
 from decimal import Decimal
+from django.conf import settings
 from Events.models import Event
 from Users.models import User
 import uuid
@@ -37,6 +38,23 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment {self.payment_id} - User: {self.user.username} - Event: {self.event.Event_title} - Amount: {self.amount}"
+
+class EscrowModel(models.Model):
+    """Model to represent amount organisers held by the platform untill release"""
+    PAYOUT_STATUS = [
+        ("held", "Held"),
+        ("frozen", "Frozen"),
+        ("refunded", "Refunded"),
+        ("released", "Released")
+    ]
+    payment = models.OneToOneField(Payment, on_delete=models.CASCADE, related_name="payments")
+    event = models.ForeignKey('Events.Event', on_delete=models.CASCADE, related_name="events")
+    organiser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="organisers")
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    payout_status = models.CharField(max_length=20, choices=PAYOUT_STATUS, default="Held")
+    release_date = models.DateTimeField(db_index=True)
+    released_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    created_at = models.DateField(auto_now_add=True)
 
 
 # Withdrawal model for organizer payouts

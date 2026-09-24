@@ -47,3 +47,17 @@ services:
     container_name: celery
     depends_on:
       - web
+
+  celery-beat:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A VibePassApp beat --loglevel=info
+    volumes:
+      - .:/app/VibePassApp
+    env_file:
+      - .env
+    container_name: celery-beat
+    depends_on:
+      - web

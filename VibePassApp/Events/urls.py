@@ -13,4 +13,6 @@ urlpatterns = [
         views.Filter_by_category,
         name="filter_by_category",
     ),
+    path("report_event/", views.report_event_view, name="report_event"),
+    path("review_event/<slug:slug>", views.rate_event_view, name="review_event")
 ]

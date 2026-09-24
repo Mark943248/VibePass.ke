@@ -5,17 +5,20 @@ import base64
 import logging
 import requests
 from celery import shared_task
+from datetime import timedelta, datetime
+from decimal import Decimal
 from decouple import config
 from django.db import transaction
 from .signals import payment_successful
+from django.utils import timezone
 from django.shortcuts import redirect
-from Events.models import Event
+from Events.models import Event, ReportEvent
 from django.conf import settings
-from .models import Payment, Withdrawal
+from .models import Payment, Withdrawal, EscrowModel
+from Users.models import OrganizerWallet
 from .utils import (
     generate_access_token,
     generate_timestamp,
-    calculate_user_account_balance,
     calculate_net_earnings,
     generate_mpesa_security_credential,
 )
@@ -152,6 +155,7 @@ def check_payment_status_task(self, payment_id):
         logger.error(f"Payment not found with payment_id: {payment_id}")
         return None
 
+    # Idempotency check: Exit early if callback or previous query already resolved it
     if payment.payment_status != "Pending":
         logger.info(
             f"Payment status for payment_id {payment_id} is already {payment.payment_status}. No action needed."
@@ -178,35 +182,69 @@ def check_payment_status_task(self, payment_id):
             url,
             json=payload,
             headers={"Authorization": f"Bearer {access_token}"},
-            timeout=(5, 40),  # (connect timeout, read timeout)
+            timeout=(5, 40),
         )
         response.raise_for_status()
         data = response.json()
-        result_code = data.get("ResultCode")
-        if int(result_code) == 0:
-            payment.payment_status = "Completed"
-            items = data.get("CallbackMetadata", {}).get("Item", [])
-            receipt_number = None
-            for item in items:
-                if item.get("Name") == "MpesaReceiptNumber":
-                    receipt_number = item.get("Value")
-                    break
-            if receipt_number:
-                payment.mpesa_receipt_number = receipt_number
-            payment.save()
-            logger.info(f"Payment successful for payment_id: {payment.payment_id}")
-            payment_successful.send(sender=Payment, payment=payment)
-            send_payment_status_update(payment)
-        else:
-            payment.payment_status = "Failed"
-            payment.save()
-            logger.info(
-                f'Payment failed for payment ID {payment.payment_id} (Result Code: {result_code}): {data.get("ResultDesc", "Unknown error")}'
-            )
-            send_payment_status_update(payment)
+        raw_result_code = data.get("ResultCode")
+
+        try:
+            result_code = int(raw_result_code)
+        except (TypeError, ValueError):
+            result_code = -1
+
+        with transaction.atomic():
+            # Lock the row to prevent race conditions with incoming webhook callbacks
+            payment = Payment.objects.select_for_update().get(payment_id=payment_id)
+            
+            # Double check status inside atomic block
+            if payment.payment_status != "Pending":
+                logger.info(f"Payment {payment_id} was updated concurrently to {payment.payment_status}. Aborting.")
+                return None
+
+            if result_code == 0:
+                payment.payment_status = "Completed"
+                receipt_number = data.get("MpesaReceiptNumber")
+                if receipt_number:
+                    payment.mpesa_receipt_number = receipt_number
+                
+                payment.save()
+                logger.info(f"Payment query confirmed success for payment_id: {payment.payment_id}")
+
+                # -----------------------------------------------------------
+                # FEED ESCROW MODEL & UPDATE WALLET
+                # -----------------------------------------------------------
+                event = payment.event
+                event_datetime = datetime.combine(event.Event_date, event.Event_time)
+                release_window = event_datetime + timedelta(hours=24)
+
+                EscrowModel.objects.create(
+                    payment=payment,
+                    organizer=event.Event_organiser,
+                    event=event,
+                    amount=payment.amount,
+                    release_date=release_window
+                )
+
+                wallet, _ = OrganizerWallet.objects.get_or_create(organiser=event.Event_organiser)
+                wallet.pending_escrow_balance += payment.amount
+                wallet.save()
+
+                # Dispatch completion signals
+                payment_successful.send(sender=Payment, payment=payment)
+                send_payment_status_update(payment)
+
+            else:
+                payment.payment_status = "Failed"
+                payment.save()
+                logger.info(
+                    f'Payment failed query for payment ID {payment.payment_id} (Code: {result_code}): {data.get("ResultDesc", "Unknown error")}'
+                )
+                send_payment_status_update(payment)
+
     except (requests.exceptions.Timeout, requests.exceptions.RequestException) as exc:
         if self.request.retries < self.max_retries:
-            countdown = 10 * (2**self.request.retries)
+            countdown = 10 * (2 ** self.request.retries)
             logger.warning(
                 "Payment status check attempt %s failed for payment_id %s; retrying in %s seconds: %s",
                 self.request.retries + 1,
@@ -215,76 +253,109 @@ def check_payment_status_task(self, payment_id):
                 exc,
             )
             raise self.retry(exc=exc, countdown=countdown)
-        payment = Payment.objects.get(payment_id=payment_id)
-        payment.payment_status = "Failed"
-        payment.save()
-        send_payment_status_update(payment)
+
+        with transaction.atomic():
+            payment = Payment.objects.select_for_update().get(payment_id=payment_id)
+            if payment.payment_status == "Pending":
+                payment.payment_status = "Failed"
+                payment.save()
+                send_payment_status_update(payment)
+
         logger.error(
             f"Payment status check failed after {self.max_retries + 1} attempts for payment_id: {payment_id} - Error: {exc}"
         )
+
     except Exception as exc:
-        payment = Payment.objects.get(payment_id=payment_id)
-        payment.payment_status = "Failed"
-        payment.save()
-        send_payment_status_update(payment)
+        with transaction.atomic():
+            payment = Payment.objects.select_for_update().get(payment_id=payment_id)
+            if payment.payment_status == "Pending":
+                payment.payment_status = "Failed"
+                payment.save()
+                send_payment_status_update(payment)
+
         logger.exception(
             f"Unexpected error during payment status check for payment_id: {payment_id} - Error: {exc}"
         )
 
 
-@shared_task()
+@shared_task
 def process_mpesa_stk_callbacks(data):
     """
-    This view processes M-Pesa STK callbacks via a Celery worker.
+    Processes M-Pesa STK callbacks via a Celery worker.
     """
-
     mpesa_info = data.get("Body", {}).get("stkCallback", {})
     checkout_request_id = mpesa_info.get("CheckoutRequestID")
-    result_code = mpesa_info.get("ResultCode")
+    raw_result_code = mpesa_info.get("ResultCode")
     result_desc = mpesa_info.get("ResultDesc", "Unknown error")
 
     if not checkout_request_id:
-        logger.error("No checkout_request_id in callback")
+        logger.error("No checkout_request_id in callback data")
         return None
 
+    # Parse ResultCode safely without overwriting it
     try:
-        payment = Payment.objects.get(checkout_request_id=checkout_request_id)
-    except Payment.DoesNotExist:
-        logger.error(
-            f"Payment not found with checkout_request_id: {checkout_request_id}"
-        )
-        return None
-
-    try:
-        result_code = int(result_code)
+        result_code = int(raw_result_code)
     except (TypeError, ValueError):
-        logger.warning(
-            f"Unexpected ResultCode type for payment {payment.payment_id}: {result_code}"
-        )
+        logger.warning(f"Unexpected ResultCode type: {raw_result_code}")
         result_code = -1
 
-    if result_code == 0:
-        payment.payment_status = "Completed"
-        items = mpesa_info.get("CallbackMetadata", {}).get("Item", [])
-        receipt_number = None
-        for item in items:
-            if item.get("Name") == "MpesaReceiptNumber":
-                receipt_number = item.get("Value")
-                break
+    with transaction.atomic():
+        try:
+            # Use select_for_update to lock the row during transaction
+            payment = Payment.objects.select_for_update().get(checkout_request_id=checkout_request_id)
+        except Payment.DoesNotExist:
+            logger.error(f"Payment not found with checkout_request_id: {checkout_request_id}")
+            return None
 
-        if receipt_number:
-            payment.mpesa_receipt_number = receipt_number
-        payment.save()
-        logger.info(f"Payment successful for payment_id: {payment.payment_id}")
-        payment_successful.send(sender=Payment, payment=payment)
-        send_payment_status_update(payment)
-    else:
-        payment.payment_status = "Failed"
-        payment.save()
-        logger.info(
-            f"Payment failed for payment ID {payment.payment_id} (Result Code: {result_code}): {result_desc}"
-        )
-        send_payment_status_update(payment)
+        # Idempotency check: Skip if already processed
+        if payment.payment_status in ["Completed", "Failed"]:
+            logger.info(f"Payment {payment.payment_id} already processed as {payment.payment_status}")
+            return None
+
+        if result_code == 0:
+            payment.payment_status = "Completed"
+            
+            # Extract receipt number cleanly
+            items = mpesa_info.get("CallbackMetadata", {}).get("Item", [])
+            for item in items:
+                if item.get("Name") == "MpesaReceiptNumber":
+                    payment.mpesa_receipt_number = item.get("Value")
+                    break
+
+            payment.save()
+            logger.info(f"Payment successful for payment_id: {payment.payment_id}")
+
+            # -----------------------------------------------------------
+            # ESCROW & WALLET INGESTION (Fed on Payment Success)
+            # -----------------------------------------------------------
+            event = payment.event
+            event_datetime = datetime.combine(event.Event_date, event.Event_time)
+            release_window = event_datetime + timedelta(hours=24)
+
+            # 1. Feed Escrow Hold
+            EscrowModel.objects.create(
+                payment=payment,
+                organiser=event.Event_organiser,
+                event=event,
+                amount=payment.amount,
+                release_date=release_window
+            )
+
+            # 2. Increment Organizer Pending Balance
+            wallet, _ = OrganizerWallet.objects.get_or_create(organiser=event.Event_organiser)
+            wallet.pending_escrow_balance += payment.amount
+            wallet.save()
+
+            # Dispatch success signals (e.g., to generate QR ticket, send SMS/email)
+            payment_successful.send(sender=Payment, payment=payment)
+            send_payment_status_update(payment)
+
+        else:
+            payment.payment_status = "Failed"
+            payment.save()
+            logger.info(f"Payment failed for payment ID {payment.payment_id} (Code {result_code}): {result_desc}")
+            send_payment_status_update(payment)
+
 
 
 @shared_task(
@@ -422,6 +493,15 @@ def process_mpesa_b2c_callbacks(data):
                 originator_conversation_id=originator_conversation_id
             )
 
+            organiser_wallet, created = OrganizerWallet.objects.select_for_update().get_or_create(
+                organiser=withdrawal.organiser
+            )
+            organiser_withdrawable_balance = Decimal(
+                str(organiser_wallet.available_withdraw_balance)
+            )
+
+            withdrawn_amount = withdrawal.amount
+
             if withdrawal.status in ["completed", "failed"]:
                 logger.info(
                     "Ignoring duplicate terminal B2C callback for withdrawal %s",
@@ -430,6 +510,25 @@ def process_mpesa_b2c_callbacks(data):
                 return None
 
             if result_code == 0:
+                if organiser_withdrawable_balance < withdrawn_amount:
+                    withdrawal.status = "reconciling"
+                    withdrawal.reason = (
+                        "Completed M-Pesa payout exceeds the organizer wallet balance; "
+                        "manual reconciliation required."
+                    )
+                    withdrawal.Transaction_id = transaction_id
+                    withdrawal.save(
+                        update_fields=["status", "reason", "Transaction_id", "updated_at"]
+                    )
+                    logger.error(
+                        "Withdrawal %s completed by M-Pesa but wallet balance is "
+                        "insufficient: balance=%s, payout=%s",
+                        withdrawal.withdrawal_id,
+                        organiser_withdrawable_balance,
+                        withdrawn_amount,
+                    )
+                    return None
+
                 withdrawal.status = "completed"
                 withdrawal.mpesa_receipt_number = transaction_id
                 withdrawal.Transaction_id = transaction_id
@@ -437,8 +536,10 @@ def process_mpesa_b2c_callbacks(data):
                 logger.info(
                     f"Withdrawal completed successfully: {withdrawal.withdrawal_id}"
                 )
-                new_balance = calculate_user_account_balance(withdrawal.organiser)
-                update_dashboard_balance_after_withdraw(withdrawal)
+                new_balance = organiser_withdrawable_balance - withdrawn_amount
+                organiser_wallet.available_withdraw_balance = new_balance
+                organiser_wallet.save(update_fields=["available_withdraw_balance", "updated_at"])
+                update_dashboard_balance_after_withdraw(withdrawal, new_balance)
                 logger.info(f"Users account balance after deduction: {new_balance}")
             else:
                 withdrawal.status = "failed"
@@ -451,3 +552,69 @@ def process_mpesa_b2c_callbacks(data):
 
     except Withdrawal.DoesNotExist:
         logger.error(f"Transaction does not exist: {originator_conversation_id}")
+
+
+@shared_task
+def release_matured_escrow_holds():
+    """
+    Periodic task that finds matured escrow holds and shifts funds
+    from pending_hold_balance to available_balance.
+    """
+    now = timezone.now()
+
+    # 1. Fetch holds that are past release_date and still HELD
+    matured_holds = EscrowModel.objects.filter(
+        payout_status="Held",
+        release_date__lte=now,
+        released_at__isnull=True,
+    ).select_related('event', 'organiser')
+
+    released_count = 0
+    skipped_count = 0
+
+    for hold in matured_holds:
+        event = hold.event
+        
+        # 2. Check if the event has unresolved or upheld safety/fraud reports
+        has_active_reports = ReportEvent.objects.filter(
+            event=event,
+            status__in=['Pending', 'Under_Review', 'Action_Taken']
+        ).exists()
+
+        if has_active_reports:
+            logger.warning(
+                f"Skipping release for EscrowHold #{hold.id} (Event: {event.id}) due to active reports."
+            )
+            # Freeze the hold automatically if there are pending reports
+            hold.payout_status = "Frozen"
+            hold.save()
+            skipped_count += 1
+            continue
+
+        # 3. Transfer funds atomically
+        with transaction.atomic():
+            # Lock the wallet row for concurrent updates
+            wallet, _ = OrganizerWallet.objects.select_for_update().get_or_create(
+                organiser=hold.organiser
+            )
+
+            # Move funds from pending to available
+            wallet.pending_escrow_balance -= hold.amount
+            wallet.available_withdraw_balance += hold.amount
+            wallet.save(update_fields=[
+                "pending_escrow_balance",
+                "available_withdraw_balance",
+                "updated_at",
+            ])
+
+            # Mark hold as RELEASED
+            hold.payout_status = "Released"
+            hold.released_at = now
+            hold.save(update_fields=["payout_status", "released_at"])
+
+            released_count += 1
+
+    logger.info(
+        f"Escrow release task finished. Released: {released_count} | Frozen/Skipped: {skipped_count}"
+    )
+    return f"Released {released_count} holds."

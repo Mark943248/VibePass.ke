@@ -53,6 +53,40 @@
         overflow-x: hidden;
       }
 
+      .flagged-event-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        margin: 20px auto 0;
+        padding: 16px 18px;
+        max-width: 1400px;
+        border: 1px solid #f0a3a3;
+        border-left: 5px solid var(--vibe-danger);
+        border-radius: 10px;
+        background: #fff1f1;
+        color: #7f1d1d;
+      }
+
+      .flagged-event-banner i {
+        margin-top: 3px;
+        color: var(--vibe-danger);
+      }
+
+      .flagged-event-banner strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .flagged-event-banner p {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+
+      .flagged-event-list {
+        margin: 8px 0 0;
+        padding-left: 18px;
+      }
+
       .container {
         width: 100%;
         max-width: 1400px;
@@ -156,6 +190,13 @@
         border-radius: 20px;
         font-size: 0.6rem;
         font-weight: 600;
+      }
+
+      .verified-badge {
+        color: var(--vibe-secondary);
+        font-size: 0.65rem;
+        font-weight: 700;
+        margin-left: 4px;
       }
 
       .hamburger-btn {
@@ -1254,6 +1295,11 @@
               {% if user.is_organiser %}
               <div class="organizer-badge">Organizer</div>
               {% endif %}
+              {% if organizer_is_verified %}
+              <div class="verified-badge" title="Verified organiser">
+                <i class="fas fa-check-circle"></i> Verified
+              </div>
+              {% endif %}
             </div>
           </div>
           <button class="hamburger-btn" id="hamburgerBtn">
@@ -1349,7 +1395,7 @@
             <div class="stat-card">
               <div class="stat-icon"><i class="fas fa-wallet"></i></div>
               <div class="stat-info">
-                <h3 id="wallet-balance">KES {{ user.account_balance }}</h3>
+                <h3 id="wallet-balance">KES {{ balance }}</h3>
                 <p>Available Balance</p>
               </div>
             </div>
@@ -1420,6 +1466,22 @@
                       >{% else %}<span class="event-status status-ended"
                         >Ended</span
                       >{% endif %}
+
+                      {% if flagged_events %}
+                      <div class="flagged-event-banner" role="alert" aria-live="polite">
+                        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+                        <div>
+                          <strong>Action required: an event has been flagged</strong>
+                          <p>Review the issue and resolve it. This notice will remain until the event is no longer flagged.</p>
+                          <ul class="flagged-event-list">
+                            {% for event in flagged_events %}
+                            <li>{{ event.Event_title }}</li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+                      </div>
+                      {% endif %}
+                      
                     </td>
                     <td class="event-actions">
                       <a

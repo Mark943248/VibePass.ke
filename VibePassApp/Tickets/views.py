@@ -135,7 +135,7 @@ def book_free_ticket(request, slug):
 
                 quantity = int(item.get("quantity", 1) or 1)
 
-                ticket_type = TicketType.objects.select_for_update(nowait=True).get(
+                ticket_type = TicketType.objects.select_for_update().get(
                     id=ticket_type_id, event=event
                 )
 
@@ -288,12 +288,14 @@ def create_ticket(request=None, payment_id=None):
                             )
                         )
                     logger.info(f"Total sold count is now: {ticket_type.sold_count}")
-                    return JsonResponse(
-                        {
-                            "status": "success",
-                            "message": "Ticket purchased! A copy of your ticket has been sent to your email.",
-                        }
-                    )
+                    if request is not None:
+                        return JsonResponse(
+                            {
+                                "status": "success",
+                                "message": "Ticket purchased! A copy of your ticket has been sent to your email.",
+                            }
+                        )
+                    return created_tickets[-1]
 
             except DatabaseError as e:
                 messages.warning(

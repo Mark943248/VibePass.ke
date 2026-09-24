@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event, TicketType, EventScanner
+from .models import Event, TicketType, EventScanner, ReportEvent, ReviewEvent
 
 
 # Create an inline admin for TicketType
@@ -48,3 +48,15 @@ class EventScannerAdmin(admin.ModelAdmin):
     search_fields = ("event__Event_title", "user__username", "added_by__username")
     list_filter = ("event",)
     readonly_fields = ("scanner_id",)
+
+@admin.register(ReportEvent)
+class ReportEventAdmin(admin.ModelAdmin):
+    list_display = ("event", "reported_by", "reason", "report_status", "reported_at")
+    search_fields = ("event__Event_title", "reported_by__username")
+    list_filter = ("reason", "report_status", "reported_at")
+
+@admin.register(ReviewEvent)
+class ReviewEventAdmin(admin.ModelAdmin):
+    list_display = ("event", "reviewed_by", "rating", "review", "created_at")
+    search_fields = ("event__Event_title", "reviewed_by__username")
+    list_filter = ("rating", "event", "created_at")

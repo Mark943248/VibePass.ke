@@ -117,7 +117,6 @@ class TicketViewsTest(TestCase):
             Event_date=date.today(),
             Event_time=time(18, 0),
             Event_is_free=False,
-            Event_mpesa_number="254712345678",
         )
         self.paid_ticket_type = TicketType.objects.create(
             event=self.paid_event,
@@ -145,11 +144,13 @@ class TicketViewsTest(TestCase):
 
     def test_book_free_ticket_success(self):
         self.client.login(username="testuser", password="testpass123")
-        self.client.session["checkout_data"] = {
+        session = self.client.session
+        session["checkout_data"] = {
             "items": [{"id": self.free_ticket_type.id, "quantity": 1}],
             "grand_total": 0.0,
         }
-        self.client.session.save()
+        session.save()
+        
 
         response = self.client.post(
             reverse("book_free_ticket", args=[self.free_event.slug])
@@ -169,11 +170,13 @@ class TicketViewsTest(TestCase):
             status="active",
         )
         self.client.login(username="testuser", password="testpass123")
-        self.client.session["checkout_data"] = {
+        session = self.client.session
+        session["checkout_data"] = {
             "items": [{"id": self.free_ticket_type.id, "quantity": 1}],
             "grand_total": 0.0,
         }
-        self.client.session.save()
+        session.save()
+        
 
         response = self.client.post(
             reverse("book_free_ticket", args=[self.free_event.slug])
@@ -187,12 +190,12 @@ class TicketViewsTest(TestCase):
 
     def test_book_free_ticket_shows_email_notification_message(self):
         self.client.login(username="testuser", password="testpass123")
-        self.client.session["checkout_data"] = {
-            "items": [{"id": self.free_ticket_type.id, "quantity": 1}],
-            "grand_total": 0.0,
+        session = self.client.session
+        session["checkout_data"] = {
+          "items": [{"id": self.free_ticket_type.id, "quantity": 1}],
+          "grand_total": 0.0,
         }
-        self.client.session.save()
-
+        session.save()
         response = self.client.post(
             reverse("book_free_ticket", args=[self.free_event.slug]), follow=True
         )

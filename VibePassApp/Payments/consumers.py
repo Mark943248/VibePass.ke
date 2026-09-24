@@ -140,7 +140,7 @@ class OrganizerDashboardConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event["data"]))
 
 
-def update_dashboard_balance_after_withdraw(withdrawal):
+def update_dashboard_balance_after_withdraw(withdrawal, new_balance):
     """
     Utility function to send balance updates via WebSocket
     """
@@ -154,7 +154,7 @@ def update_dashboard_balance_after_withdraw(withdrawal):
             "data": {
                 "action": "WITHDRAWAL_SUCCESS",
                 "amount_withdrawn": str(withdrawal.amount),
-                "new_balance": str(withdrawal.organiser.account_balance),
+                "new_balance": str(new_balance),
                 "message": f"Successfully withdrew Ksh {withdrawal.amount}",
             },
         },

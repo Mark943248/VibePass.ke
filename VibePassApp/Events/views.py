@@ -4,10 +4,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.views.decorators.http import require_POST
-from .models import Event, TicketType
-from django.db.models import Q
+from .models import Event, TicketType, ReviewEvent
+from Users.models import OrganizerProfile
+from django.db.models import Avg, Count, Q
 from django.core.paginator import Paginator
 from django.utils import timezone
 
@@ -68,9 +69,6 @@ def CreateEvent(request, slug=None):
 
         try:
             with transaction.atomic():
-                if not is_free:
-                    event_data["Event_mpesa_number"] = data.get("Event_mpesa_number")
-
                 # Create or update event
                 if event_instance:
                     # Update existing event
@@ -256,6 +254,13 @@ def EventDetails(request, slug):
     """Display the details of a specific event, including its active ticket types."""
     event = get_object_or_404(Event, slug=slug)
     ticket_types = event.ticket_types.filter(is_active=True)
+    organizer_rating = ReviewEvent.objects.filter(
+        event__Event_organiser=event.Event_organiser
+    ).aggregate(average=Avg("rating"), count=Count("id"))
+    organizer_is_verified = OrganizerProfile.objects.filter(
+        user=event.Event_organiser,
+        is_verified=True,
+    ).exists()
 
     if request.method == "POST":
         data = json.loads(request.body)
@@ -318,7 +323,13 @@ def EventDetails(request, slug):
     return render(
         request,
         "events/event_details.html",
-        {"event": event, "ticket_types": ticket_types},
+        {
+            "event": event,
+            "ticket_types": ticket_types,
+            "organizer_average_rating": organizer_rating["average"],
+            "organizer_review_count": organizer_rating["count"],
+            "organizer_is_verified": organizer_is_verified,
+        },
     )
 
 
@@ -338,3 +349,86 @@ def delete_event_view(request, slug):
         return JsonResponse({"message": "Deleted successfully"}, status=200)
 
     return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@login_required
+@require_POST
+def report_event_view(request):
+    """Handle the reporting of an event by a user.
+    This view processes the report submitted by a user, including the reason and additional details.
+    """
+    event_slug = request.POST.get("event_slug")
+    reason = request.POST.get("reason")
+    additional_details = request.POST.get("details", "")
+
+    event = get_object_or_404(Event, slug=event_slug)
+
+    from .models import ReportEvent
+    from .signals import report_3_submitted
+
+    try:
+        with transaction.atomic():
+            locked_event = Event.objects.select_for_update().get(pk=event.pk)
+            report = ReportEvent.objects.create(
+                event=locked_event,
+                reported_by=request.user,
+                reason=reason,
+                additional_details=additional_details,
+            )
+
+            unique_reports_count = locked_event.reports.values("reported_by").distinct().count()
+
+            if unique_reports_count >= 3:
+                username = request.user.username
+                transaction.on_commit(
+                    lambda: report_3_submitted.send(
+                        sender=ReportEvent, event=locked_event, reporter_username=username
+                    )
+                )
+    except IntegrityError:
+        messages.warning(
+            request, 
+            "You have already reported this event, your report is under review."
+        )
+
+    messages.success(
+        request, 
+        "Your report has been submitted successfully, we will review it shortly."
+    )
+    return redirect("finders_dashboard")
+
+
+@login_required
+@require_POST
+def rate_event_view(request, slug):
+    """This view enables users to rate past events attended and experiences they have had"""
+    rating_value = request.POST.get('rating')
+    rating_review = request.POST.get('review')
+
+    try:
+        with transaction.atomic():
+            event = Event.objects.get(slug=slug)
+
+            reviewed_event = ReviewEvent.objects.create(
+                reviewed_by=request.user,
+                event=event,
+                rating=rating_value,
+                review=rating_review
+            )
+
+            messages.success(
+                request,
+                "Thank you for your review..!"
+            )
+            return redirect("finders_dashboard")
+    except IntegrityError:
+        messages.warning(
+            request,
+            "You've already reviewed this event!"
+        )
+        return redirect("finders_dashboard")
+
+
+
+
+

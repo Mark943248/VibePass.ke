@@ -390,6 +390,16 @@
       font-size: 1.2rem;
     }
 
+    .verified-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 6px;
+      color: #008f78;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
     /* Footer */
     .footer {
       background-color: var(--vibe-dark);
@@ -746,8 +756,23 @@
               <i class="fas fa-user"></i>
             </div>
             <div>
-              <h4 style="margin-bottom: 5px;">{{ event.Event_organiser }}</h4>
-              <p style="color: var(--vibe-text-light); font-size: 0.9rem;">Professional event organizers </p>
+              <h4 style="margin-bottom: 5px;">
+                {{ event.Event_organiser }}
+                {% if organizer_is_verified %}
+                <span class="verified-badge" title="Verified organiser">
+                  <i class="fas fa-check-circle"></i> Verified
+                </span>
+                {% endif %}
+              </h4>
+              {% if organizer_review_count %}
+              <p style="color: var(--vibe-text-light); font-size: 0.9rem;">
+                <i class="fas fa-star" style="color: var(--vibe-accent);"></i>
+                {{ organizer_average_rating|floatformat:1 }}/5 average rating
+                ({{ organizer_review_count }} review{{ organizer_review_count|pluralize }})
+              </p>
+              {% else %}
+              <p style="color: var(--vibe-text-light); font-size: 0.9rem;">No organizer ratings yet</p>
+              {% endif %}
             </div>
           </div>
         </div>

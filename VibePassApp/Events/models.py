@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Sum, Min
+from django.core.validators import MaxValueValidator, MinValueValidator
 from cloudinary.models import CloudinaryField
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
@@ -49,13 +50,11 @@ class Event(models.Model):
     Event_location = models.CharField(max_length=200)
     Event_date = models.DateField()
     Event_time = models.TimeField()
-    Event_mpesa_number = models.CharField(
-        max_length=15, blank=True, null=True
-    )  # Optional field for event-specific payment number
     # Event ticketing info
     Event_is_free = models.BooleanField(default=False)
     # Event status
     Event_is_active = models.BooleanField(default=True)
+    Event_is_flagged = models.BooleanField(default=False)
     Event_created_at = models.DateTimeField(auto_now_add=True)
 
     @property
@@ -150,6 +149,8 @@ class TicketType(models.Model):
         return f"{self.event.Event_title} - {self.name}"
 
 
+
+
 class EventScanner(models.Model):
     """
     Model to represent users who are authorized to scan tickets for a specific event.
@@ -177,3 +178,88 @@ class EventScanner(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.event.Event_title}"
+
+    
+
+class ReportEvent(models.Model):
+    """"
+      Model to represent events that have been reported by users for review or moderation.
+    """
+
+    REPORT_REASONS = [
+        ("inappropriate behavior", "Inappropriate Behavior"),
+        ("violence or harm", "Violence or Harm"),
+        ("misleading information", "Misleading Information"),
+        ("scam or fake event", "Scam or Fake Event"),
+        ("harassment or bullying", "Harassment or Bullying"),
+        ("safety concern", "Safety Concern"),
+        ("Event didn't happen", "Event Didn't Happen"),
+        ("intellectual property violation", "Intellectual Property Violation"),
+        ("other", "Other"),
+    ]
+
+    REPORT_STATUS = [
+        ("pending", "Pending"),
+        ("under_review", "Under_Review"),
+        ("action_taken", "Action_Taken"),
+        ("dismissed", "Dismissed"),
+    ]
+
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name="reports"
+    )
+
+    reported_by = models.ForeignKey(
+        "Users.User", on_delete=models.CASCADE, related_name="reported_events"
+    )
+
+    reason = models.CharField(
+        max_length=50, choices=REPORT_REASONS, default="other"
+    )
+
+    report_status = models.CharField(
+        max_length=20, choices=REPORT_STATUS, default="pending"
+    )
+
+    additional_details = models.TextField(
+        blank=True, null=True
+    )  # Optional field for additional details about the report
+
+    reported_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-reported_at"]
+        unique_together = (
+            "event",
+            "reported_by",
+        )  # Prevent duplicate reports by the same user for the same event
+
+
+    def __str__(self):
+        return f"Report by {self.reported_by.username} for {self.event.Event_title} - Reason: {self.reason}"
+
+
+class ReviewEvent(models.Model):
+    """ Model to represent the event reviews from users """
+
+    reviewed_by = models.ForeignKey(
+        'Users.User', on_delete=models.CASCADE, related_name="event_reviews"
+    )
+
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name="reviewed_event"
+    )
+
+    rating = models.PositiveSmallIntegerField(
+      validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+
+    review = models.TextField(blank=True, max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('event', 'reviewed_by')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.event} review from {self.user}"

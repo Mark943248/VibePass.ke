@@ -14,6 +14,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
+from Users.models import OrganizerWallet
 from django.conf import settings
 from .consumers import send_payment_status_update
 from django_ratelimit.decorators import ratelimit
@@ -46,13 +47,14 @@ def initiate_payment(request, slug):
         messages.error(request, "Unable to load checkout details. Please try again.")
         return redirect("event_details", slug=slug)
 
-    if not checkout_items:
-        messages.error(
-            request, "Your cart is empty. Please select tickets before continuing."
-        )
-        return redirect("event_details", slug=slug)
-
     if request.method == "POST":
+        if not checkout_items:
+            messages.error(
+                request,
+                "Your cart is empty. Please select tickets before continuing.",
+            )
+            return redirect("event_details", slug=slug)
+
         phone_number = request.POST.get("phone_number", "").strip()
         agreed_to_terms = (
             "terms" in request.POST
@@ -62,6 +64,9 @@ def initiate_payment(request, slug):
         if event.Event_date < current_time:
             messages.info(request, "Sorry this event is out of date!")
             return redirect("event_details", slug=event.slug)
+        # Validate if event has been flagged
+        if event.Event_is_flagged:
+            messages.warning(request, "Sorry this event has been flagged and is under investigation")
         # Validates the phone number
         if not phone_number:
             messages.error(request, "Please enter a phone number.")
@@ -181,19 +186,23 @@ def request_withdrawal(request):
                 messages.info(request, "Your withdrawal is being processed, please wait.")
                 return redirect("organizers_dashboard")
 
-            events = Event.objects.filter(Event_organiser=user)
-            mpesa_number = events.exclude(
-                Event_mpesa_number__isnull=True
-            ).exclude(Event_mpesa_number="").values_list(
-                "Event_mpesa_number", flat=True
-            ).first()
-            total_revenue = user.account_balance
-
+            organiser_wallet, _ = OrganizerWallet.objects.get_or_create(
+                organiser=user
+            )
+            total_revenue = organiser_wallet.available_withdraw_balance
+            mpesa_number = user.mpesa_number
+            
             if total_revenue <= 0 or not mpesa_number:
-                messages.error(request, "Insufficient funds please try again!")
+                messages.error(
+                    request,
+                    "Insufficient funds or no M-PESA number configured. Please update your M-PESA number.",
+                )
                 return redirect("organizers_dashboard")
 
             formatted_mpesa_number = format_phone_number(mpesa_number)
+            if not formatted_mpesa_number.startswith("254") or len(formatted_mpesa_number) != 12:
+                messages.error(request, "Your saved M-PESA number is invalid. Please update it.")
+                return redirect("organizers_dashboard")
             # Create withdrawal record
             withdrawal = Withdrawal.objects.create(
                 organiser=user,

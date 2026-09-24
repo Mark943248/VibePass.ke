@@ -16,6 +16,7 @@ import os
 import cloudinary
 import sys
 import dj_database_url
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -251,6 +252,9 @@ AXES_RESET_ON_SUCCESS = (
 
 AXES_VERBOSE = True  # Enables verbose logging for Axes, providing detailed information about lockouts and failed login attempts
 
+ADMINS = [
+    ("ADMIN", "markmacharia124@gmail.com")
+]
 
 # Django-OTP and Two-Factor Authentication settings
 TWO_FACTOR_PATCH_ADMIN = False  # Intercepts the admin login view and adds 2FA to it
@@ -270,15 +274,23 @@ if "test" in sys.argv:
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")  # Celery Broker URL
 CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER_URL")
+CELERY_BEAT_SCHEDULE = {
+    "deactivate-past-events-daily": {
+        "task": "Events.tasks.deactivate_past_events",
+        "schedule": 60 * 60,
+    },
+    'release-escrow-holds-hourly': {
+        'task': 'Payments.tasks.release_matured_escrow_holds',
+        'schedule': crontab(minute=0),  # Runs at the start of every hour
+    },
+}
 
 # deployment security settings
-CSRF_COOKIE_SECURE = True  # The cookie is marked as “secure”, which the cookie is only sent with an HTTPS connection.
+CSRF_COOKIE_SECURE = "test" not in sys.argv  # Require HTTPS for CSRF cookies outside tests.
 
-SESSION_COOKIE_SECURE = (
-    True  # To avoid transmitting the session cookie over HTTP accidentally.
-)
+SESSION_COOKIE_SECURE = "test" not in sys.argv  # Require HTTPS for sessions outside tests.
 
-SECURE_SSL_REDIRECT = True  # Redirect HTTP traffic to HTTPS
+SECURE_SSL_REDIRECT = "test" not in sys.argv  # Redirect HTTP traffic to HTTPS outside tests
 
 SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",

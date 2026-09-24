@@ -1,9 +1,11 @@
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from unittest.mock import patch
 from django.utils import timezone
 from Events.models import Event
 from .models import Payment, Withdrawal
+from Users.models import OrganizerWallet
 from .tasks import check_b2c_callback_task, process_mpesa_b2c_callbacks
 from .utils import calculate_user_account_balance
 from datetime import date, time
@@ -34,7 +36,6 @@ class PaymentModelTest(TestCase):
             Event_date=date.today(),
             Event_time=time(18, 0),
             Event_is_free=False,
-            Event_mpesa_number="254712345678",
         )
         self.payment = Payment.objects.create(
             user=self.user,
@@ -110,6 +111,10 @@ class WithdrawalModelTest(TestCase):
         self.withdrawal.status = "reconciling"
         self.withdrawal.originator_conversation_id = "originator-123"
         self.withdrawal.save(update_fields=["status", "originator_conversation_id"])
+        OrganizerWallet.objects.create(
+            organiser=self.organizer,
+            available_withdraw_balance=Decimal("500.00"),
+        )
 
         process_mpesa_b2c_callbacks(
             {
@@ -147,7 +152,6 @@ class AccountBalanceCalculationTest(TestCase):
             Event_date=date.today(),
             Event_time=time(18, 0),
             Event_is_free=False,
-            Event_mpesa_number="254712345678",
         )
 
         Payment.objects.create(
@@ -180,7 +184,10 @@ class AccountBalanceCalculationTest(TestCase):
         balance = calculate_user_account_balance(organizer)
 
         self.assertEqual(balance, Decimal("75.00"))
-        self.assertEqual(organizer.account_balance, Decimal("75.00"))
+        self.assertEqual(
+            OrganizerWallet.objects.get(organiser=organizer).available_withdraw_balance,
+            Decimal("75.00"),
+        )
 
 
 class PaymentViewsTest(TestCase):
@@ -205,7 +212,6 @@ class PaymentViewsTest(TestCase):
             Event_date=date.today(),
             Event_time=time(18, 0),
             Event_is_free=False,
-            Event_mpesa_number="254712345678",
         )
 
     def test_initiate_payment_view_unauthenticated(self):
@@ -216,9 +222,9 @@ class PaymentViewsTest(TestCase):
         )
 
     def test_initiate_payment_view_get(self):
-        self.client.login(username="testuser", password="testpass123")
+        self.client.force_login(self.user)
         response = self.client.get(reverse("initiate_payment", args=[self.event.slug]))
-        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "payments/checkout.html")
 
     def test_mpesa_callback_view_invalid_method(self):
@@ -234,7 +240,7 @@ class PaymentViewsTest(TestCase):
     def test_request_withdrawal_view_non_organizer(self):
         self.client.login(username="testuser", password="testpass123")
         response = self.client.get(reverse("request_withdrawal"))
-        self.assertRedirects(response, reverse("login"))
+        self.assertRedirects(response, f"{reverse("login")}?next={reverse('request_withdrawal')}")
 
     def test_request_withdrawal_view_get(self):
         self.client.login(username="organizer", password="testpass123")
@@ -246,3 +252,47 @@ class PaymentViewsTest(TestCase):
         response = self.client.post(reverse("request_withdrawal"))
         self.assertRedirects(response, reverse("organizers_dashboard"))
         self.assertFalse(Withdrawal.objects.filter(organiser=self.organizer).exists())
+
+    @patch("Payments.views.initiate_b2c_request_task.delay")
+    def test_flagged_event_blocks_withdrawal_even_with_other_event_payout_number(
+        self, initiate_b2c
+    ):
+        wallet, _ = OrganizerWallet.objects.get_or_create(organiser=self.organizer)
+        wallet.available_withdraw_balance = 500
+        wallet.save(update_fields=["available_withdraw_balance"])
+        Event.objects.create(
+            Event_organiser=self.organizer,
+            Event_title="Flagged Event",
+            Event_flyer="flagged.jpg",
+            Event_category="test",
+            Event_details="Details",
+            Event_location="Location",
+            Event_date=date.today(),
+            Event_time=time(18, 0),
+            Event_is_free=False,
+            Event_is_flagged=True,
+        )
+
+        self.client.login(username="organizer", password="testpass123")
+        response = self.client.post(reverse("request_withdrawal"))
+
+        self.assertRedirects(response, reverse("organizers_dashboard"))
+        self.assertFalse(Withdrawal.objects.filter(organiser=self.organizer).exists())
+        initiate_b2c.assert_not_called()
+
+    @patch("Payments.views.initiate_b2c_request_task.delay")
+    def test_withdrawal_allowed_when_all_events_are_clear(self, initiate_b2c):
+        wallet, _ = OrganizerWallet.objects.get_or_create(organiser=self.organizer)
+        wallet.available_withdraw_balance = 500
+        self.organizer.mpesa_number = "254712345678"
+        self.organizer.save(update_fields=["mpesa_number"])
+        wallet.save(update_fields=["available_withdraw_balance"])
+
+        self.client.login(username="organizer", password="testpass123")
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(reverse("request_withdrawal"))
+
+        self.assertRedirects(response, reverse("organizers_dashboard"))
+        withdrawal = Withdrawal.objects.get(organiser=self.organizer)
+        self.assertEqual(withdrawal.status, "pending")
+        initiate_b2c.assert_called_once()

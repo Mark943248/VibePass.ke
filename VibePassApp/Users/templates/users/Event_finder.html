@@ -51,9 +51,7 @@
       padding: 0 15px;
     }
 
-    /* ============================================
-       HEADER - Mobile First
-       ============================================ */
+    /* HEADER */
     .header {
       background: rgba(26, 26, 46, 0.95);
       backdrop-filter: blur(10px);
@@ -103,7 +101,6 @@
       color: transparent;
     }
 
-    /* Hamburger Button - Like ChatGPT */
     .hamburger-btn {
       display: flex;
       flex-direction: column;
@@ -182,7 +179,6 @@
       opacity: 0.8;
     }
 
-    /* Header action buttons - hidden on mobile, shown on desktop */
     .header-actions {
       display: none;
       align-items: center;
@@ -228,9 +224,7 @@
       color: white;
     }
 
-    /* ============================================
-       MOBILE SIDEBAR - Like ChatGPT/DeepSeek
-       ============================================ */
+    /* MOBILE SIDEBAR */
     .mobile-sidebar-overlay {
       display: none;
       position: fixed;
@@ -342,7 +336,6 @@
       font-size: 1rem;
     }
 
-    /* Mobile sidebar action buttons (Manage & Logout) */
     .mobile-action-links {
       margin-top: 16px;
       padding-top: 16px;
@@ -360,9 +353,7 @@
       margin-bottom: 8px;
     }
 
-    /* ============================================
-       DASHBOARD LAYOUT
-       ============================================ */
+    /* DASHBOARD LAYOUT */
     .dashboard {
       display: grid;
       grid-template-columns: 1fr;
@@ -371,14 +362,10 @@
       min-height: calc(100vh - 80px);
     }
 
-    /* Sidebar - Desktop Only */
     .sidebar {
       display: none;
     }
 
-    /* ============================================
-       MAIN CONTENT
-       ============================================ */
     .main-content {
       display: flex;
       flex-direction: column;
@@ -418,9 +405,6 @@
       align-self: flex-start;
     }
 
-    /* ============================================
-       DASHBOARD SECTIONS
-       ============================================ */
     .dashboard-section {
       background: white;
       border-radius: 16px;
@@ -456,9 +440,7 @@
       padding: 4px 10px;
     }
 
-    /* ============================================
-       EVENTS GRID
-       ============================================ */
+    /* EVENTS GRID */
     .events-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -601,9 +583,7 @@
       color: white;
     }
 
-    /* ============================================
-       TICKETS GRID
-       ============================================ */
+    /* TICKETS GRID */
     .tickets-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -687,9 +667,7 @@
       color: var(--vibe-secondary);
     }
 
-    /* ============================================
-       EMPTY STATE
-       ============================================ */
+    /* EMPTY STATE */
     .empty-state {
       grid-column: 1 / -1;
       width: 100%;
@@ -714,9 +692,7 @@
       font-size: 0.75rem;
     }
 
-    /* ============================================
-       PROFILE SECTION
-       ============================================ */
+    /* PROFILE SECTION */
     .profile-section {
       display: grid;
       grid-template-columns: 1fr;
@@ -812,9 +788,7 @@
       border-color: var(--vibe-primary);
     }
 
-    /* ============================================
-       ACTIVITY ITEM
-       ============================================ */
+    /* ACTIVITY ITEM */
     .activity-item {
       display: flex;
       align-items: center;
@@ -847,9 +821,7 @@
       color: var(--vibe-text-light);
     }
 
-    /* ============================================
-       FOOTER
-       ============================================ */
+    /* FOOTER */
     .footer {
       background: var(--vibe-dark);
       color: white;
@@ -876,9 +848,7 @@
       color: var(--vibe-primary);
     }
 
-    /* ============================================
-       TAB CONTENT
-       ============================================ */
+    /* TAB CONTENT */
     .tab-content {
       display: none;
     }
@@ -888,11 +858,70 @@
       animation: fadeIn 0.3s ease-out;
     }
 
+    .mpesa-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .mpesa-modal-overlay.active {
+      display: flex;
+    }
+
+    .mpesa-modal {
+      width: 100%;
+      max-width: 440px;
+      padding: 28px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .mpesa-modal h2 {
+      margin-bottom: 8px;
+      color: var(--vibe-dark);
+      font-size: 1.25rem;
+    }
+
+    .mpesa-modal p {
+      margin-bottom: 20px;
+      color: var(--vibe-text-light);
+      font-size: 0.85rem;
+    }
+
+    .mpesa-modal label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .mpesa-modal input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #d9d9df;
+      border-radius: 8px;
+      margin-bottom: 18px;
+    }
+
+    .mpesa-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
     @keyframes fadeIn {
       from {
         opacity: 0;
         transform: translateY(8px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -900,10 +929,206 @@
     }
 
     /* ============================================
+       RATE EVENT MODAL
+       ============================================ */
+    .rate-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .rate-modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .rate-modal {
+      background: white;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+
+    .rate-modal-overlay.active .rate-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .rate-modal-header {
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      color: white;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .rate-modal-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .rate-modal-close {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .rate-modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    .rate-modal-body {
+      padding: 24px;
+    }
+
+    .rate-event-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--vibe-light);
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .rate-event-preview img,
+    .rate-event-preview .preview-placeholder {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .rate-event-preview .preview-placeholder {
+      background: linear-gradient(135deg, var(--vibe-primary), #FF8C42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .rate-event-preview .preview-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .rate-event-preview .preview-title {
+      font-weight: 700;
+      color: var(--vibe-dark);
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rate-event-preview .preview-date {
+      font-size: 0.7rem;
+      color: var(--vibe-text-light);
+    }
+
+    /* Star Rating */
+    .star-rating-wrapper {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .star-rating-wrapper .rating-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--vibe-dark);
+      margin-bottom: 10px;
+    }
+
+    .star-rating {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      direction: rtl;
+      flex-direction: row-reverse;
+      unicode-bidi: bidi-override;
+    }
+
+    .star-rating input {
+      display: none;
+    }
+
+    .star-rating label {
+      font-size: 2.2rem;
+      color: #ddd;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      line-height: 1;
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover~label,
+    .star-rating input:checked~label {
+      color: var(--vibe-accent);
+      transform: scale(1.1);
+    }
+
+    .star-rating-wrapper .rating-hint {
+      font-size: 0.75rem;
+      color: var(--vibe-text-light);
+      margin-top: 8px;
+    }
+
+    /* Footer Buttons */
+    .rate-modal-footer {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .rate-modal-footer .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 12px;
+      font-size: 0.85rem;
+      min-height: 44px;
+    }
+
+    /* ============================================
        RESPONSIVE BREAKPOINTS
        ============================================ */
 
-    /* Mobile - Show hamburger, hide header actions */
     @media (max-width: 767px) {
       .sidebar {
         display: none;
@@ -936,7 +1161,6 @@
       }
     }
 
-    /* Tablet and up - Show sidebar, hide hamburger, show header actions */
     @media (min-width: 768px) {
       .hamburger-btn {
         display: none;
@@ -1127,7 +1351,6 @@
       }
     }
 
-    /* Desktop */
     @media (min-width: 1024px) {
       .events-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1177,21 +1400,33 @@
     <div class="nav-section">
       <h3 class="section-title">Menu</h3>
       <ul class="nav-links">
-        <li><a href="#" class="nav-link active" data-tab="overview"><i class="fas fa-home nav-icon"></i> Overview</a></li>
-        <li><a href="#" class="nav-link" data-tab="upcoming"><i class="fas fa-calendar-alt nav-icon"></i> Upcoming Events</a></li>
-        <li><a href="#" class="nav-link" data-tab="tickets"><i class="fas fa-ticket-alt nav-icon"></i> My Tickets</a></li>
+        <li><a href="#" class="nav-link active" data-tab="overview"><i class="fas fa-home nav-icon"></i> Overview</a>
+        </li>
+        <li><a href="#" class="nav-link" data-tab="upcoming"><i class="fas fa-calendar-alt nav-icon"></i> Upcoming
+            Events</a></li>
+        <li><a href="#" class="nav-link" data-tab="tickets"><i class="fas fa-ticket-alt nav-icon"></i> My Tickets</a>
+        </li>
         <li><a href="#" class="nav-link" data-tab="past"><i class="fas fa-history nav-icon"></i> Past Events</a></li>
         <li><a href="#" class="nav-link" data-tab="profile"><i class="fas fa-user nav-icon"></i> My Profile</a></li>
+        <li><a href="#" class="nav-link" data-tab="reports"><i class="fas fa-exclamation-triangle nav-icon"></i> Report
+            Event</a></li>
       </ul>
-      <!-- Mobile action buttons (Manage & Logout) -->
       <div class="mobile-action-links">
         <form method="post" action="{% url 'make_organiser' %}">
           {% csrf_token %}
-          <button type="submit" class="manage-events-btn" style="color: var(--vibe-primary); border-color: var(--vibe-primary);">
-            <i class="fas fa-calendar-alt"></i> Manage Events
-          </button>
+          {% if user.mpesa_number %}
+            <input type="hidden" name="mpesa_number" value="{{ user.mpesa_number }}">
+            <button type="submit" class="manage-events-btn" style="color: var(--vibe-primary); border-color: var(--vibe-primary);">
+              <i class="fas fa-calendar-alt"></i> Manage Events
+            </button>
+          {% else %}
+            <button type="button" class="manage-events-btn open-mpesa-modal" style="color: var(--vibe-primary); border-color: var(--vibe-primary);">
+              <i class="fas fa-calendar-alt"></i> Manage Events
+            </button>
+          {% endif %}
         </form>
-        <a href="{% url 'logout' %}" class="logout-btn" style="color: var(--vibe-danger); border-color: var(--vibe-danger);">
+        <a href="{% url 'logout' %}" class="logout-btn"
+          style="color: var(--vibe-danger); border-color: var(--vibe-danger);">
           <i class="fas fa-sign-out-alt"></i> Logout
         </a>
       </div>
@@ -1219,13 +1454,19 @@
           </div>
         </div>
 
-        <!-- Header actions: visible only on desktop/tablet -->
         <div class="header-actions">
           <form method="post" action="{% url 'make_organiser' %}">
             {% csrf_token %}
-            <button type="submit" class="manage-events-btn">
-              <i class="fas fa-calendar-alt"></i> <span>Manage</span>
-            </button>
+            {% if user.mpesa_number %}
+              <input type="hidden" name="mpesa_number" value="{{ user.mpesa_number }}">
+              <button type="submit" class="manage-events-btn">
+                <i class="fas fa-calendar-alt"></i> <span>Manage</span>
+              </button>
+            {% else %}
+              <button type="button" class="manage-events-btn open-mpesa-modal">
+                <i class="fas fa-calendar-alt"></i> <span>Manage</span>
+              </button>
+            {% endif %}
           </form>
           <a href="{% url 'logout' %}" class="logout-btn">
             <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
@@ -1249,11 +1490,17 @@
         <div class="nav-section">
           <h3 class="section-title">Menu</h3>
           <ul class="nav-links">
-            <li><a href="#" class="nav-link active" data-tab="overview"><i class="fas fa-home nav-icon"></i> Overview</a></li>
-            <li><a href="#" class="nav-link" data-tab="upcoming"><i class="fas fa-calendar-alt nav-icon"></i> Upcoming Events</a></li>
-            <li><a href="#" class="nav-link" data-tab="tickets"><i class="fas fa-ticket-alt nav-icon"></i> My Tickets</a></li>
-            <li><a href="#" class="nav-link" data-tab="past"><i class="fas fa-history nav-icon"></i> Past Events</a></li>
+            <li><a href="#" class="nav-link active" data-tab="overview"><i class="fas fa-home nav-icon"></i>
+                Overview</a></li>
+            <li><a href="#" class="nav-link" data-tab="upcoming"><i class="fas fa-calendar-alt nav-icon"></i> Upcoming
+                Events</a></li>
+            <li><a href="#" class="nav-link" data-tab="tickets"><i class="fas fa-ticket-alt nav-icon"></i> My
+                Tickets</a></li>
+            <li><a href="#" class="nav-link" data-tab="past"><i class="fas fa-history nav-icon"></i> Past Events</a>
+            </li>
             <li><a href="#" class="nav-link" data-tab="profile"><i class="fas fa-user nav-icon"></i> My Profile</a></li>
+            <li><a href="#" class="nav-link" data-tab="reports"><i class="fas fa-exclamation-triangle nav-icon"></i>
+                Report Event</a></li>
           </ul>
         </div>
       </aside>
@@ -1280,33 +1527,30 @@
           </div>
 
           <div class="events-grid">
-            {% for event in events|slice:":3" %}
+            {% for upcoming_event in upcoming_events %}
             <div class="event-card">
               <div class="event-image">
-                {% if event.Event_flyer %}
-                <img src="{{ event.Event_flyer.url }}" alt="{{ event.Event_title }}" />
+                {% if upcoming_event.Event_flyer %}
+                <img src="{{ upcoming_event.Event_flyer.url }}" alt="{{ upcoming_event.Event_title }}" />
                 {% else %}
-                <div style="background: linear-gradient(135deg, var(--vibe-primary), #FF8C42); height: 100%; display: flex; align-items: center; justify-content: center; color: white;">
+                <div
+                  style="background: linear-gradient(135deg, var(--vibe-primary), #FF8C42); height: 100%; display: flex; align-items: center; justify-content: center; color: white;">
                   <i class="fas fa-calendar-alt fa-2x"></i>
                 </div>
                 {% endif %}
-                <div class="event-category">{{ event.Event_category|truncatechars:15 }}</div>
-                <div class="event-date">{{ event.Event_date }}</div>
+                <div class="event-category">{{ upcoming_event.Event_category|truncatechars:15 }}</div>
+                <div class="event-date">{{ upcoming_event.Event_date }}</div>
               </div>
               <div class="event-content">
-                <h3 class="event-title">{{ event.Event_title|truncatechars:30 }}</h3>
+                <h3 class="event-title">{{ upcoming_event.Event_title|truncatechars:30 }}</h3>
                 <div class="event-location">
-                  <i class="fas fa-map-marker-alt"></i> {{ event.Event_location|truncatechars:25 }}
+                  <i class="fas fa-map-marker-alt"></i> {{ upcoming_event.Event_location|truncatechars:25 }}
                 </div>
-                {% if event.Event_date >= today %}
                 <span class="event-status status-upcoming">Upcoming</span>
-                {% else %}
-                <span class="event-status status-ended">Ended</span>
-                {% endif %}
                 <div class="event-footer">
-                  <div class="event-price">{{ event.price_summary }}</div>
-                  {% if event.Event_date >= today or event.Event_is_active %}
-                    <a href="{% url 'event_details' event.slug %}" class="btn btn-primary">View Details</a>
+                  <div class="event-price">{{ upcoming_event.price_summary }}</div>
+                  {% if upcoming_event.Event_date > today or upcoming_event.Event_is_active %}
+                  <a href="{% url 'event_details' upcoming_event.slug %}" class="btn btn-primary">View Details</a>
                   {% endif %}
                 </div>
               </div>
@@ -1328,29 +1572,25 @@
             <h2><i class="fas fa-calendar-alt"></i> All Upcoming Events</h2>
           </div>
           <div class="events-grid">
-            {% for event in events %}
+            {% for upcoming_event in upcoming_events %}
             <div class="event-card">
               <div class="event-image">
-                {% if event.Event_flyer %}
-                <img src="{{ event.Event_flyer.url }}" alt="{{ event.Event_title }}" />
+                {% if upcoming_event.Event_flyer %}
+                <img src="{{ upcoming_event.Event_flyer.url }}" alt="{{ upcoming_event.Event_title }}" />
                 {% else %}
                 <div style="background: linear-gradient(135deg, var(--vibe-primary), #FF8C42); height: 100%;"></div>
                 {% endif %}
-                <div class="event-category">{{ event.Event_category|truncatechars:15 }}</div>
-                <div class="event-date">{{ event.Event_date }}</div>
+                <div class="event-category">{{ upcoming_event.Event_category|truncatechars:15 }}</div>
+                <div class="event-date">{{ upcoming_event.Event_date }}</div>
               </div>
               <div class="event-content">
-                <h3 class="event-title">{{ event.Event_title }}</h3>
-                <div class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.Event_location }}</div>
-                {% if event.Event_date >= today %}
+                <h3 class="event-title">{{ upcoming_event.Event_title }}</h3>
+                <div class="event-location"><i class="fas fa-map-marker-alt"></i> {{ upcoming_event.Event_location }}</div>
                 <span class="event-status status-upcoming">Upcoming</span>
-                {% else %}
-                <span class="event-status status-ended">Ended</span>
-                {% endif %}
                 <div class="event-footer">
-                  <div class="event-price">{{ event.price_summary }}</div>
-                  {% if event.Event_date >= today or event.Event_is_active %}
-                   <a href="{% url 'event_details' event.slug %}" class="btn btn-primary">View Details</a>
+                  <div class="event-price">{{ upcoming_event.price_summary }}</div>
+                  {% if upcoming_event.Event_date > today or upcoming_event.Event_is_active %}
+                  <a href="{% url 'event_details' upcoming_event.slug %}" class="btn btn-primary">View Details</a>
                   {% endif %}
                 </div>
               </div>
@@ -1394,7 +1634,8 @@
                   <span class="ticket-value"><span class="status-badge status-active">{{ ticket.get_status_display }}</span></span>
                 </div>
                 <div style="margin-top: 8px;">
-                  <a href="{% url 'users_tickets' ticket.ticket_id %}" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                  <a href="{% url 'users_tickets' ticket.ticket_id %}" class="btn btn-primary"
+                    style="width: 100%; justify-content: center;">
                     <i class="fas fa-eye"></i> View Details
                   </a>
                 </div>
@@ -1423,10 +1664,43 @@
           <div class="section-header">
             <h2><i class="fas fa-history"></i> Past Events</h2>
           </div>
-          <div class="empty-state">
-            <div class="empty-icon"><i class="fas fa-calendar-check"></i></div>
-            <h3>No Past Events</h3>
-            <p>Your past events will appear here</p>
+          <div class="events-grid">
+            {% for past_event in past_events %}
+            {% if past_event.Event_date < today %}
+            <div class="event-card">
+              <div class="event-image">
+                {% if past_event.Event_flyer %}
+                <img src="{{ past_event.Event_flyer.url }}" alt="{{ past_event.Event_title }}" />
+                {% else %}
+                <div style="background: linear-gradient(135deg, var(--vibe-primary), #FF8C42); height: 100%;"></div>
+                {% endif %}
+                <div class="event-category">{{ past_event.Event_category|truncatechars:15 }}</div>
+                <div class="event-date">{{ past_event.Event_date }}</div>
+              </div>
+              <div class="event-content">
+                <h3 class="event-title">{{ past_event.Event_title }}</h3>
+                <div class="event-location"><i class="fas fa-map-marker-alt"></i> {{ past_event.Event_location }}</div>
+                <span class="event-status status-ended">Ended</span>
+                <div class="event-footer">
+                  <div class="event-price">{{ past_event.price_summary }}</div>
+                  <button type="button" class="btn btn-primary rate-event-btn"
+                    data-event-slug="{{ past_event.slug }}"
+                    data-event-title="{{ past_event.Event_title }}"
+                    data-event-date="{{ past_event.Event_date }}"
+                    {% if ticket.event.Event_flyer %}data-event-image="{{ past_event.Event_flyer.url }}"{% endif %}>
+                    <i class="fas fa-star"></i> Rate Event
+                  </button>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            {% empty %}
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-calendar-check"></i></div>
+              <h3>No Past Events</h3>
+              <p>Your past events will appear here</p>
+            </div>
+            {% endfor %}
           </div>
         </div>
 
@@ -1438,12 +1712,15 @@
 
           <div class="profile-section">
             <div class="profile-card">
-              <div class="profile-avatar"><i class="fas fa-user"></i></div>
+              <div class="profile-avatar">{{ user.username|slice:":1"|upper }}</div>
+               <div class="user-status">
+                {% if user.is_organiser %}Organiser{% else %}Finder{% endif %}
+               </div>
               <h3 class="profile-name">{{ user.username }}</h3>
               <p class="profile-email">{{ user.email }}</p>
               <div class="profile-stats">
                 <div class="stat">
-                  <div class="stat-number">{{ events|length }}</div>
+                  <div class="stat-number">{{ upcoming_events|length }}</div>
                   <div class="stat-label">Events</div>
                 </div>
                 <div class="stat">
@@ -1463,11 +1740,198 @@
                 <label class="form-label">Email Address</label>
                 <input type="email" name="email" class="form-input" value="{{ user.email }}" />
               </div>
-              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+              <div>
+                <label class="form-label">Mpesa Phone Number</label>
+                <input type="tel" name="phone-number" class="form-input" value="{{ user.mpesa_number }}">
+              </div>
+              <button style="margin-top: 20px;" type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
             </form>
           </div>
         </div>
+
+        <!-- Report Event Tab -->
+        <div class="dashboard-section tab-content" id="reports">
+          <div class="section-header">
+            <h2><i class="fas fa-exclamation-triangle"></i> Report an Event</h2>
+          </div>
+
+          <p style="color: var(--vibe-text-light); font-size: 0.85rem; margin-bottom: 20px;">
+            Had a bad experience at an event? Let us know and we'll look into it. All reports are reviewed by our team
+            within 24 hours.
+          </p>
+
+          <form method="POST" action="{% url 'report_event' %}" class="profile-form">
+            {% csrf_token %}
+
+            <!-- Attended Event Dropdown -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-calendar-alt" style="color: var(--vibe-primary); margin-right: 6px;"></i>
+                Select Event <span style="color: var(--vibe-danger);">*</span>
+              </label>
+              <select name="event_slug" class="form-input" required>
+                <option value="">-- Select an event you attended --</option>
+                {% for bought_ticket_event in bought_tickets_events %}
+                 <option value="{{ bought_ticket_event.slug }}">
+                  {{ bought_ticket_event.Event_title }} — {{ bought_ticket_event.Event_date }}
+                  </option>
+                  {% empty %}
+                  <option value="" disabled>No past events available</option>
+                  {% endfor %}
+              </select>
+            </div>
+
+            <!-- Reason Dropdown -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-flag" style="color: var(--vibe-primary); margin-right: 6px;"></i>
+                Reason for Report <span style="color: var(--vibe-danger);">*</span>
+              </label>
+              <select name="reason" class="form-input" required>
+                <option value="">-- Select a reason --</option>
+                <option value="Scam or Fake Event">Scam / Fake Event</option>
+                <option value="Misleading Information">Misleading Information</option>
+                <option value="Safety Concern">Safety Concern</option>
+                <option value="Harassment / Abuse">Harassment / Abuse</option>
+                <option value="Inappropriate Behavior">Inappropriate Behavior</option>
+                <option value="Event Didn't Happen">Event Didn't Happen</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- Report Details Textarea -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-comment-alt" style="color: var(--vibe-primary); margin-right: 6px;"></i>
+                Report Details <span style="color: var(--vibe-danger);">*</span>
+              </label>
+              <textarea name="details" class="form-input" rows="5"
+                placeholder="Please describe what happened in detail. Include dates, times, and any other relevant information..."
+                style="resize: vertical; min-height: 120px; font-family: inherit;" required></textarea>
+              <p style="font-size: 0.7rem; color: var(--vibe-text-light); margin-top: 6px;">
+                <i class="fas fa-info-circle"></i> Be specific — details help us investigate faster.
+              </p>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+              <i class="fas fa-paper-plane"></i> Submit Report
+            </button>
+
+            <p style="font-size: 0.7rem; color: var(--vibe-text-light); margin-top: 12px; text-align: center;">
+              <i class="fas fa-shield-alt" style="color: var(--vibe-success);"></i>
+              All reports are confidential and reviewed by the VibePass team.
+            </p>
+          </form>
+        </div>
+
       </main>
+    </div>
+  </div>
+
+  <!-- ============================================
+       RATE EVENT MODAL
+       ============================================ -->
+  <div class="rate-modal-overlay" id="rateModalOverlay">
+    <div class="rate-modal">
+      <div class="rate-modal-header">
+        <h3><i class="fas fa-star"></i> Rate Event</h3>
+        <button type="button" class="rate-modal-close" id="rateModalClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="rate-modal-body">
+        <!-- Event Preview -->
+        <div class="rate-event-preview">
+          <img id="rateEventImage" src="" alt="" style="display: none;">
+          <div class="preview-placeholder" id="rateEventPlaceholder">
+            <i class="fas fa-calendar-alt"></i>
+          </div>
+          <div class="preview-info">
+            <div class="preview-title" id="rateEventTitle">Event Title</div>
+            <div class="preview-date" id="rateEventDate">Event Date</div>
+          </div>
+        </div>
+
+        <!-- Rating Form -->
+        <form method="POST" action="{% url 'review_event' 'slug-placeholder' %}" id="rateEventForm">
+          {% csrf_token %}
+          <input type="hidden" name="event_slug" id="rateEventSlug" value="">
+
+          <!-- Star Rating -->
+          <div class="star-rating-wrapper">
+            <span class="rating-label">
+              <i class="fas fa-star" style="color: var(--vibe-accent);"></i>
+              How would you rate this event?
+            </span>
+            <div class="star-rating">
+              <input type="radio" id="star5" name="rating" value="5" required>
+              <label for="star5" title="5 stars — Excellent!">
+                <i class="fas fa-star"></i>
+              </label>
+
+              <input type="radio" id="star4" name="rating" value="4">
+              <label for="star4" title="4 stars — Very Good">
+                <i class="fas fa-star"></i>
+              </label>
+
+              <input type="radio" id="star3" name="rating" value="3">
+              <label for="star3" title="3 stars — Average">
+                <i class="fas fa-star"></i>
+              </label>
+
+              <input type="radio" id="star2" name="rating" value="2">
+              <label for="star2" title="2 stars — Poor">
+                <i class="fas fa-star"></i>
+              </label>
+
+              <input type="radio" id="star1" name="rating" value="1">
+              <label for="star1" title="1 star — Terrible">
+                <i class="fas fa-star"></i>
+              </label>
+            </div>
+            <div class="rating-hint" id="ratingHint">Tap a star to rate</div>
+          </div>
+
+          <!-- Review Textarea -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-comment-alt" style="color: var(--vibe-primary); margin-right: 6px;"></i>
+              Share Your Experience 
+            </label>
+            <textarea name="review" class="form-input" rows="4"
+              placeholder="Tell us what you loved or what could be improved..."
+              style="resize: vertical; min-height: 90px; font-family: inherit;"></textarea>
+          </div>
+
+          <!-- Footer Buttons -->
+          <div class="rate-modal-footer">
+            <button type="button" class="btn btn-outline" id="rateModalCancel">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-paper-plane"></i> Submit Rating
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="mpesa-modal-overlay" id="mpesaModalOverlay" role="dialog" aria-modal="true" aria-labelledby="mpesaModalTitle">
+    <div class="mpesa-modal">
+      <h2 id="mpesaModalTitle">Set up organiser payments</h2>
+      <p>Enter the M-PESA number where your event payments will be sent. You will use this number for future withdrawals.</p>
+      <form method="post" action="{% url 'make_organiser' %}">
+        {% csrf_token %}
+        <label for="organiserMpesaNumber">M-PESA number</label>
+        <input id="organiserMpesaNumber" name="mpesa_number" type="tel" inputmode="tel" placeholder="0712345678" required>
+        <div class="mpesa-modal-actions">
+          <button type="button" class="btn btn-outline" id="closeMpesaModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Continue to dashboard</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1489,13 +1953,31 @@
     const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
     document.getElementById("currentDate").textContent = currentDate.toLocaleDateString("en-US", options);
 
-    // ============================================
-    // HAMBURGER MENU TOGGLE 
-    // ============================================
+    /* ============================================
+       HAMBURGER MENU TOGGLE
+       ============================================ */
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const mobileSidebar = document.getElementById('mobileSidebar');
     const mobileOverlay = document.getElementById('mobileOverlay');
     const closeSidebar = document.getElementById('closeSidebar');
+    const mpesaModalOverlay = document.getElementById('mpesaModalOverlay');
+    const closeMpesaModal = document.getElementById('closeMpesaModal');
+
+    document.querySelectorAll('.open-mpesa-modal').forEach((button) => {
+      button.addEventListener('click', () => {
+        mpesaModalOverlay.classList.add('active');
+        document.getElementById('organiserMpesaNumber').focus();
+      });
+    });
+
+    function closeMpesaModalFunc() {
+      mpesaModalOverlay.classList.remove('active');
+    }
+
+    closeMpesaModal.addEventListener('click', closeMpesaModalFunc);
+    mpesaModalOverlay.addEventListener('click', (event) => {
+      if (event.target === mpesaModalOverlay) closeMpesaModalFunc();
+    });
 
     function openSidebar() {
       mobileSidebar.classList.add('active');
@@ -1511,8 +1993,7 @@
       document.body.style.overflow = '';
     }
 
-    // Toggle sidebar on hamburger click
-    hamburgerBtn.addEventListener('click', function(e) {
+    hamburgerBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       if (mobileSidebar.classList.contains('active')) {
         closeSidebarFunc();
@@ -1521,74 +2002,147 @@
       }
     });
 
-    // Close on close button
     closeSidebar.addEventListener('click', closeSidebarFunc);
-
-    // Close on overlay click
     mobileOverlay.addEventListener('click', closeSidebarFunc);
 
-    // Close sidebar when clicking a link (mobile)
     document.querySelectorAll('.mobile-sidebar .nav-link').forEach(link => {
-      link.addEventListener('click', function() {
+      link.addEventListener('click', function () {
         closeSidebarFunc();
       });
     });
 
-    // Close on Escape key
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && mobileSidebar.classList.contains('active')) {
         closeSidebarFunc();
       }
     });
 
-    // ============================================
-    // TAB NAVIGATION
-    // ============================================
+    /* ============================================
+       TAB NAVIGATION
+       ============================================ */
     const desktopNavLinks = document.querySelectorAll('.sidebar .nav-link');
     const mobileNavLinks = document.querySelectorAll('.mobile-sidebar .nav-link');
     const tabContents = document.querySelectorAll('.tab-content');
 
     function switchTab(tabId, clickedElement) {
-      // Remove active from all desktop links
       desktopNavLinks.forEach(link => link.classList.remove('active'));
-      // Remove active from all mobile links
       mobileNavLinks.forEach(link => link.classList.remove('active'));
-
-      // Hide all tab contents
       tabContents.forEach(tab => tab.classList.remove('active'));
 
-      // Show selected tab
       const selectedTab = document.getElementById(tabId);
       if (selectedTab) {
         selectedTab.classList.add('active');
       }
 
-      // Add active to clicked element
       if (clickedElement) {
         clickedElement.classList.add('active');
       }
 
-      // Close mobile sidebar on tab switch (mobile)
       if (window.innerWidth <= 767 && mobileSidebar.classList.contains('active')) {
         closeSidebarFunc();
       }
     }
 
-    // Desktop nav click handler
     desktopNavLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
+      link.addEventListener('click', function (e) {
         e.preventDefault();
         const tabId = this.getAttribute('data-tab');
         switchTab(tabId, this);
       });
     });
 
-    // Mobile nav click handler
     mobileNavLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
+      link.addEventListener('click', function (e) {
         e.preventDefault();
         const tabId = this.getAttribute('data-tab');
         switchTab(tabId, this);
+      });
+    });
+
+    /* ============================================
+       RATE EVENT MODAL
+       ============================================ */
+    const rateModalOverlay = document.getElementById('rateModalOverlay');
+    const rateModalClose = document.getElementById('rateModalClose');
+    const rateModalCancel = document.getElementById('rateModalCancel');
+    const rateEventImage = document.getElementById('rateEventImage');
+    const rateEventPlaceholder = document.getElementById('rateEventPlaceholder');
+    const rateEventTitle = document.getElementById('rateEventTitle');
+    const rateEventDate = document.getElementById('rateEventDate');
+    const rateEventSlug = document.getElementById('rateEventSlug');
+    const rateEventForm = document.getElementById('rateEventForm');
+    const ratingHint = document.getElementById('ratingHint');
+
+    const ratingTexts = {
+      1: 'Terrible — Sorry you had a bad experience',
+      2: 'Poor — Could be better',
+      3: 'Average — It was okay',
+      4: 'Very Good — Enjoyed it!',
+      5: 'Excellent — Absolutely loved it!'
+    };
+
+    // Open modal when a Rate Event button is clicked
+    document.querySelectorAll('.rate-event-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const slug = this.getAttribute('data-event-slug');
+        const title = this.getAttribute('data-event-title');
+        const date = this.getAttribute('data-event-date');
+        const image = this.getAttribute('data-event-image');
+
+        // Reset the form before assigning event-specific values.
+        rateEventForm.reset();
+
+        // Send the event slug in the URL to rate_event_view.
+        rateEventForm.action = rateEventForm.action.replace('slug-placeholder', encodeURIComponent(slug));
+        rateEventSlug.value = slug;
+        rateEventTitle.textContent = title;
+        rateEventDate.textContent = date;
+
+        if (image) {
+          rateEventImage.src = image;
+          rateEventImage.style.display = 'block';
+          rateEventPlaceholder.style.display = 'none';
+        } else {
+          rateEventImage.style.display = 'none';
+          rateEventPlaceholder.style.display = 'flex';
+        }
+
+        ratingHint.textContent = 'Tap a star to rate';
+
+        // Show modal
+        rateModalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    // Close modal
+    function closeRateModal() {
+      rateModalOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    rateModalClose.addEventListener('click', closeRateModal);
+    rateModalCancel.addEventListener('click', closeRateModal);
+
+    // Close modal on overlay click
+    rateModalOverlay.addEventListener('click', function (e) {
+      if (e.target === rateModalOverlay) {
+        closeRateModal();
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && rateModalOverlay.classList.contains('active')) {
+        closeRateModal();
+      }
+    });
+
+    // Update hint when user picks a star
+    document.querySelectorAll('.star-rating input').forEach(input => {
+      input.addEventListener('change', function () {
+        const val = parseInt(this.value);
+        ratingHint.textContent = ratingTexts[val] || 'Tap a star to rate';
       });
     });
   </script>

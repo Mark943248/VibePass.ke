@@ -766,20 +766,6 @@
               <label>This is a free event</label>
             </div>
 
-            <!-- Paid Event Fields (M-PESA & Ticket Price - Hidden when free) -->
-            <div class="conditional-fields" id="paidEventFields" {% if not event or not event.Event_is_free %}style="display: block;" {% endif %}>
-              <div class="form-group">
-                <label class="form-label required">M-PESA Payment Number</label>
-                <input type="tel" name="Event_mpesa_number" id="eventMpesaNumber" class="form-input"
-                  placeholder="0712 345 678" maxlength="10"
-                  value="{% if event and event.Event_mpesa_number %}{{ event.Event_mpesa_number }}{% endif %}" />
-                <div class="mpesa-note">
-                  <strong>📱 Note:</strong> This is the M-PESA number
-                  attendees will pay to.
-                </div>
-              </div>
-            </div>
-
             <!-- Ticket Types Section (Always visible - Capacity is always shown) -->
             <div class="ticket-types-section">
               <div class="ticket-types-header">
@@ -841,7 +827,6 @@
   <script>
     // DOM Elements
     const freeCheckbox = document.getElementById("eventIsFree");
-    const paidFields = document.getElementById("paidEventFields");
     const fileInput = document.getElementById("eventFlyer");
     const filePreview = document.getElementById("filePreview");
     const previewImage = document.getElementById("previewImage");
@@ -873,7 +858,6 @@
     // Toggle paid fields (M-PESA only - ticket types always visible)
     freeCheckbox.addEventListener("change", function () {
       if (this.checked) {
-        paidFields.style.display = "none";
         // Mark all tickets as free when event is free
         document.querySelectorAll(".ticket-price-input").forEach((input) => {
           input.value = 0;
@@ -881,7 +865,6 @@
           input.parentElement.querySelector(".price-display-small")?.remove();
         });
       } else {
-        paidFields.style.display = "block";
         // Enable price inputs
         document.querySelectorAll(".ticket-price-input").forEach((input) => {
           input.disabled = false;
@@ -1093,15 +1076,6 @@
                 <div style="font-size: 0.8rem; color: #6B6B7A;">Ticket Types</div>
                 ${ticketsHtml}
               </div>
-              ${!isFree
-          ? `
-              <div style="margin-bottom: 15px;">
-                <div style="font-size: 0.8rem; color: #6B6B7A;">M-PESA Number</div>
-                <div>📱 ${document.getElementById("eventMpesaNumber")?.value || "Not specified"}</div>
-              </div>
-              `
-          : ""
-        }
               <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #E8E8E8;">
                 <div style="font-size: 0.8rem; color: #6B6B7A;">Description</div>
                 <div style="font-size: 0.9rem;">${details}</div>

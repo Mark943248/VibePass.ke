@@ -2,6 +2,8 @@ from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.contrib.auth.models import Group
+from datetime import date, time
+from Events.models import Event
 
 User = get_user_model()
 
@@ -84,10 +86,22 @@ class UserViewsTest(TestCase):
 
     def test_make_event_organiser(self):
         self.client.login(username="testuser", password="testpass123")
-        response = self.client.get(reverse("make_organiser"))
+        response = self.client.post(
+            reverse("make_organiser"), {"mpesa_number": "0712345678"}
+        )
         self.assertRedirects(response, reverse("organizers_dashboard"))
         self.user.refresh_from_db()
         self.assertTrue(self.user.is_organiser)
+        self.assertEqual(self.user.mpesa_number, "254712345678")
+
+    def test_make_event_organiser_requires_valid_mpesa_number(self):
+        self.client.login(username="testuser", password="testpass123")
+        response = self.client.post(
+            reverse("make_organiser"), {"mpesa_number": "invalid"}
+        )
+        self.assertRedirects(response, reverse("finders_dashboard"))
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.is_organiser)
 
     def test_event_finders_dashboard(self):
         self.client.login(username="testuser", password="testpass123")
@@ -110,3 +124,28 @@ class UserViewsTest(TestCase):
         response = self.client.get(reverse("organizers_dashboard"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "users/Event_organiser.html")
+
+    def test_flagged_event_banner_persists_until_event_is_resolved(self):
+        self.user.is_organiser = True
+        self.user.save()
+        event = Event.objects.create(
+            Event_organiser=self.user,
+            Event_title="Flagged Event",
+            Event_flyer="flagged.jpg",
+            Event_category="other",
+            Event_details="Details",
+            Event_location="Location",
+            Event_date=date.today(),
+            Event_time=time(18, 0),
+            Event_is_flagged=True,
+        )
+        self.client.login(username="testuser", password="testpass123")
+
+        response = self.client.get(reverse("organizers_dashboard"))
+        self.assertContains(response, "Action required: an event has been flagged")
+        self.assertContains(response, event.Event_title)
+
+        event.Event_is_flagged = False
+        event.save(update_fields=["Event_is_flagged"])
+        response = self.client.get(reverse("organizers_dashboard"))
+        self.assertNotContains(response, "Action required: an event has been flagged")

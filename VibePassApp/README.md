@@ -1,128 +1,148 @@
-# VibePass App Developer Guide
+# VibePass Developer Guide
 
-This document explains how the Django app works and how the different modules connect together.
+This document describes the implementation boundaries, local development workflow, and known engineering risks of the Django application. The product-level feature overview is in the repository [README](../README.md).
 
-## Overview
+## Application Structure
 
-VibePass is a web application for organizing and attending events. It allows organizers to publish events, define ticket types, accept payments, issue tickets, and validate them at entry.
+- `Pages`: public pages and scanner-management helpers.
+- `Users`: custom user model, organizer profiles, wallets, authentication views, and dashboards.
+- `Events`: events, ticket types, reports, reviews, organizer verification, and scanner assignments.
+- `Tickets`: ticket creation, QR generation, email delivery, and validation.
+- `Payments`: checkout, STK/B2C M-Pesa integration, escrow, withdrawals, and WebSockets.
+- `VibePassApp`: settings, top-level URL routing, ASGI, WSGI, and Celery configuration.
 
-## App structure
+## Important Entry Points
 
-- Pages: public pages and helper views for organizers.
-- Events: event management, search, filters, ticket type management, and scanner assignment.
-- Tickets: ticket issuance, QR generation, and ticket validation.
-- Payments: checkout flow, M-Pesa integration, withdrawals, and WebSocket updates.
-- Users: authentication and custom user details.
+- [manage.py](manage.py): Django command entry point.
+- [settings.py](VibePassApp/settings.py): installed apps, authentication, database, media, Channels, and security settings.
+- [urls.py](VibePassApp/urls.py): top-level HTTP routes.
+- [celery.py](VibePassApp/celery.py): Celery application and periodic task discovery.
+- [Payments/routing.py](Payments/routing.py): WebSocket routes.
+- [Payments/tasks.py](Payments/tasks.py): asynchronous payment, withdrawal, escrow, and scheduled jobs.
 
-## Entry points
+## Request and Domain Flows
 
-- Start the project through [manage.py](manage.py).
-- Main URL routing is defined in [VibePassApp/urls.py](VibePassApp/urls.py).
-- Project settings are in [VibePassApp/settings.py](VibePassApp/settings.py).
-- WebSocket routing is defined in [Payments/routing.py](Payments/routing.py) and [VibePassApp/asgi.py](VibePassApp/asgi.py).
-- Docker Compose is defined in [docker-compose.yaml](docker-compose.yaml) and starts PostgreSQL, Redis, the web process, Celery, ngrok, and nginx.
+### Event and ticket types
 
-## Request flow
+`Events.views.CreateEvent` handles both creation and editing. In edit mode it verifies ownership, updates existing ticket types by ID, creates new types, and deletes removed types. Event flyers use Cloudinary storage and have a 2 MB validator. Event slugs are generated on save and made unique when titles collide.
 
-### 1. Event creation
+`TicketType` stores price, capacity, group size, sold count, description, and active state. The event details page exposes active ticket types to the browser and stores selected quantities in the session for checkout.
 
-The organizer uses the event creation view in [Events/views.py](Events/views.py). The flow is:
+### Tickets
 
-1. The organizer submits event data.
-2. The event is created or updated.
-3. Ticket types are created or updated for that event.
-4. The organizer is redirected to the event list.
+Free and paid ticket creation eventually use the ticket creation logic in `Tickets`. Ticket creation locks inventory with `select_for_update()`, supports group-size quantities, generates QR codes, uploads QR images to Cloudinary, and sends ticket email asynchronously.
 
-The same view supports event editing when called with an event slug. Editing is restricted to the event organizer; existing ticket types are updated by ID, new types are created, and removed types are deleted.
+The scanner accepts a ticket ID or QR value. Validation checks that the user is the event organizer or an assigned scanner, rejects inactive, cancelled, or already-scanned tickets, and marks a valid ticket as scanned atomically.
 
-### 2. Ticket purchase
+### Payments and escrow
 
-The user browses an event and selects tickets on the event details page.
+Paid checkout validates the Kenyan M-Pesa number and terms acceptance, creates a `Payment`, and dispatches an STK Push task. STK callbacks and status polling update payment state. A successful payment signal creates tickets and the escrow flow updates the organizer wallet.
 
-1. The selected ticket quantities are submitted as checkout data from the browser.
-2. The user moves to checkout.
-3. If the event is free, the free-ticket booking logic is used.
-4. If the event is paid, the payment flow begins.
+`OrganizerWallet` separates `available_withdraw_balance` from `pending_escrow_balance`. `EscrowModel` tracks held, frozen, refunded, and released funds. Matured holds are released by Celery unless the event has active reports. A successful B2C callback deducts the wallet amount; an inconsistent callback that would produce a negative wallet is moved to reconciliation instead.
 
-### 3. Paid payment flow
+### Signals and asynchronous work
 
-The payment flow is handled in [Payments/views.py](Payments/views.py):
+Signals connect payment success, ticket generation, event reports, and organizer verification scheduling. Celery handles:
 
-1. Checkout form is submitted.
-2. Phone number and terms are validated.
-3. A Payment model instance is created.
-4. A Celery worker sends and processes the M-Pesa request through Redis.
-5. The public callback updates the payment status.
-6. A payment-success signal triggers ticket creation.
+- STK Push requests and retries.
+- STK status polling and callbacks.
+- B2C initiation, callbacks, and missing-callback reconciliation.
+- Matured escrow release.
+- Past-event deactivation.
+- QR ticket email.
+- Administrator notification for flagged events.
 
-### 4. Ticket creation and QR generation
+Redis is used by Celery and Django Channels. Daphne serves the ASGI application in the Docker image.
 
-The signal in [Tickets/signals.py](Tickets/signals.py) calls the ticket creation flow in [Tickets/views.py](Tickets/views.py).
-
-1. Ticket records are created for each selected ticket type.
-2. QR codes are generated.
-3. QR images are uploaded to Cloudinary.
-4. The user can later view their tickets.
-
-### 5. Ticket validation
-
-Authorized users use the scanner page in [Tickets/views.py](Tickets/views.py).
-
-1. The scanner submits a ticket ID.
-2. The app checks whether the user is the organizer or an authorized scanner.
-3. If valid, the ticket is marked as scanned.
-4. The state changes from active to scanned.
-
-### 6. Withdrawal flow
-
-Organizers can request payouts in [Payments/views.py](Payments/views.py).
-
-1. The system checks the organizer balance and phone number.
-2. A Withdrawal record is created.
-3. A B2C request is sent to M-Pesa.
-4. The callback updates the payout status.
-
-## Important models
-
-- [Events/models.py](Events/models.py): Event, TicketType, EventScanner
-- [Tickets/models.py](Tickets/models.py): Ticket
-- [Payments/models.py](Payments/models.py): Payment, Withdrawal
-- [Users/models.py](Users/models.py): User
-
-## Environment and dependencies
-
-The app depends on Django, Channels, Cloudinary, django-allauth, django-otp, and M-Pesa integration helpers. See [requirements.txt](requirements.txt) for the dependency list.
-
-The application reads configuration from an untracked `.env` file. Configure Django and database settings, Cloudinary credentials, Google OAuth credentials, Celery/Redis settings, and M-Pesa STK/B2C credentials. `MPESA_CALLBACK_URL` must point to a public HTTPS base URL because the callbacks are received at the payment routes. Never commit secrets, backup codes, or certificate keys.
-
-## Running locally
+## Local Development
 
 From this directory:
 
-```bash
-docker compose up --build
-docker compose exec VibePass_web python manage.py migrate
-docker compose exec VibePass_web python manage.py createsuperuser
+```powershell
+py -m venv ..\venv
+..\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+py manage.py migrate
+py manage.py createsuperuser
+py manage.py runserver
 ```
 
-Open `http://127.0.0.1:8000/`. For a Python-only workflow, create a virtual environment, install `requirements.txt`, and run Django with PostgreSQL and Redis available separately. Start a Celery worker with:
+Run a worker and scheduler in separate terminals:
 
 ```bash
 celery -A VibePassApp worker --loglevel=info
+celery -A VibePassApp beat --loglevel=info
 ```
 
-Without the worker, M-Pesa STK and withdrawal tasks will not be processed.
+The Docker workflow is:
 
-## Developer onboarding checklist
+```bash
+docker compose up --build
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py createsuperuser
+```
 
-1. Read the URL config and core views.
-2. Review the event and ticket creation flow.
-3. Follow the payment callback path.
-4. Understand the signal-based ticket generation flow.
-5. Test the scanner validation path.
+Compose starts web, Celery, Celery Beat, nginx, and ngrok. It does not start PostgreSQL or Redis; provide those services separately and set `DATABASE_URL` and `CELERY_BROKER_URL` accordingly.
 
-## Notes
+## Configuration
 
-The app uses a custom user model, Cloudinary for images, and WebSockets for live payment updates. These choices affect how you debug and extend the platform.
+The application reads an untracked `.env` file. Important variables include:
 
-M-Pesa integrations currently target Safaricom sandbox endpoints. STK and B2C requests retry transient HTTP failures up to three times, and B2C withdrawals deduct the platform fee before sending the payout request.
+- Django: `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `ADMIN_URL`, `DECOY_ADMIN`.
+- Database and queue: `DATABASE_URL`, `CELERY_BROKER_URL`.
+- Media: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+- OAuth: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+- M-Pesa: `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET`, `MPESA_SHORT_CODE`, `MPESA_PASSKEY`, `MPESA_CALLBACK_URL`, `MPESA_INITIATOR_NAME`, `MPESA_INITIATOR_PASSWORD`, `MPESA_B2C_SHORT_CODE`.
+- Email: `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_EMAIL`.
+- Tunnel/container: `NGROK_AUTHTOKEN`, `PORT`.
+
+M-Pesa callbacks require a public HTTPS URL. Use sandbox credentials during development. Do not commit credentials, backup codes, or certificate keys.
+
+## Testing and Validation
+
+```powershell
+py manage.py check
+py manage.py makemigrations --check --dry-run
+py manage.py test
+```
+
+Focus on the app owning the change while developing:
+
+```powershell
+py manage.py test Payments.tests
+py manage.py test Events.tests
+py manage.py test Tickets.tests
+py manage.py test Users.tests
+```
+
+## Migration Notes
+
+The current model state uses `OrganizerWallet` rather than `User.account_balance`, and organizer M-Pesa numbers live on `User.mpesa_number` rather than `Event.Event_mpesa_number`. Do not reintroduce those removed fields just to satisfy stale fixtures; update code and tests to the current schema.
+
+Recent schema additions include:
+
+- `Users.0009_organizerwallet`: organizer wallet balances.
+- `Payments.0009_escrowmodel`: escrow records.
+- `Payments.0010_escrowmodel_release_dates`: escrow release and completion timestamps.
+
+## Known Engineering Gaps
+
+- PostgreSQL and Redis are external dependencies even in the Compose workflow.
+- SSL is enabled unconditionally in the database URL helper and may need a local-development setting.
+- Scanner-page authorization should be tested for assigned scanners, not only organizers.
+- Escrow release needs regression coverage for active reports, frozen holds, and idempotent reruns.
+- Pending paid checkouts do not visibly reserve inventory for their entire payment lifetime.
+- STK callback and polling paths need an explicit test proving ticket and escrow creation is idempotent.
+- Group-size capacity and sold-count units should be made consistent and tested.
+- Ticket-type sales reporting is not currently implemented/documented as complete.
+- `ReviewEvent.__str__` and other model string methods should be covered by model tests.
+- Production security requires a review of HTTPS redirects, trusted origins, admin paths, callback exposure, secrets, backup codes, and certificate handling.
+
+## Suggested Debugging Order
+
+1. Confirm migrations and run `python manage.py check`.
+2. Read the relevant app models and URL file.
+3. Trace the owning view or Celery task.
+4. Follow signals and transaction boundaries.
+5. Run the focused app test before the full suite.
+6. For M-Pesa issues, inspect callback payloads, task logs, Redis/Celery state, and the matching payment or withdrawal row.

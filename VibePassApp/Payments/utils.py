@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from decouple import config
 from .models import Payment, Withdrawal
+from Users.models import OrganizerWallet
 from django.db.models import Sum
 from decimal import Decimal
 from django.conf import settings
@@ -15,6 +16,29 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 
 logger = logging.getLogger(__name__)
+
+
+def calculate_user_account_balance(user):
+    """Return completed organizer revenue less completed withdrawals."""
+    completed_revenue = (
+        Payment.objects.filter(
+            event__Event_organiser=user,
+            payment_status="Completed",
+        ).aggregate(total=Sum("amount"))["total"]
+        or Decimal("0.00")
+    )
+    completed_withdrawals = (
+        Withdrawal.objects.filter(
+            organiser=user,
+            status="completed",
+        ).aggregate(total=Sum("amount"))["total"]
+        or Decimal("0.00")
+    )
+    balance = completed_revenue - completed_withdrawals
+    wallet, _ = OrganizerWallet.objects.get_or_create(organiser=user)
+    wallet.available_withdraw_balance = balance
+    wallet.save(update_fields=["available_withdraw_balance", "updated_at"])
+    return balance
 
 
 # generate timestamp for mpesa
@@ -61,21 +85,6 @@ def format_phone_number(phone_number):
     else:
         return cleaned
 
-
-def calculate_user_account_balance(user):
-    """Calculate the organizer's current withdrawable balance from completed payments minus completed withdrawals."""
-    total_revenue = Payment.objects.filter(
-        event__Event_organiser=user, payment_status="Completed"
-    ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
-
-    total_withdrawn = Withdrawal.objects.filter(
-        organiser=user, status="completed"
-    ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
-
-    balance = total_revenue - total_withdrawn
-    user.account_balance = balance
-    user.save(update_fields=["account_balance"])
-    return balance
 
 
 # calculates 10% for the platform
