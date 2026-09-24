@@ -1,95 +1,145 @@
-# VibePass Project Documentation
+# VibePass
 
-VibePass is a Django-based event ticketing platform that lets organizers create and manage events, sell tickets, process M-Pesa payments, generate QR-based tickets, and allow ticket validation at the event entrance.
+VibePass is a Django event-ticketing platform for publishing events, selling free and paid tickets, issuing QR tickets, validating entry, and paying organizers through M-Pesa.
 
-## 1. What this project does
+## Product Features
 
-The platform supports three main user roles:
+### Accounts and roles
 
-- Event Organizers: create events, manage ticket types, view sales, and withdraw funds.
-- Event Finders: browse events, buy tickets, and view their booked tickets.
-- Authorized Scanners: validate tickets at the event entrance.
+- Custom Django user model with finder and organizer accounts.
+- Registration, login, logout, profile updates, and Google OAuth.
+- Promotion from finder to organizer after M-Pesa number validation.
+- Organizer dashboards with event, attendance, revenue, wallet, verification, and flagged-event information.
+- Finder dashboards with upcoming events, purchased tickets, and scanned-ticket history.
+- Organizer verification based on completed events, reviews, ratings, and report state.
+- Admin two-factor authentication, django-axes login protection, and an admin honeypot route.
 
-## 2. Project architecture
+### Event management
 
-The app is organized into Django apps:
+- Organizer-only event creation, editing, and deletion.
+- Event flyers stored through Cloudinary with a 2 MB validation limit.
+- Automatic unique slug generation.
+- Multiple ticket types per event, including name, description, price, capacity, group size, active state, and sold count.
+- Event browsing with pagination, search, and category filters.
+- Event detail pages with ticket availability and organizer ratings.
+- Event reporting with duplicate prevention and automatic flagging after three unique reports.
+- One review per user per event.
+- Assignment and removal of event scanners.
 
-- [VibePassApp/Pages](VibePassApp/Pages): landing pages, about/contact/FAQ pages, and scanner management helpers.
-- [VibePassApp/Events](VibePassApp/Events): event creation, listing, search, filtering, ticket types, and scanner assignments.
-- [VibePassApp/Tickets](VibePassApp/Tickets): ticket creation, QR generation, display, and validation.
-- [VibePassApp/Payments](VibePassApp/Payments): checkout, M-Pesa STK push, callbacks, withdrawals, and WebSocket payment updates.
-- [VibePassApp/Users](VibePassApp/Users): custom user model, auth-related views, and dashboards.
-- [VibePassApp/VibePassApp](VibePassApp/VibePassApp): project-level settings, routing, ASGI setup, and Django configuration.
+### Tickets and entry validation
 
-## 3. Core data models
+- Free-ticket booking without a payment record.
+- Paid checkout for one or more ticket types.
+- Capacity locking during ticket creation.
+- Group-size ticket creation.
+- QR code generation and Cloudinary storage.
+- Ticket display restricted to the ticket owner.
+- QR ticket email delivery through Celery.
+- Browser scanner UI using `html5-qrcode`.
+- Ticket validation restricted to the event organizer or an assigned scanner.
+- Atomic prevention of duplicate scans and cancelled-ticket scans.
 
-- User: custom Django user model with organizer flag and account balance.
-- Event: event details, organizer, category, location, date, time, flyer, and active status.
-- TicketType: per-event ticket categories such as VIP, Regular, or Early Bird.
-- Ticket: purchased ticket record attached to a user and event, with QR and scan status.
-- Payment: payment attempt record used for M-Pesa checkout and status tracking.
-- Withdrawal: organizer payout request sent through M-Pesa B2C.
-- EventScanner: authorized person who can validate tickets for a specific event.
+### Payments, wallets, and escrow
 
-## 4. Main application flow
+- Kenyan M-Pesa phone formatting and validation.
+- Terms acceptance during paid checkout.
+- Safaricom sandbox STK Push initiation and callback processing.
+- Payment status polling when a callback is delayed.
+- Payment-success signal that creates tickets and QR codes.
+- Organizer wallet with available and pending escrow balances.
+- Escrow holds created after successful payment and released after the configured maturity time.
+- Reported events can freeze escrow holds.
+- Organizer withdrawals through M-Pesa B2C.
+- B2C callback processing, timeout reconciliation, duplicate-callback protection, and insufficient-balance reconciliation.
+- Ten percent platform fee calculation.
+- WebSocket updates for payment and organizer balance changes.
 
-### A. Organizer creates an event
-1. Organizer logs in.
-2. They open the event creation screen.
-3. Event details and one or more ticket types are submitted.
-4. The event is saved and becomes visible in the event list.
+### Public pages
 
-### B. User browses and buys tickets
-1. A user opens an event details page.
-2. They choose ticket quantities from the available ticket types.
-3. The selected cart is kept in the browser and submitted as checkout data.
-4. The user proceeds to checkout.
+- Homepage with recent events.
+- About, contact, and FAQ pages.
+- Event finder and organizer dashboards.
+- Admin interface for managing application data.
 
-### C. Paid ticket flow
-1. The checkout view validates the request and the event state.
-2. A Payment record is created.
-3. Celery sends the M-Pesa STK push through Redis.
-4. The public M-Pesa callback updates the payment status through a Celery task.
-5. A payment success signal triggers automatic ticket creation.
-6. QR codes are generated and uploaded via Cloudinary.
+## Architecture
 
-### D. Free ticket flow
-1. If the event is free, the user is routed through the free-ticket booking flow.
-2. Tickets are generated immediately without a payment record.
-3. QR codes are created right away.
+The project is split into Django apps:
 
-### E. Ticket scanning flow
-1. An organizer or authorized scanner opens the scanner page.
-2. They scan or enter a ticket ID.
-3. The backend validates permissions and ticket status.
-4. The ticket is marked as scanned if valid.
+- [Pages](VibePassApp/Pages): public pages and scanner-management helpers.
+- [Users](VibePassApp/Users): custom user model, authentication views, wallets, profiles, and dashboards.
+- [Events](VibePassApp/Events): events, ticket types, reports, reviews, verification, and scanner assignments.
+- [Tickets](VibePassApp/Tickets): ticket issuance, QR generation, email delivery, and validation.
+- [Payments](VibePassApp/Payments): checkout, M-Pesa STK/B2C integration, escrow, withdrawals, and WebSockets.
+- [VibePassApp](VibePassApp/VibePassApp): settings, top-level URLs, ASGI, WSGI, and Celery configuration.
 
-### F. Organizer payout flow
-1. Organizer requests a withdrawal from the dashboard.
-2. The app checks available balance and M-Pesa number.
-3. A B2C payment request is initiated.
-4. The callback updates the withdrawal status.
+Important entry points:
 
-### G. Organizer edits an event
-1. The organizer opens Edit from the organizer dashboard or their event listing.
-2. The form loads the existing event and ticket types.
-3. The organizer can update event details, change existing ticket types, add types, or remove types.
-4. The view verifies ownership before saving the changes.
+- [manage.py](VibePassApp/manage.py)
+- [settings.py](VibePassApp/VibePassApp/settings.py)
+- [project URLs](VibePassApp/VibePassApp/urls.py)
+- [Celery configuration](VibePassApp/VibePassApp/celery.py)
+- [WebSocket routing](VibePassApp/Payments/routing.py)
 
-## 5. Key files to understand first
+## Core Models
 
-- [VibePassApp/manage.py](VibePassApp/manage.py): Django entry point.
-- [VibePassApp/VibePassApp/settings.py](VibePassApp/VibePassApp/settings.py): project settings, installed apps, auth, media storage, and M-Pesa-related configuration.
-- [VibePassApp/VibePassApp/urls.py](VibePassApp/VibePassApp/urls.py): top-level routing.
-- [VibePassApp/Events/views.py](VibePassApp/Events/views.py): event CRUD and ticket selection logic.
-- [VibePassApp/Tickets/views.py](VibePassApp/Tickets/views.py): ticket booking, QR generation, and validation.
-- [VibePassApp/Payments/views.py](VibePassApp/Payments/views.py): payment initiation and M-Pesa callbacks.
-- [VibePassApp/Tickets/signals.py](VibePassApp/Tickets/signals.py): creates tickets after a successful payment.
-- [VibePassApp/Payments/consumers.py](VibePassApp/Payments/consumers.py): WebSocket consumer for live payment updates.
+- `Users.User`: custom `AbstractUser`, organizer flag, and M-Pesa number.
+- `Users.OrganizerProfile`: organizer verification state.
+- `Users.OrganizerWallet`: available withdrawal balance and pending escrow balance.
+- `Events.Event`: event details, organizer, status, reports, and reviews.
+- `Events.TicketType`: per-event pricing and inventory.
+- `Events.EventScanner`: event-specific scanner authorization.
+- `Events.ReportEvent`: moderation reports and status.
+- `Events.ReviewEvent`: event reviews and ratings.
+- `Tickets.Ticket`: user ticket, ticket type, QR image, payment, and scan state.
+- `Payments.Payment`: checkout and M-Pesa payment state.
+- `Payments.EscrowModel`: held, frozen, refunded, or released organizer funds.
+- `Payments.Withdrawal`: organizer payout state and M-Pesa transaction identifiers.
 
-## 6. Local setup
+## Main Workflows
 
-Docker Compose is the recommended path because it starts PostgreSQL, Redis, the Django web process, Celery, and ngrok together.
+### Create or edit an event
+
+1. An organizer signs in and opens the event form.
+2. The organizer enters event details and one or more ticket types.
+3. The event becomes available in the event listing.
+4. Editing uses the same form and supports updating, adding, and removing ticket types.
+5. Ownership is checked before edits or deletion are allowed.
+
+### Buy a ticket
+
+1. A finder selects ticket quantities on the event detail page.
+2. The cart is stored in the session and passed to checkout.
+3. Free events create tickets immediately.
+4. Paid events create a payment and start an M-Pesa STK Push.
+5. A successful payment creates tickets, QR codes, and an escrow hold.
+
+### Validate entry
+
+1. The organizer or assigned scanner opens the scanner workflow.
+2. A QR code or ticket ID is submitted.
+3. The backend checks event authorization, ownership, ticket status, and duplicate scans.
+4. A valid active ticket is marked as scanned.
+
+### Withdraw organizer funds
+
+1. The organizer requests the available wallet balance.
+2. The app validates the M-Pesa number and blocks duplicate open withdrawals.
+3. A B2C request is sent asynchronously.
+4. The callback completes or reconciles the withdrawal and updates the wallet.
+
+## Setup
+
+### Prerequisites
+
+- Python 3.10 or newer.
+- Docker Desktop for the container workflow.
+- PostgreSQL and Redis, either managed externally or provided by your own local setup.
+- Cloudinary account for media storage.
+- Safaricom Daraja sandbox credentials for payment testing.
+
+### Docker workflow
+
+The Compose file starts the web app, Celery worker, Celery Beat, nginx, and ngrok. It does **not** provision PostgreSQL or Redis, so `DATABASE_URL` and `CELERY_BROKER_URL` must point to reachable services.
 
 ```bash
 cd VibePassApp
@@ -98,174 +148,113 @@ docker compose exec web python manage.py migrate
 docker compose exec web python manage.py createsuperuser
 ```
 
-The web app is available at `http://127.0.0.1:8000/`. M-Pesa callbacks require a public HTTPS URL; set `MPESA_CALLBACK_URL` to the tunnel base URL so the app can receive the STK, B2C result, and B2C timeout callbacks.
+Open `http://127.0.0.1:8000/`.
 
-For a Python-only workflow, create a virtual environment, install `requirements.txt`, and run PostgreSQL, Redis, and a Celery worker separately. A standalone Django process does not process asynchronous M-Pesa tasks.
-
-### Environment variables
-
-Keep `.env` out of version control and use placeholders in documentation. Configure `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `ADMIN_URL`, `DECOY_ADMIN`, database settings, Cloudinary credentials, Google OAuth credentials, `CELERY_BROKER_URL`, M-Pesa STK/B2C credentials, and `NGROK_AUTHTOKEN` when using Compose.
-
-Never commit API keys, passwords, OAuth secrets, M-Pesa credentials, backup codes, or certificate private keys. Rotate any credential that has been exposed.
-
-### Legacy Python setup
-
-1. Open the project folder:
-   - `cd VibePassApp`
-   - NOTE: `Ensure that Docker is installed and also WSL or use Hyper v if you prefer`
-   - RUN: `docker compose up --build` to set up the container
-2. Create and activate a virtual environment.
-   - RUN: `python -m venv venv` to create a virtual enviroment
-   - RUN: `venv\Scripts\activate` to activate the virtual enviroment
-3. Install dependencies:
-   - `pip install -r requirements.txt`
-4. Create a `.env` file with the required environment variables such as:
-   - `SECRET_KEY`
-   - database settings
-   - Cloudinary credentials
-   - Google OAuth credentials
-   - M-Pesa credentials
-5. Run migrations:
-   - `python manage.py migrate`
-6. Create a superuser if needed:
-   - `python manage.py createsuperuser`
-7. Activate Django otp for the admin page
-   - Visit this URL: `http://127.0.0.1:8000/account/two-factor/setup/`
-   - Fill in your details `Username` and `Password`
-   - click activate 
-   - Scan the QR Code using your authenticator app to receive the code
-   - Generate the Backup codes and save them somewhere safe 
-8. Start the development server:
-   - `python manage.py runserver`
-
-## 7. Installing the project from GitHub on a new machine
-
-Follow these steps if you are cloning the repository for the first time.
-
-### 7.1 Prerequisites
-
-Install the following on your machine:
-
-- Python 3.10+ or the version supported by the project
-- pip
-- Git
-- Docker
-- WSL (Windows Subsytem for Linux)
-### 7.2 Clone the repository
-
-```bash
-git clone <your-github-repo-url>
-cd VibePass
-```
-
-### 7.3 Create a virtual environment
-
-On Windows:
+### Python workflow
 
 ```powershell
-py -m venv venv
-.\venv\Scripts\Activate.ps1
-```
-
-On macOS or Linux:
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 7.4 Install dependencies
-
-```bash
 cd VibePassApp
+py -m venv ..\venv
+..\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+py manage.py migrate
+py manage.py createsuperuser
+py manage.py runserver
 ```
 
-### 7.5 Configure environment variables
+Run asynchronous services separately when not using Compose:
 
-Create a `.env` file in the project root with values similar to this:
+```bash
+celery -A VibePassApp worker --loglevel=info
+celery -A VibePassApp beat --loglevel=info
+```
+
+Without Celery and Redis, payment callbacks, ticket email, withdrawals, and scheduled jobs will not complete.
+
+### Admin two-factor authentication
+
+After creating an admin user, visit `/account/two-factor/setup/`, authenticate, scan the generated QR code, and store the generated backup codes securely.
+
+## Environment Variables
+
+Create an untracked `.env` file. Names used by the application include:
 
 ```env
-SECRET_KEY=your-secret-key
-DATABASE_ENGINE=django.db.backends.sqlite3
-DATABASE_NAME=db.sqlite3
-DATABASE_USER=
-DATABASE_PASSWORD=
-DATABASE_HOST=
-DATABASE_PORT=
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
+SECRET_KEY=replace-me
+DEBUG=False
+ALLOWED_HOSTS=127.0.0.1,localhost
+DATABASE_URL=postgresql://user:password@host:5432/database
+CELERY_BROKER_URL=redis://host:6379/0
+CLOUDINARY_CLOUD_NAME=replace-me
+CLOUDINARY_API_KEY=replace-me
+CLOUDINARY_API_SECRET=replace-me
+GOOGLE_CLIENT_ID=replace-me
+GOOGLE_CLIENT_SECRET=replace-me
+MPESA_CONSUMER_KEY=replace-me
+MPESA_CONSUMER_SECRET=replace-me
+MPESA_SHORT_CODE=replace-me
+MPESA_PASSKEY=replace-me
+MPESA_CALLBACK_URL=https://public-host.example
+MPESA_INITIATOR_NAME=replace-me
+MPESA_INITIATOR_PASSWORD=replace-me
+MPESA_B2C_SHORT_CODE=replace-me
+EMAIL_HOST_USER=replace-me
+EMAIL_HOST_PASSWORD=replace-me
+DEFAULT_EMAIL=replace-me
+NGROK_AUTHTOKEN=replace-me
+PORT=8000
 ```
 
-> If you are using SQLite for local development, the database settings above are usually enough. For production or shared environments, use a proper database server and secure credentials.
+M-Pesa callbacks require a public HTTPS URL. Never commit `.env`, API keys, OAuth secrets, M-Pesa credentials, backup codes, or certificate private keys.
 
-### 7.6 Run database migrations
+## Background Jobs
 
-```bash
-python manage.py migrate
+Celery tasks currently cover:
+
+- Hourly deactivation of past events.
+- Hourly release of matured escrow holds.
+- STK Push initiation and retries.
+- STK status checks and callbacks.
+- B2C withdrawal initiation and callbacks.
+- Withdrawal timeout reconciliation.
+- QR ticket email delivery.
+- Flagged-event administrator notifications.
+
+## Tests and Checks
+
+Run the full Django test suite from `VibePassApp`:
+
+```powershell
+py manage.py test
 ```
 
-### 7.7 Create an admin user
+Useful checks:
 
-```bash
-python manage.py createsuperuser
+```powershell
+py manage.py check
+py manage.py makemigrations --check --dry-run
+py manage.py showmigrations
 ```
 
-### 7.8 Activate django otp for admin page 
- ``` Follow this procedure
-   - Visit this URL: `http://127.0.0.1:8000/account/two-factor/setup/`
-  - Fill in your details `Username` and `Password`
-  - click activate 
-  - Scan the QR Code using your authenticator app to receive the code
-  - Generate the Backup codes and save them somewhere safe 
- ```
+## Known Gaps and Follow-Up Work
 
+These items should be addressed or verified before treating the application as production-ready:
 
-### 7.9 Start the app
+1. Compose does not define PostgreSQL or Redis services; deployment must provide them separately.
+2. Database configuration is driven by `DATABASE_URL` and currently enables SSL unconditionally, which may require adjustment for local non-SSL databases.
+3. Assigned scanners can validate tickets but should be verified against the scanner page authorization flow.
+4. Escrow release and report moderation should have dedicated tests for active reports, frozen holds, and already-released holds.
+5. Ticket inventory should be reserved or revalidated consistently across pending payments to prevent overselling under concurrency.
+6. STK callback and polling paths should have an explicit idempotency test proving that tickets and escrow are created only once.
+7. Group-size capacity and sold-count units should be made consistent and tested.
+8. Ticket-type sales reporting is not currently documented as a complete feature.
+9. Review string rendering and moderation workflows should have regression tests.
+10. Production deployment needs a security review for HTTPS, trusted origins, admin routes, callback exposure, credentials, backup codes, and certificate handling.
 
-```bash
-python manage.py runserver
-```
+## Further Reading
 
-Then open:
-
-- http://127.0.0.1:8000/
-
-### 7.9 Troubleshooting common setup issues
-
-- If Django cannot find the settings module, confirm that you are running commands from the project root and that the package name is correct.
-- If migrations fail, make sure your database environment variables are correct.
-- If static or media files do not load, verify your Cloudinary credentials.
-- If login or Google auth does not work, check the Google OAuth settings in the environment file.
-
-## 8. Important notes for developers
-
-- The project uses Django’s custom User model from [VibePassApp/Users/models.py](VibePassApp/Users/models.py).
-- Media files are stored through Cloudinary.
-- Payment status updates are pushed in real time using WebSockets.
-- The app depends on both HTTP routes and async WebSocket routes.
-- The M-Pesa integration is callback-driven, so testing locally needs careful handling of callback URLs.
-
-## 8. Suggested first debugging path
-
-If you are new to the codebase, follow this order:
-
-1. Read [VibePassApp/VibePassApp/urls.py](VibePassApp/VibePassApp/urls.py).
-2. Review [VibePassApp/Events/views.py](VibePassApp/Events/views.py).
-3. Review [VibePassApp/Tickets/views.py](VibePassApp/Tickets/views.py).
-4. Review [VibePassApp/Payments/views.py](VibePassApp/Payments/views.py).
-5. Trace how the payment success signal triggers ticket creation.
-
-## 9. Summary
-
-VibePass is essentially an event commerce platform with four connected lifecycles:
-
-- Event management
-- Ticket sales
-- Payment processing
-- Ticket validation
-
-If you understand those four pieces, you can understand most of the application.
+- [Developer guide](VibePassApp/README.md)
+- [Docker Compose](VibePassApp/docker-compose.yaml)
+- [Dependency list](VibePassApp/requirements.txt)
+- [Event models](VibePassApp/Events/models.py)
+- [Payment tasks](VibePassApp/Payments/tasks.py)
