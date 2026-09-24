@@ -54,6 +54,9 @@ Signals connect payment success, ticket generation, event reports, and organizer
 
 Redis is used by Celery and Django Channels. Daphne serves the ASGI application in the Docker image.
 
+## Clone Repositry
+- git clone https://github.com/Mark943248/VibePass.ke.git
+
 ## Local Development
 
 From this directory:
