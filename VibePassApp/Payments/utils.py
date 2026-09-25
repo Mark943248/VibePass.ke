@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 from decouple import config
-from .models import Payment, Withdrawal
+from .models import Payment, Withdrawal, PlatformRevenue
 from Users.models import OrganizerWallet
 from django.db.models import Sum
 from decimal import Decimal
@@ -84,20 +84,6 @@ def format_phone_number(phone_number):
         return cleaned[1:]
     else:
         return cleaned
-
-
-
-# calculates 10% for the platform
-def calculate_net_earnings(amount):
-    """Calculates the net amount remaining after deducting a platform fee."""
-
-    if amount < 0:
-        raise ValueError("Amount can't be 0!")
-
-    fee_amount = (10.0 / 100) * amount
-    net_amount = amount - fee_amount
-
-    return round(net_amount, 2)
 
 
 # mpesa security credential generation

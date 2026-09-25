@@ -19,7 +19,6 @@ from Users.models import OrganizerWallet
 from .utils import (
     generate_access_token,
     generate_timestamp,
-    calculate_net_earnings,
     generate_mpesa_security_credential,
 )
 from .consumers import (
@@ -388,7 +387,7 @@ def initiate_b2c_request_task(self, data):
             "InitiatorName": os.getenv("MPESA_INITIATOR_NAME"),
             "SecurityCredential": generate_mpesa_security_credential(),
             "CommandID": "BusinessPayment",
-            "Amount": calculate_net_earnings(int(data["amount"])),
+            "Amount": data.get("amount"),
             "PartyA": os.getenv("MPESA_B2C_SHORT_CODE"),
             "PartyB": data["phone_number"],
             "Remarks": "remarked",

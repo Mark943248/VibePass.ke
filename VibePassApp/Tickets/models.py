@@ -20,17 +20,21 @@ class Ticket(models.Model):
     ticket_qr_image = CloudinaryField("ticket_qr_image", blank=True, null=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="tickets")
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="booked_tickets"
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="booked_tickets",
     )
     ticket_type = models.ForeignKey(
         "Events.TicketType",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="tickets",
         null=True,
         blank=True,
     )
     payment = models.ForeignKey(
-        Payment, on_delete=models.CASCADE, related_name="ticket", null=True, blank=True
+        Payment, on_delete=models.PROTECT, related_name="ticket", null=True, blank=True
     )
     status = models.CharField(max_length=20, choices=TICKET_STATUS, default="active")
     is_scanned = models.BooleanField(default=False)

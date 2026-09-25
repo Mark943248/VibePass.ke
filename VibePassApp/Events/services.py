@@ -31,7 +31,7 @@ def evaluate_organizer_verification(organizer_id):
         # 1. Base queryset for completed events
         completed_events = Event.objects.filter(
             Event_organiser_id=organizer_id
-        ).filter(Q(Event_date__lt=today) | Q(Event_is_active=False))
+        ).filter(Q(Event_date__lt=today) | Q(Event_is_active=False) | Q(Event_is_flagged=False))
         
         completed_event_count = completed_events.count()
 

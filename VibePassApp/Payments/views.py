@@ -15,11 +15,11 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
 from Users.models import OrganizerWallet
-from django.conf import settings
+from decimal import Decimal
 from .consumers import send_payment_status_update
 from django_ratelimit.decorators import ratelimit
 from .utils import format_phone_number
-from .models import Payment, Withdrawal
+from .models import Payment, Withdrawal, PlatformRevenue
 import json
 import os
 import logging
@@ -174,24 +174,78 @@ def mpesa_callback(request):
 def request_withdrawal(request):
     """
     Handles withdrawal requests for event organizers.
-    Validates the organizer's available balance and M-PESA number, creates a withdrawal record,
-    and initiates a B2C payment request to M-PESA.
+    Allows verified organizers to access up to 50% of their pending escrow funds early (with a 5% fee),
+    or standard withdrawal of matured available balances.
     """
     try:
         with transaction.atomic():
             user = request.user
+            
+            # 1. Prevent concurrent active withdrawals
             if Withdrawal.objects.filter(
                 organiser=user, status__in=["pending", "processing", "reconciling"]
             ).exists():
                 messages.info(request, "Your withdrawal is being processed, please wait.")
                 return redirect("organizers_dashboard")
 
-            organiser_wallet, _ = OrganizerWallet.objects.get_or_create(
+            organiser_wallet, _ = OrganizerWallet.objects.select_for_update().get_or_create(
                 organiser=user
             )
-            total_revenue = organiser_wallet.available_withdraw_balance
+
+            def as_decimal(value):
+                if value in (None, ""):
+                    return Decimal("0.00")
+                if isinstance(value, Decimal):
+                    return value
+                return Decimal(str(value))
+
+            # Fetch organizer profile to check verification status
+            profile = getattr(user, "organizer_profile", None)
+            is_verified = profile and getattr(profile, "is_verified", False)
+
+            # 2. Calculate Available Funds
+            matured_balance = as_decimal(organiser_wallet.available_withdraw_balance)
+            pending_escrow_balance = as_decimal(organiser_wallet.pending_escrow_balance)
+
+            # Default calculations
+            early_release_amount = Decimal("0.00")
+            early_fee = Decimal("0.00")
+
+            # Check if verified organizer is requesting early payout from pending escrow
+            if is_verified and pending_escrow_balance > 0:
+                # Calculate 50% max limit on pending escrow
+                max_early_eligible = pending_escrow_balance * Decimal("0.50")
+
+                if max_early_eligible > 0:
+                    early_release_amount = max_early_eligible
+                    # 5% fee on early release amount
+                    early_fee = early_release_amount * Decimal("0.05")
+
+                    PlatformRevenue.objects.create(
+                        organiser=user,
+                        fee_amount=early_fee,
+                        source="Early-Payout",
+                    )
+
+                    # Deduct the early release from pending escrow and add net to available balance
+                    pending_escrow_balance -= early_release_amount
+                    matured_balance += early_release_amount - early_fee
+                    organiser_wallet.pending_escrow_balance = pending_escrow_balance
+                    organiser_wallet.available_withdraw_balance = matured_balance
+                    organiser_wallet.save()
+
+            # Combined gross withdrawable amount (matured + net early payout)
+            total_revenue = as_decimal(organiser_wallet.available_withdraw_balance)
             mpesa_number = user.mpesa_number
-            
+
+            platform_fee = total_revenue * Decimal("0.10")
+            withdrawable_amount = total_revenue - platform_fee
+            PlatformRevenue.objects.create(
+                organiser=user,
+                fee_amount=platform_fee,
+                source="10% ticketsales",
+            )
+
             if total_revenue <= 0 or not mpesa_number:
                 messages.error(
                     request,
@@ -203,36 +257,42 @@ def request_withdrawal(request):
             if not formatted_mpesa_number.startswith("254") or len(formatted_mpesa_number) != 12:
                 messages.error(request, "Your saved M-PESA number is invalid. Please update it.")
                 return redirect("organizers_dashboard")
-            # Create withdrawal record
+
+            # 3. Create Withdrawal Record
             withdrawal = Withdrawal.objects.create(
                 organiser=user,
-                amount=total_revenue,
+                amount=withdrawable_amount,
                 mpesa_number=formatted_mpesa_number,
                 status="pending",
             )
-           
-            # Initiate B2C payment
+
+            # 4. Initiate B2C payment via Celery using the net payable amount
             data = {
-                "amount": total_revenue,
+                "amount": withdrawable_amount,
                 "phone_number": formatted_mpesa_number,
                 "withdrawal_id": withdrawal.withdrawal_id,
             }
             try:
                 transaction.on_commit(lambda dt=data: initiate_b2c_request_task.delay(dt))
-                messages.success(
-                    request, 
-                    "Withdrawal request submitted successfully. Please wait for your M-PESA message for the transaction confirmation."
-                )
+                
+                success_msg = "Withdrawal request submitted successfully."
+                if early_release_amount > 0:
+                    success_msg += f" (Included early release with a 5% fee of KES {early_fee:.2f})."
+                success_msg += " Please wait for your M-PESA confirmation."
+                
+                messages.success(request, success_msg)
             except Exception as e:
                 logger.error(f"Error initiating B2C payment: {str(e)}")
                 withdrawal.status = "failed"
                 withdrawal.reason = "Failed to initiate B2C payment"
                 withdrawal.save()
+                
                 messages.error(
                     request,
                     "Failed to initiate withdrawal. Please try again later.",
                 )
                 return redirect("organizers_dashboard")
+
             return redirect("organizers_dashboard")
 
     except Exception as e:

@@ -4,8 +4,8 @@ from django.urls import reverse
 from unittest.mock import patch
 from django.utils import timezone
 from Events.models import Event
-from .models import Payment, Withdrawal
-from Users.models import OrganizerWallet
+from .models import Payment, Withdrawal, PlatformRevenue
+from Users.models import OrganizerWallet, OrganizerProfile
 from .tasks import check_b2c_callback_task, process_mpesa_b2c_callbacks
 from .utils import calculate_user_account_balance
 from datetime import date, time
@@ -296,3 +296,63 @@ class PaymentViewsTest(TestCase):
         withdrawal = Withdrawal.objects.get(organiser=self.organizer)
         self.assertEqual(withdrawal.status, "pending")
         initiate_b2c.assert_called_once()
+
+    @patch("Payments.views.initiate_b2c_request_task.delay")
+    def test_verified_organizer_can_early_withdraw_with_5_percent_fee(self, initiate_b2c):
+        wallet, _ = OrganizerWallet.objects.get_or_create(organiser=self.organizer)
+        wallet.available_withdraw_balance = Decimal("200.00")
+        wallet.pending_escrow_balance = Decimal("1000.00")
+        wallet.save(update_fields=["available_withdraw_balance", "pending_escrow_balance"])
+
+        OrganizerProfile.objects.update_or_create(
+            user=self.organizer,
+            defaults={"is_verified": True},
+        )
+        self.organizer.mpesa_number = "254712345678"
+        self.organizer.save(update_fields=["mpesa_number"])
+
+        self.client.login(username="organizer", password="testpass123")
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(reverse("request_withdrawal"))
+
+        self.assertRedirects(response, reverse("organizers_dashboard"))
+        wallet.refresh_from_db()
+        self.assertEqual(wallet.pending_escrow_balance, Decimal("500.00"))
+        self.assertEqual(wallet.available_withdraw_balance, Decimal("675.00"))
+
+        self.assertTrue(
+            PlatformRevenue.objects.filter(
+                organiser=self.organizer,
+                source="Early-Payout",
+                fee_amount=Decimal("25.00"),
+            ).exists()
+        )
+
+        withdrawal = Withdrawal.objects.get(organiser=self.organizer)
+        self.assertEqual(withdrawal.amount, Decimal("607.50"))
+        self.assertEqual(initiate_b2c.call_args.args[0]["amount"], Decimal("607.50"))
+
+    @patch("Payments.views.initiate_b2c_request_task.delay")
+    def test_platform_fee_is_cut_from_withdrawal_amount(self, initiate_b2c):
+        wallet, _ = OrganizerWallet.objects.get_or_create(organiser=self.organizer)
+        wallet.available_withdraw_balance = Decimal("300.00")
+        wallet.pending_escrow_balance = Decimal("0.00")
+        wallet.save(update_fields=["available_withdraw_balance", "pending_escrow_balance"])
+        self.organizer.mpesa_number = "254712345678"
+        self.organizer.save(update_fields=["mpesa_number"])
+
+        self.client.login(username="organizer", password="testpass123")
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(reverse("request_withdrawal"))
+
+        self.assertRedirects(response, reverse("organizers_dashboard"))
+        withdrawal = Withdrawal.objects.get(organiser=self.organizer)
+        self.assertEqual(withdrawal.amount, Decimal("270.00"))
+        self.assertEqual(initiate_b2c.call_args.args[0]["amount"], Decimal("270.00"))
+        self.assertTrue(
+            PlatformRevenue.objects.filter(
+                organiser=self.organizer,
+                source="10% ticketsales",
+                fee_amount=Decimal("30.00"),
+            ).exists()
+        )

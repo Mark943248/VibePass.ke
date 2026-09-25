@@ -34,7 +34,11 @@ class Event(models.Model):
 
     # Event basic info
     Event_organiser = models.ForeignKey(
-        "Users.User", on_delete=models.CASCADE, related_name="organized_events"
+        "Users.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="organized_events",
     )
     Event_title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
@@ -109,7 +113,7 @@ class TicketType(models.Model):
     """
 
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="ticket_types"
+        Event, on_delete=models.PROTECT, related_name="ticket_types"
     )
     name = models.CharField(max_length=100)  # e.g., "Early Bird", "VIP", "Regular"
     description = models.TextField(

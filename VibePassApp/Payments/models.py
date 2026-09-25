@@ -13,8 +13,8 @@ class Payment(models.Model):
 
     payment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # relationships
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="payments")
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="payments")
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="payments")
+    event = models.ForeignKey(Event, on_delete=models.PROTECT, related_name="payments")
     # payment details
     checkout_request_id = models.CharField(
         max_length=255, unique=True, blank=True, null=True
@@ -47,9 +47,9 @@ class EscrowModel(models.Model):
         ("refunded", "Refunded"),
         ("released", "Released")
     ]
-    payment = models.OneToOneField(Payment, on_delete=models.CASCADE, related_name="payments")
-    event = models.ForeignKey('Events.Event', on_delete=models.CASCADE, related_name="events")
-    organiser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="organisers")
+    payment = models.OneToOneField(Payment, on_delete=models.PROTECT, related_name="payments")
+    event = models.ForeignKey('Events.Event', on_delete=models.PROTECT, related_name="events")
+    organiser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="organisers")
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     payout_status = models.CharField(max_length=20, choices=PAYOUT_STATUS, default="Held")
     release_date = models.DateTimeField(db_index=True)
@@ -74,7 +74,11 @@ class Withdrawal(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False
     )
     organiser = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="withdrawals"
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="withdrawals",
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     mpesa_number = models.CharField(
@@ -101,3 +105,12 @@ class Withdrawal(models.Model):
 
     def __str__(self):
         return f"Withdrawal {self.withdrawal_id} - Organizer: {self.organiser.username} - Amount: {self.amount} - Status: {self.status}"
+
+class PlatformRevenue(models.Model):
+    """Tracks 5% early processing fees & 
+    10% of the revenue made by the organiser 
+    from ticket sales collected by VibePass."""
+    organiser = models.ForeignKey('Users.User', on_delete=models.SET_NULL, null=True, blank=True)
+    fee_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    source = models.CharField(max_length=500, default="Early-Payout")
+    created_at = models.DateTimeField(auto_now_add=True)
