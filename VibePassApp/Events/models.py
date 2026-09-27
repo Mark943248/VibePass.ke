@@ -3,6 +3,7 @@ from django.db.models import Sum, Min
 from django.core.validators import MaxValueValidator, MinValueValidator
 from cloudinary.models import CloudinaryField
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.utils.text import slugify
 import uuid
 
@@ -32,6 +33,13 @@ class Event(models.Model):
         ("other", "Other"),
     ]
 
+    EVENT_STATUS_CHOICES = [
+        ("published", "Published"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
+        ("deleted", "Deleted"),
+    ]
+
     # Event basic info
     Event_organiser = models.ForeignKey(
         "Users.User",
@@ -57,9 +65,36 @@ class Event(models.Model):
     # Event ticketing info
     Event_is_free = models.BooleanField(default=False)
     # Event status
+    Event_status = models.CharField(
+        max_length=20,
+        choices=EVENT_STATUS_CHOICES,
+        default="published",
+    )
     Event_is_active = models.BooleanField(default=True)
     Event_is_flagged = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
     Event_created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def soft_delete(self, reason=None):
+        self.is_deleted = True
+        self.Event_status = "deleted"
+        self.Event_is_active = False
+        self.deleted_at = timezone.now()
+        self.save(update_fields=["is_deleted", "Event_status", "Event_is_active", "deleted_at", "updated_at"])
+
+    def cancel_event(self, reason="Cancelled by organizer"):
+        self.Event_status = "cancelled"
+        self.is_deleted = True
+        self.Event_is_active = False
+        self.cancelled_at = timezone.now()
+        self.save(update_fields=["Event_status", "is_deleted", "Event_is_active", "cancelled_at", "updated_at"])
+
+    @property
+    def is_publicly_visible(self):
+        return not self.is_deleted and self.Event_status != "cancelled" and self.Event_is_active
 
     @property
     def total_ticket_capacity(self):

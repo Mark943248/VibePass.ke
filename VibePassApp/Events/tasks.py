@@ -15,7 +15,7 @@ def deactivate_past_events():
   updated_count = Event.objects.filter(
     Event_is_active=True,
     Event_date__lt=timezone.localdate(),
-  ).update(Event_is_active=False)
+  ).update(Event_is_active=False, Event_status="Completed")
   logger.info("Deactivated %s past event(s).", updated_count)
   return updated_count
 
@@ -71,3 +71,48 @@ def send_report_notification_email_to_admins_task(event_id, reporter_username):
         f"Failed to send report notification email for Event ID {event_id}:"
         f" {e}"
     )
+
+
+@shared_task
+def send_event_cancellation_email_to_buyers(ticket_ids):
+  """Notify each buyer whose ticket was cancelled for an event."""
+  from Tickets.models import Ticket
+
+  tickets = Ticket.objects.filter(
+    ticket_id__in=ticket_ids,
+    status="cancelled",
+  ).select_related("event", "user")
+
+  buyers = {}
+  for ticket in tickets:
+    if ticket.user and ticket.user.email:
+      buyer = buyers.setdefault(
+        ticket.user_id,
+        {"user": ticket.user, "event": ticket.event, "ticket_ids": []},
+      )
+      buyer["ticket_ids"].append(str(ticket.ticket_id))
+
+  sent_count = 0
+  for buyer in buyers.values():
+    user = buyer["user"]
+    event = buyer["event"]
+    ticket_list = "\n".join(buyer["ticket_ids"])
+    message = (
+      f"Hello {user.username},\n\n"
+      f"The event '{event.Event_title}' has been cancelled. "
+      "Your ticket(s) are now cancelled:\n"
+      f"{ticket_list}\n\n"
+      "Please contact the event organizer if you have questions about a refund."
+    )
+
+    send_mail(
+      subject=f"Event cancelled: {event.Event_title}",
+      message=message,
+      from_email=settings.DEFAULT_FROM_EMAIL,
+      recipient_list=[user.email],
+      fail_silently=False,
+    )
+    sent_count += 1
+
+  logger.info("Sent %s event cancellation email(s).", sent_count)
+  return sent_count

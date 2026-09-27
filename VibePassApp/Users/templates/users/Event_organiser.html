@@ -94,9 +94,7 @@
         padding: 0 15px;
       }
 
-      /* ============================================
-        HEADER
-       ============================================ */
+      /* HEADER */
       .header {
         background: rgba(26, 26, 46, 0.95);
         backdrop-filter: blur(10px);
@@ -237,9 +235,7 @@
         transform: rotate(-45deg) translate(3px, -3px);
       }
 
-      /* ============================================
-        MOBILE SIDEBAR
-       ============================================ */
+      /* MOBILE SIDEBAR */
       .mobile-sidebar-overlay {
         display: none;
         position: fixed;
@@ -425,9 +421,7 @@
         color: var(--vibe-primary);
       }
 
-      /* ============================================
-        DASHBOARD LAYOUT
-       ============================================ */
+      /* DASHBOARD LAYOUT */
       .dashboard {
         display: grid;
         grid-template-columns: 260px 1fr;
@@ -436,7 +430,6 @@
         min-height: calc(100vh - 80px);
       }
 
-      /* Sidebar - Desktop */
       .sidebar {
         background: white;
         border-radius: 20px;
@@ -523,9 +516,7 @@
         min-height: 40px;
       }
 
-      /* ============================================
-        MAIN CONTENT
-       ============================================ */
+      /* MAIN CONTENT */
       .main-content {
         display: flex;
         flex-direction: column;
@@ -568,9 +559,7 @@
         min-height: 36px;
       }
 
-      /* ============================================
-        STATS CARDS
-       ============================================ */
+      /* STATS CARDS */
       .stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -613,9 +602,7 @@
         color: var(--vibe-text-light);
       }
 
-      /* ============================================
-        DASHBOARD SECTIONS
-       ============================================ */
+      /* DASHBOARD SECTIONS */
       .dashboard-section {
         background: white;
         border-radius: 16px;
@@ -654,9 +641,7 @@
         padding: 4px 10px;
       }
 
-      /* ============================================
-        EVENTS TABLE
-       ============================================ */
+      /* EVENTS TABLE */
       .table-wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -681,7 +666,7 @@
       .events-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 650px;
+        min-width: 700px;
       }
 
       .events-table th {
@@ -735,6 +720,12 @@
       .status-ended {
         background: rgba(255, 71, 87, 0.1);
         color: var(--vibe-danger);
+      }
+
+      .status-cancelled {
+        background: rgba(255, 71, 87, 0.15);
+        color: var(--vibe-danger);
+        text-decoration: line-through;
       }
 
       .status-draft {
@@ -793,9 +784,17 @@
         background: rgba(255, 71, 87, 0.1);
       }
 
-      /* ============================================
-        TICKET MANAGEMENT - One Column
-       ============================================ */
+      .btn-small.btn-warning {
+        background: transparent;
+        border: 1px solid var(--vibe-warning);
+        color: var(--vibe-warning);
+      }
+
+      .btn-small.btn-warning:hover {
+        background: rgba(255, 193, 7, 0.1);
+      }
+
+      /* TICKET MANAGEMENT */
       .ticket-mgmt-grid {
         display: grid;
         grid-template-columns: 1fr;
@@ -841,9 +840,7 @@
         color: var(--vibe-text-light);
       }
 
-      /* ============================================
-        TAB NAVIGATION
-       ============================================ */
+      /* TAB NAVIGATION */
       .tab-navigation {
         display: flex;
         gap: 6px;
@@ -873,9 +870,7 @@
         color: white;
       }
 
-      /* ============================================
-        EMPTY STATE
-       ============================================ */
+      /* EMPTY STATE */
       .empty-state {
         text-align: center;
         padding: 30px 15px;
@@ -898,9 +893,7 @@
         font-size: 0.75rem;
       }
 
-      /* ============================================
-        FOOTER
-       ============================================ */
+      /* FOOTER */
       .footer {
         background: var(--vibe-dark);
         color: white;
@@ -927,9 +920,7 @@
         color: var(--vibe-primary);
       }
 
-      /* ============================================
-        TAB CONTENT
-       ============================================ */
+      /* TAB CONTENT */
       .tab-content {
         display: none;
       }
@@ -951,10 +942,166 @@
       }
 
       /* ============================================
-        RESPONSIVE BREAKPOINTS
-       ============================================ */
+         CONFIRMATION MODAL (Delete / Cancel)
+         ============================================ */
+      .confirm-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 1100;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
 
-      /* Tablet Screen Optimizations */
+      .confirm-modal-overlay.active {
+        display: flex;
+        opacity: 1;
+      }
+
+      .confirm-modal {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 480px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      }
+
+      .confirm-modal-overlay.active .confirm-modal {
+        transform: translateY(0) scale(1);
+      }
+
+      .confirm-modal-header {
+        padding: 20px 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+      }
+
+      .confirm-modal-header.danger {
+        background: linear-gradient(135deg, var(--vibe-danger), #e8414f);
+      }
+
+      .confirm-modal-header.warning {
+        background: linear-gradient(135deg, var(--vibe-warning), #ffb300);
+        color: var(--vibe-dark);
+      }
+
+      .confirm-modal-header i {
+        font-size: 1.5rem;
+      }
+
+      .confirm-modal-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .confirm-modal-body {
+        padding: 24px;
+      }
+
+      .confirm-modal-body p {
+        font-size: 0.9rem;
+        color: var(--vibe-text);
+        margin-bottom: 12px;
+      }
+
+      .confirm-modal-body .warning-note {
+        background: rgba(255, 71, 87, 0.08);
+        border-left: 3px solid var(--vibe-danger);
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: var(--vibe-danger);
+        margin-top: 12px;
+      }
+
+      .confirm-modal-body .info-note {
+        background: rgba(255, 193, 7, 0.1);
+        border-left: 3px solid var(--vibe-warning);
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: #856404;
+        margin-top: 12px;
+      }
+
+      .confirm-event-name {
+        font-weight: 700;
+        color: var(--vibe-dark);
+        background: var(--vibe-light);
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin: 12px 0;
+        font-size: 0.9rem;
+      }
+
+      .confirm-modal-footer {
+        display: flex;
+        gap: 10px;
+        padding: 0 24px 24px;
+      }
+
+      .confirm-modal-footer .btn {
+        flex: 1;
+        padding: 12px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 44px;
+      }
+
+      .confirm-modal-footer .btn-cancel {
+        background: transparent;
+        border: 2px solid #e8e8e8;
+        color: var(--vibe-text);
+      }
+
+      .confirm-modal-footer .btn-cancel:hover {
+        border-color: var(--vibe-text-light);
+        background: var(--vibe-light);
+      }
+
+      .confirm-modal-footer .btn-confirm-danger {
+        background: linear-gradient(135deg, var(--vibe-danger), #e8414f);
+        color: white;
+      }
+
+      .confirm-modal-footer .btn-confirm-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 71, 87, 0.35);
+      }
+
+      .confirm-modal-footer .btn-confirm-warning {
+        background: linear-gradient(135deg, var(--vibe-warning), #ffb300);
+        color: var(--vibe-dark);
+      }
+
+      .confirm-modal-footer .btn-confirm-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 193, 7, 0.35);
+      }
+
+      /* RESPONSIVE BREAKPOINTS */
       @media (max-width: 992px) {
         .dashboard {
           grid-template-columns: 1fr;
@@ -976,7 +1123,7 @@
         }
 
         .events-table {
-          min-width: 600px;
+          min-width: 700px;
         }
 
         .organizer-name {
@@ -989,7 +1136,6 @@
         }
       }
 
-      /* Smart Mobile Responsive Code Fixes (No Layout Clipping) */
       @media (max-width: 768px) {
         .header-container {
           gap: 10px;
@@ -1012,7 +1158,6 @@
           gap: 12px;
         }
 
-        /* Fixed typography scale constraints to handle dynamic user input data */
         .welcome-message h1 {
           font-size: 1.25rem;
         }
@@ -1026,7 +1171,6 @@
           padding: 6px 12px;
         }
 
-        /* Stack stats blocks cleanly inside mobile viewpoint boundaries */
         .stats-grid {
           grid-template-columns: 1fr;
           gap: 12px;
@@ -1059,9 +1203,8 @@
           font-size: 0.8rem;
         }
 
-        /* Prevent horizontal scrolling glitches in containers */
         .events-table {
-          min-width: 600px;
+          min-width: 700px;
         }
 
         .events-table th {
@@ -1109,7 +1252,6 @@
         }
       }
 
-      /* Small Screen Smartphone Refinements (Down to 320px) */
       @media (max-width: 480px) {
         .container {
           padding: 0 12px;
@@ -1157,7 +1299,6 @@
           padding: 6px 10px;
         }
 
-        /* Clean stacked blocks for responsive inline action arrays */
         .event-actions {
           flex-direction: column;
           gap: 6px;
@@ -1170,7 +1311,6 @@
         }
       }
 
-      /* Desktop Viewport Validations */
       @media (min-width: 769px) {
         .hamburger-btn {
           display: none;
@@ -1390,7 +1530,7 @@
             </div>
           </div>
 
-          <!-- Stats Cards - 4 columns on desktop, 1 on mobile -->
+          <!-- Stats Cards -->
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-icon"><i class="fas fa-wallet"></i></div>
@@ -1421,6 +1561,22 @@
               </div>
             </div>
           </div>
+
+          <!-- Flagged Events Banner -->
+          {% if flagged_events %}
+          <div class="flagged-event-banner" role="alert" aria-live="polite">
+            <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+            <div>
+              <strong>Action required: an event has been flagged</strong>
+              <p>Review the issue and resolve it. This notice will remain until the event is no longer flagged.</p>
+              <ul class="flagged-event-list">
+                {% for event in flagged_events %}
+                <li>{{ event.Event_title }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endif %}
 
           <!-- Overview Tab -->
           <div class="dashboard-section tab-content active" id="overview">
@@ -1460,42 +1616,44 @@
                       {{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}
                     </td>
                     <td>
-                      {% if event.Event_date >= today %}<span
-                        class="event-status status-upcoming"
-                        >Upcoming</span
-                      >{% else %}<span class="event-status status-ended"
-                        >Ended</span
-                      >{% endif %}
-
-                      {% if flagged_events %}
-                      <div class="flagged-event-banner" role="alert" aria-live="polite">
-                        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
-                        <div>
-                          <strong>Action required: an event has been flagged</strong>
-                          <p>Review the issue and resolve it. This notice will remain until the event is no longer flagged.</p>
-                          <ul class="flagged-event-list">
-                            {% for event in flagged_events %}
-                            <li>{{ event.Event_title }}</li>
-                            {% endfor %}
-                          </ul>
-                        </div>
-                      </div>
+                      {% if event.is_cancelled %}
+                        <span class="event-status status-cancelled">Cancelled</span>
+                      {% elif event.Event_date >= today %}
+                        <span class="event-status status-upcoming">Upcoming</span>
+                      {% else %}
+                        <span class="event-status status-ended">Ended</span>
                       {% endif %}
-                      
                     </td>
                     <td class="event-actions">
                       <a
                         href="{% url 'edit_event' event.slug %}"
                         class="btn-small btn-primary"
+                        title="Edit"
                         ><i class="fas fa-edit"></i
                       ></a>
-                      <button
-                        class="btn-small btn-secondary delete-event-btn"
-                        data-url="{% url 'delete_event' event.slug %}"
-                        data-slug="{{ event.slug }}"
-                      >
-                        <i class="fas fa-trash"></i>
-                      </button>
+
+                      {% if event.get_sold_tickets > 0 %}
+                        {% if not event.is_cancelled %}
+                          <button
+                            class="btn-small btn-warning cancel-event-btn"
+                            data-url="{% url 'cancel_event' event.slug %}"
+                            data-title="{{ event.Event_title }}"
+                            title="Cancel Event"
+                          >
+                            <i class="fas fa-ban"></i> Cancel
+                          </button>
+                        {% endif %}
+                      {% else %}
+                        <button
+                          class="btn-small btn-danger delete-event-btn"
+                          data-url="{% url 'delete_event' event.slug %}"
+                          data-slug="{{ event.slug }}"
+                          data-title="{{ event.Event_title }}"
+                          title="Delete"
+                        >
+                          <i class="fas fa-trash"></i> Delete
+                        </button>
+                      {% endif %}
                     </td>
                   </tr>
                   {% endfor %} {% else %}
@@ -1558,26 +1716,44 @@
                     </td>
                     <td>KES {{ event.revenue }}</td>
                     <td>
-                      {% if event.Event_date >= today %}<span
-                        class="event-status status-upcoming"
-                        >Upcoming</span
-                      >{% else %}<span class="event-status status-ended"
-                        >Ended</span
-                      >{% endif %}
+                      {% if event.is_cancelled %}
+                        <span class="event-status status-cancelled">Cancelled</span>
+                      {% elif event.Event_date >= today %}
+                        <span class="event-status status-upcoming">Upcoming</span>
+                      {% else %}
+                        <span class="event-status status-ended">Ended</span>
+                      {% endif %}
                     </td>
                     <td class="event-actions">
                       <a
                         href="{% url 'edit_event' event.slug %}"
                         class="btn-small btn-primary"
+                        title="Edit"
                         ><i class="fas fa-edit"></i
                       ></a>
-                      <button
-                        class="btn-small btn-secondary delete-event-btn"
-                        data-url="{% url 'delete_event' event.slug %}"
-                        data-slug="{{ event.slug }}"
-                      >
-                        <i class="fas fa-trash"></i>
-                      </button>
+
+                      {% if event.get_sold_tickets > 0 %}
+                        {% if not event.is_cancelled %}
+                          <button
+                            class="btn-small btn-warning cancel-event-btn"
+                            data-url="{% url 'cancel_event' event.slug %}"
+                            data-title="{{ event.Event_title }}"
+                            title="Cancel Event"
+                          >
+                            <i class="fas fa-ban"></i> Cancel
+                          </button>
+                        {% endif %}
+                      {% else %}
+                        <button
+                          class="btn-small btn-danger delete-event-btn"
+                          data-url="{% url 'delete_event' event.slug %}"
+                          data-slug="{{ event.slug }}"
+                          data-title="{{ event.Event_title }}"
+                          title="Delete"
+                        >
+                          <i class="fas fa-trash"></i> Delete
+                        </button>
+                      {% endif %}
                     </td>
                   </tr>
                   {% endfor %} {% else %}
@@ -1600,7 +1776,7 @@
             </div>
           </div>
 
-          <!-- Tickets Tab - One Column -->
+          <!-- Tickets Tab -->
           <div class="dashboard-section tab-content" id="tickets">
             <div class="section-header">
               <h2><i class="fas fa-ticket-alt"></i> Ticket Management</h2>
@@ -1666,6 +1842,73 @@
       </div>
     </div>
 
+    <!-- ============================================
+         DELETE CONFIRMATION MODAL
+         ============================================ -->
+    <div class="confirm-modal-overlay" id="deleteModalOverlay">
+      <div class="confirm-modal">
+        <div class="confirm-modal-header danger">
+          <i class="fas fa-trash"></i>
+          <h3>Delete Event?</h3>
+        </div>
+        <div class="confirm-modal-body">
+          <p>You are about to permanently delete this event:</p>
+          <div class="confirm-event-name" id="deleteEventName">Event Name</div>
+          <p style="font-size: 0.85rem; color: var(--vibe-text-light); margin-bottom: 0;">
+            This action cannot be undone. The event will be removed from all listings and dashboards.
+          </p>
+          <div class="warning-note">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Warning:</strong> Once deleted, this event cannot be recovered.
+          </div>
+        </div>
+        <div class="confirm-modal-footer">
+          <button type="button" class="btn btn-cancel" id="deleteCancelBtn">
+            <i class="fas fa-times"></i> Keep Event
+          </button>
+          <button type="button" class="btn btn-confirm-danger" id="deleteConfirmBtn">
+            <i class="fas fa-trash"></i> Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         CANCEL CONFIRMATION MODAL
+         ============================================ -->
+    <div class="confirm-modal-overlay" id="cancelModalOverlay">
+      <div class="confirm-modal">
+        <div class="confirm-modal-header warning">
+          <i class="fas fa-ban"></i>
+          <h3>Cancel Event?</h3>
+        </div>
+        <div class="confirm-modal-body">
+          <p>You are about to cancel this event:</p>
+          <div class="confirm-event-name" id="cancelEventName">Event Name</div>
+          <p style="font-size: 0.85rem; color: var(--vibe-text-light); margin-bottom: 0;">
+            This event has ticket sales, so it cannot be deleted. Canceling will:
+          </p>
+          <ul style="font-size: 0.8rem; color: var(--vibe-text-light); margin: 10px 0 0 20px;">
+            <li>Mark the event as <strong>Cancelled</strong> on all listings</li>
+            <li>Freeze ticket sales immediately</li>
+            <li>Begin the refund workflow for attendees</li>
+          </ul>
+          <div class="info-note">
+            <i class="fas fa-info-circle"></i>
+            Attendees will be notified and refunds will be processed.
+          </div>
+        </div>
+        <div class="confirm-modal-footer">
+          <button type="button" class="btn btn-cancel" id="cancelCancelBtn">
+            <i class="fas fa-times"></i> Keep Event
+          </button>
+          <button type="button" class="btn btn-confirm-warning" id="cancelConfirmBtn">
+            <i class="fas fa-ban"></i> Yes, Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
       <div class="container">
@@ -1689,9 +1932,9 @@
           day: "numeric",
         });
 
-      // ============================================
-      // HAMBURGER MENU TOGGLE
-      // ============================================
+      /* ============================================
+         HAMBURGER MENU TOGGLE
+         ============================================ */
       const hamburgerBtn = document.getElementById("hamburgerBtn");
       const mobileSidebar = document.getElementById("mobileSidebar");
       const mobileOverlay = document.getElementById("mobileOverlay");
@@ -1735,13 +1978,11 @@
         }
       });
 
-      // ============================================
-      // TAB NAVIGATION
-      // ============================================
+      /* ============================================
+         TAB NAVIGATION
+         ============================================ */
       const desktopNavLinks = document.querySelectorAll(".sidebar .nav-link");
-      const mobileNavLinks = document.querySelectorAll(
-        ".mobile-sidebar .nav-link",
-      );
+      const mobileNavLinks = document.querySelectorAll(".mobile-sidebar .nav-link");
       const tabContents = document.querySelectorAll(".tab-content");
 
       function switchTab(tabId, clickedElement) {
@@ -1758,10 +1999,7 @@
           clickedElement.classList.add("active");
         }
 
-        if (
-          window.innerWidth <= 767 &&
-          mobileSidebar.classList.contains("active")
-        ) {
+        if (window.innerWidth <= 767 && mobileSidebar.classList.contains("active")) {
           closeSidebarFunc();
         }
       }
@@ -1782,9 +2020,9 @@
         });
       });
 
-      // ============================================
-      // TAB FILTERS
-      // ============================================
+      /* ============================================
+         TAB FILTERS
+         ============================================ */
       const tabBtns = document.querySelectorAll(".tab-btn");
       tabBtns.forEach((btn) => {
         btn.addEventListener("click", function () {
@@ -1793,33 +2031,33 @@
         });
       });
 
-      // ============================================
-      // VIEW ALL LINKS
-      // ============================================
+      /* ============================================
+         VIEW ALL LINKS
+         ============================================ */
       document.querySelectorAll(".view-all").forEach((link) => {
         link.addEventListener("click", function (e) {
           e.preventDefault();
           const targetTab = this.getAttribute("data-tab");
-          const targetLink = document.querySelector(
-            `.nav-link[data-tab="${targetTab}"]`,
-          );
+          const targetLink = document.querySelector(`.nav-link[data-tab="${targetTab}"]`);
           if (targetLink) targetLink.click();
         });
       });
 
-      // ============================================
-      // DELETE EVENT
-      // ============================================
+      /* ============================================
+         CSRF HELPER
+         ============================================ */
       function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== "") {
           const cookies = document.cookie.split(";");
           for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "+") {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
             if (cookie.substring(0, name.length + 1) === name + "=") {
-              cookieValue = decodeURIComponent(
-                cookie.substring(name.length + 1),
-              );
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
               break;
             }
           }
@@ -1827,45 +2065,177 @@
         return cookieValue;
       }
 
+      /* ============================================
+         MODAL HELPERS
+         ============================================ */
+      const deleteModalOverlay = document.getElementById("deleteModalOverlay");
+      const cancelModalOverlay = document.getElementById("cancelModalOverlay");
+      const deleteEventName = document.getElementById("deleteEventName");
+      const cancelEventName = document.getElementById("cancelEventName");
+      const deleteCancelBtn = document.getElementById("deleteCancelBtn");
+      const cancelCancelBtn = document.getElementById("cancelCancelBtn");
+      const deleteConfirmBtn = document.getElementById("deleteConfirmBtn");
+      const cancelConfirmBtn = document.getElementById("cancelConfirmBtn");
+
+      let pendingDeleteUrl = null;
+      let pendingCancelUrl = null;
+
+      function openDeleteModal(url, title) {
+        pendingDeleteUrl = url;
+        deleteEventName.textContent = title || "Untitled Event";
+        deleteModalOverlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function openCancelModal(url, title) {
+        pendingCancelUrl = url;
+        cancelEventName.textContent = title || "Untitled Event";
+        cancelModalOverlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModals() {
+        deleteModalOverlay.classList.remove("active");
+        cancelModalOverlay.classList.remove("active");
+        document.body.style.overflow = "";
+        pendingDeleteUrl = null;
+        pendingCancelUrl = null;
+      }
+
+      deleteCancelBtn.addEventListener("click", closeModals);
+      cancelCancelBtn.addEventListener("click", closeModals);
+
+      // Close on overlay click
+      deleteModalOverlay.addEventListener("click", function (e) {
+        if (e.target === deleteModalOverlay) closeModals();
+      });
+      cancelModalOverlay.addEventListener("click", function (e) {
+        if (e.target === cancelModalOverlay) closeModals();
+      });
+
+      // Close on Escape
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeModals();
+      });
+
+      /* ============================================
+         EVENT ACTION SUBMITTER
+         ============================================ */
+      function submitEventAction(url, successMessage, isCancel, confirmBtn) {
+        const csrfToken = getCookie("csrftoken");
+
+        if (!csrfToken) {
+          alert("CSRF token missing. Please refresh the page.");
+          return;
+        }
+
+        // Show loading on the confirm button
+        const originalHtml = confirmBtn.innerHTML;
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        const body = isCancel
+          ? new URLSearchParams({ cancel_reason: "Cancelled by organizer" })
+          : null;
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": csrfToken,
+            "X-Requested-With": "XMLHttpRequest",
+            ...(body
+              ? { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" }
+              : {}),
+          },
+          body: body ? body.toString() : undefined,
+        })
+          .then((response) => {
+            if (response.ok) {
+              confirmBtn.innerHTML = '<i class="fas fa-check"></i> Done!';
+              setTimeout(() => {
+                alert(successMessage);
+                window.location.reload();
+              }, 400);
+            } else {
+              confirmBtn.disabled = false;
+              confirmBtn.innerHTML = originalHtml;
+              alert(
+                isCancel
+                  ? "Something went wrong. Could not cancel event."
+                  : "Something went wrong. Could not delete event."
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = originalHtml;
+            alert("Network error. Please try again.");
+          });
+      }
+
+      /* ============================================
+         DELETE BUTTONS
+         ============================================ */
       document.querySelectorAll(".delete-event-btn").forEach((btn) => {
         btn.addEventListener("click", function (e) {
           e.preventDefault();
-          const deleteUrl = this.getAttribute("data-url");
-          const eventSlug = this.getAttribute("data-slug");
+          const url = this.getAttribute("data-url");
+          const title = this.getAttribute("data-title");
+          openDeleteModal(url, title);
+        });
+      });
 
-          if (
-            confirm("Are you sure you want to permanently delete this event?")
-          ) {
-            // Get the CSRF token from the browser cookie instead of an input field
-            const csrfToken = getCookie("csrftoken");
+      deleteConfirmBtn.addEventListener("click", function () {
+        if (pendingDeleteUrl) {
+          submitEventAction(
+            pendingDeleteUrl,
+            "Event deleted successfully!",
+            false,
+            deleteConfirmBtn
+          );
+        }
+      });
 
-            if (!csrfToken) {
-              alert("CSRF token missing. Please refresh the page.");
-              return;
-            }
+      /* ============================================
+         CANCEL BUTTONS
+         ============================================ */
+      document.querySelectorAll(".cancel-event-btn").forEach((btn) => {
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          const url = this.getAttribute("data-url");
+          const title = this.getAttribute("data-title");
+          openCancelModal(url, title);
+        });
+      });
 
-            fetch(deleteUrl, {
-              method: "POST",
-              headers: {
-                "X-CSRFToken": csrfToken,
-                "X-Requested-With": "XMLHttpRequest",
-              },
-            })
-              .then((response) => {
-                if (response.ok) {
-                  alert("Event deleted successfully!");
-                  window.location.reload();
-                } else {
-                  alert("Something went wrong. Could not delete event.");
-                }
-              })
-              .catch((error) => console.error("Error:", error));
+      cancelConfirmBtn.addEventListener("click", function () {
+        if (pendingCancelUrl) {
+          submitEventAction(
+            pendingCancelUrl,
+            "Event cancelled successfully!",
+            true,
+            cancelConfirmBtn
+          );
+        }
+      });
+
+      /* ============================================
+         WITHDRAWAL FORM
+         ============================================ */
+      document.querySelectorAll("form.withdrawal-form").forEach((form) => {
+        form.addEventListener("submit", () => {
+          const btn = form.querySelector(".sidebar-action-btn.withdraw");
+          if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
           }
         });
       });
-      // ============================================
-      // UPDATE BALANCE VIA WEBSOCKETS
-      // ============================================
+
+      /* ============================================
+         WEBSOCKET - UPDATE BALANCE
+         ============================================ */
       let dashboardSocket = null;
       let dashboardReconnectTimer = null;
       let dashboardReconnectAttempts = 0;
@@ -1886,7 +2256,7 @@
         const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
         setTimeout(() => {
           dashboardSocket = new WebSocket(
-            `${wsScheme}://${window.location.host}/ws/organizer/dashboard/`,
+            `${wsScheme}://${window.location.host}/ws/organizer/dashboard/`
           );
 
           dashboardSocket.onopen = function () {
@@ -1896,23 +2266,21 @@
 
           dashboardSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
-            console.log("WebSocket event received:");
+            console.log("WebSocket event received:", data);
 
             if (data.action === "WITHDRAWAL_SUCCESS") {
-              // 1. Update the balance text directly
               const balanceElement = document.getElementById("wallet-balance");
               if (balanceElement) {
                 balanceElement.innerText = `KES ${data.new_balance}`;
               }
 
-              // 2. Show a dynamic alert notification
               const alertBox = document.getElementById("alert-box");
               if (alertBox) {
                 alertBox.innerHTML = `
-                        <div class="alert alert-success">
-                            ${data.message}. New balance: KES ${data.new_balance}
-                        </div>
-                    `;
+                  <div class="alert alert-success">
+                    ${data.message}. New balance: KES ${data.new_balance}
+                  </div>
+                `;
               }
             }
           };
@@ -1922,33 +2290,18 @@
           };
 
           dashboardSocket.onclose = function (e) {
-            console.warn(
-              "Organizer dashboard socket closed:",
-              e.code,
-              e.reason,
-            );
+            console.warn("Organizer dashboard socket closed:", e.code, e.reason);
 
             if (dashboardReconnectAttempts < 5) {
               dashboardReconnectAttempts += 1;
               const delay = Math.min(1000 * dashboardReconnectAttempts, 5000);
-              dashboardReconnectTimer = setTimeout(
-                connectDashboardSocket,
-                delay,
-              );
+              dashboardReconnectTimer = setTimeout(connectDashboardSocket, delay);
             }
           };
         }, 1000);
       }
 
       document.addEventListener("DOMContentLoaded", connectDashboardSocket);
-
-      document.querySelectorAll("form.withdrawal-form").forEach((form) => {
-        form.addEventListener('submit', () => {
-          const btn = form.querySelector('.sidebar-action-btn.withdraw');
-          btn.disabled = true;
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...'
-        })
-      })
 
       window.addEventListener("beforeunload", function () {
         if (dashboardSocket) {

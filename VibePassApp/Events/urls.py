@@ -6,6 +6,7 @@ urlpatterns = [
     path("creat_event/<slug:slug>/", views.CreateEvent, name="edit_event"),
     path("list_event/", views.ListEvent, name="list_event"),
     path("delete_event/<slug:slug>/", views.delete_event_view, name="delete_event"),
+    path("cancel_event/<slug:slug>/", views.cancel_event_view, name="cancel_event"),
     path("event_details/<slug:slug>/", views.EventDetails, name="event_details"),
     path("search_event/", views.SearchEvent, name="search_event"),
     path(

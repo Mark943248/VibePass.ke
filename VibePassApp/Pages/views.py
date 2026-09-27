@@ -17,7 +17,13 @@ logger = logging.getLogger(__name__)
 def HomePage(request):
     """Render the homepage with the 3 most recent events and the current date."""
     # Get the 3 most recent events
-    recent_events = Event.objects.order_by("-Event_created_at")[:3]
+    today = timezone.now()
+    recent_events = Event.objects.is_publicly_visible().filter(
+        is_deleted=False,
+        Event_is_active=True,
+        Event_status__in=["published", "completed"],
+        Event_date__gt=today.date,
+    ).order_by("-Event_created_at")[:3]
     today = timezone.now().date()
     context = {"recent_events": recent_events, "today": today}
     return render(request, "pages/index.html", context)

@@ -7,9 +7,11 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from .models import Event, ReportEvent, ReviewEvent, TicketType
+from Tickets.models import Ticket
 from .services import evaluate_organizer_verification
-from .tasks import deactivate_past_events
+from .tasks import deactivate_past_events, send_event_cancellation_email_to_buyers
 from Users.models import OrganizerProfile
+from Payments.models import EscrowModel, Payment
 
 User = get_user_model()
 
@@ -39,6 +41,14 @@ class EventModelTest(TestCase):
             description="Standard access",
             price=1000.00,
             capacity=50,
+        )
+
+        self.payment = Payment.objects.create(
+            user=self.organizer,
+            event=self.event,
+            amount=100.00,
+            mpesa_number="254712345678",
+            payment_status="Pending",
         )
 
     def test_event_creation(self):
@@ -111,6 +121,101 @@ class EventModelTest(TestCase):
 
     def test_event_str(self):
         self.assertEqual(str(self.event), self.event.Event_title)
+
+    def test_delete_event_soft_deletes_unsold_event(self):
+        self.client.force_login(self.organizer)
+
+        response = self.client.post(reverse("delete_event", args=[self.event.slug]))
+
+        self.assertEqual(response.status_code, 200)
+        self.event.refresh_from_db()
+        self.assertTrue(self.event.is_deleted)
+        self.assertEqual(self.event.Event_status, "deleted")
+        self.assertFalse(self.event.Event_is_active)
+
+    def test_delete_event_rejects_sold_event(self):
+        self.client.force_login(self.organizer)
+        Ticket.objects.create(
+            event=self.event,
+            user=self.organizer,
+            ticket_type=self.ticket_type,
+            status="active",
+        )
+
+        response = self.client.post(reverse("delete_event", args=[self.event.slug]))
+
+        self.assertRedirects(response, reverse("organizers_dashboard"))
+        self.event.refresh_from_db()
+        self.assertFalse(self.event.is_deleted)
+
+    def test_cancel_event_freezes_escrow_for_sold_event(self):
+        self.client.force_login(self.organizer)
+        Ticket.objects.create(
+            event=self.event,
+            user=self.organizer,
+            ticket_type=self.ticket_type,
+            status="active",
+        )
+
+        escrow = EscrowModel.objects.create(
+            payment=self.payment,
+            organiser=self.organizer,
+            event=self.event,
+            amount=5000.00,
+            release_date=date.today(),
+        )
+
+        response = self.client.post(
+            reverse("cancel_event", args=[self.event.slug])
+        )
+
+        self.assertRedirects(response, reverse("organizers_dashboard"))
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.Event_status, "cancelled")
+        self.assertTrue(self.event.is_deleted)
+        escrow.refresh_from_db()
+        self.assertEqual(escrow.payout_status, "frozen")
+
+    @patch("Events.tasks.send_mail")
+    def test_event_cancellation_email_sends_once_per_buyer(self, mock_send_mail):
+        second_buyer = User.objects.create_user(
+            username="buyer",
+            email="buyer@example.com",
+            password="testpass123",
+        )
+        first_ticket = Ticket.objects.create(
+            event=self.event,
+            user=self.organizer,
+            ticket_type=self.ticket_type,
+            status="cancelled",
+        )
+        second_ticket = Ticket.objects.create(
+            event=self.event,
+            user=self.organizer,
+            ticket_type=self.ticket_type,
+            status="cancelled",
+        )
+        third_ticket = Ticket.objects.create(
+            event=self.event,
+            user=second_buyer,
+            ticket_type=self.ticket_type,
+            status="cancelled",
+        )
+
+        sent_count = send_event_cancellation_email_to_buyers(
+            [str(first_ticket.ticket_id), str(second_ticket.ticket_id), str(third_ticket.ticket_id)]
+        )
+
+        self.assertEqual(sent_count, 2)
+        self.assertEqual(mock_send_mail.call_count, 2)
+        recipients = {call.kwargs["recipient_list"][0] for call in mock_send_mail.call_args_list}
+        self.assertEqual(recipients, {self.organizer.email, second_buyer.email})
+        organizer_email = next(
+            call for call in mock_send_mail.call_args_list
+            if call.kwargs["recipient_list"] == [self.organizer.email]
+        )
+        self.assertIn(str(first_ticket.ticket_id), organizer_email.kwargs["message"])
+        self.assertIn(str(second_ticket.ticket_id), organizer_email.kwargs["message"])
 
 
 class EventViewsTest(TestCase):

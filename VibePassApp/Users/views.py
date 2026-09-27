@@ -100,7 +100,12 @@ def EventFindersDashboard(request):
     """Render the Event Finders dashboard with relevant events and tickets."""
     user = request.user
     today_date = timezone.now().date()
-    upcoming_events = Event.objects.filter(Event_date__gt=today_date)
+    upcoming_events = Event.objects.filter(
+        is_deleted=False,
+        Event_is_active=True,
+        Event_status__in=["published", "completed"],
+        Event_date__gt=today_date,
+    )
     tickets = Ticket.objects.filter(user=user).order_by("-created_at")
     past_events = Event.objects.filter(
         tickets__user=user,

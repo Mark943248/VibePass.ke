@@ -1,13 +1,15 @@
 import json
 import logging
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db import transaction, IntegrityError
 from django.views.decorators.http import require_POST
 from .models import Event, TicketType, ReviewEvent
+from .tasks import send_event_cancellation_email_to_buyers
 from Users.models import OrganizerProfile
+from Payments.models import EscrowModel
 from django.db.models import Avg, Count, Q
 from django.core.paginator import Paginator
 from django.utils import timezone
@@ -199,9 +201,13 @@ def CreateEvent(request, slug=None):
 
 # list events view
 def ListEvent(request):
-    """List all events with pagination, ordered by creation date descending."""
-    Events = Event.objects.all().order_by("-Event_created_at")
-    paginator = Paginator(Events, 6)  # Show 10 events per page
+    """List only publicly visible, non-deleted events."""
+    Events = Event.objects.filter(
+        is_deleted=False,
+        Event_is_active=True,
+        Event_status__in=["published", "completed"],
+    ).order_by("-Event_created_at")
+    paginator = Paginator(Events, 6) # Show 10 events per page
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     date_today = timezone.now().date()
@@ -217,6 +223,10 @@ def SearchEvent(request):
     query = request.GET.get("q")
     if query:
         Events = Event.objects.filter(
+            is_deleted=False,
+            Event_is_active=True,
+            Event_status__in=["published", "completed"],
+        ).filter(
             Q(Event_title__icontains=query)
             | Q(Event_category__icontains=query)
             | Q(Event_details__icontains=query)
@@ -235,7 +245,12 @@ def SearchEvent(request):
 # filter product by category
 def Filter_by_category(request, category):
     """Filter events by category and paginate the results."""
-    Events = Event.objects.filter(Event_category=category).order_by("-Event_created_at")
+    Events = Event.objects.filter(
+        Event_category=category,
+        is_deleted=False,
+        Event_is_active=True,
+        Event_status__in=["published", "completed"],
+    ).order_by("-Event_created_at")
     if not Events:
         messages.error(request, f"No Events found under this {category}")
     paginator = Paginator(Events, 10)
@@ -253,6 +268,8 @@ def Filter_by_category(request, category):
 def EventDetails(request, slug):
     """Display the details of a specific event, including its active ticket types."""
     event = get_object_or_404(Event, slug=slug)
+    if event.is_deleted or event.Event_status == "cancelled":
+        raise Http404("Event not found.")
     ticket_types = event.ticket_types.filter(is_active=True)
     organizer_rating = ReviewEvent.objects.filter(
         event__Event_organiser=event.Event_organiser
@@ -337,18 +354,56 @@ def EventDetails(request, slug):
 @login_required
 @user_passes_test(lambda u: u.is_organiser, login_url="login", redirect_field_name=None)
 def delete_event_view(request, slug):
-    """Delete an event if the user is the organiser and the request method is POST."""
+    """Soft-delete an event when no tickets have been sold."""
     event = get_object_or_404(Event, slug=slug)
-    # validate if user is the organiser
-    if not event.Event_organiser == request.user:
+    if event.Event_organiser != request.user:
         messages.error(request, "Sorry! you aren't authorised for this action")
         return redirect("organizers_dashboard")
-    # validate request method
-    if request.method == "POST":
-        event.delete()
-        return JsonResponse({"message": "Deleted successfully"}, status=200)
 
-    return JsonResponse({"error": "Invalid request method"}, status=400)
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+    sold_tickets = event.tickets.filter(status__in=["active"]).exists()
+    if sold_tickets:
+        messages.error(
+            request,
+            "This event has active ticket sales. Use the cancel event flow instead of deleting it.",
+        )
+        return redirect("organizers_dashboard")
+
+    event.soft_delete(reason="Removed by organizer before tickets were sold.")
+    messages.success(request, "Event removed successfully.")
+    return JsonResponse({"message": "Deleted successfully"}, status=200)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_organiser, login_url="login", redirect_field_name=None)
+@require_POST
+def cancel_event_view(request, slug):
+    """Cancel an event with ticket sales and freeze its escrow."""
+    event = get_object_or_404(Event, slug=slug)
+    if event.Event_organiser != request.user:
+        messages.error(request, "Sorry! you aren't authorised for this action")
+        return redirect("organizers_dashboard")
+
+    with transaction.atomic():
+        active_tickets = event.tickets.filter(status="active")
+        ticket_ids = [
+            str(ticket_id)
+            for ticket_id in active_tickets.values_list("ticket_id", flat=True)
+        ]
+        if ticket_ids:
+            active_tickets.update(status="cancelled")
+            transaction.on_commit(
+                lambda: send_event_cancellation_email_to_buyers.delay(ticket_ids)
+            )
+
+        event.cancel_event()
+        EscrowModel.objects.filter(event=event).exclude(payout_status="frozen").update(
+            payout_status="frozen"
+        )
+    messages.success(request, "Event cancelled and escrow has been frozen.")
+    return redirect("organizers_dashboard")
 
 
 @login_required
