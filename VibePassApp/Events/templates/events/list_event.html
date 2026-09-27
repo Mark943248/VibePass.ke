@@ -1255,8 +1255,7 @@
 
       <div class="nav-buttons" id="navButtons">
         {% if user.is_authenticated %}
-        <a style="text-decoration: none" href="{% url 'finders_dashboard' %}" class="btn-outline-light">Profile</a>
-        <a style="text-decoration: none" href="{% url 'logout' %}" class="btn-primary">Log Out</a>
+        <a style="text-decoration: none" href="{% url 'finders_dashboard' %}" class="btn-outline-light">Dashboard</a>
         {% else %}
         <a style="text-decoration: none" href="{% url 'login' %}" class="btn-outline-light">Log In</a>
         <a style="text-decoration: none" href="{% url 'register' %}" class="btn-primary">Sign Up</a>
