@@ -18,7 +18,7 @@ def HomePage(request):
     """Render the homepage with the 3 most recent events and the current date."""
     # Get the 3 most recent events
     today = timezone.now()
-    recent_events = Event.objects.is_publicly_visible().filter(
+    recent_events = Event.objects.filter(
         is_deleted=False,
         Event_is_active=True,
         Event_status__in=["published", "completed"],
