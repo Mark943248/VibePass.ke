@@ -689,6 +689,20 @@
         background: rgba(255, 107, 53, 0.02);
       }
 
+      /* Hidden row when filter doesn't match */
+      .event-row.filtered-out {
+        display: none;
+      }
+
+      /* Filter empty state */
+      .filter-empty-row {
+        display: none;
+      }
+
+      .filter-empty-row.visible {
+        display: table-row;
+      }
+
       .event-title {
         font-weight: 600;
         color: var(--vibe-dark);
@@ -726,6 +740,11 @@
         background: rgba(255, 71, 87, 0.15);
         color: var(--vibe-danger);
         text-decoration: line-through;
+      }
+
+      .status-ongoing {
+        background: rgba(33, 150, 243, 0.1);
+        color: var(--vibe-info);
       }
 
       .status-draft {
@@ -840,7 +859,7 @@
         color: var(--vibe-text-light);
       }
 
-      /* TAB NAVIGATION */
+      /* TAB NAVIGATION - now shows count badges */
       .tab-navigation {
         display: flex;
         gap: 6px;
@@ -859,6 +878,9 @@
         transition: all 0.3s;
         font-size: 0.8rem;
         min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
       }
 
       .tab-btn:hover {
@@ -867,6 +889,19 @@
 
       .tab-btn.active {
         background: var(--vibe-primary);
+        color: white;
+      }
+
+      .tab-btn .tab-count {
+        background: rgba(0, 0, 0, 0.08);
+        padding: 1px 8px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+      }
+
+      .tab-btn.active .tab-count {
+        background: rgba(255, 255, 255, 0.25);
         color: white;
       }
 
@@ -941,9 +976,7 @@
         }
       }
 
-      /* ============================================
-         CONFIRMATION MODAL (Delete / Cancel)
-         ============================================ */
+      /* CONFIRMATION MODAL */
       .confirm-modal-overlay {
         display: none;
         position: fixed;
@@ -1101,7 +1134,7 @@
         box-shadow: 0 8px 20px rgba(255, 193, 7, 0.35);
       }
 
-      /* RESPONSIVE BREAKPOINTS */
+      /* RESPONSIVE */
       @media (max-width: 992px) {
         .dashboard {
           grid-template-columns: 1fr;
@@ -1120,10 +1153,6 @@
         .stats-grid {
           grid-template-columns: repeat(2, 1fr);
           gap: 15px;
-        }
-
-        .events-table {
-          min-width: 700px;
         }
 
         .organizer-name {
@@ -1203,10 +1232,6 @@
           font-size: 0.8rem;
         }
 
-        .events-table {
-          min-width: 700px;
-        }
-
         .events-table th {
           font-size: 0.75rem;
           padding: 10px;
@@ -1236,29 +1261,11 @@
           padding: 6px 14px;
           min-height: 34px;
         }
-
-        .ticket-mgmt-card {
-          padding: 16px;
-        }
-
-        .ticket-mgmt-icon {
-          width: 44px;
-          height: 44px;
-          font-size: 1.2rem;
-        }
-
-        .ticket-mgmt-info h3 {
-          font-size: 1.05rem;
-        }
       }
 
       @media (max-width: 480px) {
         .container {
           padding: 0 12px;
-        }
-
-        .dashboard-header {
-          gap: 10px;
         }
 
         .welcome-message h1 {
@@ -1283,11 +1290,6 @@
           font-size: 0.95rem;
         }
 
-        .view-all {
-          padding: 0;
-          min-height: auto;
-        }
-
         .tab-navigation {
           gap: 4px;
         }
@@ -1297,6 +1299,7 @@
           text-align: center;
           font-size: 0.7rem;
           padding: 6px 10px;
+          justify-content: center;
         }
 
         .event-actions {
@@ -1345,10 +1348,7 @@
   <body>
     <!-- Django Messages -->
     {% if messages %} {% for message in messages %}
-    <div
-      class="alert alert-warning alert-dismissible fade show m-3"
-      role="alert"
-    >
+    <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
       {{ message }}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
@@ -1369,26 +1369,18 @@
         <h3 class="section-title">Menu</h3>
         <ul class="nav-links">
           <li>
-            <a href="#" class="nav-link active" data-tab="overview"
-              ><i class="fas fa-chart-line nav-icon"></i> Overview</a
-            >
+            <a href="#" class="nav-link active" data-tab="overview"><i class="fas fa-chart-line nav-icon"></i> Overview</a>
           </li>
           <li>
-            <a href="#" class="nav-link" data-tab="events"
-              ><i class="fas fa-calendar-alt nav-icon"></i> My Events
-              <span class="badge">{{ total_events }}</span></a
-            >
+            <a href="#" class="nav-link" data-tab="events"><i class="fas fa-calendar-alt nav-icon"></i> My Events
+              <span class="badge">{{ total_events }}</span></a>
           </li>
           <li>
-            <a href="#" class="nav-link" data-tab="tickets"
-              ><i class="fas fa-ticket-alt nav-icon"></i> Tickets
-              <span class="badge">{{ total_tickets_sold }}</span></a
-            >
+            <a href="#" class="nav-link" data-tab="tickets"><i class="fas fa-ticket-alt nav-icon"></i> Tickets
+              <span class="badge">{{ total_tickets_sold }}</span></a>
           </li>
           <li>
-            <a href="#" class="nav-link" data-tab="analytics"
-              ><i class="fas fa-chart-bar nav-icon"></i> Analytics</a
-            >
+            <a href="#" class="nav-link" data-tab="analytics"><i class="fas fa-chart-bar nav-icon"></i> Analytics</a>
           </li>
         </ul>
       </div>
@@ -1396,10 +1388,7 @@
         <a href="{% url 'create_event' %}" class="sidebar-action-btn create">
           <i class="fas fa-plus-circle"></i> Create Event
         </a>
-        <a
-          href="{% url 'finders_dashboard' %}"
-          class="sidebar-action-btn tickets"
-        >
+        <a href="{% url 'finders_dashboard' %}" class="sidebar-action-btn tickets">
           <i class="fas fa-ticket-alt"></i> My Tickets
         </a>
         <form method="post" action="{% url 'request_withdrawal' %}" class="withdrawal-form">
@@ -1460,40 +1449,26 @@
             <h3 class="section-title">Menu</h3>
             <ul class="nav-links">
               <li>
-                <a href="#" class="nav-link active" data-tab="overview"
-                  ><i class="fas fa-chart-line nav-icon"></i> Overview</a
-                >
+                <a href="#" class="nav-link active" data-tab="overview"><i class="fas fa-chart-line nav-icon"></i> Overview</a>
               </li>
               <li>
-                <a href="#" class="nav-link" data-tab="events"
-                  ><i class="fas fa-calendar-alt nav-icon"></i> My Events
-                  <span class="badge">{{ total_events }}</span></a
-                >
+                <a href="#" class="nav-link" data-tab="events"><i class="fas fa-calendar-alt nav-icon"></i> My Events
+                  <span class="badge">{{ total_events }}</span></a>
               </li>
               <li>
-                <a href="#" class="nav-link" data-tab="tickets"
-                  ><i class="fas fa-ticket-alt nav-icon"></i> Tickets
-                  <span class="badge">{{ total_tickets_sold }}</span></a
-                >
+                <a href="#" class="nav-link" data-tab="tickets"><i class="fas fa-ticket-alt nav-icon"></i> Tickets
+                  <span class="badge">{{ total_tickets_sold }}</span></a>
               </li>
               <li>
-                <a href="#" class="nav-link" data-tab="analytics"
-                  ><i class="fas fa-chart-bar nav-icon"></i> Analytics</a
-                >
+                <a href="#" class="nav-link" data-tab="analytics"><i class="fas fa-chart-bar nav-icon"></i> Analytics</a>
               </li>
             </ul>
           </div>
           <div class="sidebar-actions-desktop">
-            <a
-              href="{% url 'create_event' %}"
-              class="sidebar-action-btn create"
-            >
+            <a href="{% url 'create_event' %}" class="sidebar-action-btn create">
               <i class="fas fa-plus-circle"></i> Create Event
             </a>
-            <a
-              href="{% url 'finders_dashboard' %}"
-              class="sidebar-action-btn tickets"
-            >
+            <a href="{% url 'finders_dashboard' %}" class="sidebar-action-btn tickets">
               <i class="fas fa-ticket-alt"></i> My Tickets
             </a>
             <form method="post" action="{% url 'request_withdrawal' %}" class="withdrawal-form">
@@ -1502,10 +1477,7 @@
                 <i class="fas fa-wallet"></i> Withdraw
               </button>
             </form>
-            <a
-              href="{% url 'add_scanner' %}"
-              class="sidebar-action-btn withdraw"
-            >
+            <a href="{% url 'add_scanner' %}" class="sidebar-action-btn withdraw">
               <i class="fas fa-user-plus"></i> Add Scanners
             </a>
             <a href="{% url 'scanner' %}" class="sidebar-action-btn scan">
@@ -1520,9 +1492,7 @@
           <div class="dashboard-header">
             <div class="welcome-message">
               <h1>Welcome back, {{ user.username }}! </h1>
-              <p>
-                Manage your events, track ticket sales, and grow your audience
-              </p>
+              <p>Manage your events, track ticket sales, and grow your audience</p>
             </div>
             <div class="date-display">
               <i class="fas fa-calendar-day"></i>
@@ -1582,9 +1552,7 @@
           <div class="dashboard-section tab-content active" id="overview">
             <div class="section-header">
               <h2><i class="fas fa-fire"></i> Recent Events</h2>
-              <a href="#" class="view-all" data-tab="events"
-                >View All <i class="fas fa-arrow-right"></i
-              ></a>
+              <a href="#" class="view-all" data-tab="events">View All <i class="fas fa-arrow-right"></i></a>
             </div>
 
             <div class="table-wrapper">
@@ -1608,13 +1576,9 @@
                       </div>
                     </td>
                     <td>
-                      {{ event.Event_date|date:"M d, Y" }}<br /><small
-                        >{{ event.Event_time|time:"g:i A" }}</small
-                      >
+                      {{ event.Event_date|date:"M d, Y" }}<br /><small>{{ event.Event_time|time:"g:i A" }}</small>
                     </td>
-                    <td>
-                      {{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}
-                    </td>
+                    <td>{{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}</td>
                     <td>
                       {% if event.is_cancelled %}
                         <span class="event-status status-cancelled">Cancelled</span>
@@ -1625,32 +1589,23 @@
                       {% endif %}
                     </td>
                     <td class="event-actions">
-                      <a
-                        href="{% url 'edit_event' event.slug %}"
-                        class="btn-small btn-primary"
-                        title="Edit"
-                        ><i class="fas fa-edit"></i
-                      ></a>
+                      <a href="{% url 'edit_event' event.slug %}" class="btn-small btn-primary" title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </a>
 
                       {% if event.get_sold_tickets > 0 %}
                         {% if not event.is_cancelled %}
-                          <button
-                            class="btn-small btn-warning cancel-event-btn"
+                          <button class="btn-small btn-warning cancel-event-btn"
                             data-url="{% url 'cancel_event' event.slug %}"
-                            data-title="{{ event.Event_title }}"
-                            title="Cancel Event"
-                          >
+                            data-title="{{ event.Event_title }}" title="Cancel Event">
                             <i class="fas fa-ban"></i> Cancel
                           </button>
                         {% endif %}
                       {% else %}
-                        <button
-                          class="btn-small btn-danger delete-event-btn"
+                        <button class="btn-small btn-danger delete-event-btn"
                           data-url="{% url 'delete_event' event.slug %}"
                           data-slug="{{ event.slug }}"
-                          data-title="{{ event.Event_title }}"
-                          title="Delete"
-                        >
+                          data-title="{{ event.Event_title }}" title="Delete">
                           <i class="fas fa-trash"></i> Delete
                         </button>
                       {% endif %}
@@ -1661,13 +1616,7 @@
                     <td colspan="5" class="empty-state">
                       <div class="empty-icon"><i class="fas fa-inbox"></i></div>
                       <h3>No events yet</h3>
-                      <p>
-                        <a
-                          href="{% url 'create_event' %}"
-                          style="color: var(--vibe-primary)"
-                          >Create your first event</a
-                        >
-                      </p>
+                      <p><a href="{% url 'create_event' %}" style="color: var(--vibe-primary)">Create your first event</a></p>
                     </td>
                   </tr>
                   {% endif %}
@@ -1679,15 +1628,22 @@
           <!-- My Events Tab -->
           <div class="dashboard-section tab-content" id="events">
             <div class="tab-navigation">
-              <button class="tab-btn active" data-filter="all">All</button>
-              <button class="tab-btn" data-filter="upcoming">Upcoming</button>
-              <button class="tab-btn" data-filter="past">Past</button>
+              <button class="tab-btn active" data-filter="all">
+                All <span class="tab-count" id="count-all">0</span>
+              </button>
+              <button class="tab-btn" data-filter="upcoming">
+                Upcoming <span class="tab-count" id="count-upcoming">0</span>
+              </button>
+              <button class="tab-btn" data-filter="ongoing">
+                Ongoing <span class="tab-count" id="count-ongoing">0</span>
+              </button>
+              <button class="tab-btn" data-filter="past">
+                Past <span class="tab-count" id="count-past">0</span>
+              </button>
             </div>
             <div class="section-header">
               <h2><i class="fas fa-calendar-alt"></i> My Events</h2>
-              <a href="{% url 'create_event' %}" class="btn-small btn-primary"
-                ><i class="fas fa-plus"></i> Create</a
-              >
+              <a href="{% url 'create_event' %}" class="btn-small btn-primary"><i class="fas fa-plus"></i> Create</a>
             </div>
             <div class="table-wrapper">
               <table class="events-table">
@@ -1701,9 +1657,11 @@
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="eventsTableBody">
                   {% if events %} {% for event in events %}
-                  <tr class="event-row">
+                  <tr class="event-row"
+                      data-event-date="{{ event.Event_date|date:'Y-m-d' }}"
+                      data-event-status="{% if event.is_cancelled %}cancelled{% elif event.Event_date > today %}upcoming{% elif event.Event_date == today %}ongoing{% else %}past{% endif %}">
                     <td>
                       <div class="event-title">{{ event.Event_title }}</div>
                       <div class="event-venue">
@@ -1711,46 +1669,37 @@
                       </div>
                     </td>
                     <td>{{ event.Event_date|date:"M d, Y" }}</td>
-                    <td>
-                      {{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}
-                    </td>
+                    <td>{{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}</td>
                     <td>KES {{ event.revenue }}</td>
                     <td>
                       {% if event.is_cancelled %}
                         <span class="event-status status-cancelled">Cancelled</span>
-                      {% elif event.Event_date >= today %}
+                      {% elif event.Event_date > today %}
                         <span class="event-status status-upcoming">Upcoming</span>
+                      {% elif event.Event_date == today %}
+                        <span class="event-status status-ongoing">Ongoing</span>
                       {% else %}
                         <span class="event-status status-ended">Ended</span>
                       {% endif %}
                     </td>
                     <td class="event-actions">
-                      <a
-                        href="{% url 'edit_event' event.slug %}"
-                        class="btn-small btn-primary"
-                        title="Edit"
-                        ><i class="fas fa-edit"></i
-                      ></a>
+                      <a href="{% url 'edit_event' event.slug %}" class="btn-small btn-primary" title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </a>
 
                       {% if event.get_sold_tickets > 0 %}
                         {% if not event.is_cancelled %}
-                          <button
-                            class="btn-small btn-warning cancel-event-btn"
+                          <button class="btn-small btn-warning cancel-event-btn"
                             data-url="{% url 'cancel_event' event.slug %}"
-                            data-title="{{ event.Event_title }}"
-                            title="Cancel Event"
-                          >
+                            data-title="{{ event.Event_title }}" title="Cancel Event">
                             <i class="fas fa-ban"></i> Cancel
                           </button>
                         {% endif %}
                       {% else %}
-                        <button
-                          class="btn-small btn-danger delete-event-btn"
+                        <button class="btn-small btn-danger delete-event-btn"
                           data-url="{% url 'delete_event' event.slug %}"
                           data-slug="{{ event.slug }}"
-                          data-title="{{ event.Event_title }}"
-                          title="Delete"
-                        >
+                          data-title="{{ event.Event_title }}" title="Delete">
                           <i class="fas fa-trash"></i> Delete
                         </button>
                       {% endif %}
@@ -1761,16 +1710,19 @@
                     <td colspan="6" class="empty-state">
                       <div class="empty-icon"><i class="fas fa-inbox"></i></div>
                       <h3>No events yet</h3>
-                      <p>
-                        <a
-                          href="{% url 'create_event' %}"
-                          style="color: var(--vibe-primary)"
-                          >Create your first event</a
-                        >
-                      </p>
+                      <p><a href="{% url 'create_event' %}" style="color: var(--vibe-primary)">Create your first event</a></p>
                     </td>
                   </tr>
                   {% endif %}
+
+                  <!-- Filter empty state row (hidden by default) -->
+                  <tr class="filter-empty-row" id="filterEmptyRow">
+                    <td colspan="6" class="empty-state">
+                      <div class="empty-icon"><i class="fas fa-filter"></i></div>
+                      <h3 id="filterEmptyTitle">No events match this filter</h3>
+                      <p id="filterEmptyText">Try a different filter above.</p>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -1780,22 +1732,13 @@
           <div class="dashboard-section tab-content" id="tickets">
             <div class="section-header">
               <h2><i class="fas fa-ticket-alt"></i> Ticket Management</h2>
-              <span
-                style="
-                  background: var(--vibe-primary);
-                  color: white;
-                  padding: 4px 12px;
-                  border-radius: 20px;
-                  font-size: 0.7rem;
-                "
-                >Total: {{ total_tickets_sold }}</span
-              >
+              <span style="background: var(--vibe-primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem;">
+                Total: {{ total_tickets_sold }}
+              </span>
             </div>
             <div class="ticket-mgmt-grid">
               <div class="ticket-mgmt-card">
-                <div class="ticket-mgmt-icon">
-                  <i class="fas fa-ticket-alt"></i>
-                </div>
+                <div class="ticket-mgmt-icon"><i class="fas fa-ticket-alt"></i></div>
                 <div class="ticket-mgmt-info">
                   <h3>{{ total_tickets_sold }}</h3>
                   <p>Tickets Sold</p>
@@ -1809,9 +1752,7 @@
                 </div>
               </div>
               <div class="ticket-mgmt-card">
-                <div class="ticket-mgmt-icon">
-                  <i class="fas fa-wallet"></i>
-                </div>
+                <div class="ticket-mgmt-icon"><i class="fas fa-wallet"></i></div>
                 <div class="ticket-mgmt-info">
                   <h3>KES {{ user.account_balance }}</h3>
                   <p>Revenue</p>
@@ -1824,10 +1765,7 @@
           <div class="dashboard-section tab-content" id="analytics">
             <div class="section-header">
               <h2><i class="fas fa-chart-bar"></i> Event Analytics</h2>
-              <select
-                class="form-select"
-                style="width: auto; padding: 3px 8px; font-size: 0.7rem"
-              >
+              <select class="form-select" style="width: auto; padding: 3px 8px; font-size: 0.7rem">
                 <option>Last 30 days</option>
                 <option>Last 90 days</option>
               </select>
@@ -1842,9 +1780,7 @@
       </div>
     </div>
 
-    <!-- ============================================
-         DELETE CONFIRMATION MODAL
-         ============================================ -->
+    <!-- DELETE MODAL -->
     <div class="confirm-modal-overlay" id="deleteModalOverlay">
       <div class="confirm-modal">
         <div class="confirm-modal-header danger">
@@ -1873,9 +1809,7 @@
       </div>
     </div>
 
-    <!-- ============================================
-         CANCEL CONFIRMATION MODAL
-         ============================================ -->
+    <!-- CANCEL MODAL -->
     <div class="confirm-modal-overlay" id="cancelModalOverlay">
       <div class="confirm-modal">
         <div class="confirm-modal-header warning">
@@ -1922,7 +1856,7 @@
     </footer>
 
     <script>
-      // Set current date
+      // Current date
       const currentDate = new Date();
       document.getElementById("currentDate").textContent =
         currentDate.toLocaleDateString("en-US", {
@@ -2021,15 +1955,96 @@
       });
 
       /* ============================================
-         TAB FILTERS
+         CLIENT-SIDE EVENT FILTERING (No Re-Query)
          ============================================ */
-      const tabBtns = document.querySelectorAll(".tab-btn");
-      tabBtns.forEach((btn) => {
+      const filterBtns = document.querySelectorAll(".tab-btn[data-filter]");
+      const eventRows = document.querySelectorAll("#eventsTableBody .event-row");
+      const filterEmptyRow = document.getElementById("filterEmptyRow");
+      const filterEmptyTitle = document.getElementById("filterEmptyTitle");
+      const filterEmptyText = document.getElementById("filterEmptyText");
+
+      // Count elements
+      const countAll = document.getElementById("count-all");
+      const countUpcoming = document.getElementById("count-upcoming");
+      const countOngoing = document.getElementById("count-ongoing");
+      const countPast = document.getElementById("count-past");
+
+      // Compute counts from DOM (one-time)
+      function computeCounts() {
+        let counts = { all: 0, upcoming: 0, ongoing: 0, past: 0 };
+        eventRows.forEach((row) => {
+          const status = row.getAttribute("data-event-status");
+          counts.all++;
+          if (status === "upcoming") counts.upcoming++;
+          else if (status === "ongoing") counts.ongoing++;
+          else if (status === "past") counts.past++;
+        });
+        countAll.textContent = counts.all;
+        countUpcoming.textContent = counts.upcoming;
+        countOngoing.textContent = counts.ongoing;
+        countPast.textContent = counts.past;
+      }
+
+      // Apply filter (pure client-side, no fetch)
+      function applyFilter(filter) {
+        let visibleCount = 0;
+
+        eventRows.forEach((row) => {
+          const status = row.getAttribute("data-event-status");
+          let matches = false;
+
+          switch (filter) {
+            case "all":
+              matches = true;
+              break;
+            case "upcoming":
+              matches = status === "upcoming";
+              break;
+            case "ongoing":
+              matches = status === "ongoing";
+              break;
+            case "past":
+              matches = status === "past" || status === "cancelled";
+              break;
+          }
+
+          if (matches) {
+            row.classList.remove("filtered-out");
+            visibleCount++;
+          } else {
+            row.classList.add("filtered-out");
+          }
+        });
+
+        // Show / hide empty state
+        if (visibleCount === 0 && eventRows.length > 0) {
+          filterEmptyRow.classList.add("visible");
+          const labels = {
+            all: "events",
+            upcoming: "upcoming events",
+            ongoing: "ongoing events",
+            past: "past events",
+          };
+          filterEmptyTitle.textContent = `No ${labels[filter]} to show`;
+          filterEmptyText.textContent = "Try a different filter above.";
+        } else {
+          filterEmptyRow.classList.remove("visible");
+        }
+      }
+
+      // Wire up filter buttons
+      filterBtns.forEach((btn) => {
         btn.addEventListener("click", function () {
-          tabBtns.forEach((b) => b.classList.remove("active"));
+          filterBtns.forEach((b) => b.classList.remove("active"));
           this.classList.add("active");
+          const filter = this.getAttribute("data-filter");
+          applyFilter(filter);
         });
       });
+
+      // Initialize
+      computeCounts();
+      applyFilter("all");
 
       /* ============================================
          VIEW ALL LINKS
@@ -2052,10 +2067,6 @@
           const cookies = document.cookie.split(";");
           for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === name + "+") {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-              break;
-            }
             if (cookie.substring(0, name.length + 1) === name + "=") {
               cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
               break;
@@ -2105,7 +2116,6 @@
       deleteCancelBtn.addEventListener("click", closeModals);
       cancelCancelBtn.addEventListener("click", closeModals);
 
-      // Close on overlay click
       deleteModalOverlay.addEventListener("click", function (e) {
         if (e.target === deleteModalOverlay) closeModals();
       });
@@ -2113,7 +2123,6 @@
         if (e.target === cancelModalOverlay) closeModals();
       });
 
-      // Close on Escape
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape") closeModals();
       });
@@ -2129,7 +2138,6 @@
           return;
         }
 
-        // Show loading on the confirm button
         const originalHtml = confirmBtn.innerHTML;
         confirmBtn.disabled = true;
         confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
