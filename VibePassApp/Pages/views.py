@@ -22,9 +22,8 @@ def HomePage(request):
         is_deleted=False,
         Event_is_active=True,
         Event_status__in=["published", "completed"],
-        Event_date__gt=today.date,
+        Event_date__gt=today.date(),
     ).order_by("-Event_created_at")[:3]
-    today = timezone.now().date()
     context = {"recent_events": recent_events, "today": today}
     return render(request, "pages/index.html", context)
 
