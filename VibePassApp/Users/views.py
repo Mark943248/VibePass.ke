@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -14,6 +15,7 @@ from datetime import date
 from .models import OrganizerProfile, User
 from Payments.utils import format_phone_number
 
+logger = logging.getLogger(__name__)
 
 # view for user registration
 def RegisterView(request):
@@ -158,9 +160,11 @@ def EventOrganizersDashboard(request):
         total_attendees += event.tickets.filter(
             status__in=["active", "scanned"]
         ).count()
-    organiser_wallet, created = OrganizerWallet.objects.get_or_create(organiser=user)
-    balance = organiser_wallet.available_withdraw_balance
-    print(f"User account balance: {balance}")
+    organiser_wallet, _ = OrganizerWallet.objects.get_or_create(organiser=user)
+    withdrawable_balance = organiser_wallet.available_withdraw_balance
+    pending_withdrawable_balance = organiser_wallet.pending_escrow_balance
+    logger.info(f"User's withdrawable balance {withdrawable_balance}")
+    logger.info(f"User's pending withdrawable balance {pending_withdrawable_balance} ")
     organizer_is_verified = OrganizerProfile.objects.filter(
         user=user,
         is_verified=True,
@@ -174,7 +178,8 @@ def EventOrganizersDashboard(request):
     context = {
         "user": user,
         "events": events,
-        "balance": balance,
+        "withdrawable_balance": withdrawable_balance,
+        "pending_withdrawable_balance": pending_withdrawable_balance,
         "total_tickets_sold": total_tickets_sold,
         "total_attendees": total_attendees,
         "total_events": events.count(),

@@ -56,6 +56,7 @@ def evaluate_organizer_verification(organizer_id):
         if profile.is_verified != qualifies:
             profile.is_verified = qualifies
             profile.save(update_fields=["is_verified", "updated_at"])
+            logger.info(f"Organiser has qualifield for being a verifield user!")
 
         return qualifies
 

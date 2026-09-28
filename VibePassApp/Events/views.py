@@ -440,6 +440,8 @@ def report_event_view(request):
                         sender=ReportEvent, event=locked_event, reporter_username=username
                     )
                 )
+                logger.info(f"User: {username} has reported event: {locked_event}")
+                logger.info(f"{locked_event} has been reported 3 times and measures are been undertaken")
     except IntegrityError:
         messages.warning(
             request, 

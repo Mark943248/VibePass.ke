@@ -227,6 +227,8 @@ def request_withdrawal(request):
                         source="Early-Payout",
                     )
 
+                    logger.info(f"User is qualified for early withdrawal")
+
                     # Deduct the early release from pending escrow and add net to available balance
                     pending_escrow_balance -= early_release_amount
                     matured_balance += early_release_amount - early_fee
@@ -246,10 +248,17 @@ def request_withdrawal(request):
                 source="10% ticketsales",
             )
 
-            if total_revenue <= 0 or not mpesa_number:
+            if total_revenue <= 0:
                 messages.error(
                     request,
-                    "Insufficient funds or no M-PESA number configured. Please update your M-PESA number.",
+                    "Insufficient funds to make this request.",
+                )
+                return redirect("organizers_dashboard")
+
+            if not mpesa_number:
+                messages.error(
+                    request,
+                    "You have not configured your mpesa number, please update your profile!"
                 )
                 return redirect("organizers_dashboard")
 

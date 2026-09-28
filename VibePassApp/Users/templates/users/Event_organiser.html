@@ -53,6 +53,156 @@
         overflow-x: hidden;
       }
 
+      /* ============================================
+         VERIFICATION SUCCESS BANNER
+         ============================================ */
+      .verified-banner {
+        background: linear-gradient(135deg, #00c9a7 0%, #00b092 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 22px 24px;
+        margin: 20px auto 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+        box-shadow: 0 10px 30px rgba(0, 201, 167, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: slideDown 0.5s ease-out;
+      }
+
+      .verified-banner::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 220px;
+        height: 220px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+      }
+
+      .verified-banner::after {
+        content: '';
+        position: absolute;
+        bottom: -60%;
+        left: -5%;
+        width: 180px;
+        height: 180px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 50%;
+      }
+
+      .verified-banner-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .verified-banner-content {
+        flex: 1;
+        position: relative;
+        z-index: 1;
+        min-width: 0;
+      }
+
+      .verified-banner-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .verified-banner-badge {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .verified-banner-text {
+        font-size: 0.9rem;
+        opacity: 0.95;
+        margin-bottom: 14px;
+        line-height: 1.5;
+      }
+
+      .verified-benefits {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+      }
+
+      .verified-benefit-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.12);
+        padding: 12px 14px;
+        border-radius: 12px;
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      .verified-benefit-item i {
+        font-size: 1.1rem;
+        margin-top: 2px;
+        flex-shrink: 0;
+        color: var(--vibe-accent);
+      }
+
+      .verified-benefit-item .benefit-text {
+        font-size: 0.8rem;
+        line-height: 1.45;
+      }
+
+      .verified-benefit-item .benefit-text strong {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 2px;
+        font-size: 0.85rem;
+      }
+
+      .verified-banner-close {
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .verified-banner-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+      }
+
       .flagged-event-banner {
         display: flex;
         align-items: flex-start;
@@ -602,6 +752,108 @@
         color: var(--vibe-text-light);
       }
 
+      /* REVENUE SPLIT CARDS (Withdrawable + Escrow) */
+      .revenue-split-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+
+      .revenue-card {
+        background: white;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+        border-left: 5px solid;
+      }
+
+      .revenue-card.withdrawable {
+        border-left-color: var(--vibe-secondary);
+      }
+
+      .revenue-card.escrow {
+        border-left-color: var(--vibe-warning);
+      }
+
+      .revenue-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .revenue-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .revenue-card.withdrawable .revenue-card-icon {
+        background: linear-gradient(135deg, var(--vibe-secondary), #00b092);
+      }
+
+      .revenue-card.escrow .revenue-card-icon {
+        background: linear-gradient(135deg, var(--vibe-warning), #ffb300);
+      }
+
+      .revenue-card-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--vibe-dark);
+        line-height: 1.3;
+      }
+
+      .revenue-card-subtitle {
+        font-size: 0.7rem;
+        color: var(--vibe-text-light);
+      }
+
+      .revenue-card-amount {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--vibe-dark);
+        line-height: 1.2;
+        margin-bottom: 6px;
+        word-break: break-all;
+      }
+
+      .revenue-card.withdrawable .revenue-card-amount {
+        color: var(--vibe-secondary);
+      }
+
+      .revenue-card.escrow .revenue-card-amount {
+        color: var(--vibe-warning);
+      }
+
+      .revenue-card-note {
+        font-size: 0.75rem;
+        color: var(--vibe-text-light);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        line-height: 1.4;
+      }
+
+      .revenue-card-note i {
+        flex-shrink: 0;
+      }
+
+      .revenue-card.withdrawable .revenue-card-note i {
+        color: var(--vibe-secondary);
+      }
+
+      .revenue-card.escrow .revenue-card-note i {
+        color: var(--vibe-warning);
+      }
+
       /* DASHBOARD SECTIONS */
       .dashboard-section {
         background: white;
@@ -689,12 +941,10 @@
         background: rgba(255, 107, 53, 0.02);
       }
 
-      /* Hidden row when filter doesn't match */
       .event-row.filtered-out {
         display: none;
       }
 
-      /* Filter empty state */
       .filter-empty-row {
         display: none;
       }
@@ -859,7 +1109,7 @@
         color: var(--vibe-text-light);
       }
 
-      /* TAB NAVIGATION - now shows count badges */
+      /* TAB NAVIGATION */
       .tab-navigation {
         display: flex;
         gap: 6px;
@@ -973,6 +1223,26 @@
         to {
           opacity: 1;
           transform: translateY(0);
+        }
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.08);
         }
       }
 
@@ -1155,6 +1425,10 @@
           gap: 15px;
         }
 
+        .revenue-split-grid {
+          grid-template-columns: 1fr;
+        }
+
         .organizer-name {
           font-size: 0.75rem;
         }
@@ -1261,6 +1535,36 @@
           padding: 6px 14px;
           min-height: 34px;
         }
+
+        .verified-banner {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 18px;
+        }
+
+        .verified-banner-icon {
+          width: 46px;
+          height: 46px;
+          font-size: 1.4rem;
+        }
+
+        .verified-banner-close {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+        }
+
+        .verified-benefits {
+          grid-template-columns: 1fr;
+        }
+
+        .revenue-card {
+          padding: 18px;
+        }
+
+        .revenue-card-amount {
+          font-size: 1.5rem;
+        }
       }
 
       @media (max-width: 480px) {
@@ -1311,6 +1615,14 @@
         .btn-small {
           width: 100%;
           justify-content: center;
+        }
+
+        .verified-banner-title {
+          font-size: 1rem;
+        }
+
+        .revenue-card-amount {
+          font-size: 1.3rem;
         }
       }
 
@@ -1500,13 +1812,70 @@
             </div>
           </div>
 
+          <!-- Verified Banner -->
+          {% if organizer_is_verified and show_verified_banner %}
+          <div class="verified-banner" id="verifiedBanner">
+            <div class="verified-banner-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="verified-banner-content">
+              <div class="verified-banner-title">
+                You're Verified! <span class="verified-banner-badge">Trusted Organizer</span>
+              </div>
+              <p class="verified-banner-text">
+                You are now marked as <strong>verified and trusted</strong> by our platform because of handling trustworthy events. Here's what you unlock:
+              </p>
+              <ul class="verified-benefits">
+                <li class="verified-benefit-item">
+                  <i class="fas fa-bolt"></i>
+                  <div class="benefit-text">
+                    <strong>Early Access to Funds</strong>
+                    Withdraw up to <strong>50% of your earnings</strong> before the event maturity date.
+                  </div>
+                </li>
+                <li class="verified-benefit-item">
+                  <i class="fas fa-percent"></i>
+                  <div class="benefit-text">
+                    <strong>Low Early Fee</strong>
+                    Only a <strong>5% early withdrawal fee</strong> applies on the amount taken before maturity.
+                  </div>
+                </li>
+                <li class="verified-benefit-item">
+                  <i class="fas fa-shield-alt"></i>
+                  <div class="benefit-text">
+                    <strong>Boosted Trust Badge</strong>
+                    Attendees see your verified badge on all events, improving ticket sales.
+                  </div>
+                </li>
+                <li class="verified-benefit-item">
+                  <i class="fas fa-star"></i>
+                  <div class="benefit-text">
+                    <strong>Priority Support</strong>
+                    Get faster responses from our team whenever you need help.
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <button type="button" class="verified-banner-close" id="verifiedBannerClose" aria-label="Dismiss">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          {% endif %}
+
           <!-- Stats Cards -->
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-icon"><i class="fas fa-wallet"></i></div>
               <div class="stat-info">
-                <h3 id="wallet-balance">KES {{ balance }}</h3>
-                <p>Available Balance</p>
+                <h3 id="wallet-balance">KES {{ pending_withdrawable_balance }}</h3>
+                <p>Escrow Balance</p>
+              </div>
+            </div>
+             <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+              <div class="stat-info">
+                <h3 id="wallet-balance">KES {{ withdrawable_balance }}</h3>
+                <p>Available balance for withdrawal</p>
               </div>
             </div>
             <div class="stat-card">
@@ -1528,6 +1897,53 @@
               <div class="stat-info">
                 <h3>{{ total_attendees }}</h3>
                 <p>Total Attendees</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Revenue Split (Withdrawable + Escrow) -->
+          <div class="revenue-split-grid">
+            <div class="revenue-card withdrawable">
+              <div class="revenue-card-header">
+                <div class="revenue-card-icon">
+                  <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div>
+                  <div class="revenue-card-title">Withdrawable Amount</div>
+                  <div class="revenue-card-subtitle">Ready to be withdrawn</div>
+                </div>
+              </div>
+              <div class="revenue-card-amount" id="withdrawable-amount">
+                KES {{ withdrawable_balance }}
+              </div>
+              <div class="revenue-card-note">
+                <i class="fas fa-info-circle"></i>
+                <span>Available for immediate withdrawal from matured events</span>
+              </div>
+            </div>
+
+            <div class="revenue-card escrow">
+              <div class="revenue-card-header">
+                <div class="revenue-card-icon">
+                  <i class="fas fa-lock"></i>
+                </div>
+                <div>
+                  <div class="revenue-card-title">Amount in Escrow</div>
+                  <div class="revenue-card-subtitle">Held by our platform</div>
+                </div>
+              </div>
+              <div class="revenue-card-amount" id="escrow-amount">
+                KES {{ pending_withdrawable_balance }}
+              </div>
+              <div class="revenue-card-note">
+                <i class="fas fa-clock"></i>
+                <span>
+                  {% if organizer_is_verified %}
+                    Withdraw up to 50% early — 5% early fee applies
+                  {% else %}
+                    Released after event maturity date
+                  {% endif %}
+                </span>
               </div>
             </div>
           </div>
@@ -1715,7 +2131,6 @@
                   </tr>
                   {% endif %}
 
-                  <!-- Filter empty state row (hidden by default) -->
                   <tr class="filter-empty-row" id="filterEmptyRow">
                     <td colspan="6" class="empty-state">
                       <div class="empty-icon"><i class="fas fa-filter"></i></div>
@@ -1749,13 +2164,6 @@
                 <div class="ticket-mgmt-info">
                   <h3>{{ total_attendees }}</h3>
                   <p>Attendees</p>
-                </div>
-              </div>
-              <div class="ticket-mgmt-card">
-                <div class="ticket-mgmt-icon"><i class="fas fa-wallet"></i></div>
-                <div class="ticket-mgmt-info">
-                  <h3>KES {{ user.balance }}</h3>
-                  <p>Revenue</p>
                 </div>
               </div>
             </div>
@@ -1867,6 +2275,29 @@
         });
 
       /* ============================================
+         VERIFIED BANNER — Dismiss + Persist
+         ============================================ */
+      const verifiedBanner = document.getElementById("verifiedBanner");
+      const verifiedBannerClose = document.getElementById("verifiedBannerClose");
+
+      if (verifiedBanner && verifiedBannerClose) {
+        // If user previously dismissed, hide it immediately
+        if (localStorage.getItem("vibepass_verified_banner_dismissed") === "true") {
+          verifiedBanner.style.display = "none";
+        }
+
+        verifiedBannerClose.addEventListener("click", function () {
+          verifiedBanner.style.transition = "all 0.3s ease";
+          verifiedBanner.style.opacity = "0";
+          verifiedBanner.style.transform = "translateY(-20px)";
+          setTimeout(() => {
+            verifiedBanner.style.display = "none";
+            localStorage.setItem("vibepass_verified_banner_dismissed", "true");
+          }, 300);
+        });
+      }
+
+      /* ============================================
          HAMBURGER MENU TOGGLE
          ============================================ */
       const hamburgerBtn = document.getElementById("hamburgerBtn");
@@ -1955,7 +2386,7 @@
       });
 
       /* ============================================
-         CLIENT-SIDE EVENT FILTERING (No Re-Query)
+         CLIENT-SIDE EVENT FILTERING
          ============================================ */
       const filterBtns = document.querySelectorAll(".tab-btn[data-filter]");
       const eventRows = document.querySelectorAll("#eventsTableBody .event-row");
@@ -1963,13 +2394,11 @@
       const filterEmptyTitle = document.getElementById("filterEmptyTitle");
       const filterEmptyText = document.getElementById("filterEmptyText");
 
-      // Count elements
       const countAll = document.getElementById("count-all");
       const countUpcoming = document.getElementById("count-upcoming");
       const countOngoing = document.getElementById("count-ongoing");
       const countPast = document.getElementById("count-past");
 
-      // Compute counts from DOM (one-time)
       function computeCounts() {
         let counts = { all: 0, upcoming: 0, ongoing: 0, past: 0 };
         eventRows.forEach((row) => {
@@ -1985,7 +2414,6 @@
         countPast.textContent = counts.past;
       }
 
-      // Apply filter (pure client-side, no fetch)
       function applyFilter(filter) {
         let visibleCount = 0;
 
@@ -2016,7 +2444,6 @@
           }
         });
 
-        // Show / hide empty state
         if (visibleCount === 0 && eventRows.length > 0) {
           filterEmptyRow.classList.add("visible");
           const labels = {
@@ -2032,7 +2459,6 @@
         }
       }
 
-      // Wire up filter buttons
       filterBtns.forEach((btn) => {
         btn.addEventListener("click", function () {
           filterBtns.forEach((b) => b.classList.remove("active"));
@@ -2042,7 +2468,6 @@
         });
       });
 
-      // Initialize
       computeCounts();
       applyFilter("all");
 
@@ -2242,7 +2667,7 @@
       });
 
       /* ============================================
-         WEBSOCKET - UPDATE BALANCE
+         WEBSOCKET - UPDATE BALANCE & REVENUE
          ============================================ */
       let dashboardSocket = null;
       let dashboardReconnectTimer = null;
@@ -2282,6 +2707,12 @@
                 balanceElement.innerText = `KES ${data.new_balance}`;
               }
 
+              // Update withdrawable amount if it's the same as balance
+              const withdrawableElement = document.getElementById("withdrawable-amount");
+              if (withdrawableElement && data.new_balance !== undefined) {
+                withdrawableElement.innerText = `KES ${data.new_balance}`;
+              }
+
               const alertBox = document.getElementById("alert-box");
               if (alertBox) {
                 alertBox.innerHTML = `
@@ -2289,6 +2720,14 @@
                     ${data.message}. New balance: KES ${data.new_balance}
                   </div>
                 `;
+              }
+            }
+
+            // Handle escrow update (if backend sends it)
+            if (data.action === "ESCROW_UPDATE") {
+              const escrowElement = document.getElementById("escrow-amount");
+              if (escrowElement && data.escrow_amount !== undefined) {
+                escrowElement.innerText = `KES ${data.escrow_amount}`;
               }
             }
           };
