@@ -274,7 +274,7 @@ CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")  # Celery Broker URL
 CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER_URL")
 CELERY_BEAT_SCHEDULE = {
     "deactivate-past-events-daily": {
-        "task": "Events.tasks.deactivate_past_events",
+        "task": "Events.tasks.deactivate_past_events_and_expire_tickets",
         "schedule": 60 * 60,
     },
     "release-escrow-holds-hourly": {
