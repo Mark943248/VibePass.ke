@@ -114,6 +114,19 @@ def book_free_ticket(request, slug):
         messages.error(request, "This event is no longer active.")
         return redirect("event_details", slug=slug)
 
+    if event.Event_is_flagged:
+        logger.info(f"Attempt to book ticket for flagged event: {event.slug}")
+        messages.error(
+            request,
+            "This event has been flagged for safety concerns. Ticket booking is not allowed.",
+        )
+        return redirect("event_details", slug=slug)
+
+    if event.Event_date < timezone.now().date():
+        logger.info(f"Attempt to book ticket for past event: {event.slug}")
+        messages.error(request, "This event has already ended.")
+        return redirect("event_details", slug=slug)
+
     items = _get_checkout_items(checkout_data)
     if not items:
         logger.warning(

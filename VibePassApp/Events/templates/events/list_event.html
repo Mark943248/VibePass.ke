@@ -1368,7 +1368,7 @@
               {{ Event.Event_details|truncatechars:100 }}
             </p>
             
-            {% if Event.Event_date >= today %}
+            {% if Event.Event_date > today %}
             <span class="event-status status-upcoming">Upcoming</span>
             {% else %}
             <span class="event-status status-ended">Ended</span>

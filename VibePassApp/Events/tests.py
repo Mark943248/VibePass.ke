@@ -1,17 +1,20 @@
 from datetime import date, time, timedelta
+from decimal import Decimal
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from .models import Event, ReportEvent, ReviewEvent, TicketType
 from Tickets.models import Ticket
 from .services import evaluate_organizer_verification
 from .tasks import deactivate_past_events, send_event_cancellation_email_to_buyers
-from Users.models import OrganizerProfile
+from Users.models import OrganizerProfile, OrganizerWallet
 from Payments.models import EscrowModel, Payment
+from Payments.tasks import release_matured_escrow_holds
 
 User = get_user_model()
 
@@ -101,6 +104,32 @@ class EventModelTest(TestCase):
         self.assertFalse(past_event.Event_is_active)
         self.assertTrue(today_event.Event_is_active)
         self.assertTrue(future_event.Event_is_active)
+
+    def test_release_matured_escrow_holds_releases_held_funds(self):
+        wallet, _ = OrganizerWallet.objects.get_or_create(organiser=self.organizer)
+        wallet.pending_escrow_balance = Decimal("5000.00")
+        wallet.available_withdraw_balance = Decimal("250.00")
+        wallet.save()
+
+        escrow = EscrowModel.objects.create(
+            payment=self.payment,
+            organiser=self.organizer,
+            event=self.event,
+            amount=Decimal("5000.00"),
+            payout_status="Held",
+            release_date=timezone.now() - timedelta(days=1),
+        )
+
+        result = release_matured_escrow_holds()
+
+        wallet.refresh_from_db()
+        escrow.refresh_from_db()
+
+        self.assertEqual(result, "Released 1 holds.")
+        self.assertEqual(wallet.pending_escrow_balance, Decimal("0.00"))
+        self.assertEqual(wallet.available_withdraw_balance, Decimal("5250.00"))
+        self.assertEqual(escrow.payout_status, "Released")
+        self.assertIsNotNone(escrow.released_at)
 
     def test_ticket_capacity_and_price_summary(self):
         TicketType.objects.create(

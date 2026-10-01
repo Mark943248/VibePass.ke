@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 COMPLETED_EVENT_COUNT = 3
 MINIMUM_AVERAGE_RATING = 3.5
 MINIMUM_REVIEW_COUNT = 5
-ACTIVE_REPORT_STATUSES = ("pending", "under_review", "action_taken")
+ACTIVE_REPORT_STATUSES = ("pending", "under_review")
 
 
 def evaluate_organizer_verification(organizer_id):

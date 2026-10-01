@@ -577,7 +577,7 @@ def release_matured_escrow_holds():
         # 2. Check if the event has unresolved or upheld safety/fraud reports
         has_active_reports = ReportEvent.objects.filter(
             event=event,
-            status__in=['Pending', 'Under_Review', 'Action_Taken']
+            report_status__in=['Pending', 'Under_Review', 'Action_Taken']
         ).exists()
 
         if has_active_reports:

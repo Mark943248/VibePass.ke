@@ -210,8 +210,8 @@ def ListEvent(request):
     paginator = Paginator(Events, 6) # Show 10 events per page
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    date_today = timezone.now().date()
-    context = {"page_obj": page_obj, "today": date_today}
+    today = timezone.now().date()
+    context = {"page_obj": page_obj, "today": today}
     return render(request, "events/list_event.html", context)
 
 

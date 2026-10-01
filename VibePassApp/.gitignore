@@ -3,3 +3,6 @@ Certs
 mpesa_logs
 google_secrets
 backup_codes.txt
+celerybeat-schedule
+celerybeat-schedule-shm
+celerybeat-schedule-wal
