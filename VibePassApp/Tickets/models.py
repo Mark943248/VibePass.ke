@@ -9,6 +9,7 @@ import uuid
 TICKET_STATUS = [
     ("active", "Active"),
     ("scanned", "Scanned"),
+    ("expired", "Expired"),
     ("cancelled", "Cancelled"),
 ]
 
@@ -51,6 +52,7 @@ class Ticket(models.Model):
         return True, "Ticket marked as scanned successfully."
 
     def get_status_display(self):
+        """Return the human-readable status of the ticket."""
         return self.status
 
     def __str__(self):

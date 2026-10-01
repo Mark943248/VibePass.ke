@@ -207,7 +207,7 @@ def ListEvent(request):
         Event_is_active=True,
         Event_status__in=["published", "completed"],
     ).order_by("-Event_created_at")
-    paginator = Paginator(Events, 6) # Show 10 events per page
+    paginator = Paginator(Events, 6)  # Show 10 events per page
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     today = timezone.now().date()
@@ -222,16 +222,20 @@ def SearchEvent(request):
     """
     query = request.GET.get("q")
     if query:
-        Events = Event.objects.filter(
-            is_deleted=False,
-            Event_is_active=True,
-            Event_status__in=["published", "completed"],
-        ).filter(
-            Q(Event_title__icontains=query)
-            | Q(Event_category__icontains=query)
-            | Q(Event_details__icontains=query)
-            | Q(Event_location__icontains=query)
-        ).order_by("-Event_created_at")
+        Events = (
+            Event.objects.filter(
+                is_deleted=False,
+                Event_is_active=True,
+                Event_status__in=["published", "completed"],
+            )
+            .filter(
+                Q(Event_title__icontains=query)
+                | Q(Event_category__icontains=query)
+                | Q(Event_details__icontains=query)
+                | Q(Event_location__icontains=query)
+            )
+            .order_by("-Event_created_at")
+        )
         paginator = Paginator(Events, 10)  # Show 10 events per page
         page_number = request.GET.get("page")
         page_obj = paginator.get_page(page_number)
@@ -431,26 +435,32 @@ def report_event_view(request):
                 additional_details=additional_details,
             )
 
-            unique_reports_count = locked_event.reports.values("reported_by").distinct().count()
+            unique_reports_count = (
+                locked_event.reports.values("reported_by").distinct().count()
+            )
 
             if unique_reports_count >= 3:
                 username = request.user.username
                 transaction.on_commit(
                     lambda: report_3_submitted.send(
-                        sender=ReportEvent, event=locked_event, reporter_username=username
+                        sender=ReportEvent,
+                        event=locked_event,
+                        reporter_username=username,
                     )
                 )
                 logger.info(f"User: {username} has reported event: {locked_event}")
-                logger.info(f"{locked_event} has been reported 3 times and measures are been undertaken")
+                logger.info(
+                    f"{locked_event} has been reported 3 times and measures are been undertaken"
+                )
     except IntegrityError:
         messages.warning(
-            request, 
-            "You have already reported this event, your report is under review."
+            request,
+            "You have already reported this event, your report is under review.",
         )
 
     messages.success(
-        request, 
-        "Your report has been submitted successfully, we will review it shortly."
+        request,
+        "Your report has been submitted successfully, we will review it shortly.",
     )
     return redirect("finders_dashboard")
 
@@ -459,8 +469,8 @@ def report_event_view(request):
 @require_POST
 def rate_event_view(request, slug):
     """This view enables users to rate past events attended and experiences they have had"""
-    rating_value = request.POST.get('rating')
-    rating_review = request.POST.get('review')
+    rating_value = request.POST.get("rating")
+    rating_review = request.POST.get("review")
 
     try:
         with transaction.atomic():
@@ -470,22 +480,11 @@ def rate_event_view(request, slug):
                 reviewed_by=request.user,
                 event=event,
                 rating=rating_value,
-                review=rating_review
+                review=rating_review,
             )
 
-            messages.success(
-                request,
-                "Thank you for your review..!"
-            )
+            messages.success(request, "Thank you for your review..!")
             return redirect("finders_dashboard")
     except IntegrityError:
-        messages.warning(
-            request,
-            "You've already reviewed this event!"
-        )
+        messages.warning(request, "You've already reviewed this event!")
         return redirect("finders_dashboard")
-
-
-
-
-

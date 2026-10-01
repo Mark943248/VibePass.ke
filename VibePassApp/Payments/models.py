@@ -39,19 +39,29 @@ class Payment(models.Model):
     def __str__(self):
         return f"Payment {self.payment_id} - User: {self.user.username} - Event: {self.event.Event_title} - Amount: {self.amount}"
 
+
 class EscrowModel(models.Model):
     """Model to represent amount organisers held by the platform untill release"""
+
     PAYOUT_STATUS = [
         ("held", "Held"),
         ("frozen", "Frozen"),
         ("refunded", "Refunded"),
-        ("released", "Released")
+        ("released", "Released"),
     ]
-    payment = models.OneToOneField(Payment, on_delete=models.PROTECT, related_name="payments")
-    event = models.ForeignKey('Events.Event', on_delete=models.PROTECT, related_name="events")
-    organiser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="organisers")
+    payment = models.OneToOneField(
+        Payment, on_delete=models.PROTECT, related_name="payments"
+    )
+    event = models.ForeignKey(
+        "Events.Event", on_delete=models.PROTECT, related_name="events"
+    )
+    organiser = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="organisers"
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    payout_status = models.CharField(max_length=20, choices=PAYOUT_STATUS, default="Held")
+    payout_status = models.CharField(
+        max_length=20, choices=PAYOUT_STATUS, default="Held"
+    )
     release_date = models.DateTimeField(db_index=True)
     released_at = models.DateTimeField(null=True, blank=True, db_index=True)
     created_at = models.DateField(auto_now_add=True)
@@ -106,11 +116,15 @@ class Withdrawal(models.Model):
     def __str__(self):
         return f"Withdrawal {self.withdrawal_id} - Organizer: {self.organiser.username} - Amount: {self.amount} - Status: {self.status}"
 
+
 class PlatformRevenue(models.Model):
-    """Tracks 5% early processing fees & 
-    10% of the revenue made by the organiser 
+    """Tracks 5% early processing fees &
+    10% of the revenue made by the organiser
     from ticket sales collected by VibePass."""
-    organiser = models.ForeignKey('Users.User', on_delete=models.SET_NULL, null=True, blank=True)
+
+    organiser = models.ForeignKey(
+        "Users.User", on_delete=models.SET_NULL, null=True, blank=True
+    )
     fee_amount = models.DecimalField(max_digits=12, decimal_places=2)
     source = models.CharField(max_length=500, default="Early-Payout")
     created_at = models.DateTimeField(auto_now_add=True)

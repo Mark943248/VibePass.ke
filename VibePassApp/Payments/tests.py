@@ -240,7 +240,9 @@ class PaymentViewsTest(TestCase):
     def test_request_withdrawal_view_non_organizer(self):
         self.client.login(username="testuser", password="testpass123")
         response = self.client.get(reverse("request_withdrawal"))
-        self.assertRedirects(response, f"{reverse("login")}?next={reverse('request_withdrawal')}")
+        self.assertRedirects(
+            response, f"{reverse("login")}?next={reverse('request_withdrawal')}"
+        )
 
     def test_request_withdrawal_view_get(self):
         self.client.login(username="organizer", password="testpass123")
@@ -298,11 +300,15 @@ class PaymentViewsTest(TestCase):
         initiate_b2c.assert_called_once()
 
     @patch("Payments.views.initiate_b2c_request_task.delay")
-    def test_verified_organizer_can_early_withdraw_with_5_percent_fee(self, initiate_b2c):
+    def test_verified_organizer_can_early_withdraw_with_5_percent_fee(
+        self, initiate_b2c
+    ):
         wallet, _ = OrganizerWallet.objects.get_or_create(organiser=self.organizer)
         wallet.available_withdraw_balance = Decimal("200.00")
         wallet.pending_escrow_balance = Decimal("1000.00")
-        wallet.save(update_fields=["available_withdraw_balance", "pending_escrow_balance"])
+        wallet.save(
+            update_fields=["available_withdraw_balance", "pending_escrow_balance"]
+        )
 
         OrganizerProfile.objects.update_or_create(
             user=self.organizer,
@@ -337,7 +343,9 @@ class PaymentViewsTest(TestCase):
         wallet, _ = OrganizerWallet.objects.get_or_create(organiser=self.organizer)
         wallet.available_withdraw_balance = Decimal("300.00")
         wallet.pending_escrow_balance = Decimal("0.00")
-        wallet.save(update_fields=["available_withdraw_balance", "pending_escrow_balance"])
+        wallet.save(
+            update_fields=["available_withdraw_balance", "pending_escrow_balance"]
+        )
         self.organizer.mpesa_number = "254712345678"
         self.organizer.save(update_fields=["mpesa_number"])
 

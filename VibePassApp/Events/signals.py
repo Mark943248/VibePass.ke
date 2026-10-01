@@ -19,6 +19,7 @@ def _schedule_for_event(sender, instance, created, **kwargs):
 post_save.connect(_schedule_for_event, sender=ReviewEvent)
 post_save.connect(_schedule_for_event, sender=ReportEvent)
 
+
 @receiver(report_3_submitted)
 def handle_report_3_submission(sender, **kwargs):
     event = kwargs.get("event")
@@ -36,11 +37,12 @@ def handle_report_3_submission(sender, **kwargs):
         # 2. Freeze all active escrow holds for this event in a single atomic SQL query
         updated_holds_count = EscrowModel.objects.filter(
             event=event,
-            payout_status="Held"  # Only freeze holds that are currently Held (don't overwrite already Released/Refunded)
+            payout_status="Held",  # Only freeze holds that are currently Held (don't overwrite already Released/Refunded)
         ).update(payout_status="Frozen")
 
-        logger.info(f"Event #{event.id} flagged. Frozen {updated_holds_count} escrow holds.")
+        logger.info(
+            f"Event #{event.id} flagged. Frozen {updated_holds_count} escrow holds."
+        )
 
     # 3. Trigger admin email task asynchronously after transaction commits
     send_report_notification_email_to_admins_task.delay(event.id, reporter_username)
-

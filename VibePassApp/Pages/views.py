@@ -66,7 +66,9 @@ def add_scanner(request):
         event_slug = (request.POST.get("event_slug") or "").strip()
 
         if not username or not event_slug:
-            messages.error(request, "Please provide both a valid username and an event.")
+            messages.error(
+                request, "Please provide both a valid username and an event."
+            )
             return redirect("add_scanner")
 
         try:

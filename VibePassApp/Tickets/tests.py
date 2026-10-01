@@ -150,7 +150,6 @@ class TicketViewsTest(TestCase):
             "grand_total": 0.0,
         }
         session.save()
-        
 
         response = self.client.post(
             reverse("book_free_ticket", args=[self.free_event.slug])
@@ -176,7 +175,6 @@ class TicketViewsTest(TestCase):
             "grand_total": 0.0,
         }
         session.save()
-        
 
         response = self.client.post(
             reverse("book_free_ticket", args=[self.free_event.slug])
@@ -192,8 +190,8 @@ class TicketViewsTest(TestCase):
         self.client.login(username="testuser", password="testpass123")
         session = self.client.session
         session["checkout_data"] = {
-          "items": [{"id": self.free_ticket_type.id, "quantity": 1}],
-          "grand_total": 0.0,
+            "items": [{"id": self.free_ticket_type.id, "quantity": 1}],
+            "grand_total": 0.0,
         }
         session.save()
         response = self.client.post(

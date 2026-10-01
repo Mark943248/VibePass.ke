@@ -152,7 +152,10 @@ def book_free_ticket(request, slug):
                     id=ticket_type_id, event=event
                 )
 
-                if not ticket_type.has_available() or ticket_type.get_available_count() < quantity:
+                if (
+                    not ticket_type.has_available()
+                    or ticket_type.get_available_count() < quantity
+                ):
                     logger.warning(
                         f"Attempt to book ticket for event with no available tickets: {event.slug}"
                     )
@@ -161,7 +164,6 @@ def book_free_ticket(request, slug):
                     )
                     return redirect("event_details", slug=slug)
 
-                
                 if quantity <= 0:
                     continue
 
@@ -192,8 +194,8 @@ def book_free_ticket(request, slug):
                 )
 
             if created_tickets:
-                 ticket_type.refresh_from_db() # Refresh the ticket_type instance to get the updated sold_count value
-                 for ticket in created_tickets:
+                ticket_type.refresh_from_db()  # Refresh the ticket_type instance to get the updated sold_count value
+                for ticket in created_tickets:
                     transaction.on_commit(
                         lambda tid=ticket.ticket_id: send_ticket_qr_code_to_user_task.delay(
                             tid
@@ -201,14 +203,17 @@ def book_free_ticket(request, slug):
                     )
                     logger.info(f"Total sold count is now: {ticket_type.sold_count}")
                     messages.success(
-                        request, "Ticket booked successfully! A copy of your ticket has been sent to your email."
+                        request,
+                        "Ticket booked successfully! A copy of your ticket has been sent to your email.",
                     )
-                                   
+
             else:
                 logger.warning(
                     f"No tickets were created for user {request.user.id} and event {event.slug}"
                 )
-                messages.warning(request, "Error!, Something went wrong. Please try again.")
+                messages.warning(
+                    request, "Error!, Something went wrong. Please try again."
+                )
                 return redirect("event_details", slug=slug)
             return redirect("finders_dashboard")
 
@@ -237,7 +242,8 @@ def create_ticket(request=None, payment_id=None):
     if Ticket.objects.filter(payment=payment).exists():
         logger.info(f"Tickets already created for payment {payment_id}")
         return redirect(
-            "users_tickets", ticket_id=Ticket.objects.filter(payment=payment).last().ticket_id
+            "users_tickets",
+            ticket_id=Ticket.objects.filter(payment=payment).last().ticket_id,
         )
 
     created_tickets = []
@@ -396,6 +402,12 @@ def validate_ticket(request):
     is_authorized_scanner = EventScanner.objects.filter(
         event=event, user=request.user
     ).exists()  # check if the user is an authorized scanner for the event
+
+    if event.Event_date < timezone.now().date():
+        logger.info(f"Attempt to validate ticket for past event: {event.slug}")
+        return JsonResponse(
+            {"status": "Error", "message": "This event has already ended"}, status=400
+        )
 
     if not (is_organiser or is_authorized_scanner):
         logger.warning(

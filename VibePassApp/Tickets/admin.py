@@ -1,10 +1,12 @@
 from django.contrib import admin
 from .models import Ticket
 
+
 # Register your models here.
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
     """Admin interface for the Ticket model."""
+
     list_display = (
         "ticket_id",
         "user",

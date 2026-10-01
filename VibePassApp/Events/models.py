@@ -83,18 +83,38 @@ class Event(models.Model):
         self.Event_status = "deleted"
         self.Event_is_active = False
         self.deleted_at = timezone.now()
-        self.save(update_fields=["is_deleted", "Event_status", "Event_is_active", "deleted_at", "updated_at"])
+        self.save(
+            update_fields=[
+                "is_deleted",
+                "Event_status",
+                "Event_is_active",
+                "deleted_at",
+                "updated_at",
+            ]
+        )
 
     def cancel_event(self, reason="Cancelled by organizer"):
         self.Event_status = "cancelled"
         self.is_deleted = True
         self.Event_is_active = False
         self.cancelled_at = timezone.now()
-        self.save(update_fields=["Event_status", "is_deleted", "Event_is_active", "cancelled_at", "updated_at"])
+        self.save(
+            update_fields=[
+                "Event_status",
+                "is_deleted",
+                "Event_is_active",
+                "cancelled_at",
+                "updated_at",
+            ]
+        )
 
     @property
     def is_publicly_visible(self):
-        return not self.is_deleted and self.Event_status != "cancelled" and self.Event_is_active
+        return (
+            not self.is_deleted
+            and self.Event_status != "cancelled"
+            and self.Event_is_active
+        )
 
     @property
     def total_ticket_capacity(self):
@@ -188,8 +208,6 @@ class TicketType(models.Model):
         return f"{self.event.Event_title} - {self.name}"
 
 
-
-
 class EventScanner(models.Model):
     """
     Model to represent users who are authorized to scan tickets for a specific event.
@@ -218,11 +236,10 @@ class EventScanner(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.event.Event_title}"
 
-    
 
 class ReportEvent(models.Model):
-    """"
-      Model to represent events that have been reported by users for review or moderation.
+    """ "
+    Model to represent events that have been reported by users for review or moderation.
     """
 
     REPORT_REASONS = [
@@ -244,17 +261,13 @@ class ReportEvent(models.Model):
         ("dismissed", "Dismissed"),
     ]
 
-    event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="reports"
-    )
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="reports")
 
     reported_by = models.ForeignKey(
         "Users.User", on_delete=models.CASCADE, related_name="reported_events"
     )
 
-    reason = models.CharField(
-        max_length=50, choices=REPORT_REASONS, default="other"
-    )
+    reason = models.CharField(max_length=50, choices=REPORT_REASONS, default="other")
 
     report_status = models.CharField(
         max_length=20, choices=REPORT_STATUS, default="pending"
@@ -273,16 +286,15 @@ class ReportEvent(models.Model):
             "reported_by",
         )  # Prevent duplicate reports by the same user for the same event
 
-
     def __str__(self):
         return f"Report by {self.reported_by.username} for {self.event.Event_title} - Reason: {self.reason}"
 
 
 class ReviewEvent(models.Model):
-    """ Model to represent the event reviews from users """
+    """Model to represent the event reviews from users"""
 
     reviewed_by = models.ForeignKey(
-        'Users.User', on_delete=models.CASCADE, related_name="event_reviews"
+        "Users.User", on_delete=models.CASCADE, related_name="event_reviews"
     )
 
     event = models.ForeignKey(
@@ -290,15 +302,15 @@ class ReviewEvent(models.Model):
     )
 
     rating = models.PositiveSmallIntegerField(
-      validators=[MinValueValidator(1), MaxValueValidator(5)]
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
 
     review = models.TextField(blank=True, max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('event', 'reviewed_by')
-        ordering = ['-created_at']
+        unique_together = ("event", "reviewed_by")
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.event} review from {self.user}"

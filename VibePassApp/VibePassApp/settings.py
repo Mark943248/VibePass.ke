@@ -32,7 +32,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS", "127.0.0.1,localhost,0.0.0.0,.ngrok-free.dev,.ngrok-free.app,.onrender.com"
+    "ALLOWED_HOSTS",
+    "127.0.0.1,localhost,0.0.0.0,.ngrok-free.dev,.ngrok-free.app,.onrender.com",
 ).split(",")
 
 
@@ -108,11 +109,10 @@ WSGI_APPLICATION = "VibePassApp.wsgi.application"
 DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv("DATABASE_URL"),
-        conn_max_age=0,         # Keeps connections open for performance
+        conn_max_age=0,  # Keeps connections open for performance
         conn_health_checks=True,  # Verifies connection health before running queries
-        ssl_require=True
+        ssl_require=True,
     )
-        
 }
 
 
@@ -188,15 +188,15 @@ CHANNEL_LAYERS = {
         "CONFIG": {
             # Let channels_redis parse the complete rediss:// URL, including TLS settings.
             "hosts": [
-              {
-                  "address": os.getenv("CELERY_BROKER_URL"),
-                  "socket_timeout": 60, # Timeout for socket operations in seconds
-                  "socket_connect_timeout": 20, # Timeout for establishing a connection in seconds
-                  "health_check_interval": 15, # Interval in seconds to perform health checks on the Redis connection
-              }
+                {
+                    "address": os.getenv("CELERY_BROKER_URL"),
+                    "socket_timeout": 60,  # Timeout for socket operations in seconds
+                    "socket_connect_timeout": 20,  # Timeout for establishing a connection in seconds
+                    "health_check_interval": 15,  # Interval in seconds to perform health checks on the Redis connection
+                }
             ],
-            "capacity": 1500, # Maximum number of messages that can be queued for a single channel before new messages are dropped.
-            "expiry": 10, # Time in seconds after which messages in the channel layer will expire if not consumed.
+            "capacity": 1500,  # Maximum number of messages that can be queued for a single channel before new messages are dropped.
+            "expiry": 10,  # Time in seconds after which messages in the channel layer will expire if not consumed.
         },
     },
 }
@@ -234,7 +234,7 @@ SITE_ID = 1
 
 CSRF_TRUSTED_ORIGINS = [
     "https://gawk-quack-uniformed.ngrok-free.dev",
-    "https://vibepass-ke.onrender.com"
+    "https://vibepass-ke.onrender.com",
 ]
 
 # Django Axes configuration settings
@@ -252,9 +252,7 @@ AXES_RESET_ON_SUCCESS = (
 
 AXES_VERBOSE = True  # Enables verbose logging for Axes, providing detailed information about lockouts and failed login attempts
 
-ADMINS = [
-    ("ADMIN", "markmacharia124@gmail.com")
-]
+ADMINS = [("ADMIN", "markmacharia124@gmail.com")]
 
 # Django-OTP and Two-Factor Authentication settings
 TWO_FACTOR_PATCH_ADMIN = False  # Intercepts the admin login view and adds 2FA to it
@@ -279,18 +277,24 @@ CELERY_BEAT_SCHEDULE = {
         "task": "Events.tasks.deactivate_past_events",
         "schedule": 60 * 60,
     },
-    'release-escrow-holds-hourly': {
-        'task': 'Payments.tasks.release_matured_escrow_holds',
-        'schedule': crontab(minute=0),  # Runs at the start of every hour
+    "release-escrow-holds-hourly": {
+        "task": "Payments.tasks.release_matured_escrow_holds",
+        "schedule": crontab(minute=0),  # Runs at the start of every hour
     },
 }
 
 # deployment security settings
-CSRF_COOKIE_SECURE = "test" not in sys.argv  # Require HTTPS for CSRF cookies outside tests.
+CSRF_COOKIE_SECURE = (
+    "test" not in sys.argv
+)  # Require HTTPS for CSRF cookies outside tests.
 
-SESSION_COOKIE_SECURE = "test" not in sys.argv  # Require HTTPS for sessions outside tests.
+SESSION_COOKIE_SECURE = (
+    "test" not in sys.argv
+)  # Require HTTPS for sessions outside tests.
 
-SECURE_SSL_REDIRECT = "test" not in sys.argv  # Redirect HTTP traffic to HTTPS outside tests
+SECURE_SSL_REDIRECT = (
+    "test" not in sys.argv
+)  # Redirect HTTP traffic to HTTPS outside tests
 
 SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",

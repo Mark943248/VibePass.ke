@@ -20,20 +20,14 @@ logger = logging.getLogger(__name__)
 
 def calculate_user_account_balance(user):
     """Return completed organizer revenue less completed withdrawals."""
-    completed_revenue = (
-        Payment.objects.filter(
-            event__Event_organiser=user,
-            payment_status="Completed",
-        ).aggregate(total=Sum("amount"))["total"]
-        or Decimal("0.00")
-    )
-    completed_withdrawals = (
-        Withdrawal.objects.filter(
-            organiser=user,
-            status="completed",
-        ).aggregate(total=Sum("amount"))["total"]
-        or Decimal("0.00")
-    )
+    completed_revenue = Payment.objects.filter(
+        event__Event_organiser=user,
+        payment_status="Completed",
+    ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+    completed_withdrawals = Withdrawal.objects.filter(
+        organiser=user,
+        status="completed",
+    ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
     balance = completed_revenue - completed_withdrawals
     wallet, _ = OrganizerWallet.objects.get_or_create(organiser=user)
     wallet.available_withdraw_balance = balance

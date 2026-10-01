@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 @login_required
-@ratelimit(key='post:phone_number', rate='3/5m', block=True)
+@ratelimit(key="post:phone_number", rate="3/5m", block=True)
 def initiate_payment(request, slug):
     """
     Initiates the payment process for a specific event.
@@ -66,7 +66,9 @@ def initiate_payment(request, slug):
             return redirect("event_details", slug=event.slug)
         # Validate if event has been flagged
         if event.Event_is_flagged:
-            messages.warning(request, "Sorry this event has been flagged and is under investigation")
+            messages.warning(
+                request, "Sorry this event has been flagged and is under investigation"
+            )
         # Validates the phone number
         if not phone_number:
             messages.error(request, "Please enter a phone number.")
@@ -139,7 +141,9 @@ def initiate_payment(request, slug):
                 logger.error(f"Error initiating payment: {str(e)}")
                 payment.payment_status = "Failed"
                 payment.save()
-                send_payment_status_update(payment)  # Notify the user of the failed payment
+                send_payment_status_update(
+                    payment
+                )  # Notify the user of the failed payment
     return render(request, "payments/checkout.html", {"event": event})
 
 
@@ -180,16 +184,20 @@ def request_withdrawal(request):
     try:
         with transaction.atomic():
             user = request.user
-            
+
             # 1. Prevent concurrent active withdrawals
             if Withdrawal.objects.filter(
                 organiser=user, status__in=["pending", "processing", "reconciling"]
             ).exists():
-                messages.info(request, "Your withdrawal is being processed, please wait.")
+                messages.info(
+                    request, "Your withdrawal is being processed, please wait."
+                )
                 return redirect("organizers_dashboard")
 
-            organiser_wallet, _ = OrganizerWallet.objects.select_for_update().get_or_create(
-                organiser=user
+            organiser_wallet, _ = (
+                OrganizerWallet.objects.select_for_update().get_or_create(
+                    organiser=user
+                )
             )
 
             def as_decimal(value):
@@ -258,13 +266,18 @@ def request_withdrawal(request):
             if not mpesa_number:
                 messages.error(
                     request,
-                    "You have not configured your mpesa number, please update your profile!"
+                    "You have not configured your mpesa number, please update your profile!",
                 )
                 return redirect("organizers_dashboard")
 
             formatted_mpesa_number = format_phone_number(mpesa_number)
-            if not formatted_mpesa_number.startswith("254") or len(formatted_mpesa_number) != 12:
-                messages.error(request, "Your saved M-PESA number is invalid. Please update it.")
+            if (
+                not formatted_mpesa_number.startswith("254")
+                or len(formatted_mpesa_number) != 12
+            ):
+                messages.error(
+                    request, "Your saved M-PESA number is invalid. Please update it."
+                )
                 return redirect("organizers_dashboard")
 
             # 3. Create Withdrawal Record
@@ -282,20 +295,22 @@ def request_withdrawal(request):
                 "withdrawal_id": withdrawal.withdrawal_id,
             }
             try:
-                transaction.on_commit(lambda dt=data: initiate_b2c_request_task.delay(dt))
-                
+                transaction.on_commit(
+                    lambda dt=data: initiate_b2c_request_task.delay(dt)
+                )
+
                 success_msg = "Withdrawal request submitted successfully."
                 if early_release_amount > 0:
                     success_msg += f" (Included early release with a 5% fee of KES {early_fee:.2f})."
                 success_msg += " Please wait for your M-PESA confirmation."
-                
+
                 messages.success(request, success_msg)
             except Exception as e:
                 logger.error(f"Error initiating B2C payment: {str(e)}")
                 withdrawal.status = "failed"
                 withdrawal.reason = "Failed to initiate B2C payment"
                 withdrawal.save()
-                
+
                 messages.error(
                     request,
                     "Failed to initiate withdrawal. Please try again later.",
@@ -329,7 +344,8 @@ def mpesa_b2c_callback(request):
         try:
             process_mpesa_b2c_callbacks.delay(data)
             messages.success(
-                request, "Withdrawal processed successfully. Please check your M-PESA for the transaction."
+                request,
+                "Withdrawal processed successfully. Please check your M-PESA for the transaction.",
             )
         except Exception as e:
             logger.exception(f"Unable to queue M-Pesa B2C callback for processing: {e}")
@@ -358,7 +374,7 @@ def mpesa_timeout_handler(request):
         originator_conversation_id = data.get("Result", {}).get(
             "OriginatorConversationID", "unknown"
         )
-        logger.info(f"MPESA B2C Timeout Callback received: {data}")  
+        logger.info(f"MPESA B2C Timeout Callback received: {data}")
         timeout_details = data.get("Result", {})
         transaction_id = timeout_details.get("TransactionID")
         result_desc = timeout_details.get("ResultDesc")
@@ -372,7 +388,9 @@ def mpesa_timeout_handler(request):
             )
         else:
             withdrawal.status = "reconciling"
-            withdrawal.reason = f"Safaricom timeout; transaction requires reconciliation: {result_desc}"
+            withdrawal.reason = (
+                f"Safaricom timeout; transaction requires reconciliation: {result_desc}"
+            )
             withdrawal.Transaction_id = transaction_id
             withdrawal.save()
             logger.info(

@@ -17,6 +17,7 @@ from Payments.utils import format_phone_number
 
 logger = logging.getLogger(__name__)
 
+
 # view for user registration
 def RegisterView(request):
     """Handle user registration by creating a new user account and assigning them to the appropriate group."""
@@ -74,7 +75,10 @@ def make_event_organiser(request):
     user = request.user
     mpesa_number = request.POST.get("mpesa_number", "").strip()
     formatted_mpesa_number = format_phone_number(mpesa_number)
-    if not formatted_mpesa_number.startswith("254") or len(formatted_mpesa_number) != 12:
+    if (
+        not formatted_mpesa_number.startswith("254")
+        or len(formatted_mpesa_number) != 12
+    ):
         messages.error(request, "Please enter a valid M-PESA number.")
         return redirect("finders_dashboard")
 
@@ -115,9 +119,7 @@ def EventFindersDashboard(request):
         Event_date__lte=today_date,
     ).distinct()
     bought_tickets_events = (
-        Event.objects.filter(tickets__user=user)
-       .prefetch_related('tickets')
-       .distinct()
+        Event.objects.filter(tickets__user=user).prefetch_related("tickets").distinct()
     )
     context = {
         "user": user,
@@ -141,7 +143,7 @@ def EventOrganizersDashboard(request):
 
     # Get all events organized by the user
     events = Event.objects.filter(Event_organiser=user).order_by("-Event_created_at")
-    
+
     # Calculate revenue for each event
     total_revenue = 0
     total_tickets_sold = 0
@@ -219,7 +221,7 @@ def ChangeUsersDetails(request):
                 user.username = username
                 user.email = email
                 user.mpesa_number = mpesa_number
-                user.save(update_fields=['username', 'email', 'mpesa_number'])
+                user.save(update_fields=["username", "email", "mpesa_number"])
                 messages.success(request, "Profile updated successfully!")
             except Exception as e:
                 messages.error(

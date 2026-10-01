@@ -29,10 +29,12 @@ def evaluate_organizer_verification(organizer_id):
         today = timezone.localdate()
 
         # 1. Base queryset for completed events
-        completed_events = Event.objects.filter(
-            Event_organiser_id=organizer_id
-        ).filter(Q(Event_date__lt=today) | Q(Event_is_active=False) | Q(Event_is_flagged=False))
-        
+        completed_events = Event.objects.filter(Event_organiser_id=organizer_id).filter(
+            Q(Event_date__lt=today)
+            | Q(Event_is_active=False)
+            | Q(Event_is_flagged=False)
+        )
+
         completed_event_count = completed_events.count()
 
         # 2. Reviews ONLY from completed events
@@ -67,15 +69,11 @@ def schedule_organizer_verification(organizer_id):
     Signal handlers must not make a failed verification query roll back a
     successfully-created rating or report.
     """
-    transaction.on_commit(
-        lambda: _run_scheduled_verification(organizer_id)
-    )
+    transaction.on_commit(lambda: _run_scheduled_verification(organizer_id))
 
 
 def _run_scheduled_verification(organizer_id):
     try:
         evaluate_organizer_verification(organizer_id)
     except Exception:
-        logger.exception(
-            "Organizer verification failed for organizer %s", organizer_id
-        )
+        logger.exception("Organizer verification failed for organizer %s", organizer_id)

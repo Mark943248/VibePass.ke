@@ -194,9 +194,7 @@ class EventModelTest(TestCase):
             release_date=date.today(),
         )
 
-        response = self.client.post(
-            reverse("cancel_event", args=[self.event.slug])
-        )
+        response = self.client.post(reverse("cancel_event", args=[self.event.slug]))
 
         self.assertRedirects(response, reverse("organizers_dashboard"))
         self.event.refresh_from_db()
@@ -232,15 +230,22 @@ class EventModelTest(TestCase):
         )
 
         sent_count = send_event_cancellation_email_to_buyers(
-            [str(first_ticket.ticket_id), str(second_ticket.ticket_id), str(third_ticket.ticket_id)]
+            [
+                str(first_ticket.ticket_id),
+                str(second_ticket.ticket_id),
+                str(third_ticket.ticket_id),
+            ]
         )
 
         self.assertEqual(sent_count, 2)
         self.assertEqual(mock_send_mail.call_count, 2)
-        recipients = {call.kwargs["recipient_list"][0] for call in mock_send_mail.call_args_list}
+        recipients = {
+            call.kwargs["recipient_list"][0] for call in mock_send_mail.call_args_list
+        }
         self.assertEqual(recipients, {self.organizer.email, second_buyer.email})
         organizer_email = next(
-            call for call in mock_send_mail.call_args_list
+            call
+            for call in mock_send_mail.call_args_list
             if call.kwargs["recipient_list"] == [self.organizer.email]
         )
         self.assertIn(str(first_ticket.ticket_id), organizer_email.kwargs["message"])
@@ -264,9 +269,7 @@ class EventViewsTest(TestCase):
 
     def test_create_event_view_unauthenticated(self):
         response = self.client.get(reverse("create_event"))
-        self.assertRedirects(
-            response, f"/users/login/?next={reverse('create_event')}"
-        )
+        self.assertRedirects(response, f"/users/login/?next={reverse('create_event')}")
 
     def test_create_event_view_non_organizer(self):
         self.client.login(username="user", password="testpass123")
@@ -398,6 +401,7 @@ class EventViewsTest(TestCase):
             ).exists()
         )
 
+
 @patch("Events.signals.send_report_notification_email_to_admins_task.delay")
 def test_three_unique_reports_flag_event_and_freeze_payout(self, notify_admins):
     event = Event.objects.create(
@@ -412,8 +416,7 @@ def test_three_unique_reports_flag_event_and_freeze_payout(self, notify_admins):
         Event_is_free=True,
     )
     reporters = [
-        User.objects.create_user(username=f"reporter-{index}")
-        for index in range(3)
+        User.objects.create_user(username=f"reporter-{index}") for index in range(3)
     ]
 
     for reporter in reporters:
@@ -435,6 +438,7 @@ def test_three_unique_reports_flag_event_and_freeze_payout(self, notify_admins):
     self.assertEqual(event.reports.values("reported_by").distinct().count(), 3)
     self.assertTrue(event.Event_is_flagged)
     notify_admins.assert_called_once_with(event.id, reporters[2].username)
+
 
 class OrganizerVerificationServiceTest(TestCase):
     def setUp(self):
@@ -481,9 +485,7 @@ class OrganizerVerificationServiceTest(TestCase):
         self.create_qualifying_data()
 
         self.assertTrue(evaluate_organizer_verification(self.organizer.id))
-        self.assertTrue(
-            OrganizerProfile.objects.get(user=self.organizer).is_verified
-        )
+        self.assertTrue(OrganizerProfile.objects.get(user=self.organizer).is_verified)
 
     def test_active_report_prevents_verification(self):
         events = self.create_qualifying_data()
@@ -495,9 +497,7 @@ class OrganizerVerificationServiceTest(TestCase):
         )
 
         self.assertFalse(evaluate_organizer_verification(self.organizer.id))
-        self.assertFalse(
-            OrganizerProfile.objects.get(user=self.organizer).is_verified
-        )
+        self.assertFalse(OrganizerProfile.objects.get(user=self.organizer).is_verified)
 
     def test_new_review_triggers_verification_after_commit(self):
         events = self.create_qualifying_data()
@@ -511,6 +511,4 @@ class OrganizerVerificationServiceTest(TestCase):
                 review="Another reliable event",
             )
 
-        self.assertTrue(
-            OrganizerProfile.objects.get(user=self.organizer).is_verified
-        )
+        self.assertTrue(OrganizerProfile.objects.get(user=self.organizer).is_verified)

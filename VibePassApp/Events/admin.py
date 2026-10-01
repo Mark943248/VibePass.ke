@@ -20,7 +20,12 @@ class EventAdmin(admin.ModelAdmin):
         "Event_is_active",
     )
     search_fields = ("Event_title", "Event_location")
-    list_filter = ("Event_category", "Event_is_active", "Event_is_flagged", "Event_date")
+    list_filter = (
+        "Event_category",
+        "Event_is_active",
+        "Event_is_flagged",
+        "Event_date",
+    )
     inlines = [TicketTypeInline]
 
 
@@ -49,12 +54,14 @@ class EventScannerAdmin(admin.ModelAdmin):
     list_filter = ("event",)
     readonly_fields = ("scanner_id", "added_at")
 
+
 @admin.register(ReportEvent)
 class ReportEventAdmin(admin.ModelAdmin):
     list_display = ("event", "reported_by", "reason", "report_status", "reported_at")
     search_fields = ("event__Event_title", "reported_by__username")
     list_filter = ("reason", "report_status", "reported_at")
     readonly_fields = ("reported_at",)
+
 
 @admin.register(ReviewEvent)
 class ReviewEventAdmin(admin.ModelAdmin):
