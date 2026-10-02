@@ -11,7 +11,7 @@ from django.utils import timezone
 from .models import Event, ReportEvent, ReviewEvent, TicketType
 from Tickets.models import Ticket
 from .services import evaluate_organizer_verification
-from .tasks import deactivate_past_events, send_event_cancellation_email_to_buyers
+from .tasks import deactivate_past_events_and_expire_tickets, send_event_cancellation_email_to_buyers
 from Users.models import OrganizerProfile, OrganizerWallet
 from Payments.models import EscrowModel, Payment
 from Payments.tasks import release_matured_escrow_holds
@@ -73,6 +73,12 @@ class EventModelTest(TestCase):
             Event_time=time(18, 0),
             Event_is_free=True,
         )
+        past_event_ticket = Ticket.objects.create(
+            event=past_event,
+            user=self.organizer,
+            ticket_type=self.ticket_type,
+            status="active",
+        )
         today_event = Event.objects.create(
             Event_organiser=self.organizer,
             Event_title="Today Event",
@@ -96,14 +102,17 @@ class EventModelTest(TestCase):
             Event_is_free=True,
         )
 
-        self.assertEqual(deactivate_past_events(), 1)
+        self.assertEqual(deactivate_past_events_and_expire_tickets(), 2)
 
         past_event.refresh_from_db()
         today_event.refresh_from_db()
         future_event.refresh_from_db()
+        past_event_ticket.refresh_from_db()
+
         self.assertFalse(past_event.Event_is_active)
         self.assertTrue(today_event.Event_is_active)
         self.assertTrue(future_event.Event_is_active)
+        self.assertEqual(past_event_ticket.status, "expired")
 
     def test_release_matured_escrow_holds_releases_held_funds(self):
         wallet, _ = OrganizerWallet.objects.get_or_create(organiser=self.organizer)
