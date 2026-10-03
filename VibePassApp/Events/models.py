@@ -313,4 +313,4 @@ class ReviewEvent(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.event} review from {self.user}"
+        return f"{self.event} review from {self.reviewed_by.username} - Rating: {self.rating}"

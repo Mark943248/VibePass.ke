@@ -125,7 +125,7 @@ class EventModelTest(TestCase):
             organiser=self.organizer,
             event=self.event,
             amount=Decimal("5000.00"),
-            payout_status="Held",
+            payout_status="held",
             release_date=timezone.now() - timedelta(days=1),
         )
 
@@ -137,7 +137,7 @@ class EventModelTest(TestCase):
         self.assertEqual(result, "Released 1 holds.")
         self.assertEqual(wallet.pending_escrow_balance, Decimal("0.00"))
         self.assertEqual(wallet.available_withdraw_balance, Decimal("5250.00"))
-        self.assertEqual(escrow.payout_status, "Released")
+        self.assertEqual(escrow.payout_status, "released")
         self.assertIsNotNone(escrow.released_at)
 
     def test_ticket_capacity_and_price_summary(self):
@@ -200,6 +200,7 @@ class EventModelTest(TestCase):
             organiser=self.organizer,
             event=self.event,
             amount=5000.00,
+            payout_status="held",
             release_date=date.today(),
         )
 

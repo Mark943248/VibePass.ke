@@ -60,12 +60,14 @@ class EscrowModel(models.Model):
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     payout_status = models.CharField(
-        max_length=20, choices=PAYOUT_STATUS, default="Held"
+        max_length=20, choices=PAYOUT_STATUS, default="held"
     )
     release_date = models.DateTimeField(db_index=True)
     released_at = models.DateTimeField(null=True, blank=True, db_index=True)
     created_at = models.DateField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Escrow for Payment {self.payment.payment_id} - Event: {self.event.Event_title} - Amount: {self.amount} - Status: {self.payout_status}"
 
 # Withdrawal model for organizer payouts
 class Withdrawal(models.Model):
@@ -128,3 +130,6 @@ class PlatformRevenue(models.Model):
     fee_amount = models.DecimalField(max_digits=12, decimal_places=2)
     source = models.CharField(max_length=500, default="Early-Payout")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Platform Revenue - Organizer: {self.organiser.username if self.organiser else 'N/A'} - Amount: {self.fee_amount} - Source: {self.source}"

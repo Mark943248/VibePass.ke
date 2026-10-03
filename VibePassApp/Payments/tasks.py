@@ -9,6 +9,7 @@ from datetime import timedelta, datetime
 from decimal import Decimal
 from decouple import config
 from django.db import transaction
+from django.db.models import Q
 from .signals import payment_successful
 from django.utils import timezone
 from django.shortcuts import redirect
@@ -584,7 +585,7 @@ def release_matured_escrow_holds():
 
     # 1. Fetch holds that are past release_date and still HELD
     matured_holds = EscrowModel.objects.filter(
-        payout_status="Held",
+        payout_status__iexact="held",
         release_date__lte=now,
         released_at__isnull=True,
     ).select_related("event", "organiser")
@@ -597,7 +598,10 @@ def release_matured_escrow_holds():
 
         # 2. Check if the event has unresolved or upheld safety/fraud reports
         has_active_reports = ReportEvent.objects.filter(
-            event=event, report_status__in=["Pending", "Under_Review", "Action_Taken"]
+            event=event,
+        ).filter(
+            Q(report_status__iexact="pending")
+            | Q(report_status__iexact="under_review")
         ).exists()
 
         if has_active_reports:
@@ -605,7 +609,7 @@ def release_matured_escrow_holds():
                 f"Skipping release for EscrowHold #{hold.id} (Event: {event.id}) due to active reports."
             )
             # Freeze the hold automatically if there are pending reports
-            hold.payout_status = "Frozen"
+            hold.payout_status = "frozen"
             hold.save()
             skipped_count += 1
             continue
@@ -629,7 +633,7 @@ def release_matured_escrow_holds():
             )
 
             # Mark hold as RELEASED
-            hold.payout_status = "Released"
+            hold.payout_status = "released"
             hold.released_at = now
             hold.save(update_fields=["payout_status", "released_at"])
 

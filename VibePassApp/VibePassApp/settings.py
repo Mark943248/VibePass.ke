@@ -17,6 +17,7 @@ import cloudinary
 import sys
 import dj_database_url
 from celery.schedules import crontab
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -305,6 +306,8 @@ SECURE_BROWSER_XSS_FILTER = True  # Forces older web browsers to activate their 
 
 SECURE_CONTENT_TYPE_NOSNIFF = True  #  Prevents attackers from uploading a malicious script disguised as an image or text file.
 
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True # Instructs browsers to apply HSTS policy to all subdomains of the site, ensuring that they are also accessed over HTTPS.
+
 # LOGGING CONFIGURATION
 LOGGING = {  # Capturing backend errors to standard output when DEBUG = False
     "version": 1,
@@ -360,3 +363,43 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 
 # default email
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_EMAIL")
+
+# Production Hardening: Ensure that the application is running in a secure environment and that all sensitive information is protected. This includes using environment variables for secrets, enabling HTTPS, and following best practices for Django security.
+
+REQUIRED_ENV_VARS = [
+    "SECRET_KEY",
+    "DATABASE_URL",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET",
+    "CELERY_BROKER_URL",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "MPESA_CONSUMER_KEY",
+    "MPESA_CONSUMER_SECRET",
+    "MPESA_SHORT_CODE",
+    "MPESA_PASSKEY",
+    "MPESA_CALLBACK_URL",
+    "MPESA_INITIATOR_NAME",
+    "MPESA_INITIATOR_PASSWORD",
+    "MPESA_B2C_SHORT_CODE",
+    "EMAIL_HOST_USER",
+    "EMAIL_HOST_PASSWORD",
+    "DEFAULT_EMAIL",
+    "ADMIN_URL",
+    "DECOY_ADMIN",
+]
+
+def require_env_vars(env_vars, in_production=False):
+    missing = []
+    for name in env_vars:
+        value = os.getenv(name)
+        if not value:
+            missing.append(name)
+
+    if in_production and missing:
+        raise ImproperlyConfigured(
+            "Missing required production environment variables: " + ", ".join(missing)
+        )
+
+require_env_vars(REQUIRED_ENV_VARS, in_production=not DEBUG)

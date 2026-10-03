@@ -37,8 +37,8 @@ def handle_report_3_submission(sender, **kwargs):
         # 2. Freeze all active escrow holds for this event in a single atomic SQL query
         updated_holds_count = EscrowModel.objects.filter(
             event=event,
-            payout_status="Held",  # Only freeze holds that are currently Held (don't overwrite already Released/Refunded)
-        ).update(payout_status="Frozen")
+            payout_status__iexact="held",
+        ).update(payout_status="frozen")
 
         logger.info(
             f"Event #{event.id} flagged. Frozen {updated_holds_count} escrow holds."
