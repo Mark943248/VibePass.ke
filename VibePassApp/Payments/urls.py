@@ -8,6 +8,11 @@ urlpatterns = [
     path("withdraw/request/", views.request_withdrawal, name="request_withdrawal"),
     path("mpesa_b2c_callback", views.mpesa_b2c_callback, name="mpesa_b2c_callback"),
     path(
+        "mpesa_b2c_status_callback",
+        views.mpesa_b2c_status_callback,
+        name="mpesa_b2c_status_callback",
+    ),
+    path(
         "payment_waiting/<str:payment_id>/",
         views.payment_waiting,
         name="payment_waiting",

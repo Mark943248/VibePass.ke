@@ -207,7 +207,7 @@ def ListEvent(request):
         Event_is_active=True,
         Event_status__in=["published", "completed"],
     ).order_by("-Event_created_at")
-    paginator = Paginator(Events, 6)  # Show 10 events per page
+    paginator = Paginator(Events, 6)  # Show 6 events per page
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     today = timezone.now().date()

@@ -62,6 +62,7 @@ class EventModelTest(TestCase):
         self.assertTrue(self.event.slug)
 
     def test_deactivate_past_events_updates_only_past_active_events(self):
+        today = timezone.localdate()
         past_event = Event.objects.create(
             Event_organiser=self.organizer,
             Event_title="Past Event",
@@ -69,7 +70,7 @@ class EventModelTest(TestCase):
             Event_category="music",
             Event_details="Details",
             Event_location="Location",
-            Event_date=date.today() - timedelta(days=1),
+            Event_date=today - timedelta(days=1),
             Event_time=time(18, 0),
             Event_is_free=True,
         )
@@ -86,7 +87,7 @@ class EventModelTest(TestCase):
             Event_category="music",
             Event_details="Details",
             Event_location="Location",
-            Event_date=date.today(),
+            Event_date=today,
             Event_time=time(18, 0),
             Event_is_free=True,
         )
@@ -97,7 +98,7 @@ class EventModelTest(TestCase):
             Event_category="music",
             Event_details="Details",
             Event_location="Location",
-            Event_date=date.today() + timedelta(days=1),
+            Event_date=today + timedelta(days=1),
             Event_time=time(18, 0),
             Event_is_free=True,
         )

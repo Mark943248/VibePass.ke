@@ -76,10 +76,8 @@ class Withdrawal(models.Model):
     WITHDRAWAL_STATUS = [
         ("pending", "Pending"),
         ("processing", "Processing"),
-        ("reconciling", "Reconciliation Required"),
         ("completed", "Completed"),
         ("failed", "Failed"),
-        ("cancelled", "Cancelled"),
     ]
 
     withdrawal_id = models.UUIDField(
@@ -99,18 +97,18 @@ class Withdrawal(models.Model):
     status = models.CharField(
         max_length=20, choices=WITHDRAWAL_STATUS, default="pending"
     )
-    mpesa_receipt_number = models.CharField(
-        max_length=255, blank=True, null=True
-    )  # receipt from M-Pesa
     originator_conversation_id = models.CharField(
         max_length=255, blank=True, null=True
-    )  # M-Pesa originator conversation ID
+    )  # M-Pesa conversation ID
     mpesa_conversation_id = models.CharField(
         max_length=255, blank=True, null=True
     )  # M-Pesa conversation ID
     Transaction_id = models.CharField(
         max_length=255, blank=True, null=True
     )  # M-Pesa transaction ID
+    status_conversation_id = models.CharField(
+        max_length=255, blank=True, null=True
+    ) # M-Pesa status conversation ID
     reason = models.TextField(blank=True, null=True)  # Reason for failure if any
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

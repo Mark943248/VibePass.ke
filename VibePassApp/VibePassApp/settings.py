@@ -282,6 +282,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "Payments.tasks.release_matured_escrow_holds",
         "schedule": crontab(minute=0),  # Runs at the start of every hour
     },
+    "check-b2c-callbacks-status": {
+        "task": "Payments.tasks.check_all_pending_b2c_callbacks_task",
+        "schedule": 10 * 60,  # Runs every 10 minutes
+    },
 }
 
 # deployment security settings

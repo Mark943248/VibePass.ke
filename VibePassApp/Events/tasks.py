@@ -18,13 +18,13 @@ def deactivate_past_events_and_expire_tickets():
         Event_date__lt=timezone.localdate(),
     )
 
-    updated_tickets = Ticket.objects.filter(event__in=past_active_events, status="active").update(
+    past_events_tickets = Ticket.objects.filter(event__in=past_active_events, status="active").update(
         status="expired"
     )
 
     updated_events = past_active_events.update(Event_is_active=False)
-    updated_count = updated_events + updated_tickets
-    logger.info("Deactivated %s past event(s) & expired %s ticket(s).", updated_events, updated_tickets)
+    updated_count = updated_events + past_events_tickets
+    logger.info("Deactivated %s past event(s) & expired %s ticket(s).", updated_events, past_events_tickets)
 
     return updated_count
 

@@ -1996,7 +1996,7 @@
                     </td>
                     <td>{{ event.get_sold_tickets }}/{{ event.total_ticket_capacity }}</td>
                     <td>
-                      {% if event.is_cancelled %}
+                      {% if event.Event_status == "cancelled" %}
                         <span class="event-status status-cancelled">Cancelled</span>
                       {% elif event.Event_date >= today %}
                         <span class="event-status status-upcoming">Upcoming</span>
@@ -2010,7 +2010,7 @@
                       </a>
 
                       {% if event.get_sold_tickets > 0 %}
-                        {% if not event.is_cancelled %}
+                        {% if not event.Event_status == "cancelled" %}
                           <button class="btn-small btn-warning cancel-event-btn"
                             data-url="{% url 'cancel_event' event.slug %}"
                             data-title="{{ event.Event_title }}" title="Cancel Event">
@@ -2074,7 +2074,7 @@
                   </tr>
                 </thead>
                 <tbody id="eventsTableBody">
-                  {% if events %} {% for event in events %}
+                  {% if events %} {% for event in events %} {% if event.is_publicly_visible %}
                   <tr class="event-row"
                       data-event-date="{{ event.Event_date|date:'Y-m-d' }}"
                       data-event-status="{% if event.is_cancelled %}cancelled{% elif event.Event_date > today %}upcoming{% elif event.Event_date == today %}ongoing{% else %}past{% endif %}">
@@ -2121,7 +2121,7 @@
                       {% endif %}
                     </td>
                   </tr>
-                  {% endfor %} {% else %}
+                  {% endif %} {% endfor %} {% else %}
                   <tr>
                     <td colspan="6" class="empty-state">
                       <div class="empty-icon"><i class="fas fa-inbox"></i></div>

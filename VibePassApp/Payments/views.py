@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .tasks import (
     process_mpesa_stk_callbacks,
     process_mpesa_b2c_callbacks,
+    process_mpesa_b2c_status_callback,
     initiate_mpesa_stk_push_task,
     check_payment_status_task,
     initiate_b2c_request_task,
@@ -190,7 +191,7 @@ def request_withdrawal(request):
                 organiser=user, status__in=["pending", "processing", "reconciling"]
             ).exists():
                 messages.info(
-                    request, "Your withdrawal is being processed, please wait."
+                    request, "Your withdrawal is already being processed, please wait."
                 )
                 return redirect("organizers_dashboard")
 
@@ -337,16 +338,14 @@ def mpesa_b2c_callback(request):
             data = json.loads(request.body)
         except json.JSONDecodeError as e:
             logger.error(f"Error decoding B2C callback JSON: {e}")
-            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+            return JsonResponse(
+                {"ResultCode": 1, "ResultDesc": "Invalid JSON"}, status=400
+            )
 
         logger.info(f"MPESA B2C Callback received: {data}")
 
         try:
             process_mpesa_b2c_callbacks.delay(data)
-            messages.success(
-                request,
-                "Withdrawal processed successfully. Please check your M-PESA for the transaction.",
-            )
         except Exception as e:
             logger.exception(f"Unable to queue M-Pesa B2C callback for processing: {e}")
             return JsonResponse(
@@ -357,6 +356,37 @@ def mpesa_b2c_callback(request):
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
 
     return JsonResponse({"Error": "Invalid request method"}, status=400)
+
+
+@csrf_exempt
+def mpesa_b2c_status_callback(request):
+    """Queue Transaction Status Query results for separate reconciliation."""
+    if request.method != "POST":
+        return JsonResponse({"Error": "Invalid request method"}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError as e:
+        logger.error("Error decoding B2C status callback JSON: %s", e)
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Invalid JSON"}, status=400
+        )
+    if not isinstance(data, dict):
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Payload must be a JSON object"},
+            status=400,
+        )
+
+    try:
+        process_mpesa_b2c_status_callback.delay(data)
+    except Exception as e:
+        logger.exception("Unable to queue B2C status callback: %s", e)
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Callback processing unavailable"},
+            status=503,
+        )
+
+    return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
 
 
 @csrf_exempt

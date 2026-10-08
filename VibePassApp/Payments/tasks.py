@@ -1,6 +1,5 @@
 import os
 import uuid
-import json
 import base64
 import logging
 import requests
@@ -40,22 +39,105 @@ def mark_withdrawal_failed(withdrawal_id, reason):
         logger.error("Withdrawal %s failed: %s", withdrawal_id, reason)
 
 
-@shared_task()
-def check_b2c_callback_task(withdrawal_id):
-    """Move an unresolved B2C withdrawal to reconciliation after the callback grace period."""
-    updated = Withdrawal.objects.filter(
-        withdrawal_id=withdrawal_id,
+@shared_task
+def check_all_pending_b2c_callbacks_task():
+    """
+    ParentTask: Scans for pending B2C withdrawals older than 10 minutes
+    and dispatches individual query tasks per transaction.
+    """
+    cutoff_time = timezone.now() - timedelta(minutes=10)
+    pending_withdrawals = Withdrawal.objects.filter(
         status__in=["pending", "processing"],
-    ).update(
-        status="reconciling",
-        reason="No B2C callback received; transaction requires reconciliation",
+        created_at__lte=cutoff_time,
     )
-    if updated:
-        logger.error(
-            "No B2C callback received for withdrawal %s; marked for reconciliation",
-            withdrawal_id,
-        )
 
+    for withdrawal in pending_withdrawals:
+        query_single_b2c_status_task.delay(withdrawal.id)
+
+
+@shared_task(bind=True, max_retries=3)
+def query_single_b2c_status_task(self, withdrawal_db_id):
+    """
+    ChildTask: Handles the Transaction Status Query API request for a single withdrawal.
+    """
+    try:
+        pending_withdrawal = Withdrawal.objects.get(id=withdrawal_db_id)
+    except Withdrawal.DoesNotExist:
+        logger.error(f"Withdrawal record {withdrawal_db_id} not found.")
+        return
+
+    # Skip if status was updated in the background between parent and child execution
+    if pending_withdrawal.status not in ["pending", "processing"]:
+        return
+
+    withdrawal_id = pending_withdrawal.withdrawal_id
+    access_token = generate_access_token()
+
+    payload = {
+        "Initiator": os.getenv("MPESA_INITIATOR_NAME"),
+        "SecurityCredential": generate_mpesa_security_credential(),
+        "CommandID": "TransactionStatusQuery",
+        "TransactionID": pending_withdrawal.originator_conversation_id,
+        "PartyA": os.getenv("MPESA_B2C_SHORT_CODE"),
+        "IdentifierType": 4,  # Paybill/Shortcode
+        "ResultURL": (
+            config("MPESA_CALLBACK_URL").rstrip("/")
+            + "/payments/mpesa_b2c_status_callback"
+        ),
+        "QueueTimeOutURL": config("MPESA_CALLBACK_URL").rstrip("/") + "/payments/mpesa_b2c_timeout",
+        "Remarks": f"Checking status for withdrawal {withdrawal_id}",
+        "Occasion": "Verification",
+    }
+
+    headers = {"Authorization": f"Bearer {access_token}"}
+    b2c_status_url = "https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query"
+
+    try:
+        response = requests.post(
+            b2c_status_url, json=payload, headers=headers, timeout=(15, 30)
+        )
+        status_data = response.json()
+
+        if str(status_data.get("ResponseCode")) == "0":
+            status_conversation_id = status_data.get("ConversationID")
+            if not status_conversation_id:
+                logger.error(
+                    "B2C status query response for withdrawal %s did not include "
+                    "ConversationID",
+                    withdrawal_id,
+                )
+                return
+            pending_withdrawal.status_conversation_id = status_conversation_id
+            pending_withdrawal.save(update_fields=["status_conversation_id"])
+
+            logger.info(
+                f"B2C status check initiated for withdrawal {withdrawal_id}: "
+                f"{status_data.get('ResponseCode')} - {status_data.get('ResponseDescription')}"
+            )
+        else:
+            logger.error(
+                f"B2C status check failed for withdrawal {withdrawal_id}: "
+                f"{status_data.get('ResponseCode')} - {status_data.get('ResponseDescription')}"
+            )
+
+    except (requests.exceptions.Timeout, requests.exceptions.RequestException) as exc:
+        if self.request.retries < self.max_retries:
+            countdown = 10 * (2 ** self.request.retries)
+            logger.warning(
+                "B2C status check attempt %s failed for withdrawal %s; retrying in %s seconds: %s",
+                self.request.retries + 1,
+                withdrawal_id,
+                countdown,
+                exc,
+            )
+            raise self.retry(exc=exc, countdown=countdown)
+        logger.error(f"Max retries reached for B2C status query on withdrawal {withdrawal_id}")
+
+    except Exception as exc:
+        logger.exception(
+            f"Unexpected error during B2C status check for withdrawal {withdrawal_id}: {exc}"
+        )
+    
 
 @shared_task(
     bind=True,
@@ -147,6 +229,11 @@ def initiate_mpesa_stk_push_task(self, data):
     max_retries=3,
 )
 def check_payment_status_task(self, payment_id):
+    """
+    Celery task to check the status of a payment via M-Pesa STK Push Query API. 
+    It retrieves the payment record, generates the necessary credentials, and sends a request to the M-Pesa API. 
+    The task handles success, failure, and retry logic, updating the payment status accordingly.
+    """
     try:
         payment = Payment.objects.get(payment_id=payment_id)
     except Payment.DoesNotExist:
@@ -422,7 +509,7 @@ def initiate_b2c_request_task(self, data):
 
         # Handle M-Pesa B2C response
         if str(b2c_response.get("ResponseCode")) == "0":
-            originator_conversation_id = b2c_response.get("OriginatorConversationID")
+            originator_conversation_id = b2c_response.get("OriginatorConversationID") 
             conversation_id = b2c_response.get("ConversationID")
             if not originator_conversation_id or not conversation_id:
                 mark_withdrawal_failed(
@@ -434,7 +521,6 @@ def initiate_b2c_request_task(self, data):
             withdrawal.originator_conversation_id = originator_conversation_id
             withdrawal.mpesa_conversation_id = conversation_id
             withdrawal.save()
-            check_b2c_callback_task.apply_async((withdrawal_id,), countdown=10 * 60)
             logger.info(
                 f"Withdrawal Request for {withdrawal.withdrawal_id} is successful"
             )
@@ -504,18 +590,6 @@ def process_mpesa_b2c_callbacks(data):
                 originator_conversation_id=originator_conversation_id
             )
 
-            (
-                organiser_wallet,
-                created,
-            ) = OrganizerWallet.objects.select_for_update().get_or_create(
-                organiser=withdrawal.organiser
-            )
-            organiser_withdrawable_balance = Decimal(
-                str(organiser_wallet.available_withdraw_balance)
-            )
-
-            withdrawn_amount = withdrawal.amount
-
             if withdrawal.status in ["completed", "failed"]:
                 logger.info(
                     "Ignoring duplicate terminal B2C callback for withdrawal %s",
@@ -524,44 +598,10 @@ def process_mpesa_b2c_callbacks(data):
                 return None
 
             if result_code == 0:
-                if organiser_withdrawable_balance < withdrawn_amount:
-                    withdrawal.status = "reconciling"
-                    withdrawal.reason = (
-                        "Completed M-Pesa payout exceeds the organizer wallet balance; "
-                        "manual reconciliation required."
-                    )
-                    withdrawal.Transaction_id = transaction_id
-                    withdrawal.save(
-                        update_fields=[
-                            "status",
-                            "reason",
-                            "Transaction_id",
-                            "updated_at",
-                        ]
-                    )
-                    logger.error(
-                        "Withdrawal %s completed by M-Pesa but wallet balance is "
-                        "insufficient: balance=%s, payout=%s",
-                        withdrawal.withdrawal_id,
-                        organiser_withdrawable_balance,
-                        withdrawn_amount,
-                    )
-                    return None
-
-                withdrawal.status = "completed"
-                withdrawal.mpesa_receipt_number = transaction_id
-                withdrawal.Transaction_id = transaction_id
-                withdrawal.save()
+                _complete_withdrawal(withdrawal, transaction_id)
                 logger.info(
                     f"Withdrawal completed successfully: {withdrawal.withdrawal_id}"
                 )
-                new_balance = organiser_withdrawable_balance - withdrawn_amount
-                organiser_wallet.available_withdraw_balance = new_balance
-                organiser_wallet.save(
-                    update_fields=["available_withdraw_balance", "updated_at"]
-                )
-                update_dashboard_balance_after_withdraw(withdrawal, new_balance)
-                logger.info(f"Users account balance after deduction: {new_balance}")
             else:
                 withdrawal.status = "failed"
                 withdrawal.reason = result_desc
@@ -573,6 +613,68 @@ def process_mpesa_b2c_callbacks(data):
 
     except Withdrawal.DoesNotExist:
         logger.error(f"Transaction does not exist: {originator_conversation_id}")
+
+
+def _complete_withdrawal(withdrawal, transaction_id):
+    """Settle a locked withdrawal and deduct its balance exactly once."""
+    organiser_wallet, _ = OrganizerWallet.objects.select_for_update().get_or_create(
+        organiser=withdrawal.organiser
+    )
+    new_balance = Decimal(str(organiser_wallet.available_withdraw_balance)) - Decimal(
+        str(withdrawal.amount)
+    )
+
+    withdrawal.status = "completed"
+    withdrawal.Transaction_id = transaction_id
+    withdrawal.save()
+    organiser_wallet.available_withdraw_balance = new_balance
+    organiser_wallet.save(update_fields=["available_withdraw_balance", "updated_at"])
+    update_dashboard_balance_after_withdraw(withdrawal, new_balance)
+    logger.info("Users account balance after deduction: %s", new_balance)
+
+
+
+@shared_task()
+def process_mpesa_b2c_status_callback(data):
+    """Apply only explicit transaction outcomes returned by a status query."""
+    if not isinstance(data, dict):
+        logger.error("Invalid M-Pesa B2C status callback: payload must be an object")
+        return None
+    result = data.get("Result")
+    if not isinstance(result, dict):
+        logger.error("Invalid M-Pesa B2C status callback: missing Result object")
+        return None
+
+    conversation_id = result.get("ConversationID")
+    if not conversation_id:
+        logger.error("B2C status callback is missing ConversationID")
+        return None
+    
+    try:
+        with transaction.atomic():
+            withdrawal = Withdrawal.objects.select_for_update().get(
+                status_conversation_id=conversation_id
+            )
+            if withdrawal.status in ["completed", "failed"]:
+                logger.info(
+                    "Ignoring duplicate terminal B2C status callback for withdrawal %s",
+                    withdrawal.withdrawal_id,
+                )
+                return None
+            transaction_id = result.get("TransactionID")
+            if int(result.get("ResultCode", -1)) == 0:
+                _complete_withdrawal(withdrawal, transaction_id)
+            else:
+                withdrawal.status = "failed"
+                withdrawal.reason = result.get("ResultDesc", "Transaction failed")
+                withdrawal.Transaction_id = transaction_id
+                withdrawal.save()
+    except Withdrawal.DoesNotExist:
+        logger.error(
+            "No withdrawal found for B2C status-query conversation %s",
+            conversation_id,
+        )
+    return None
 
 
 @shared_task

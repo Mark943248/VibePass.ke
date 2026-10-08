@@ -6,7 +6,11 @@ from django.utils import timezone
 from Events.models import Event
 from .models import Payment, Withdrawal, PlatformRevenue
 from Users.models import OrganizerWallet, OrganizerProfile
-from .tasks import check_b2c_callback_task, process_mpesa_b2c_callbacks
+from .tasks import (
+    check_all_pending_b2c_callbacks_task,
+    process_mpesa_b2c_callbacks,
+    process_mpesa_b2c_status_callback,
+)
 from .utils import calculate_user_account_balance
 from datetime import date, time
 import uuid
@@ -97,18 +101,9 @@ class WithdrawalModelTest(TestCase):
         expected = f"Withdrawal {self.withdrawal.withdrawal_id} - Organizer: {self.organizer.username} - Amount: {self.withdrawal.amount} - Status: {self.withdrawal.status}"
         self.assertEqual(str(self.withdrawal), expected)
 
-    def test_b2c_callback_watchdog_moves_open_withdrawal_to_reconciliation(self):
+
+    def test_b2c_callback_resolves_pending_withdrawal(self):
         self.withdrawal.status = "processing"
-        self.withdrawal.save(update_fields=["status"])
-
-        check_b2c_callback_task(str(self.withdrawal.withdrawal_id))
-
-        self.withdrawal.refresh_from_db()
-        self.assertEqual(self.withdrawal.status, "reconciling")
-        self.assertIn("No B2C callback", self.withdrawal.reason)
-
-    def test_b2c_callback_resolves_reconciling_withdrawal(self):
-        self.withdrawal.status = "reconciling"
         self.withdrawal.originator_conversation_id = "originator-123"
         self.withdrawal.save(update_fields=["status", "originator_conversation_id"])
         OrganizerWallet.objects.create(
@@ -130,6 +125,56 @@ class WithdrawalModelTest(TestCase):
         self.withdrawal.refresh_from_db()
         self.assertEqual(self.withdrawal.status, "completed")
         self.assertEqual(self.withdrawal.Transaction_id, "transaction-123")
+
+    def test_status_query_success(self):
+        self.withdrawal.status = "processing"
+        self.withdrawal.status_conversation_id = "status-conversation-123"
+        self.withdrawal.save(update_fields=["status", "status_conversation_id"])
+        wallet = OrganizerWallet.objects.create(
+            organiser=self.organizer,
+            available_withdraw_balance=Decimal("500.00"),
+        )
+
+        process_mpesa_b2c_status_callback(
+            {
+                "Result": {
+                    "ConversationID": "status-conversation-123",
+                    "ResultCode": 0,
+                    "ResultDesc": "The query was processed successfully.",
+                }
+            }
+        )
+
+        self.withdrawal.refresh_from_db()
+        wallet.refresh_from_db()
+        self.assertEqual(self.withdrawal.status, "completed")
+        self.assertEqual(wallet.available_withdraw_balance, Decimal("0.00"))
+
+    def test_status_query_explicit_success_settles_withdrawal_only_once(self):
+        self.withdrawal.status = "processing"
+        self.withdrawal.status_conversation_id = "status-conversation-123"
+        self.withdrawal.save(update_fields=["status", "status_conversation_id"])
+        wallet = OrganizerWallet.objects.create(
+            organiser=self.organizer,
+            available_withdraw_balance=Decimal("500.00"),
+        )
+        callback_data = {
+            "Result": {
+                "ConversationID": "status-conversation-123",
+                "ResultCode": 0,
+                "TransactionStatus": "Completed",
+                "TransactionID": "transaction-123",
+            }
+        }
+
+        process_mpesa_b2c_status_callback(callback_data)
+        process_mpesa_b2c_status_callback(callback_data)
+
+        self.withdrawal.refresh_from_db()
+        wallet.refresh_from_db()
+        self.assertEqual(self.withdrawal.status, "completed")
+        self.assertEqual(self.withdrawal.Transaction_id, "transaction-123")
+        self.assertEqual(wallet.available_withdraw_balance, Decimal("0.00"))
 
 
 class AccountBalanceCalculationTest(TestCase):
