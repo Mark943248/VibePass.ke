@@ -70,6 +70,7 @@ class EventModelTest(TestCase):
             Event_category="music",
             Event_details="Details",
             Event_location="Location",
+            Event_status="published",
             Event_date=today - timedelta(days=1),
             Event_time=time(18, 0),
             Event_is_free=True,
@@ -111,6 +112,7 @@ class EventModelTest(TestCase):
         past_event_ticket.refresh_from_db()
 
         self.assertFalse(past_event.Event_is_active)
+        self.assertEqual(past_event.Event_status, "completed")
         self.assertTrue(today_event.Event_is_active)
         self.assertTrue(future_event.Event_is_active)
         self.assertEqual(past_event_ticket.status, "expired")

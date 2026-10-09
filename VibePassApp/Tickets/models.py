@@ -41,6 +41,7 @@ class Ticket(models.Model):
     is_scanned = models.BooleanField(default=False)
     scanned_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def mark_as_scanned(self):
         if self.is_scanned:

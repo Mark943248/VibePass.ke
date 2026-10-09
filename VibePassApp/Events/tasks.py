@@ -16,13 +16,16 @@ def deactivate_past_events_and_expire_tickets():
     past_active_events = Event.objects.filter(
         Event_is_active=True,
         Event_date__lt=timezone.localdate(),
+        Event_status="published"
     )
 
     past_events_tickets = Ticket.objects.filter(event__in=past_active_events, status="active").update(
-        status="expired"
+        status="expired",
+        updated_at=timezone.now()
     )
 
-    updated_events = past_active_events.update(Event_is_active=False)
+    updated_events = past_active_events.update(Event_is_active=False, Event_status="completed", updated_at=timezone.now())
+    updated_events.save(update_fields=["Event_is_active", "Event_status", "updated_at"])
     updated_count = updated_events + past_events_tickets
     logger.info("Deactivated %s past event(s) & expired %s ticket(s).", updated_events, past_events_tickets)
 
