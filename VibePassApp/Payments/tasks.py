@@ -488,7 +488,7 @@ def initiate_b2c_request_task(self, data):
             "InitiatorName": os.getenv("MPESA_INITIATOR_NAME"),
             "SecurityCredential": generate_mpesa_security_credential(),
             "CommandID": "BusinessPayment",
-            "Amount": data.get("amount"),
+            "Amount": int(data.get("amount")),
             "PartyA": os.getenv("MPESA_B2C_SHORT_CODE"),
             "PartyB": data["phone_number"],
             "Remarks": "remarked",
