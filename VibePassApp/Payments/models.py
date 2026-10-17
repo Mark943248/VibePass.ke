@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.db.models import Sum
 from decimal import Decimal
 from django.conf import settings
@@ -131,3 +132,52 @@ class PlatformRevenue(models.Model):
 
     def __str__(self):
         return f"Platform Revenue - Organizer: {self.organiser.username if self.organiser else 'N/A'} - Amount: {self.fee_amount} - Source: {self.source}"
+
+class PlatformRefunds(models.Model):
+    """Tracks refunds made by the platform to users for cancelled tickets."""
+
+    REFUND_STATUS = [
+        ("in_progress", "In Progress"),
+        ("completed", "Completed"),
+        ("failed", "Failed"),
+    ]
+
+    user = models.ForeignKey(
+        "Users.User", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    payment = models.ForeignKey(
+        Payment, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    refund_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    status = models.CharField(
+        max_length=20, choices=REFUND_STATUS, default="in_progress"
+    )
+    originator_conversation_id = models.CharField(
+        max_length=255, blank=True, null=True
+    )  # M-Pesa conversation ID for the refund transaction
+    mpesa_conversation_id = models.CharField(
+        max_length=255, blank=True, null=True
+    )  # M-Pesa conversation ID for the refund transaction
+    status_conversation_id = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+    transaction_id = models.CharField(
+        max_length=255, blank=True, null=True
+    )  # M-Pesa transaction ID for the refund transaction
+    reason = models.CharField(max_length=500, default="Ticket Cancellation")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["payment"],
+                condition=Q(
+                    payment__isnull=False,
+                    status__in=["in_progress", "completed"],
+                ),
+                name="unique_active_refund_per_payment",
+            )
+        ]
+
+    def __str__(self):
+        return f"Platform Refund - User: {self.user.username if self.user else 'N/A'} - Amount: {self.refund_amount} - Reason: {self.reason}"

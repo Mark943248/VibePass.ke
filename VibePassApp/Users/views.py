@@ -190,6 +190,7 @@ def EventOrganizersDashboard(request):
         "flagged_events": flagged_events,
         "today": date.today(),
     }
+    
 
     return render(request, "users/Event_organiser.html", context)
 

@@ -216,6 +216,41 @@ class EventModelTest(TestCase):
         escrow.refresh_from_db()
         self.assertEqual(escrow.payout_status, "frozen")
 
+    def test_cancel_event_queues_refund_for_cancelled_ticket(self):
+        buyer = User.objects.create_user(
+            username="ticketbuyer",
+            email="ticketbuyer@example.com",
+            password="testpass123",
+        )
+        payment = Payment.objects.create(
+            user=buyer,
+            event=self.event,
+            amount=Decimal("1000.00"),
+            mpesa_number="254712345678",
+            payment_status="Completed",
+        )
+        ticket = Ticket.objects.create(
+            event=self.event,
+            user=buyer,
+            payment=payment,
+            ticket_type=self.ticket_type,
+            status="active",
+        )
+        self.client.force_login(self.organizer)
+
+        with (
+            patch("Events.views.send_event_cancellation_email_to_buyers.delay") as email_task,
+            patch("Events.views.refund_users_payments_cancelled_tickets.delay") as refund_task,
+            self.captureOnCommitCallbacks(execute=True),
+        ):
+            response = self.client.post(reverse("cancel_event", args=[self.event.slug]))
+
+        self.assertRedirects(response, reverse("organizers_dashboard"))
+        ticket.refresh_from_db()
+        self.assertEqual(ticket.status, "cancelled")
+        email_task.assert_called_once_with([str(ticket.ticket_id)])
+        refund_task.assert_called_once_with([str(ticket.ticket_id)])
+
     @patch("Events.tasks.send_mail")
     def test_event_cancellation_email_sends_once_per_buyer(self, mock_send_mail):
         second_buyer = User.objects.create_user(

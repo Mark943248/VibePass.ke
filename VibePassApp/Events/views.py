@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 from .models import Event, TicketType, ReviewEvent
 from .tasks import send_event_cancellation_email_to_buyers
 from Users.models import OrganizerProfile
+from Payments.tasks import refund_users_payments_cancelled_tickets
 from Payments.models import EscrowModel
 from django.db.models import Avg, Count, Q
 from django.core.paginator import Paginator
@@ -399,14 +400,17 @@ def cancel_event_view(request, slug):
         if ticket_ids:
             active_tickets.update(status="cancelled")
             transaction.on_commit(
-                lambda: send_event_cancellation_email_to_buyers.delay(ticket_ids)
+                lambda tids=ticket_ids: send_event_cancellation_email_to_buyers.delay(tids)
+            )
+            transaction.on_commit(
+                lambda tids=ticket_ids: refund_users_payments_cancelled_tickets.delay(tids)
             )
 
         event.cancel_event()
         EscrowModel.objects.filter(event=event).exclude(payout_status="frozen").update(
             payout_status="frozen"
         )
-    messages.success(request, "Event cancelled and escrow has been frozen.")
+    messages.success(request, "Event has been cancelled successfully.")
     return redirect("organizers_dashboard")
 
 

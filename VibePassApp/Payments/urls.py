@@ -22,4 +22,19 @@ urlpatterns = [
         views.mpesa_timeout_handler,
         name="mpesa_b2c_timeout_handler",
     ),
+    path(
+        "mpesa_refund_callback",
+        views.mpesa_refunds_callback,
+        name="mpesa_refunds_callback",
+    ),
+    path(
+        "mpesa_refund_timeout",
+        views.mpesa_refund_timeout_callback,
+        name="mpesa_refund_timeout_callback",
+    ),
+    path(
+        "mpesa_refund_status_callback",
+        views.mpesa_refund_status_callback,
+        name="mpesa_refund_status_callback",
+    ),
 ]

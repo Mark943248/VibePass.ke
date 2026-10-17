@@ -3,6 +3,7 @@ from .tasks import (
     process_mpesa_stk_callbacks,
     process_mpesa_b2c_callbacks,
     process_mpesa_b2c_status_callback,
+    process_mpesa_refund_status_callback,
     initiate_mpesa_stk_push_task,
     check_payment_status_task,
     initiate_b2c_request_task,
@@ -20,7 +21,7 @@ from decimal import Decimal
 from .consumers import send_payment_status_update
 from django_ratelimit.decorators import ratelimit
 from .utils import format_phone_number
-from .models import Payment, Withdrawal, PlatformRevenue
+from .models import Payment, Withdrawal, PlatformRefunds, PlatformRevenue
 import json
 import os
 import logging
@@ -248,14 +249,8 @@ def request_withdrawal(request):
             # Combined gross withdrawable amount (matured + net early payout)
             total_revenue = as_decimal(organiser_wallet.available_withdraw_balance)
             mpesa_number = user.mpesa_number
-
-            platform_fee = total_revenue * Decimal("0.10")
-            withdrawable_amount = total_revenue - platform_fee
-            PlatformRevenue.objects.create(
-                organiser=user,
-                fee_amount=platform_fee,
-                source="10% ticketsales",
-            )
+            withdrawable_amount = total_revenue
+           
 
             if total_revenue <= 0:
                 messages.error(
@@ -472,3 +467,154 @@ def payment_waiting(request, payment_id):
     payment = get_object_or_404(Payment, payment_id=payment_id, user=request.user)
     context = {"payment": payment}
     return render(request, "payments/payment_waiting.html", context)
+
+@csrf_exempt
+@require_POST
+def mpesa_refunds_callback(request):
+    """
+    Handle the M-PESA Refund callback.
+    This view processes the callback from M-PESA after a refund attempt.
+    It updates the PlatformRefunds record in the database based on the result of the refund transaction."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError as exc:
+        logger.error("Error decoding refund callback JSON: %s", exc)
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Invalid JSON"}, status=400
+        )
+
+    if not isinstance(data, dict) or not isinstance(data.get("Result"), dict):
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Payload must contain a Result object"},
+            status=400,
+        )
+
+    result = data["Result"]
+    originator_conversation_id = result.get("OriginatorConversationID")
+    if not originator_conversation_id:
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Missing OriginatorConversationID"},
+            status=400,
+        )
+
+    try:
+        refund_record = PlatformRefunds.objects.get(
+            originator_conversation_id=originator_conversation_id
+        )
+    except PlatformRefunds.DoesNotExist:
+        logger.error(
+            "Refund record not found for OriginatorConversationID: %s",
+            originator_conversation_id,
+        )
+        return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+    if refund_record.status in {"completed", "failed"}:
+        return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+    try:
+        result_code = int(result.get("ResultCode"))
+    except (TypeError, ValueError):
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Invalid ResultCode"}, status=400
+        )
+
+    refund_record.mpesa_conversation_id = result.get("ConversationID") or (
+        refund_record.mpesa_conversation_id
+    )
+    refund_record.transaction_id = result.get("TransactionID") or (
+        refund_record.transaction_id
+    )
+    if result_code == 0:
+        refund_record.status = "completed"
+        if refund_record.payment_id:
+            from .models import EscrowModel
+
+            EscrowModel.objects.filter(payment_id=refund_record.payment_id).update(
+                payout_status="refunded"
+            )
+    else:
+        refund_record.status = "failed"
+        refund_record.reason = result.get("ResultDesc") or "Unknown refund error"
+
+    refund_record.save(
+        update_fields=[
+            "status",
+            "reason",
+            "mpesa_conversation_id",
+            "transaction_id",
+        ]
+    )
+    return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+
+@csrf_exempt
+@require_POST
+def mpesa_refund_timeout_callback(request):
+    """Keep timed-out refunds pending so the status checker can reconcile them."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError as exc:
+        logger.error("Error decoding refund timeout JSON: %s", exc)
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Invalid JSON"}, status=400
+        )
+
+    if not isinstance(data, dict) or not isinstance(data.get("Result"), dict):
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Payload must contain a Result object"},
+            status=400,
+        )
+
+    result = data["Result"]
+    originator_conversation_id = result.get("OriginatorConversationID")
+    if not originator_conversation_id:
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Missing OriginatorConversationID"},
+            status=400,
+        )
+
+
+    updated = PlatformRefunds.objects.filter(
+        originator_conversation_id=originator_conversation_id,
+        status="in_progress",
+    ).update(
+        reason=(
+            "Safaricom timeout; refund requires reconciliation: "
+            f"{result.get('ResultDesc', 'No details provided')}"
+        )
+    )
+    if not updated:
+        logger.info(
+            "Refund timeout received for unknown or terminal refund %s",
+            originator_conversation_id,
+        )
+    return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+
+@csrf_exempt
+@require_POST
+def mpesa_refund_status_callback(request):
+    """Queue a transaction-status result for asynchronous refund reconciliation."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError as exc:
+        logger.error("Error decoding refund status callback JSON: %s", exc)
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Invalid JSON"}, status=400
+        )
+    if not isinstance(data, dict):
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Payload must be a JSON object"},
+            status=400,
+        )
+
+    try:
+        process_mpesa_refund_status_callback.delay(data)
+    except Exception as exc:
+        logger.exception("Unable to queue refund status callback: %s", exc)
+        return JsonResponse(
+            {"ResultCode": 1, "ResultDesc": "Callback processing unavailable"},
+            status=503,
+        )
+
+    return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})

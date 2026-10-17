@@ -74,6 +74,7 @@ class Event(models.Model):
     Event_is_flagged = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
     cancelled_at = models.DateTimeField(null=True, blank=True)
+    cancel_reason = models.TextField(null=True, blank=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
     Event_created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -98,12 +99,14 @@ class Event(models.Model):
         self.is_deleted = True
         self.Event_is_active = False
         self.cancelled_at = timezone.now()
+        self.cancel_reason = reason
         self.save(
             update_fields=[
                 "Event_status",
                 "is_deleted",
                 "Event_is_active",
                 "cancelled_at",
+                "cancel_reason",
                 "updated_at",
             ]
         )

@@ -286,6 +286,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "Payments.tasks.check_all_pending_b2c_callbacks_task",
         "schedule": 10 * 60,  # Runs every 10 minutes
     },
+    "check-refund-status": {
+        "task": "Payments.tasks.refund_check_status_task",
+        "schedule": 10 * 60,
+    },
 }
 
 # deployment security settings

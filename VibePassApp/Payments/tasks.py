@@ -7,7 +7,7 @@ from celery import shared_task
 from datetime import timedelta, datetime
 from decimal import Decimal
 from decouple import config
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import Q
 from .signals import payment_successful
 from django.utils import timezone
@@ -38,6 +38,21 @@ def mark_withdrawal_failed(withdrawal_id, reason):
     if updated:
         logger.error("Withdrawal %s failed: %s", withdrawal_id, reason)
 
+def deduct_platform_10_percent_fee_from_withdrawable_amount(amount, withdrawal_id):
+    """Deduct a 10% platform fee from the given amount."""
+    if amount <= 0:
+        return Decimal("0.00")
+    platform_fee = amount * Decimal("0.10")
+    organiser = Withdrawal.objects.get(withdrawal_id=withdrawal_id).organiser
+    from Payments.models import PlatformRevenue
+    PlatformRevenue.objects.create(
+        organiser=organiser,
+        fee_amount=platform_fee,
+        source="10% ticketsales",
+    )
+    withdrawable_amount = amount - platform_fee
+    return withdrawable_amount
+
 
 @shared_task
 def check_all_pending_b2c_callbacks_task():
@@ -52,7 +67,7 @@ def check_all_pending_b2c_callbacks_task():
     )
 
     for withdrawal in pending_withdrawals:
-        query_single_b2c_status_task.delay(withdrawal.id)
+        query_single_b2c_status_task.delay(withdrawal.withdrawal_id)
 
 
 @shared_task(bind=True, max_retries=3)
@@ -61,7 +76,7 @@ def query_single_b2c_status_task(self, withdrawal_db_id):
     ChildTask: Handles the Transaction Status Query API request for a single withdrawal.
     """
     try:
-        pending_withdrawal = Withdrawal.objects.get(id=withdrawal_db_id)
+        pending_withdrawal = Withdrawal.objects.get(withdrawal_id=withdrawal_db_id)
     except Withdrawal.DoesNotExist:
         logger.error(f"Withdrawal record {withdrawal_db_id} not found.")
         return
@@ -166,7 +181,7 @@ def initiate_mpesa_stk_push_task(self, data):
         "Password": online_password,
         "Timestamp": timestamp,
         "TransactionType": "CustomerPayBillOnline",
-        "Amount": int(data["amount"]),
+        "Amount": int(data.get("amount")),
         "PartyA": formatted_phone,
         "PartyB": short_code,
         "PhoneNumber": formatted_phone,
@@ -488,7 +503,11 @@ def initiate_b2c_request_task(self, data):
             "InitiatorName": os.getenv("MPESA_INITIATOR_NAME"),
             "SecurityCredential": generate_mpesa_security_credential(),
             "CommandID": "BusinessPayment",
-            "Amount": int(data.get("amount")),
+            "Amount": int(
+                deduct_platform_10_percent_fee_from_withdrawable_amount(
+                    data.get("amount"), withdrawal_id
+                )
+            ),
             "PartyA": os.getenv("MPESA_B2C_SHORT_CODE"),
             "PartyB": data["phone_number"],
             "Remarks": "remarked",
@@ -745,3 +764,270 @@ def release_matured_escrow_holds():
         f"Escrow release task finished. Released: {released_count} | Frozen/Skipped: {skipped_count}"
     )
     return f"Released {released_count} holds."
+
+@shared_task
+def refund_users_payments_cancelled_tickets(ticket_ids):
+    """Initiate M-Pesa refunds for tickets that were cancelled."""
+    from Tickets.models import Ticket
+    from .models import PlatformRefunds
+
+    tickets_to_refund = Ticket.objects.filter(
+        ticket_id__in=ticket_ids,
+        status="cancelled",
+    ).select_related("payment")
+
+    if not tickets_to_refund.exists():
+        logger.info("No cancelled tickets found for refund.")
+        return 0
+
+    refunded_count = 0
+    for ticket in tickets_to_refund:
+        if not ticket.payment.payment_id:
+            continue
+
+        # All tickets for one purchase share this payment row.
+        with transaction.atomic():
+            try:
+                payment = Payment.objects.select_for_update().get(
+                    pk=ticket.payment.payment_id
+                )
+            except Payment.DoesNotExist:
+                continue
+
+            if payment.payment_status != "Completed":
+                continue
+
+            if PlatformRefunds.objects.filter(
+                payment=payment, status__in=["in_progress", "completed"]
+            ).exists():
+                logger.info(
+                    "Skipping duplicate refund request for payment %s",
+                    payment.payment_id,
+                )
+                continue
+
+            try:
+                with transaction.atomic():
+                    refund_record = PlatformRefunds.objects.create(
+                        user=payment.user,
+                        payment=payment,
+                        refund_amount=payment.amount,
+                        originator_conversation_id=str(uuid.uuid4()),
+                        reason="Ticket Cancellation",
+                    )
+            except IntegrityError:
+                logger.info(
+                    "Another worker reserved a refund for payment %s",
+                    payment.payment_id,
+                )
+                continue
+
+        # Do not hold the database lock while waiting for M-Pesa.
+        try:
+            access_token = generate_access_token()
+            if not access_token:
+                raise ValueError("Failed to obtain M-Pesa access token")
+
+            callback_base = config("MPESA_CALLBACK_URL").rstrip("/")
+            payload = {
+                "OriginatorConversationID": refund_record.originator_conversation_id,
+                "InitiatorName": os.getenv("MPESA_INITIATOR_NAME"),
+                "SecurityCredential": generate_mpesa_security_credential(),
+                "CommandID": "BusinessPayment",
+                "Amount": int(payment.amount),
+                "PartyA": os.getenv("MPESA_B2C_SHORT_CODE"),
+                "PartyB": payment.mpesa_number,
+                "Remarks": f"Refund for cancelled ticket {ticket.ticket_id}",
+                "QueueTimeOutURL": f"{callback_base}/payments/mpesa_refund_timeout",
+                "ResultURL": f"{callback_base}/payments/mpesa_refund_callback",
+                "Occassion": "Ticket Refund",
+            }
+            response = requests.post(
+                "https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest",
+                json=payload,
+                headers={"Authorization": f"Bearer {access_token}"},
+                timeout=(15, 30),
+            )
+            response.raise_for_status()
+            response_data = response.json()
+
+            if str(response_data.get("ResponseCode")) == "0":
+                refund_record.mpesa_conversation_id = response_data.get(
+                    "ConversationID"
+                )
+                refund_record.save(update_fields=["mpesa_conversation_id"])
+                refunded_count += 1
+                logger.info(
+                    "Refund initiated for ticket %s: %s",
+                    ticket.ticket_id,
+                    response_data,
+                )
+            else:
+                refund_record.status = "failed"
+                refund_record.reason = (
+                    response_data.get("ResponseDescription")
+                    or "Refund initiation failed"
+                )
+                refund_record.save(update_fields=["status", "reason"])
+                logger.error(
+                    "Refund initiation failed for ticket %s: %s",
+                    ticket.ticket_id,
+                    refund_record.reason,
+                )
+        except (
+            requests.exceptions.Timeout,
+            requests.exceptions.RequestException,
+        ) as exc:
+            refund_record.reason = f"M-Pesa response uncertain: {exc}"
+            refund_record.save(update_fields=["reason"])
+            logger.warning(
+                "Refund request outcome is uncertain for ticket %s: %s",
+                ticket.ticket_id,
+                exc,
+            )
+            refund_check_status_task.delay(refund_record.pk)
+        except Exception as exc:
+            refund_record.status = "failed"
+            refund_record.reason = str(exc)[:500]
+            refund_record.save(update_fields=["status", "reason"])
+            logger.exception(
+                "Unexpected error during refund for ticket %s: %s",
+                ticket.ticket_id,
+                exc,
+            )
+    return refunded_count
+
+@shared_task(bind=True, max_retries=3)
+def refund_check_status_task(self, refund_id=None):
+    """Query M-Pesa for unresolved refunds and await its status callback."""
+    from .models import PlatformRefunds
+
+    if refund_id is None:
+        cutoff = timezone.now() - timedelta(minutes=10)
+        pending_refund_ids = PlatformRefunds.objects.filter(
+            status="in_progress",
+            status_conversation_id__isnull=True,
+            created_at__lte=cutoff,
+        ).values_list("pk", flat=True)
+        for pending_refund_id in pending_refund_ids.iterator():
+            refund_check_status_task.delay(pending_refund_id)
+        return None
+
+    try:
+        refund = PlatformRefunds.objects.get(pk=refund_id)
+    except PlatformRefunds.DoesNotExist:
+        logger.error("Refund record %s not found for status query", refund_id)
+        return None
+
+    if refund.status != "in_progress" or refund.status_conversation_id:
+        return None
+
+    try:
+        access_token = generate_access_token()
+        if not access_token:
+            raise ValueError("Failed to obtain M-Pesa access token")
+
+        callback_base = config("MPESA_CALLBACK_URL").rstrip("/")
+        payload = {
+            "Initiator": os.getenv("MPESA_INITIATOR_NAME"),
+            "SecurityCredential": generate_mpesa_security_credential(),
+            "CommandID": "TransactionStatusQuery",
+            "TransactionID": (
+                refund.transaction_id or refund.originator_conversation_id
+            ),
+            "PartyA": os.getenv("MPESA_B2C_SHORT_CODE"),
+            "IdentifierType": 4,
+            "ResultURL": f"{callback_base}/payments/mpesa_refund_status_callback",
+            "QueueTimeOutURL": f"{callback_base}/payments/mpesa_refund_timeout",
+            "Remarks": f"Checking status for refund {refund.pk}",
+            "Occasion": "Refund verification",
+        }
+        response = requests.post(
+            "https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query",
+            json=payload,
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=(15, 30),
+        )
+        response.raise_for_status()
+        response_data = response.json()
+        if str(response_data.get("ResponseCode")) != "0":
+            logger.error(
+                "Refund status query failed for %s: %s",
+                refund.pk,
+                response_data.get("ResponseDescription", "Unknown error"),
+            )
+            return None
+
+        status_conversation_id = response_data.get("ConversationID")
+        if not status_conversation_id:
+            logger.error(
+                "Refund status query response for %s did not include ConversationID",
+                refund.pk,
+            )
+            return None
+        refund.status_conversation_id = status_conversation_id
+        refund.save(update_fields=["status_conversation_id"])
+    except (requests.exceptions.Timeout, requests.exceptions.RequestException) as exc:
+        if self.request.retries < self.max_retries:
+            countdown = 10 * (2 ** self.request.retries)
+            logger.warning(
+                "Refund status query attempt %s failed for %s; retrying in %s seconds: %s",
+                self.request.retries + 1,
+                refund.pk,
+                countdown,
+                exc,
+            )
+            raise self.retry(exc=exc, countdown=countdown)
+        logger.error("Max retries reached for refund status query %s", refund.pk)
+    except Exception:
+        logger.exception("Unexpected error checking refund status for %s", refund.pk)
+
+
+@shared_task
+def process_mpesa_refund_status_callback(data):
+    """Apply explicit transaction outcomes returned by a refund status query."""
+    from .models import EscrowModel, PlatformRefunds
+
+    if not isinstance(data, dict) or not isinstance(data.get("Result"), dict):
+        logger.error("Invalid M-Pesa refund status callback payload")
+        return None
+
+    result = data["Result"]
+    conversation_id = result.get("ConversationID")
+    if not conversation_id:
+        logger.error("Refund status callback is missing ConversationID")
+        return None
+
+    try:
+        refund = PlatformRefunds.objects.get(
+            status_conversation_id=conversation_id
+        )
+    except PlatformRefunds.DoesNotExist:
+        logger.error("No refund found for status-query conversation %s", conversation_id)
+        return None
+
+    if refund.status in {"completed", "failed"}:
+        return None
+
+
+    if int(result.get("ResultCode")) == 0:
+        refund.status = "completed"
+        refund.transaction_id = result.get("TransactionID")
+        if refund.payment.payment_id:
+            EscrowModel.objects.filter(payment=refund.payment).update(
+                payout_status="refunded"
+            )
+    else:
+        refund.status = "failed"
+        refund.reason = result.get("ResultDesc") or "Refund transaction failed"
+        refund.transaction_id = result.get("TransactionID") or refund.transaction_id
+    
+    refund.save(
+        update_fields=[
+            "status",
+            "reason",
+            "transaction_id",
+            "status_conversation_id",
+        ]
+    )
+    return None
