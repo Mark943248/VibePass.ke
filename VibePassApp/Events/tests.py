@@ -299,6 +299,43 @@ class EventModelTest(TestCase):
         self.assertIn(str(first_ticket.ticket_id), organizer_email.kwargs["message"])
         self.assertIn(str(second_ticket.ticket_id), organizer_email.kwargs["message"])
 
+    @patch("Events.tasks.send_mail")
+    def test_event_cancellation_email_continues_after_send_failure(self, mock_send_mail):
+        second_buyer = User.objects.create_user(
+            username="buyer",
+            email="buyer@example.com",
+            password="******",
+        )
+        first_ticket = Ticket.objects.create(
+            event=self.event,
+            user=self.organizer,
+            ticket_type=self.ticket_type,
+            status="cancelled",
+        )
+        second_ticket = Ticket.objects.create(
+            event=self.event,
+            user=second_buyer,
+            ticket_type=self.ticket_type,
+            status="cancelled",
+        )
+        mock_send_mail.side_effect = [RuntimeError("email backend unavailable"), 1]
+
+        with self.assertLogs("Events.tasks", level="ERROR"):
+            sent_count = send_event_cancellation_email_to_buyers(
+                [str(first_ticket.ticket_id), str(second_ticket.ticket_id)]
+            )
+
+        self.assertEqual(sent_count, 1)
+        self.assertEqual(mock_send_mail.call_count, 2)
+
+    @patch("Events.tasks.Ticket.objects.filter", side_effect=RuntimeError("database unavailable"))
+    def test_event_cancellation_email_handles_ticket_lookup_failure(self, mock_filter):
+        with self.assertLogs("Events.tasks", level="ERROR"):
+            sent_count = send_event_cancellation_email_to_buyers(["ticket-id"])
+
+        self.assertEqual(sent_count, 0)
+        mock_filter.assert_called_once()
+
 
 class EventViewsTest(TestCase):
     def setUp(self):
