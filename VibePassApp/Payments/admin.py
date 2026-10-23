@@ -73,14 +73,14 @@ class PlatformRevenueAdmin(admin.ModelAdmin):
 class PlaformRefundsAdmin(admin.ModelAdmin):
     """ Admin interface for Platform Refunds Model"""
 
-    list_display = {
+    list_display = (
         "user",
         "payment",
         "refund_amount",
         "status",
         "reason",
-        "created_at"
-    }
+        "created_at",
+    )
     search_fields = ("user__username", "payment__event")
     list_filter = ("created_at",)
     readonly_fields = ("refund_amount", "status", "user")
