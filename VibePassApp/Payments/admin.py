@@ -81,6 +81,6 @@ class PlaformRefundsAdmin(admin.ModelAdmin):
         "reason",
         "created_at"
     }
-    search_fields = ("user__username, payment__event")
-    list_filter = ("created_at")
-    readonly_fields = ("refund_amount, status, user")
+    search_fields = ("user__username", "payment__event")
+    list_filter = ("created_at",)
+    readonly_fields = ("refund_amount", "status", "user")
