@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Payment, Withdrawal, EscrowModel, PlatformRevenue
+from .models import Payment, Withdrawal, EscrowModel, PlatformRevenue, PlatformRefunds
 
 
 # Register your models here.
@@ -68,3 +68,19 @@ class PlatformRevenueAdmin(admin.ModelAdmin):
     search_fields = ("organiser__username", "source")
     list_filter = ("created_at",)
     readonly_fields = ("fee_amount", "source", "created_at")
+
+@admin.register(PlatformRefunds)
+class PlaformRefundsAdmin(admin.modelAdmin):
+    """ Admin interface for Platform Refunds Model"""
+
+    list_display = {
+        "user",
+        "payment",
+        "refund_amount",
+        "status",
+        "reason",
+        "created_at"
+    }
+    search_fields = ("user__username, payment__event")
+    list_filter = ("created_at")
+    readonly_fields = ("refund_amount, status, user")
