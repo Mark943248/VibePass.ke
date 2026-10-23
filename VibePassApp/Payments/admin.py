@@ -70,7 +70,7 @@ class PlatformRevenueAdmin(admin.ModelAdmin):
     readonly_fields = ("fee_amount", "source", "created_at")
 
 @admin.register(PlatformRefunds)
-class PlaformRefundsAdmin(admin.modelAdmin):
+class PlaformRefundsAdmin(admin.ModelAdmin):
     """ Admin interface for Platform Refunds Model"""
 
     list_display = {
