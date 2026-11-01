@@ -52,6 +52,8 @@ VibePass is a Django event-ticketing platform for publishing events, selling fre
 - Organizer withdrawals through M-Pesa B2C.
 - B2C callback processing, timeout reconciliation, duplicate-callback protection, and insufficient-balance reconciliation.
 - Ten percent platform fee calculation.
+- Platform-managed refunds to buyers when an organizer cancels an event with active tickets.
+- Refund tracking with M-Pesa callbacks, timeout handling, and status-query reconciliation.
 - WebSocket updates for payment and organizer balance changes.
 
 ### Public pages
@@ -94,6 +96,8 @@ Important entry points:
 - `Payments.Payment`: checkout and M-Pesa payment state.
 - `Payments.EscrowModel`: held, frozen, refunded, or released organizer funds.
 - `Payments.Withdrawal`: organizer payout state and M-Pesa transaction identifiers.
+- `Payments.PlatformRefunds`: buyer refund amount, status, reason, and M-Pesa transaction identifiers; at most one in-progress or completed refund is allowed per payment.
+- `Payments.PlatformRevenue`: platform fees recorded from organizer payouts.
 
 ## Main Workflows
 
@@ -127,6 +131,17 @@ Important entry points:
 3. A B2C request is sent asynchronously.
 4. The callback completes or reconciles the withdrawal and updates the wallet.
 
+### Cancel an event and refund buyers
+
+1. The organizer cancels the event. The app marks its active tickets as cancelled and freezes the event's escrow holds in the same database transaction.
+2. After the transaction commits, Celery queues cancellation emails and a refund task for the cancelled tickets.
+3. The refund worker considers completed M-Pesa payments only. Because tickets from one checkout share a payment, it creates one refund for the full payment amount rather than issuing a refund per ticket.
+4. A `PlatformRefunds` record is created before contacting M-Pesa. The payment is locked and a database constraint prevents duplicate active refunds for the same payment.
+5. The worker sends the refund through M-Pesa B2C to the phone number used for the original payment. The record moves from `in_progress` to `completed` or `failed` based on provider results.
+6. Successful refund confirmation also marks the related escrow as `refunded`. If M-Pesa times out or the outcome is uncertain, the refund stays in progress and is reconciled through a transaction-status query; failed refunds can be retried.
+
+The refund ledger tracks the platform's refund attempt and provider identifiers; it does not itself send funds. Refund initiation and reconciliation require a running Celery worker, while periodic checks also require Celery Beat.
+
 ## Setup
 
 ### Prerequisites
@@ -139,7 +154,7 @@ Important entry points:
 
 ### Docker workflow
 
-The Compose file starts the web app, Celery worker, Celery Beat, nginx, and ngrok. It does **not** provision PostgreSQL or Redis, so `DATABASE_URL` and `CELERY_BROKER_URL` must point to reachable services.
+The Compose file starts the web app, a Celery worker, Celery Beat, nginx, and ngrok. The worker runs queued asynchronous jobs; Beat enqueues scheduled jobs such as escrow release, past-event cleanup, and payment/refund reconciliation. It does **not** provision PostgreSQL or Redis, so `DATABASE_URL` and `CELERY_BROKER_URL` must point to reachable services.
 
 ```bash
 cd VibePassApp
@@ -169,7 +184,7 @@ celery -A VibePassApp worker --loglevel=info
 celery -A VibePassApp beat --loglevel=info
 ```
 
-Without Celery and Redis, payment callbacks, ticket email, withdrawals, and scheduled jobs will not complete.
+Without the Celery worker and Redis broker, queued payment processing, ticket email, event-cancellation emails, refunds, and withdrawals will not complete. Without Celery Beat, periodic escrow release, past-event cleanup, and stale payment/refund reconciliation will not run.
 
 ### Admin two-factor authentication
 
@@ -211,14 +226,19 @@ M-Pesa callbacks require a public HTTPS URL. Never commit `.env`, API keys, OAut
 
 Celery tasks currently cover:
 
-- Hourly deactivation of past events.
+- Deactivation of past events and expiration of active tickets (scheduled hourly).
 - Hourly release of matured escrow holds.
 - STK Push initiation and retries.
 - STK status checks and callbacks.
 - B2C withdrawal initiation and callbacks.
 - Withdrawal timeout reconciliation.
+- Refund initiation for cancelled-event tickets, cancellation of duplicate refund attempts, and M-Pesa refund callbacks.
+- Periodic status queries to reconcile refunds whose provider callbacks are delayed or timed out.
 - QR ticket email delivery.
+- Buyer email notifications when an event is cancelled.
 - Flagged-event administrator notifications.
+
+`celery` consumes queued tasks; `celery-beat` schedules periodic tasks. Both are configured in `VibePassApp/docker-compose.yaml`; Redis is the broker and must be supplied separately.
 
 ## Tests and Checks
 

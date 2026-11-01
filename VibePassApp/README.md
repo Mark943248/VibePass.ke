@@ -1,4 +1,4 @@
-# VibePass — Buyer and Technical Handover
+# VibePass — Technical Manual
 
 VibePass is a web-based event ticketing and organizer payout application built for the Kenyan market. It lets event organizers publish events and ticket inventory, buyers discover events and purchase tickets, and organizers or assigned scanners validate QR tickets at entry. Paid ticket checkout and organizer payouts are integrated with Safaricom M-Pesa.
 
