@@ -11,7 +11,11 @@ import uuid
 # Create your models here.
 class Payment(models.Model):
     """Model to represent a payment made by a user for an event, including details such as amount, status, and related M-Pesa information."""
-
+    PAYMENT_STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("completed", "Completed"),
+        ("failed", "Failed"),
+    ]
     payment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # relationships
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="payments")
@@ -32,7 +36,7 @@ class Payment(models.Model):
     )  # to preserve the data across async webhooks
     mpesa_number = models.CharField(max_length=20)  # phone number used for payment
     payment_status = models.CharField(
-        max_length=20
+        max_length=20, choices=PAYMENT_STATUS_CHOICES, default="pending"
     )  # e.g., 'Pending', 'Completed', 'Failed'
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

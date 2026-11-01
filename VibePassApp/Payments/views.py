@@ -524,14 +524,12 @@ def mpesa_refunds_callback(request):
     refund_record.transaction_id = result.get("TransactionID") or (
         refund_record.transaction_id
     )
+    from .models import EscrowModel  
     if result_code == 0:
         refund_record.status = "completed"
-        if refund_record.payment_id:
-            from .models import EscrowModel
-
-            EscrowModel.objects.filter(payment_id=refund_record.payment_id).update(
-                payout_status="refunded"
-            )
+        EscrowModel.objects.filter(payment=refund_record.payment).update(
+            payout_status="refunded"
+        )
     else:
         refund_record.status = "failed"
         refund_record.reason = result.get("ResultDesc") or "Unknown refund error"

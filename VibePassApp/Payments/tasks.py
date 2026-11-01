@@ -765,6 +765,7 @@ def release_matured_escrow_holds():
     )
     return f"Released {released_count} holds."
 
+
 @shared_task
 def refund_users_payments_cancelled_tickets(ticket_ids):
     """Initiate M-Pesa refunds for tickets that were cancelled."""
@@ -986,7 +987,7 @@ def refund_check_status_task(self, refund_id=None):
 @shared_task
 def process_mpesa_refund_status_callback(data):
     """Apply explicit transaction outcomes returned by a refund status query."""
-    from .models import EscrowModel, PlatformRefunds
+    from .models import PlatformRefunds
 
     if not isinstance(data, dict) or not isinstance(data.get("Result"), dict):
         logger.error("Invalid M-Pesa refund status callback payload")
@@ -1013,10 +1014,9 @@ def process_mpesa_refund_status_callback(data):
     if int(result.get("ResultCode")) == 0:
         refund.status = "completed"
         refund.transaction_id = result.get("TransactionID")
-        if refund.payment.payment_id:
-            EscrowModel.objects.filter(payment=refund.payment).update(
-                payout_status="refunded"
-            )
+        EscrowModel.objects.filter(payment=refund.payment).update(
+            payout_status="refunded"
+        )
     else:
         refund.status = "failed"
         refund.reason = result.get("ResultDesc") or "Refund transaction failed"

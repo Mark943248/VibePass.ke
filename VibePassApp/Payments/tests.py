@@ -6,7 +6,13 @@ from django.utils import timezone
 from django.db import IntegrityError, transaction
 from Events.models import Event
 from Tickets.models import Ticket
-from .models import Payment, PlatformRefunds, Withdrawal, PlatformRevenue
+from .models import (
+    EscrowModel,
+    Payment,
+    PlatformRefunds,
+    Withdrawal,
+    PlatformRevenue,
+)
 from Users.models import OrganizerWallet, OrganizerProfile
 from .tasks import (
     check_all_pending_b2c_callbacks_task,
@@ -221,6 +227,16 @@ class PlatformRefundTests(TestCase):
             status="cancelled",
         )
 
+        self.escrow = EscrowModel.objects.create(
+            payment=self.payment,
+            event=self.event,
+            organiser=self.organizer,
+            amount=100.00,
+            payout_status="held",
+            release_date=timezone.now() + timedelta(days=30),       
+        )
+        
+
     def make_refund(self, **kwargs):
         defaults = {
             "user": self.user,
@@ -370,7 +386,9 @@ class PlatformRefundTests(TestCase):
         )
 
         refund.refresh_from_db()
+        self.escrow.refresh_from_db()
         self.assertEqual(refund.status, "completed")
+        self.assertEqual(self.escrow.payout_status, "refunded")
         self.assertEqual(refund.transaction_id, "mpesa-receipt-123")
 
     def test_nonterminal_refund_status_can_be_checked_again(self):
@@ -387,7 +405,9 @@ class PlatformRefundTests(TestCase):
         )
 
         refund.refresh_from_db()
+        self.escrow.refresh_from_db()
         self.assertEqual(refund.status, "completed")
+        self.assertEqual(self.escrow.payout_status, "refunded")
         self.assertEqual(refund.status_conversation_id, "query-conversation-123")
 
     def test_refund_status_callback_marks_confirmed_failure(self):

@@ -402,9 +402,10 @@ def cancel_event_view(request, slug):
             transaction.on_commit(
                 lambda tids=ticket_ids: send_event_cancellation_email_to_buyers.delay(tids)
             )
-            transaction.on_commit(
-                lambda tids=ticket_ids: refund_users_payments_cancelled_tickets.delay(tids)
-            )
+            if not event.Event_is_free:  # validates if event is free to refund users
+               transaction.on_commit(
+                   lambda tids=ticket_ids: refund_users_payments_cancelled_tickets.delay(tids)
+                )
 
         event.cancel_event()
         EscrowModel.objects.filter(event=event).exclude(payout_status="frozen").update(
