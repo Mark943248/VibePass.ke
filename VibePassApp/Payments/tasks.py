@@ -777,6 +777,10 @@ def refund_users_payments_cancelled_tickets(ticket_ids):
         status="cancelled",
     ).select_related("payment")
 
+    EscrowModel.objects.filter(
+        payment__in=tickets_to_refund.values_list("payment", flat=True)
+    ).update(payout_status="frozen")
+
     if not tickets_to_refund.exists():
         logger.info("No cancelled tickets found for refund.")
         return 0
