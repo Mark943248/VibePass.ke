@@ -161,6 +161,48 @@ class TicketViewsTest(TestCase):
             Ticket.objects.filter(event=self.free_event, user=self.user).exists()
         )
 
+    def test_zero_price_ticket_can_be_booked_even_if_event_is_not_marked_free(self):
+        self.paid_ticket_type.price = 0
+        self.paid_ticket_type.save(update_fields=["price"])
+        self.client.force_login(self.user)
+        session = self.client.session
+        session["checkout_data"] = {
+            "items": [{"id": self.paid_ticket_type.id, "quantity": 1}],
+            "grand_total": 0.0,
+        }
+        session.save()
+
+        response = self.client.post(
+            reverse("book_free_ticket", args=[self.paid_event.slug])
+        )
+
+        self.assertRedirects(response, reverse("finders_dashboard"))
+        self.assertTrue(
+            Ticket.objects.filter(event=self.paid_event, user=self.user).exists()
+        )
+
+    def test_book_free_ticket_rejects_ticket_with_nonzero_price(self):
+        self.free_ticket_type.price = 100
+        self.free_ticket_type.save(update_fields=["price"])
+        self.client.force_login(self.user)
+        session = self.client.session
+        session["checkout_data"] = {
+            "items": [{"id": self.free_ticket_type.id, "quantity": 1}],
+            "grand_total": 0.0,
+        }
+        session.save()
+
+        response = self.client.post(
+            reverse("book_free_ticket", args=[self.free_event.slug])
+        )
+
+        self.assertRedirects(
+            response, reverse("event_details", args=[self.free_event.slug])
+        )
+        self.assertFalse(
+            Ticket.objects.filter(event=self.free_event, user=self.user).exists()
+        )
+
     def test_book_free_ticket_already_has_ticket(self):
         Ticket.objects.create(
             event=self.free_event,

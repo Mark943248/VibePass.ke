@@ -42,7 +42,7 @@ def initiate_payment(request, slug):
     try:
         print(f"Checkoutdata: {checkout_data}")
         event = get_object_or_404(Event, slug=slug)
-        amount = checkout_data.get("grand_total", 0)
+        amount = Decimal("0.00")
         checkout_items = checkout_data.get("items", [])
     except Exception as e:
         print(f"Error occured: {e}")
@@ -88,11 +88,17 @@ def initiate_payment(request, slug):
             try:
                 for checkout_item in checkout_items:
                     ticket_type_id = checkout_item.get("id")
-                    quantity_requested = checkout_item.get("quantity", 0)
+                    quantity_requested = int(checkout_item.get("quantity", 0))
+                    if quantity_requested <= 0:
+                        raise ValueError("Invalid ticket quantity.")
 
                     ticket_type = TicketType.objects.select_for_update().get(
-                        id=ticket_type_id, event=event
+                        id=ticket_type_id, event=event, is_active=True
                     )
+                    if ticket_type.price < 0:
+                        raise ValueError("Ticket price cannot be negative.")
+                    amount += ticket_type.price * quantity_requested
+
                     # Ensures user can't buy a ticket if there no tickets
                     if not ticket_type.has_available():
                         messages.error(
@@ -108,6 +114,13 @@ def initiate_payment(request, slug):
                         )
                         return redirect("event_details", slug=event.slug)
 
+                if amount <= 0:
+                    messages.error(
+                        request,
+                        "These tickets are free. Use Get Tickets to book them without payment.",
+                    )
+                    return redirect("event_details", slug=event.slug)
+
                 # create a payment record in the database
                 payment = Payment.objects.create(
                     user=request.user,
@@ -116,7 +129,10 @@ def initiate_payment(request, slug):
                     mpesa_number=formatted_phone,
                     is_agreed_to_terms=agreed_to_terms,
                     payment_status="Pending",
-                    checkout_data_snapshot=checkout_data,
+                    checkout_data_snapshot={
+                        **checkout_data,
+                        "grand_total": float(amount),
+                    },
                 )
             except Exception as stock_error:
                 print(f"Database/Stock validation failed: {stock_error}")
@@ -130,7 +146,7 @@ def initiate_payment(request, slug):
             try:
                 data = {
                     "formatted_phone": formatted_phone,
-                    "amount": amount,
+                    "amount": float(amount),
                     "Event_id": event.id,
                     "Payment_id": payment.payment_id,
                 }

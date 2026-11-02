@@ -39,10 +39,11 @@ def _get_checkout_items(checkout_data):
         if ticket_type_id is None:
             continue
         try:
+            ticket_type_id = int(ticket_type_id)
             quantity = int(quantity)
         except (TypeError, ValueError):
             continue
-        if quantity <= 0:
+        if ticket_type_id <= 0 or quantity <= 0:
             continue
         valid_items.append({"id": ticket_type_id, "quantity": quantity})
 
@@ -102,12 +103,6 @@ def book_free_ticket(request, slug):
     event = get_object_or_404(Event, slug=slug)
     checkout_data = request.session.get("checkout_data")
 
-    # Check if event is free
-    if not event.Event_is_free:
-        logger.info(f"Attempt to book free ticket for non-free event: {event.slug}")
-        messages.error(request, "This event is not free. Please select a paid ticket.")
-        return redirect("event_details", slug=slug)
-
     # Check if event is still active
     if not event.Event_is_active:
         logger.info(f"Attempt to book ticket for inactive event: {event.slug}")
@@ -141,16 +136,34 @@ def book_free_ticket(request, slug):
     with transaction.atomic():
         try:
             created_tickets = []
-            for item in items:
-                ticket_type_id = item.get("id")
-                if not ticket_type_id:
-                    continue
-
-                quantity = int(item.get("quantity", 1) or 1)
-
-                ticket_type = TicketType.objects.select_for_update().get(
-                    id=ticket_type_id, event=event
+            ticket_type_ids = [item["id"] for item in items]
+            ticket_types = {
+                ticket_type.id: ticket_type
+                for ticket_type in TicketType.objects.select_for_update().filter(
+                    id__in=ticket_type_ids, event=event, is_active=True
                 )
+            }
+
+            for item in items:
+                ticket_type = ticket_types.get(item["id"])
+                if ticket_type is None:
+                    messages.error(
+                        request,
+                        "A selected ticket is no longer available. Please choose again.",
+                    )
+                    return redirect("event_details", slug=slug)
+
+                if ticket_type.price != 0:
+                    logger.info(
+                        f"Attempt to book a paid ticket through free booking: {event.slug}"
+                    )
+                    messages.error(
+                        request,
+                        "Your selected tickets have a price. Please continue to checkout.",
+                    )
+                    return redirect("event_details", slug=slug)
+
+                quantity = item["quantity"]
 
                 if (
                     not ticket_type.has_available()
@@ -164,8 +177,10 @@ def book_free_ticket(request, slug):
                     )
                     return redirect("event_details", slug=slug)
 
-                if quantity <= 0:
-                    continue
+            for item in items:
+                ticket_type_id = item["id"]
+                quantity = item["quantity"]
+                ticket_type = ticket_types[ticket_type_id]
 
                 for _ in range(ticket_type.group_size * quantity):
                     ticket = Ticket.objects.create(

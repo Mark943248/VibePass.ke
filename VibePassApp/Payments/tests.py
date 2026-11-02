@@ -4,7 +4,7 @@ from django.urls import reverse
 from unittest.mock import patch
 from django.utils import timezone
 from django.db import IntegrityError, transaction
-from Events.models import Event
+from Events.models import Event, TicketType
 from Tickets.models import Ticket
 from .models import (
     EscrowModel,
@@ -579,6 +579,29 @@ class PaymentViewsTest(TestCase):
         response = self.client.get(reverse("initiate_payment", args=[self.event.slug]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "payments/checkout.html")
+
+    def test_initiate_payment_rejects_zero_total(self):
+        ticket_type = TicketType.objects.create(
+            event=self.event,
+            name="Free ticket",
+            price=0,
+            capacity=10,
+        )
+        self.client.force_login(self.user)
+        session = self.client.session
+        session["checkout_data"] = {
+            "items": [{"id": ticket_type.id, "quantity": 1}],
+            "grand_total": 0,
+        }
+        session.save()
+
+        response = self.client.post(
+            reverse("initiate_payment", args=[self.event.slug]),
+            {"phone_number": "254712345678", "terms": "on"},
+        )
+
+        self.assertRedirects(response, reverse("event_details", args=[self.event.slug]))
+        self.assertFalse(Payment.objects.filter(event=self.event).exists())
 
     def test_mpesa_callback_view_invalid_method(self):
         response = self.client.get(reverse("mpesa_callback"))

@@ -378,7 +378,7 @@ class EventViewsTest(TestCase):
             "Event_time": "20:00",
             "Event_is_free": "on",
             "ticket_name[]": ["VIP"],
-            "ticket_price[]": ["150.00"],
+            "ticket_price[]": ["0"],
             "ticket_capacity[]": ["50"],
             "ticket_description[]": ["VIP access"],
         }
@@ -394,9 +394,65 @@ class EventViewsTest(TestCase):
         self.assertTrue(Event.objects.filter(Event_title="New Test Event").exists())
         self.assertTrue(
             TicketType.objects.filter(
-                event__Event_title="New Test Event", name="VIP"
+                event__Event_title="New Test Event", name="VIP", price=0
             ).exists()
         )
+        self.assertTrue(Event.objects.get(Event_title="New Test Event").Event_is_free)
+
+    def test_create_free_event_rejects_nonzero_ticket_price(self):
+        self.client.force_login(self.organizer)
+        data = {
+            "Event_title": "Inconsistent Free Event",
+            "Event_category": "sports",
+            "Event_details": "New event details",
+            "Event_location": "New Location",
+            "Event_date": date.today().isoformat(),
+            "Event_time": "20:00",
+            "Event_is_free": "on",
+            "ticket_name[]": ["VIP"],
+            "ticket_price[]": ["150"],
+            "ticket_capacity[]": ["50"],
+        }
+        files = {
+            "Event_flyer": SimpleUploadedFile(
+                "flyer.jpg",
+                b"fake-image-content",
+                content_type="image/jpeg",
+            )
+        }
+
+        response = self.client.post(reverse("create_event"), data=data, files=files)
+
+        self.assertRedirects(response, reverse("create_event"))
+        self.assertFalse(Event.objects.filter(Event_title="Inconsistent Free Event").exists())
+
+    def test_zero_price_ticket_marks_event_free_without_checkbox(self):
+        self.client.force_login(self.organizer)
+        data = {
+            "Event_title": "Zero Price Event",
+            "Event_category": "sports",
+            "Event_details": "New event details",
+            "Event_location": "New Location",
+            "Event_date": date.today().isoformat(),
+            "Event_time": "20:00",
+            "ticket_name[]": ["General"],
+            "ticket_price[]": ["0.00"],
+            "ticket_capacity[]": ["50"],
+        }
+        files = {
+            "Event_flyer": SimpleUploadedFile(
+                "flyer.jpg",
+                b"fake-image-content",
+                content_type="image/jpeg",
+            )
+        }
+
+        response = self.client.post(reverse("create_event"), data=data, files=files)
+
+        self.assertRedirects(response, reverse("list_event"))
+        event = Event.objects.get(Event_title="Zero Price Event")
+        self.assertTrue(event.Event_is_free)
+        self.assertEqual(event.ticket_types.get(name="General").price, 0)
 
     def test_list_event_view(self):
         response = self.client.get(reverse("list_event"))

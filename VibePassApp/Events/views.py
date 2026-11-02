@@ -1,5 +1,6 @@
 import json
 import logging
+from decimal import Decimal, InvalidOperation
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, Http404
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -49,6 +50,41 @@ def CreateEvent(request, slug=None):
         data = request.POST
         is_free = data.get("Event_is_free") == "on"
 
+        name = data.getlist("ticket_name[]")
+        price = data.getlist("ticket_price[]")
+        capacity = data.getlist("ticket_capacity[]")
+        description = data.getlist("ticket_description[]")
+        ticket_ids = data.getlist("ticket_id[]")
+        group_size = data.getlist("ticket_group_size[]")
+
+        ticket_prices = []
+        try:
+            for idx, ticket_name in enumerate(name):
+                if not ticket_name.strip():
+                    continue
+                price_val = price[idx] if idx < len(price) else "0"
+                ticket_price = Decimal(str(price_val).strip() or "0")
+                if ticket_price < 0:
+                    raise ValueError("Ticket prices cannot be negative.")
+                ticket_prices.append(ticket_price)
+        except (InvalidOperation, ValueError):
+            messages.error(request, "Enter a valid, non-negative ticket price.")
+            if event_instance:
+                return redirect("edit_event", slug=event_instance.slug)
+            return redirect("create_event")
+
+        if is_free and any(ticket_price != 0 for ticket_price in ticket_prices):
+            messages.error(
+                request,
+                "A free event must have all ticket prices set to 0.",
+            )
+            if event_instance:
+                return redirect("edit_event", slug=event_instance.slug)
+            return redirect("create_event")
+
+        is_free = is_free or (
+            bool(ticket_prices) and all(ticket_price == 0 for ticket_price in ticket_prices)
+        )
         event_data = {
             "Event_title": data.get("Event_title"),
             "Event_category": data.get("Event_category"),
@@ -59,16 +95,8 @@ def CreateEvent(request, slug=None):
             "Event_is_free": is_free,
         }
 
-        # Only update flyer if a new one is provided
         if request.FILES.get("Event_flyer"):
             event_data["Event_flyer"] = request.FILES.get("Event_flyer")
-
-        name = data.getlist("ticket_name[]")
-        price = data.getlist("ticket_price[]")
-        capacity = data.getlist("ticket_capacity[]")
-        description = data.getlist("ticket_description[]")
-        ticket_ids = data.getlist("ticket_id[]")
-        group_size = data.getlist("ticket_group_size[]")
 
         try:
             with transaction.atomic():
@@ -106,15 +134,7 @@ def CreateEvent(request, slug=None):
                     )
 
                     # Clean price value
-                    clean_price = (
-                        0.00
-                        if (
-                            not price_val
-                            or str(price_val).strip() == ""
-                            or str(price_val).strip() == "0"
-                        )
-                        else price_val
-                    )
+                    clean_price = Decimal(str(price_val).strip() or "0")
 
                     ticket_id = (
                         ticket_ids[idx]
@@ -290,7 +310,7 @@ def EventDetails(request, slug):
         logger.info(f"cart data {cart}")
 
         checkout_items = []
-        grand_total = 0
+        grand_total = Decimal("0.00")
         total_tickets_selected = 0  # Track total items across all types
 
         for ticket_id, quantity in cart.items():
@@ -306,8 +326,10 @@ def EventDetails(request, slug):
             total_tickets_selected += quantity
 
             try:
-                ticket_type = TicketType.objects.get(id=ticket_id)
-            except TicketType.DoesNotExist:
+                ticket_type = TicketType.objects.get(
+                    id=ticket_id, event=event, is_active=True
+                )
+            except (TicketType.DoesNotExist, TypeError, ValueError):
                 return JsonResponse(
                     {"success": False, "error": "Invalid ticket selection."}, status=400
                 )
@@ -340,7 +362,7 @@ def EventDetails(request, slug):
             "grand_total": float(grand_total),
         }
 
-        return JsonResponse({"success": True})
+        return JsonResponse({"success": True, "is_free": grand_total == 0})
 
     return render(
         request,

@@ -709,8 +709,7 @@
                 </div>
               </div>
 
-              <!-- Checks if event is free -->
-              {% if event.Event_is_free %}
+              {% if ticket_type.price == 0 %}
               <div class="ticket-price">FREE</div>
               {% else %}
                <div class="ticket-price">KES {{ ticket_type.price | floatformat:2 }}</div>
@@ -913,26 +912,26 @@
           throw new Error(cartData.message || 'Unable to process your ticket selection.');
         }
 
-        /* {% if event.Event_is_free %} */
-        btn.innerHTML = '<i class="fas fa-ticket-alt fa-spin"></i> Booking your tickets...';
-        const bookingResponse = await fetch("{% url 'book_free_ticket' event.slug %}", {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest'
+        if (cartData.is_free) {
+          btn.innerHTML = '<i class="fas fa-ticket-alt fa-spin"></i> Booking your tickets...';
+          const bookingResponse = await fetch("{% url 'book_free_ticket' event.slug %}", {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken'),
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          });
+
+          if (!bookingResponse.ok) {
+            throw new Error('Unable to complete your free-ticket booking.');
           }
-        });
 
-        if (!bookingResponse.ok) {
-          throw new Error('Unable to complete your free-ticket booking.');
+          window.location.href = bookingResponse.redirected
+            ? bookingResponse.url
+            : "{% url 'finders_dashboard' %}";
+        } else {
+          window.location.href = "{% url 'checkout' event.slug %}";
         }
-
-        window.location.href = bookingResponse.redirected
-          ? bookingResponse.url
-          : "{% url 'finders_dashboard' %}";
-        /* {% else %} */
-        window.location.href = "{% url 'checkout' event.slug %}";
-        /* {% endif %} */
       } catch (error) {
         btn.disabled = false;
         btn.removeAttribute('aria-busy');
