@@ -1,4 +1,5 @@
 from datetime import date, time
+from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -161,7 +162,10 @@ class TicketViewsTest(TestCase):
             Ticket.objects.filter(event=self.free_event, user=self.user).exists()
         )
 
-    def test_zero_price_ticket_can_be_booked_even_if_event_is_not_marked_free(self):
+    @patch("Tickets.views.generate_qr_code", return_value=True)
+    def test_zero_price_ticket_can_be_booked_even_if_event_is_not_marked_free(
+        self, mock_generate_qr_code
+    ):
         self.paid_ticket_type.price = 0
         self.paid_ticket_type.save(update_fields=["price"])
         self.client.force_login(self.user)

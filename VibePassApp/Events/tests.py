@@ -424,7 +424,9 @@ class EventViewsTest(TestCase):
         response = self.client.post(reverse("create_event"), data=data, files=files)
 
         self.assertRedirects(response, reverse("create_event"))
-        self.assertFalse(Event.objects.filter(Event_title="Inconsistent Free Event").exists())
+        self.assertFalse(
+            Event.objects.filter(Event_title="Inconsistent Free Event").exists()
+        )
 
     def test_zero_price_ticket_marks_event_free_without_checkbox(self):
         self.client.force_login(self.organizer)

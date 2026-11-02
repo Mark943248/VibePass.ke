@@ -64,7 +64,7 @@ def CreateEvent(request, slug=None):
                     continue
                 price_val = price[idx] if idx < len(price) else "0"
                 ticket_price = Decimal(str(price_val).strip() or "0")
-                if ticket_price < 0:
+                if not ticket_price.is_finite() or ticket_price < 0:
                     raise ValueError("Ticket prices cannot be negative.")
                 ticket_prices.append(ticket_price)
         except (InvalidOperation, ValueError):
@@ -83,7 +83,8 @@ def CreateEvent(request, slug=None):
             return redirect("create_event")
 
         is_free = is_free or (
-            bool(ticket_prices) and all(ticket_price == 0 for ticket_price in ticket_prices)
+            bool(ticket_prices)
+            and all(ticket_price == 0 for ticket_price in ticket_prices)
         )
         event_data = {
             "Event_title": data.get("Event_title"),

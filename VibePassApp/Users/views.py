@@ -111,7 +111,7 @@ def EventFindersDashboard(request):
         Event_is_active=True,
         Event_status__in=["published", "completed"],
         Event_date__gt=today_date,
-    )
+    )[:6]  # Limit to 6 upcoming events
     tickets = Ticket.objects.filter(user=user).order_by("-created_at")
     past_events = Event.objects.filter(
         tickets__user=user,

@@ -600,7 +600,9 @@ class PaymentViewsTest(TestCase):
             {"phone_number": "254712345678", "terms": "on"},
         )
 
-        self.assertRedirects(response, reverse("event_details", args=[self.event.slug]))
+        self.assertRedirects(
+            response, reverse("event_details", args=[self.event.slug])
+        )
         self.assertFalse(Payment.objects.filter(event=self.event).exists())
 
     def test_mpesa_callback_view_invalid_method(self):
