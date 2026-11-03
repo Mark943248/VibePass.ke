@@ -15,7 +15,6 @@ from .models import (
 )
 from Users.models import OrganizerWallet, OrganizerProfile
 from .tasks import (
-    check_all_pending_b2c_callbacks_task,
     initiate_b2c_request_task,
     process_mpesa_b2c_callbacks,
     process_mpesa_b2c_status_callback,
