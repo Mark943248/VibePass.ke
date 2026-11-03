@@ -424,6 +424,12 @@ def validate_ticket(request):
             {"status": "Error", "message": "This event has already ended"}, status=400
         )
 
+    if not event.Event_date == timezone.now().date():
+        logger.info(f"Attempt to validate ticket for future event: {event.slug}")
+        return JsonResponse(
+            {"status": "Error", "message": "This event is not happening today"}, status=400
+        )
+
     if not (is_organiser or is_authorized_scanner):
         logger.warning(
             f"Unauthorized scan attempt by user {request.user.id} for ticket {ticket_id}"
