@@ -7,7 +7,7 @@ from .models import User, OrganizerProfile, OrganizerWallet
 class UserAdmin(admin.ModelAdmin):
     """Admin interface for the custom User model."""
 
-    list_display = ("username", "email", "is_active", "is_staff", "is_superuser")
+    list_display = ("username", "email", "is_active", "is_staff", "is_superuser", "is_email_verified",)
     search_fields = ("username", "email")
     list_filter = ("is_active", "is_staff", "is_superuser")
     fieldsets = (
