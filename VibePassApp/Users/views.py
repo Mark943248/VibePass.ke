@@ -1,9 +1,11 @@
 import logging
+import secrets
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.http import JsonResponse
 from Payments.models import EscrowModel
 from Events.models import Event
 from Tickets.models import Ticket
@@ -11,11 +13,14 @@ from .models import OrganizerWallet
 from django.db.models import Sum
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from .tasks import send_otp_email_task
+from django.db import transaction
 from datetime import date
 from .models import OrganizerProfile, User
 from Payments.utils import format_phone_number
 
 logger = logging.getLogger(__name__)
+EMAIL_VERIFICATION_USER_SESSION_KEY = "email_verification_user_id"
 
 
 # view for user registration
@@ -35,18 +40,77 @@ def RegisterView(request):
                 request, "Email already registered! Please use another email."
             )
         else:
+            otp_code = f"{secrets.randbelow(1_000_000):06d}"
+            otp_expiry = timezone.now() + timezone.timedelta(minutes=5)
             user = User.objects.create_user(
                 username=username,
                 email=email,
                 password=password,
+                otp_code=otp_code,
+                otp_expiry=otp_expiry,
             )
-            user.save()
+            request.session[EMAIL_VERIFICATION_USER_SESSION_KEY] = user.pk
+            transaction.on_commit(
+                lambda uid=user.pk: send_otp_email_task.delay(uid)
+            )
             messages.success(
                 request,
-                "Account Created Succesfully, Login to verify your credentials!.",
+                "Account created successfully. Enter the code sent to your email.",
             )
-            return redirect("login")
+            return redirect("verify_email")
     return render(request, "users/register.html")
+
+
+def otp_verification_view(request):
+    user_id = request.session.get(EMAIL_VERIFICATION_USER_SESSION_KEY)
+    user = User.objects.filter(pk=user_id).first() if user_id else None
+    if user is None or user.is_email_verified:
+        messages.error(request, "Please register before verifying your email.")
+        return redirect("register")
+
+    if request.method == "POST":
+        otp = request.POST.get("otp", "").strip()
+        if (
+            user.otp_code
+            and user.otp_expiry
+            and timezone.now() < user.otp_expiry
+            and secrets.compare_digest(otp, user.otp_code)
+        ):
+            user.is_email_verified = True
+            user.otp_code = None
+            user.otp_expiry = None
+            user.save(
+                update_fields=["is_email_verified", "otp_code", "otp_expiry"]
+            )
+            request.session.pop(EMAIL_VERIFICATION_USER_SESSION_KEY, None)
+            messages.success(request, "Your email has been verified. You can now log in.")
+            return redirect("login")
+
+        if user.otp_expiry and timezone.now() >= user.otp_expiry:
+            user.otp_code = None
+            user.otp_expiry = None
+            user.save(update_fields=["otp_code", "otp_expiry"])
+            messages.error(request, "Your verification code has expired. Request a new one.")
+        else:
+            messages.error(request, "The verification code is invalid. Please try again.")
+
+    return render(request, "users/email_verification.html", {"email": user.email})
+
+
+@require_POST
+def resend_otp_view(request):
+    user_id = request.session.get(EMAIL_VERIFICATION_USER_SESSION_KEY)
+    user = User.objects.filter(pk=user_id).first() if user_id else None
+    if user is None or user.is_email_verified:
+        return JsonResponse(
+            {"error": "No pending email verification was found."}, status=400
+        )
+
+    user.otp_code = f"{secrets.randbelow(1_000_000):06d}"
+    user.otp_expiry = timezone.now() + timezone.timedelta(minutes=5)
+    user.save(update_fields=["otp_code", "otp_expiry"])
+    transaction.on_commit(lambda uid=user.pk: send_otp_email_task.delay(uid))
+    return JsonResponse({"message": "A new verification code has been sent."})
 
 
 # view for user login
@@ -56,7 +120,7 @@ def LoginView(request):
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
-        if user is not None:
+        if user is not None and user.is_email_verified:
             login(request, user)
             messages.success(request, f"Welcome back, {username}!")
             return redirect("finders_dashboard")

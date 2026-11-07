@@ -2,8 +2,16 @@ from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.contrib.auth.models import Group
+from django.core import mail
+from django.utils import timezone
+from django.test import override_settings
 from datetime import date, time
 from Events.models import Event
+from django.test import RequestFactory
+from allauth.account.signals import user_signed_up
+from allauth.socialaccount.models import SocialAccount, SocialLogin
+from Users.tasks import send_otp_email_task
+from Users.views import EMAIL_VERIFICATION_USER_SESSION_KEY
 
 User = get_user_model()
 
@@ -50,8 +58,44 @@ class UserViewsTest(TestCase):
             "password": "newpass123",
         }
         response = self.client.post(reverse("register"), data)
+        self.assertRedirects(response, reverse("verify_email"))
+        user = User.objects.get(username="newuser")
+        self.assertEqual(len(user.otp_code), 6)
+        self.assertTrue(user.otp_code.isdigit())
+        self.assertEqual(
+            self.client.session[EMAIL_VERIFICATION_USER_SESSION_KEY], user.pk
+        )
+
+    def test_verify_email_accepts_the_pending_users_valid_otp(self):
+        self.user.otp_code = "012345"
+        self.user.otp_expiry = timezone.now() + timezone.timedelta(minutes=5)
+        self.user.save(update_fields=["otp_code", "otp_expiry"])
+        session = self.client.session
+        session[EMAIL_VERIFICATION_USER_SESSION_KEY] = self.user.pk
+        session.save()
+
+        response = self.client.post(reverse("verify_email"), {"otp": "012345"})
+
         self.assertRedirects(response, reverse("login"))
-        self.assertTrue(User.objects.filter(username="newuser").exists())
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_email_verified)
+        self.assertIsNone(self.user.otp_code)
+        self.assertIsNone(self.user.otp_expiry)
+
+    def test_verify_email_rejects_an_incorrect_otp(self):
+        self.user.otp_code = "012345"
+        self.user.otp_expiry = timezone.now() + timezone.timedelta(minutes=5)
+        self.user.save(update_fields=["otp_code", "otp_expiry"])
+        session = self.client.session
+        session[EMAIL_VERIFICATION_USER_SESSION_KEY] = self.user.pk
+        session.save()
+
+        response = self.client.post(reverse("verify_email"), {"otp": "999999"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "verification code is invalid")
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.is_email_verified)
 
     def test_register_view_post_duplicate_username(self):
         data = {
@@ -69,9 +113,17 @@ class UserViewsTest(TestCase):
         self.assertTemplateUsed(response, "users/login.html")
 
     def test_login_view_post_success(self):
+        self.user.is_email_verified = True
+        self.user.save(update_fields=["is_email_verified"])
         data = {"username": "testuser", "password": "testpass123"}
         response = self.client.post(reverse("login"), data)
         self.assertRedirects(response, reverse("finders_dashboard"))
+
+    def test_login_view_when_email_not_verified(self):
+        data = {"username": "testuser", "password": "testpass123"}
+        response = self.client.post(reverse("login"), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Invalid login credentials")
 
     def test_login_view_post_invalid(self):
         data = {"username": "testuser", "password": "wrongpass"}
@@ -149,3 +201,50 @@ class UserViewsTest(TestCase):
         event.save(update_fields=["Event_is_flagged"])
         response = self.client.get(reverse("organizers_dashboard"))
         self.assertNotContains(response, "Action required: an event has been flagged")
+
+class GoogleSignupVerificationTest(TestCase):
+    def test_allauth_google_signup_marks_email_verified(self):
+        user = User.objects.create_user(
+            username="googleuser",
+            email="googleuser@example.com",
+            password="test-password",
+        )
+        request = RequestFactory().get("/")
+        sociallogin = SocialLogin(
+            account=SocialAccount(
+                provider="google",
+                uid="google-user-id",
+                user=user,
+            )
+        )
+
+        user_signed_up.send(
+            sender=User,
+            request=request,
+            user=user,
+            sociallogin=sociallogin,
+        )
+
+        user.refresh_from_db()
+        self.assertTrue(user.is_email_verified)
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class SendOtpEmailTaskTest(TestCase):
+    def test_send_otp_email_task_sends_code_to_user(self):
+        user = User.objects.create_user(
+            username="otpuser",
+            email="otpuser@example.com",
+            password="test-password",
+            otp_code="012345",
+        )
+
+        result = send_otp_email_task.run(user.pk)
+
+        self.assertTrue(result)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [user.email])
+        self.assertEqual(
+            mail.outbox[0].subject, "Your OTP Code for Email Verification"
+        )
+        self.assertIn("012345", mail.outbox[0].body)

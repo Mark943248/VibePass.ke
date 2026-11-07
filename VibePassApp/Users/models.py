@@ -10,6 +10,9 @@ class User(AbstractUser):
         default=False
     )  # False for Event Finder, True for Event Organiser
     mpesa_number = models.CharField(max_length=15, blank=True, null=True)
+    is_email_verified = models.BooleanField(default=False)
+    otp_code = models.CharField(max_length=6, blank=True, null=True)
+    otp_expiry = models.DateTimeField(blank=True, null=True)
 
     def is_Event_Organizer(self):
         return self.is_organiser

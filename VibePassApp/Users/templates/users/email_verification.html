@@ -1,0 +1,896 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+  <title>VibePass - Verify Your Email</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    /* Brand Colors */
+    :root {
+      --vibe-primary: #ff6b35;
+      --vibe-primary-dark: #e85d2c;
+      --vibe-secondary: #00c9a7;
+      --vibe-secondary-dark: #00b092;
+      --vibe-dark: #1a1a2e;
+      --vibe-light: #fff9f5;
+      --vibe-accent: #ffe66d;
+      --vibe-text: #2d2d3a;
+      --vibe-text-light: #6b6b7a;
+      --vibe-danger: #ff4757;
+      --vibe-success: #00c9a7;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--vibe-light) 0%, #fff5ef 100%);
+      color: var(--vibe-text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    }
+
+    .logo-icon i {
+      font-size: 1.1rem;
+      color: white;
+    }
+
+    .logo-text {
+      font-size: 1.3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--vibe-primary), var(--vibe-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .back-link {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+    }
+
+    .back-link:hover {
+      background: var(--vibe-primary);
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .otp-card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(255, 107, 53, 0.12);
+      width: 100%;
+      max-width: 480px;
+      overflow: hidden;
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    /* Card Header */
+    .otp-card-header {
+      background: linear-gradient(135deg, var(--vibe-dark), #2d2d3a);
+      padding: 35px 30px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .otp-card-header::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(255, 107, 53, 0.2), transparent);
+      border-radius: 50%;
+    }
+
+    .otp-card-header::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: -60px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(0, 201, 167, 0.12), transparent);
+      border-radius: 50%;
+    }
+
+    .mail-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 10px 30px rgba(255, 107, 53, 0.35);
+      position: relative;
+      z-index: 1;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .mail-icon i {
+      font-size: 2.2rem;
+      color: white;
+    }
+
+    .otp-card-title {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .otp-card-subtitle {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 1;
+      line-height: 1.5;
+    }
+
+    .email-highlight {
+      color: var(--vibe-accent);
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    /* Card Body */
+    .otp-card-body {
+      padding: 35px 30px 30px;
+    }
+
+    .otp-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--vibe-dark);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* OTP Inputs */
+    .otp-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .otp-input {
+      width: 52px;
+      height: 62px;
+      border: 2px solid #e1e5f1;
+      border-radius: 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--vibe-dark);
+      background: var(--vibe-light);
+      transition: all 0.2s ease;
+      outline: none;
+      caret-color: var(--vibe-primary);
+    }
+
+    .otp-input:focus {
+      border-color: var(--vibe-primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .otp-input.filled {
+      border-color: var(--vibe-secondary);
+      background: white;
+      color: var(--vibe-primary);
+    }
+
+    .otp-input.error {
+      border-color: var(--vibe-danger);
+      background: rgba(255, 71, 87, 0.05);
+      animation: shake 0.4s ease;
+    }
+
+    .otp-input.success {
+      border-color: var(--vibe-success);
+      background: rgba(0, 201, 167, 0.05);
+    }
+
+    /* Timer */
+    .otp-timer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--vibe-text-light);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .otp-timer .timer-icon {
+      color: var(--vibe-primary);
+    }
+
+    .otp-timer .time-remaining {
+      font-weight: 700;
+      color: var(--vibe-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .otp-timer.expired .time-remaining {
+      color: var(--vibe-danger);
+    }
+
+    /* Verify Button */
+    .btn {
+      padding: 14px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--vibe-primary), #ff8c42);
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.25);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Resend */
+    .resend-section {
+      text-align: center;
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid #f0f0f0;
+      font-size: 0.85rem;
+      color: var(--vibe-text-light);
+    }
+
+    .resend-btn {
+      background: none;
+      border: none;
+      color: var(--vibe-primary);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .resend-btn:hover:not(:disabled) {
+      text-decoration: underline;
+      background: rgba(255, 107, 53, 0.08);
+    }
+
+    .resend-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Alert message */
+    .alert-box {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      margin-bottom: 18px;
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.4;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    .alert-box.show {
+      display: flex;
+    }
+
+    .alert-box.error {
+      background: rgba(255, 71, 87, 0.08);
+      border-left: 3px solid var(--vibe-danger);
+      color: var(--vibe-danger);
+    }
+
+    .alert-box.success {
+      background: rgba(0, 201, 167, 0.08);
+      border-left: 3px solid var(--vibe-success);
+      color: #00795f;
+    }
+
+    .alert-box.info {
+      background: rgba(33, 150, 243, 0.08);
+      border-left: 3px solid #2196f3;
+      color: #1565c0;
+    }
+
+    /* Help footer */
+    .help-text {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--vibe-text-light);
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .help-text i {
+      color: var(--vibe-secondary);
+    }
+
+    /* Loader */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(255, 107, 53, 0.35); }
+      50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(255, 107, 53, 0.5); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 520px) {
+      .otp-card-header {
+        padding: 30px 20px 25px;
+      }
+
+      .mail-icon {
+        width: 65px;
+        height: 65px;
+      }
+
+      .mail-icon i {
+        font-size: 1.8rem;
+      }
+
+      .otp-card-title {
+        font-size: 1.3rem;
+      }
+
+      .otp-card-subtitle {
+        font-size: 0.85rem;
+      }
+
+      .otp-card-body {
+        padding: 30px 20px 25px;
+      }
+
+      .otp-inputs {
+        gap: 8px;
+      }
+
+      .otp-input {
+        width: 44px;
+        height: 54px;
+        font-size: 1.3rem;
+        border-radius: 10px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .otp-inputs {
+        gap: 6px;
+      }
+
+      .otp-input {
+        width: 40px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+
+      .otp-card-header {
+        padding: 25px 15px 22px;
+      }
+
+      .otp-card-body {
+        padding: 25px 15px 22px;
+      }
+    }
+
+    @media (max-width: 340px) {
+      .otp-inputs {
+        gap: 4px;
+      }
+
+      .otp-input {
+        width: 36px;
+        height: 46px;
+        font-size: 1rem;
+      }
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--vibe-dark);
+      color: rgba(255, 255, 255, 0.7);
+      padding: 18px 0;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <a href="{% url 'home' %}" class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-ticket-alt"></i>
+        </div>
+        <span class="logo-text">VibePass</span>
+      </a>
+      <a href="{% url 'login' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Login
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="otp-card">
+      <!-- Card Header -->
+      <div class="otp-card-header">
+        <div class="mail-icon">
+          <i class="fas fa-envelope-open-text"></i>
+        </div>
+        <h1 class="otp-card-title">Verify Your Email</h1>
+        <p class="otp-card-subtitle">
+          We've sent a 6-digit verification code to
+          <span class="email-highlight">{{ email }}</span>
+        </p>
+      </div>
+
+      <!-- Card Body -->
+      <div class="otp-card-body">
+        <!-- Django messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert-box show {% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}">
+              <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Dynamic alert -->
+        <div class="alert-box" id="alertBox">
+          <i class="fas fa-exclamation-circle" id="alertIcon"></i>
+          <span id="alertMessage"></span>
+        </div>
+
+        <form id="otpForm" method="POST" action="{% url 'verify_email' %}" autocomplete="off">
+          {% csrf_token %}
+
+          <label class="otp-label">Enter the 6-digit code</label>
+
+          <div class="otp-inputs" id="otpInputs">
+            <input type="text" class="otp-input" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="Digit 1" data-index="0" autofocus>
+            <input type="text" class="otp-input" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="Digit 2" data-index="1">
+            <input type="text" class="otp-input" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="Digit 3" data-index="2">
+            <input type="text" class="otp-input" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="Digit 4" data-index="3">
+            <input type="text" class="otp-input" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="Digit 5" data-index="4">
+            <input type="text" class="otp-input" inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="Digit 6" data-index="5">
+          </div>
+
+          <!-- Hidden combined OTP -->
+          <input type="hidden" name="otp" id="otpHidden">
+
+          <!-- Timer -->
+          <div class="otp-timer" id="otpTimer">
+            <i class="fas fa-clock timer-icon"></i>
+            <span>Code expires in <span class="time-remaining" id="timeRemaining">05:00</span></span>
+          </div>
+
+          <!-- Verify Button -->
+          <button type="submit" class="btn btn-primary" id="verifyBtn" disabled>
+            <i class="fas fa-check-circle"></i>
+            <span id="verifyBtnText">Verify Email</span>
+          </button>
+
+          <!-- Resend -->
+          <div class="resend-section">
+            Didn't receive the code?
+            <button type="button" class="resend-btn" id="resendBtn">Resend code</button>
+            <span id="resendCountdown"></span>
+          </div>
+
+          <div class="help-text">
+            <i class="fas fa-shield-alt"></i>
+            Your code is safe and secure. Never share it with anyone.
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    &copy; 2026 VibePass. All rights reserved.
+  </footer>
+
+  <script>
+    /* ============================================
+       OTP INPUT BEHAVIOR
+       ============================================ */
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const hiddenOtpField = document.getElementById('otpHidden');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const verifyBtnText = document.getElementById('verifyBtnText');
+    const otpForm = document.getElementById('otpForm');
+
+    // Focus first input on load
+    window.addEventListener('load', () => {
+      if (otpInputs[0]) otpInputs[0].focus();
+    });
+
+    // Handle input & auto-advance
+    otpInputs.forEach((input, index) => {
+      // Only allow digits
+      input.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        if (this.value.length === 1) {
+          this.classList.add('filled');
+          // Move to next input
+          if (index < otpInputs.length - 1) {
+            otpInputs[index + 1].focus();
+          }
+        } else {
+          this.classList.remove('filled');
+        }
+
+        updateHiddenOtp();
+      });
+
+      // Handle backspace
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Backspace' && this.value === '' && index > 0) {
+          otpInputs[index - 1].focus();
+          otpInputs[index - 1].value = '';
+          otpInputs[index - 1].classList.remove('filled');
+          updateHiddenOtp();
+        }
+
+        // Arrow key navigation
+        if (e.key === 'ArrowLeft' && index > 0) {
+          e.preventDefault();
+          otpInputs[index - 1].focus();
+        }
+        if (e.key === 'ArrowRight' && index < otpInputs.length - 1) {
+          e.preventDefault();
+          otpInputs[index + 1].focus();
+        }
+      });
+
+      // Handle paste on any input
+      input.addEventListener('paste', function (e) {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        const digits = paste.replace(/[^0-9]/g, '').slice(0, 6);
+
+        if (digits.length > 0) {
+          digits.split('').forEach((digit, i) => {
+            if (otpInputs[i]) {
+              otpInputs[i].value = digit;
+              otpInputs[i].classList.add('filled');
+            }
+          });
+
+          // Focus last filled or next empty
+          const nextIndex = Math.min(digits.length, otpInputs.length - 1);
+          otpInputs[nextIndex].focus();
+          updateHiddenOtp();
+        }
+      });
+
+      // Click select
+      input.addEventListener('focus', function () {
+        this.select();
+      });
+    });
+
+    // Update hidden field and button state
+    function updateHiddenOtp() {
+      const otp = Array.from(otpInputs).map(i => i.value).join('');
+      hiddenOtpField.value = otp;
+
+      // Enable button only when all 6 digits are filled
+      if (otp.length === 6) {
+        verifyBtn.disabled = false;
+      } else {
+        verifyBtn.disabled = true;
+      }
+
+      // Clear error state
+      otpInputs.forEach(i => i.classList.remove('error'));
+      hideAlert();
+    }
+
+    /* ============================================
+       ALERT HELPERS
+       ============================================ */
+    const alertBox = document.getElementById('alertBox');
+    const alertIcon = document.getElementById('alertIcon');
+    const alertMessage = document.getElementById('alertMessage');
+
+    function showAlert(message, type = 'error') {
+      alertBox.className = `alert-box show ${type}`;
+      if (type === 'error') {
+        alertIcon.className = 'fas fa-exclamation-circle';
+      } else if (type === 'success') {
+        alertIcon.className = 'fas fa-check-circle';
+      } else {
+        alertIcon.className = 'fas fa-info-circle';
+      }
+      alertMessage.textContent = message;
+    }
+
+    function hideAlert() {
+      alertBox.classList.remove('show');
+    }
+
+    /* ============================================
+       COUNTDOWN TIMER (5 minutes)
+       ============================================ */
+    const TIMER_DURATION = 5 * 60; // 5 minutes in seconds
+    let timeLeft = TIMER_DURATION;
+    let timerInterval = null;
+    const timerElement = document.getElementById('otpTimer');
+    const timeRemainingEl = document.getElementById('timeRemaining');
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timeLeft = TIMER_DURATION;
+      timerElement.classList.remove('expired');
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timerElement.classList.add('expired');
+          timeRemainingEl.textContent = 'Expired';
+          otpInputs.forEach(i => i.disabled = true);
+          verifyBtn.disabled = true;
+          showAlert('The code has expired. Please request a new one.', 'error');
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timeRemainingEl.textContent =
+        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    startTimer();
+
+    /* ============================================
+       FORM SUBMISSION
+       ============================================ */
+    otpForm.addEventListener('submit', function (e) {
+      const otp = hiddenOtpField.value;
+
+      if (otp.length !== 6) {
+        e.preventDefault();
+        showAlert('Please enter all 6 digits of the code.', 'error');
+        otpInputs.forEach(i => i.classList.add('error'));
+        return;
+      }
+
+      // Show loading
+      verifyBtn.disabled = true;
+      verifyBtnText.textContent = 'Verifying...';
+      verifyBtn.innerHTML = '<span class="spinner"></span><span>Verifying...</span>';
+
+      // Let Django handle submission (allow default)
+    });
+
+    /* ============================================
+       RESEND OTP
+       ============================================ */
+    const resendBtn = document.getElementById('resendBtn');
+    const resendCountdown = document.getElementById('resendCountdown');
+    let resendCooldown = 0;
+    let resendInterval = null;
+
+    function startResendCooldown(seconds = 60) {
+      resendCooldown = seconds;
+      resendBtn.disabled = true;
+
+      resendInterval = setInterval(() => {
+        resendCooldown--;
+        resendCountdown.textContent = ` (${resendCooldown}s)`;
+
+        if (resendCooldown <= 0) {
+          clearInterval(resendInterval);
+          resendBtn.disabled = false;
+          resendCountdown.textContent = '';
+        }
+      }, 1000);
+    }
+
+    resendBtn.addEventListener('click', function () {
+      // Optional: reset the timer
+      clearInterval(timerInterval);
+      otpInputs.forEach(i => {
+        i.disabled = false;
+        i.value = '';
+        i.classList.remove('filled', 'error', 'success');
+      });
+      otpInputs[0].focus();
+      updateHiddenOtp();
+      startTimer();
+
+      fetch("{% url 'resend_otp' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: "{{ email }}" })
+      }).then(async response => {
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || 'Unable to resend the code.');
+        }
+        showAlert(result.message, 'success');
+      }).catch(() => {
+        showAlert('Unable to resend the code. Please try again.', 'error');
+      });
+
+      startResendCooldown(60);
+    });
+
+    // CSRF helper
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    /* ============================================
+       PREVENT ENTER ON EMPTY
+       ============================================ */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && hiddenOtpField.value.length === 6) {
+        // Allow Enter to submit when complete
+        return;
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>
